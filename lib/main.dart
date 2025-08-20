@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'LogoSmart',
       theme: ThemeData(
+        fontFamily: "Nurito",
         textSelectionTheme: TextSelectionThemeData(
           selectionHandleColor: Colors.transparent, // tomchi rangi
         ),

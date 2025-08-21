@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
+import 'package:logosmart/ui/pages/auth/RestoreLoginPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,7 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     var size=MediaQuery.of(context).size;
-    return  Scaffold(
+    return
+      Scaffold(
 
       backgroundColor: Colors.white,
       body: SafeArea(child:Padding(
@@ -79,9 +80,22 @@ class _LoginPageState extends State<LoginPage> {
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,)
                   ),
+
+                ),
+                SizedBox(height: 10,),
+                Align(alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>RestoreLoginPage()));
+                  },
+                  child: Text("Login yoki parol esdan chiqdimi?",style: TextStyle(
+                    color: Colors.red.shade400,
+                    fontSize: 12
+                  ),),
+                ),
                 ),
                 SizedBox(
-                 height:  size.height * 0.35,
+                 height:  size.height * 0.315,
                 ),
                 SizedBox(
                   width: double.infinity,

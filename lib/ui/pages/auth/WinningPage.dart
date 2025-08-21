@@ -10,6 +10,70 @@ class WinningPage extends StatefulWidget {
 class _WinningPageState extends State<WinningPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    var size = MediaQuery.of(context).size;
+
+    return  Scaffold(
+
+      body: Container(
+        width: size.width,
+        height: size.height,
+        decoration: BoxDecoration(
+          color: Color(0xffccefff),
+          image: DecorationImage(image: AssetImage("assets/images/succers.png"),fit: BoxFit.fitWidth,alignment: Alignment.topCenter),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              children: [
+                SizedBox(height: 15),
+                GestureDetector(
+                    onTap: (){
+                      Navigator.of(context).pop();
+                    },
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child:
+                        Image.asset("assets/images/arow_back.png",width: 24,)
+                    )),
+
+
+
+                SizedBox(height: size.width*0.95),
+                Text("Muvaffaqiyatli",style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black            ),),
+                Text("Muavaffaqiyatli bajarildi",style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 13
+                ),),
+                Spacer(),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Color(0xff20B9E8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      "Keyingi",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+
+      ),
+    );
   }
 }

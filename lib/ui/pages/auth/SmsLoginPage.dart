@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:logosmart/ui/pages/auth/NewLoginPage.dart';
 import 'package:pinput/pinput.dart';
 
 class SmsLoginPage extends StatefulWidget {
-  const SmsLoginPage({super.key});
+  final String phoneNumber;
+  const SmsLoginPage({super.key, required this.phoneNumber});
 
   @override
   State<SmsLoginPage> createState() => _SmsLoginPageState();
@@ -11,7 +13,23 @@ class SmsLoginPage extends StatefulWidget {
 
 class _SmsLoginPageState extends State<SmsLoginPage> {
 
+
+  String get last4 => widget.phoneNumber.replaceAll(" ", "").substring(widget.phoneNumber.replaceAll(" ", "").length - 4);
+
   final _formKey = GlobalKey<FormState>();
+  DateTime? _endTime;
+
+  bool _isFinished = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _endTime = DateTime.now().add(Duration(minutes: 2));
+
+
+  }
+
 
 
   @override
@@ -30,7 +48,9 @@ class _SmsLoginPageState extends State<SmsLoginPage> {
                 SizedBox(height: 15),
                 GestureDetector(
                     onTap: (){Navigator.of(context).pop();},
-                    child: Icon(Icons.arrow_back)),
+                    child:
+                    Image.asset("assets/images/arow_back.png",width: 24,)
+                ),
                 SizedBox(height: 16),
                 Text(
                   "Telefon raqamini tasdiqlash",
@@ -42,7 +62,7 @@ class _SmsLoginPageState extends State<SmsLoginPage> {
                   style: TextStyle(color: Colors.grey.shade700,fontSize: 13,),
                   children: [
                     TextSpan(
-                      text: "1234"
+                      text: last4
                     ),
                     TextSpan(
                       text: " raqamli telefonigizga tasdiqlash kodi yuborildi"
@@ -140,7 +160,43 @@ class _SmsLoginPageState extends State<SmsLoginPage> {
                 SizedBox(height: 16,),
                 //TODO bu yer yakunlangani yuq
                 Align(alignment: Alignment.center,
-                child: Text("data"),
+                child: _isFinished?GestureDetector(
+                    onTap: (){setState(() {
+                      _isFinished=false;
+                      _endTime = DateTime.now().add(Duration(minutes: 2));
+
+                    });},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.refresh,size: 20,weight: 3,),
+                        Text(" Qayta yuborish",style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade900,
+                          fontWeight: FontWeight.w400,
+                        ),),
+                      ],
+                    )) : TimerCountdown(
+                  endTime: _endTime ?? DateTime.now().add(Duration(minutes: 2)),
+                  format: CountDownTimerFormat.minutesSeconds,
+                  enableDescriptions: false,
+                  spacerWidth: 1,
+                  timeTextStyle: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade900,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  onEnd: (){
+                    setState(() {
+                      _isFinished=true;
+                    });
+                  },
+                  colonsTextStyle: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade900,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
                 ),
 
 

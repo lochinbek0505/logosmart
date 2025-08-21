@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/LoginPage.dart';
 import 'package:logosmart/ui/pages/auth/SmsLoginPage.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -19,7 +18,7 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final _login = TextEditingController();
+  final _phone = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +40,9 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
                     children: [
                       GestureDetector(
                           onTap: (){Navigator.of(context).pop();},
-                          child: Icon(Icons.arrow_back)),
+                          child:
+                          Image.asset("assets/images/arow_back.png",width: 24,)
+                      ),
                       SizedBox(width: 20),
                       Text(
                         "Qayta tiklash",
@@ -72,7 +73,7 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
                     cursorHeight: 16,
                     cursorWidth: 1.5,
                     cursorRadius: Radius.zero,
-                    controller: _login,
+                    controller: _phone,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Telefon raqamingizni kiriting";
@@ -143,7 +144,8 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
                         if (_formKey.currentState!.validate()) {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (builder) => SmsLoginPage(),
+                              builder: (builder) => SmsLoginPage(phoneNumber: _phone.text,
+                              ),
                             ),
                           );
                         }

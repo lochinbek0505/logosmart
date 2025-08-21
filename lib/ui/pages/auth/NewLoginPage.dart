@@ -108,7 +108,9 @@ class _NewLoginPageState extends State<NewLoginPage> {
                       onTap: (){
                         Navigator.of(context).pop();
                       },
-                      child: Icon(Icons.arrow_back)),
+                      child:
+                      Image.asset("assets/images/arow_back.png",width: 24,)
+                  ),
                   SizedBox(height: 16),
                   Text(
                     "Hisobni qayta yaratish",

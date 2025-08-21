@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class WinningPage extends StatefulWidget {
-  const WinningPage({super.key});
+class CompletePage extends StatefulWidget {
+  const CompletePage({super.key});
 
   @override
-  State<WinningPage> createState() => _WinningPageState();
+  State<CompletePage> createState() => _CompletePageState();
 }
 
-class _WinningPageState extends State<WinningPage> {
+class _CompletePageState extends State<CompletePage> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;

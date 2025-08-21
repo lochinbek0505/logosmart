@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/RestoreLoginPage.dart';
+import 'package:logosmart/ui/pages/auth/restore/RestoreLoginPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

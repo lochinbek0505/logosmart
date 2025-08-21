@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
-import 'package:logosmart/ui/pages/auth/NewLoginPage.dart';
+import 'package:logosmart/ui/pages/auth/signup/ChangePasswordPage.dart';
 import 'package:pinput/pinput.dart';
 
 class SmsLoginPage extends StatefulWidget {
@@ -37,7 +37,7 @@ class _SmsLoginPageState extends State<SmsLoginPage> {
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xfff0f0f0),
+      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15),
@@ -207,7 +207,7 @@ class _SmsLoginPageState extends State<SmsLoginPage> {
                   child: ElevatedButton(
                     onPressed: ()  {
                       if (_formKey.currentState!.validate()) {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>NewLoginPage()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>ChangePasswordPage()));
                       }
 
                     },

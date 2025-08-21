@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/SmsLoginPage.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
+import '../signup/SmsLoginPage.dart';
 
 class RestoreLoginPage extends StatefulWidget {
   const RestoreLoginPage({super.key});
@@ -39,9 +40,13 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
                   Row(
                     children: [
                       GestureDetector(
-                          onTap: (){Navigator.of(context).pop();},
-                          child:
-                          Image.asset("assets/images/arow_back.png",width: 24,)
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Image.asset(
+                          "assets/images/arow_back.png",
+                          width: 24,
+                        ),
                       ),
                       SizedBox(width: 20),
                       Text(
@@ -144,8 +149,8 @@ class _RestoreLoginPageState extends State<RestoreLoginPage> {
                         if (_formKey.currentState!.validate()) {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (builder) => SmsLoginPage(phoneNumber: _phone.text,
-                              ),
+                              builder: (builder) =>
+                                  SmsLoginPage(phoneNumber: _phone.text),
                             ),
                           );
                         }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/LoginPage.dart';
+import 'package:logosmart/ui/pages/auth/login/LoginPage.dart';
 
 void main() {
   runApp(const MyApp());

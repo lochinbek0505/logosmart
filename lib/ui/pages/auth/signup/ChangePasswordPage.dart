@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/WinningPage.dart';
+import 'package:logosmart/ui/pages/auth/signup/CompletePage.dart';
 
-class NewLoginPage extends StatefulWidget {
-  const NewLoginPage({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({super.key});
 
   @override
-  State<NewLoginPage> createState() => _NewLoginPageState();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _NewLoginPageState extends State<NewLoginPage> {
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _formKey = GlobalKey<FormState>();
 
   final _login = TextEditingController();
@@ -18,35 +18,43 @@ class _NewLoginPageState extends State<NewLoginPage> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
-
   void showLoginDialog() {
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
           child: Padding(
-            padding: const EdgeInsets.only(top: 8, right: 12,left: 20,bottom: 20),
+            padding: const EdgeInsets.only(
+              top: 8,
+              right: 12,
+              left: 20,
+              bottom: 20,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Close button
-                Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xff20B9E8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Icon(Icons.close, color: Colors.white, size: 12,),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xff20B9E8),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Icon(Icons.close, color: Colors.white, size: 12),
+                        ),
                       ),
                     ),
                   ),
@@ -54,32 +62,34 @@ class _NewLoginPageState extends State<NewLoginPage> {
 
                 // Warning icon
                 Align(
-                    alignment: Alignment.center,
-                  child: Image.asset("assets/images/eror.png",width: 65,height: 65,),
-                
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    "assets/images/eror.png",
+                    width: 80,
+                    height: 80,
+                  ),
                 ),
                 SizedBox(height: 25),
 
                 // Title
                 Text(
                   "Parol uchun quyidagilar muhim:",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 10),
 
-
-                    Text("  • A-Z katta harflar", style: TextStyle(fontSize: 13)),
-                    SizedBox(height: 4),
-                    Text("  • 1231309 raqamlar", style: TextStyle(fontSize: 13)),
-                    SizedBox(height: 4),
-                    Text("  • a-z kichik harflar", style: TextStyle(fontSize: 13)),
+                Text("  • A-Z katta harflar", style: TextStyle(fontSize: 13)),
                 SizedBox(height: 4),
-                Text("  • kamida 8 ta belgilar", style: TextStyle(fontSize: 13)),
-
+                Text("  • 1231309 raqamlar", style: TextStyle(fontSize: 13)),
+                SizedBox(height: 4),
+                Text("  • a-z kichik harflar", style: TextStyle(fontSize: 13)),
+                SizedBox(height: 4),
+                Text(
+                  "  • kamida 8 ta belgilar",
+                  style: TextStyle(fontSize: 13),
+                ),
+                SizedBox(height: 10,),
               ],
             ),
           ),
@@ -93,7 +103,7 @@ class _NewLoginPageState extends State<NewLoginPage> {
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xfff0f0f0),
+      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 15, right: 15, left: 15),
@@ -105,11 +115,13 @@ class _NewLoginPageState extends State<NewLoginPage> {
                 children: [
                   SizedBox(height: 15),
                   GestureDetector(
-                      onTap: (){
-                        Navigator.of(context).pop();
-                      },
-                      child:
-                      Image.asset("assets/images/arow_back.png",width: 24,)
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Image.asset(
+                      "assets/images/arow_back.png",
+                      width: 24,
+                    ),
                   ),
                   SizedBox(height: 16),
                   Text(
@@ -123,7 +135,7 @@ class _NewLoginPageState extends State<NewLoginPage> {
                     "Login",
                     style: TextStyle(color: Colors.grey.shade900, fontSize: 13),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 6),
                   _buildTextField(_login, "Login"),
 
                   SizedBox(height: 20),
@@ -131,7 +143,7 @@ class _NewLoginPageState extends State<NewLoginPage> {
                     "Parol",
                     style: TextStyle(color: Colors.grey.shade900, fontSize: 13),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 5),
                   _buildTextField(
                     _password,
                     "Parol",
@@ -155,8 +167,7 @@ class _NewLoginPageState extends State<NewLoginPage> {
                     "Parolni tasdiqlang",
                     style: TextStyle(color: Colors.grey.shade900, fontSize: 13),
                   ),
-                  SizedBox(height: 4),
-                  //TODO bu yerda yana TextFormFieldni yozishga to'g'ri keldi sababi parollarni solishtirishning boshqa yo'lini topa olmadim
+                  SizedBox(height: 6),
                   TextFormField(
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
                     cursorColor: Colors.grey.shade700,
@@ -170,7 +181,7 @@ class _NewLoginPageState extends State<NewLoginPage> {
                       if (val == null || val.isEmpty) {
                         return "Parolni tasdiqlang to'ldirilishi shart";
                       } else if (_password.text != _confirmPassword.text) {
-                        return "Parollar bir xil emas!";
+                        return "Parollar mos emas!";
                       }
                       return null;
                     },
@@ -239,23 +250,24 @@ class _NewLoginPageState extends State<NewLoginPage> {
                     width: double.infinity,
                     height: 45,
                     child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            final password = _password.text;
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          final password = _password.text;
 
-                            if (RegExp(r'[A-Z]').hasMatch(password) &&
-                                RegExp(r'[a-z]').hasMatch(password) &&
-                                RegExp(r'[0-9]').hasMatch(password) &&
-                                password.length >= 8) {
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (builder) => WinningPage()),
-                              );
-                            } else {
-                              showLoginDialog();
-                            }
+                          if (RegExp(r'[A-Z]').hasMatch(password) &&
+                              RegExp(r'[a-z]').hasMatch(password) &&
+                              RegExp(r'[0-9]').hasMatch(password) &&
+                              password.length >= 8) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (builder) => CompletePage(),
+                              ),
+                            );
+                          } else {
+                            showLoginDialog();
                           }
-                        },
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Color(0xff20B9E8),
                         shape: RoundedRectangleBorder(

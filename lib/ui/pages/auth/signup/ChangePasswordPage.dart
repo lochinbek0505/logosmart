@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/auth/signup/CompletePage.dart';
+import 'package:logosmart/ui/pages/auth/register/RegistrationPage.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -260,7 +261,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                               password.length >= 8) {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (builder) => CompletePage(),
+                                builder: (builder) => RegistrationPage(),
                               ),
                             );
                           } else {

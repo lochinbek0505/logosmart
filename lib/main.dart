@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/auth/login/LoginPage.dart';
+import 'package:logosmart/ui/pages/auth/register/ChildRegisterPage.dart';
+import 'package:logosmart/ui/pages/auth/signup/ChangePasswordPage.dart';
+import 'package:logosmart/ui/pages/auth/register/RegistrationPage.dart';
+import 'package:logosmart/ui/pages/auth/signup/CompletePage.dart';
 
 void main() {
   runApp(const MyApp());

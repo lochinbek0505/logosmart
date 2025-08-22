@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/auth/register/ChildRegisterPage.dart';
 
 class CompletePage extends StatefulWidget {
   const CompletePage({super.key});
@@ -54,7 +55,9 @@ class _CompletePageState extends State<CompletePage> {
                   width: double.infinity,
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>ChildRegisterPage()));
+                    },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Color(0xff20B9E8),
                       shape: RoundedRectangleBorder(

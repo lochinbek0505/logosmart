@@ -272,7 +272,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
           .map(
             (item) => DropdownMenuItem<T>(
               value: item["id"] as T,
-              child: Text(item["name"]),
+              child: SizedBox(
+                width: size.width*0.75,
+                child: Text(
+                  item["name"],
+                  style: TextStyle(fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
 
 
 

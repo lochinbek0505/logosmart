@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/auth/login/LoginPage.dart';
-import 'package:logosmart/ui/pages/auth/register/ChildRegisterPage.dart';
-import 'package:logosmart/ui/pages/auth/signup/ChangePasswordPage.dart';
-import 'package:logosmart/ui/pages/auth/register/RegistrationPage.dart';
-import 'package:logosmart/ui/pages/auth/signup/CompletePage.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +37,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:RegistrationPage(),
+      home:LoginPage(),
     );
   }
 }

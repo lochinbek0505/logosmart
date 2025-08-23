@@ -86,10 +86,10 @@ class _ChildRegisterPageState extends State<ChildRegisterPage> {
                               image: DecorationImage(image: AssetImage("assets/images/son_yuzi.png"),alignment: Alignment.bottomCenter,fit: BoxFit.scaleDown)
                             ),
                             child:selectedImage==0? Stack(
-                              clipBehavior: Clip.none, // child’ni tashqariga chiqarishga ruxsat
+                              clipBehavior: Clip.none,
                               children: [
                                 Positioned(
-                                  bottom: 2,  // tashqariga chiqish
+                                  bottom: 2,
                                   right: 10,
                                   child: Container(
                                     width: 16,

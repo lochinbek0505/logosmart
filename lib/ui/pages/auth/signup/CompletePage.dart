@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/auth/billing/WalletPage.dart';
 import 'package:logosmart/ui/pages/auth/register/ChildRegisterPage.dart';
 
 class CompletePage extends StatefulWidget {
@@ -27,16 +28,7 @@ class _CompletePageState extends State<CompletePage> {
             padding: const EdgeInsets.all(15),
             child: Column(
               children: [
-                SizedBox(height: 15),
-                GestureDetector(
-                    onTap: (){
-                      Navigator.of(context).pop();
-                    },
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child:
-                        Image.asset("assets/images/arow_back.png",width: 24,)
-                    )),
+                SizedBox(height: 40),
 
 
 
@@ -56,7 +48,7 @@ class _CompletePageState extends State<CompletePage> {
                   height: 45,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>ChildRegisterPage()));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>WalletPage()));
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Color(0xff20B9E8),

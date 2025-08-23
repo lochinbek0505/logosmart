@@ -96,7 +96,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   SizedBox(height: 5),
 
                   _buildDropdown<int>(
-
                     hind: "Viloyatingiz",
                     value: selectedRegionId,
                     items: List<Map<String, dynamic>>.from(regions),
@@ -121,7 +120,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   SizedBox(height: 5),
 
                   _buildDropdown<int>(
-
                     hind: "Tumaningiz",
                     value: selectedDistrictId,
                     items: List<Map<String, dynamic>>.from(filteredDistricts),
@@ -160,10 +158,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     style: TextStyle(color: Colors.grey.shade900, fontSize: 13),
                   ),
                   SizedBox(height: 5),
-                  _ageDropdown(hind: "Yoshingiz", value: agem, items:[],  onChanged: (val){setState(() {val=agem;
-
-                  });}),
-
+                  _ageDropdown(
+                    hind: "Yoshingiz",
+                    value: agem,
+                    items: [],
+                    onChanged: (val) {
+                      setState(() {
+                        val = agem;
+                      });
+                    },
+                  ),
 
                   SizedBox(height: size.height * 0.142),
                   SizedBox(
@@ -172,7 +176,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>ChildRegisterPage()));
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (builder) => ChildRegisterPage(),
+                            ),
+                          );
                         }
                       },
                       style: OutlinedButton.styleFrom(
@@ -256,7 +264,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _buildDropdown<T>({
-
     required hind,
     required T? value,
     required List<Map<String, dynamic>> items,
@@ -264,7 +271,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }) {
     var size = MediaQuery.of(context).size;
     return DropdownButtonFormField2<T>(
-
       style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
 
       value: value,
@@ -272,17 +278,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
           .map(
             (item) => DropdownMenuItem<T>(
               value: item["id"] as T,
-              child: Text(item["name"]),
-
-
-
+              child: SizedBox(
+                width: size.width*0.75,
+                child: Text(
+                  item["name"],
+                  style: TextStyle(fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
           )
           .toList(),
       onChanged: onChanged,
 
       decoration: InputDecoration(
-
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -291,7 +301,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
 
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 12),
+        contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 8),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -317,12 +327,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
       menuItemStyleData: MenuItemStyleData(
         padding: EdgeInsets.symmetric(horizontal: 8),
-
-
       ),
       dropdownStyleData: DropdownStyleData(
-
-
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -331,26 +337,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
               color: Colors.blue.withOpacity(0.2), // soyani rangi
               blurRadius: 20,
             ),
-
-          ]
+          ],
         ),
         maxHeight: 250,
-        width: size.width*0.8,
-
+        width: size.width * 0.8,
 
         elevation: 4,
-        offset: Offset(size.width*0.1,0)
-
-
+        offset: Offset(size.width * 0.1, 0),
       ),
 
       validator: (val) => val == null ? "$hind tanlanishi shart" : null,
-
     );
   }
 
   Widget _ageDropdown<T>({
-
     required hind,
     required T? value,
     required List<Map<String, dynamic>> items,
@@ -358,22 +358,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }) {
     var size = MediaQuery.of(context).size;
 
-
     return DropdownButtonFormField2<T>(
-
-
       style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
 
       value: value,
       items: [
-
-    for (int i = 1; i <= 200; i++)
-      DropdownMenuItem(value: i as T, child: Text("$i")),
-    ],
+        for (int i = 1; i <= 200; i++)
+          DropdownMenuItem(value: i as T, child: Text("$i")),
+      ],
       onChanged: onChanged,
 
       decoration: InputDecoration(
-
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -408,36 +403,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
       menuItemStyleData: MenuItemStyleData(
         padding: EdgeInsets.symmetric(horizontal: 8),
-
-
       ),
       dropdownStyleData: DropdownStyleData(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.2), // soyani rangi
+              blurRadius: 20,
+            ),
+          ],
+        ),
+        maxHeight: 250,
+        width: size.width * 0.8,
 
-
-          decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withOpacity(0.2), // soyani rangi
-                  blurRadius: 20,
-                ),
-
-              ]
-          ),
-          maxHeight: 250,
-          width: size.width*0.8,
-
-
-          elevation: 4,
-          offset: Offset(size.width*0.1,0)
-
-
+        elevation: 4,
+        offset: Offset(size.width * 0.1, 0),
       ),
 
       validator: (val) => val == null ? "$hind tanlanishi shart" : null,
-
     );
   }
-
 }

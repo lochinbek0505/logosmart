@@ -69,6 +69,7 @@ flutter:
   - assets/images/
   - assets/jsons/
   - assets/jsons/regions.json
+  - assets/icons/
 
 
 

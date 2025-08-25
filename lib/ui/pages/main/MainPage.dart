@@ -31,7 +31,7 @@ class _MainPageState extends State<MainPage> {
       body: _pages[currentIndex],
       bottomNavigationBar: Container(
         color: Color(0xffd5eef7),
-        height: 70,
+        height: 80,
         child: ClipRRect(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/auth/billing/PricingPage.dart';
 
-class WalletPage extends StatefulWidget {
-  const WalletPage({super.key});
+class PlanPage extends StatefulWidget {
+  const PlanPage({super.key});
 
   @override
-  State<WalletPage> createState() => _WalletPage();
+  State<PlanPage> createState() => _PlanPage();
 }
 
-class _WalletPage extends State<WalletPage> {
+class _PlanPage extends State<PlanPage> {
 
   int selectedIndex=-1;
 

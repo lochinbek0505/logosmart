@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/auth/login/LoginPage.dart';
-import 'package:logosmart/ui/pages/home/bottomnavigationbar/mainNavigation.dart';
 
 
 void main() {
@@ -38,7 +37,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:MainNavigation(),
+      home:LoginPage(),
     );
   }
 }

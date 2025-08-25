@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/home/bottomnavigationbar/HomePage.dart';
 
-class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+import 'HomePage.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
+class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
   final List<Widget> _pages = [
     HomePage(),

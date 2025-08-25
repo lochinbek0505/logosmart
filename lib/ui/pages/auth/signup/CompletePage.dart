@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/billing/WalletPage.dart';
+import 'package:logosmart/ui/pages/auth/billing/PlanPage.dart';
 import 'package:logosmart/ui/pages/auth/register/ChildRegisterPage.dart';
 
 class CompletePage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _CompletePageState extends State<CompletePage> {
                   height: 45,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>WalletPage()));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>PlanPage()));
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Color(0xff20B9E8),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/DiagnosticPage.dart';
+import 'package:logosmart/ui/pages/main/FirstSpeechPage.dart';
+import 'package:logosmart/ui/pages/main/SoundPracticePage.dart';
+import 'package:logosmart/ui/pages/main/VideoLessonsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,19 +18,23 @@ class _HomePageState extends State<HomePage> {
       "title": "Ilk nutqni\n rivojlantirish",
       "image": "assets/images/mashgulot_bad.png",
       "mainColor": Color(0xffebb6ae),
-      "text": "2+ yosh"
-    },
+      "text": "2+ yosh",
+      "page": FirstSpeechPage(),
+
+},
     {
       "title": "Tovushlar\n talaffuzini\nrivojlantirish",
       "image": "assets/images/mashgulot_son.png",
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
+      "page": SoundPracticePage(),
     },
     {
       "title": "Video\n mashg'ulotlar",
       "image": "assets/images/mashgulot_nice.png",
       "mainColor": Colors.blueGrey.shade700,
       "text": "0-5 yosh",
+      "page": VideoLessonsPage(),
     },
   ];
   @override
@@ -69,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ImageIcon(
                       AssetImage("assets/icons/notification.png"),
-                      size: 20,
+                      size: 24,
                       color: Colors.blueGrey.shade800,
                     ),
                   ],
@@ -292,34 +299,39 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 SizedBox(height: 12),
 
-                                Container(
-                                  width: 110,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    color: cards[index]["mainColor"],
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Boshlash",style: TextStyle(
-                                          color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
-                                        ),),
-                                        CircleAvatar(
-                                          backgroundColor: Colors.white,
-                                          radius: 11,
-                                          child: Transform.translate(
-                                            offset: Offset(0.9,0),
-                                            child: ImageIcon(
-                                              AssetImage("assets/icons/right_back.png"),
-                                              size: 12,
-                                              color: cards[index]["mainColor"],
+                                GestureDetector(
+                                  onTap: (){
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>cards[index]["page"]));
+                                  },
+                                  child: Container(
+                                    width: 110,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: cards[index]["mainColor"],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("Boshlash",style: TextStyle(
+                                            color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
+                                          ),),
+                                          CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            radius: 11,
+                                            child: Transform.translate(
+                                              offset: Offset(0.9,0),
+                                              child: ImageIcon(
+                                                AssetImage("assets/icons/right_back.png"),
+                                                size: 12,
+                                                color: cards[index]["mainColor"],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

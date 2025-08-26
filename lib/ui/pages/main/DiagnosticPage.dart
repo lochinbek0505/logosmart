@@ -78,7 +78,7 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                       SizedBox(height: 30),
                       Container(
                         width: size.width*0.75,// 290,
-                        height:208,
+                        height:202,
                         padding: EdgeInsets.only(
                           left: 10,
                           right: 10,
@@ -87,7 +87,7 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                         ),
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage("assets/icons/cloud.png"),
+                            image: AssetImage("assets/images/big_cloud.png"),
                             fit: BoxFit.fill
                           ),
                         ),
@@ -198,9 +198,9 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                     children: [
                       SizedBox(height: 300,),
                       SizedBox(
-                        width: size.width*0.3,
+                        width: size.width*0.43,
                         height: size.width*0.85,
-                        child: Image.asset("assets/images/daughter.png",fit: BoxFit.fill,),
+                        child: Image.asset("assets/images/women.png",fit: BoxFit.fill,),
                       ),
                     ],
                   ),

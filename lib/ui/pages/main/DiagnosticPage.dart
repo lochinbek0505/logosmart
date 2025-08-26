@@ -124,26 +124,59 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                             //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()),);
                           });
                         },
-                        child: InkWell(
-                          child: Container(
-                            padding: EdgeInsets.all(7),
-                            width: size.width * 0.7,
-                            height: 65,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(40),
-                            ),
-                            child: _isPressed
-                                ? Container(
-                                    width: size.width,
-                                    height: 60,
+                        child: Container(
+                          padding: EdgeInsets.all(7),
+                          width: size.width * 0.7,
+                          height: 65,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: _isPressed
+                              ? Container(
+                                  width: size.width,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xff20B9E8),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "BOSHLASH",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  padding: EdgeInsets.only(bottom: 3),
+                                  width: size.width,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xff47809e),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.only(top: 2),
+                                    width: 190,
+                                    height: 57,
                                     decoration: BoxDecoration(
-                                      color: Color(0xff20B9E8),
-                                      borderRadius: BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.circular(29),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xffbee9f7),
+                                          Color(0xff20B9E8),
+                                        ],
+                                        end: Alignment.bottomCenter,
+                                        begin: Alignment.topCenter,
+                                      ),
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "BOSHLA!",
+                                        "BOSHLASH",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -151,43 +184,8 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                                         ),
                                       ),
                                     ),
-                                  )
-                                : Container(
-                                    padding: EdgeInsets.only(bottom: 3),
-                                    width: size.width,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xff47809e),
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Container(
-                                      padding: EdgeInsets.only(top: 2),
-                                      width: 190,
-                                      height: 57,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(29),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xffbee9f7),
-                                            Color(0xff20B9E8),
-                                          ],
-                                          end: Alignment.bottomCenter,
-                                          begin: Alignment.topCenter,
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "BOSHLA!",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 22,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
                                   ),
-                          ),
+                                ),
                         ),
                       ),
                       SizedBox(height: 30,)

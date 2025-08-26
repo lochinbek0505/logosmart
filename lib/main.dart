@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/auth/login/LoginPage.dart';
 import 'package:logosmart/ui/pages/main/MainPage.dart';
 
 

@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
       "text": "2+ yosh"
     },
     {
-      "title": "Tovushlar\n talaffuzini \nrivojlantirish",
+      "title": "Tovushlar\n talaffuzini\nrivojlantirish",
       "image": "assets/images/mashgulot_son.png",
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Ekpress-\n diagnostiks",
+                              Text("Ekpress-\n diagnostika",
                                 style: TextStyle(
                                   color: Colors.blueGrey.shade800,
                                   fontSize: 20,

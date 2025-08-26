@@ -12,19 +12,19 @@ class _HomePageState extends State<HomePage> {
 
   final List<Map<String, dynamic>> cards = [
     {
-      "title": "Ilk nutqni\n rivojlantirish",
+      "title": "Ilk nutqni\nrivojlantirish",
       "image": "assets/images/mashgulot_bad.png",
       "mainColor": Color(0xffebb6ae),
       "text": "2+ yosh"
     },
     {
-      "title": "Tovushlar\n talaffuzini\nrivojlantirish",
+      "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
       "image": "assets/images/mashgulot_son.png",
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
     },
     {
-      "title": "Video\n mashg'ulotlar",
+      "title": "Video\nmashg'ulotlar",
       "image": "assets/images/mashgulot_nice.png",
       "mainColor": Colors.blueGrey.shade700,
       "text": "0-5 yosh",
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                 bottom: 8,top: 20),
                 child: Container(
                   width: double.infinity,
-                  height: 152,
+                  height: 140,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
@@ -194,10 +194,10 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Ekpress-\n diagnostika",
+                              Text("Ekpress-\ndiagnostika",
                                 style: TextStyle(
                                   color: Colors.blueGrey.shade800,
-                                  fontSize: 20,
+                                  fontSize: 19,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                                 child: Container(
                                   width: 110,
-                                  height: 48,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(25),
                                     color: Colors.orange.shade400,
@@ -220,19 +220,19 @@ class _HomePageState extends State<HomePage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text("Boshlash",style: TextStyle(
-                                            color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
+                                            color: Colors.white,fontSize: 13,fontWeight: FontWeight.w700
                                         ),),
                                         Card(
                                           elevation: 2,
                                           shadowColor: Colors.orange.shade800,
                                           child: CircleAvatar(
                                             backgroundColor: Colors.orange,
-                                            radius: 11,
+                                            radius: 10,
                                             child: Transform.translate(
                                               offset: Offset(0.9,0),
                                               child: ImageIcon(
                                                 AssetImage("assets/icons/right_back.png"),
-                                                size: 12,
+                                                size: 10,
                                                 color: Colors.white,
                                               ),
                                             ),
@@ -262,7 +262,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 16),
                   child: Container(
                     width: double.infinity,
-                    height: 190,
+                    height: 170,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       image: DecorationImage(
@@ -286,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                                   cards[index]["title"],
                                   style: TextStyle(
                                     color: Colors.blueGrey.shade800,
-                                    fontSize: 20,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -294,7 +294,7 @@ class _HomePageState extends State<HomePage> {
 
                                 Container(
                                   width: 110,
-                                  height: 48,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(25),
                                     color: cards[index]["mainColor"],
@@ -305,16 +305,16 @@ class _HomePageState extends State<HomePage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text("Boshlash",style: TextStyle(
-                                          color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
+                                          color: Colors.white,fontSize: 13,fontWeight: FontWeight.w700
                                         ),),
                                         CircleAvatar(
                                           backgroundColor: Colors.white,
-                                          radius: 11,
+                                          radius: 10,
                                           child: Transform.translate(
                                             offset: Offset(0.9,0),
                                             child: ImageIcon(
                                               AssetImage("assets/icons/right_back.png"),
-                                              size: 12,
+                                              size: 10,
                                               color: cards[index]["mainColor"],
                                             ),
                                           ),
@@ -335,7 +335,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       child: Center(
                                         child: Text("40 ta o'yin",style: TextStyle(
-                                          fontSize: 10.5,
+                                          fontSize: 10,
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600
                                         ),),
@@ -351,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       child: Center(
                                         child: Text(cards[index]["text"],style: TextStyle(
-                                            fontSize: 10.5,
+                                            fontSize: 10,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600
                                         ),),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/DiagnosticPage.dart';
-import 'package:logosmart/ui/pages/main/FirstSpeechPage.dart';
 import 'package:logosmart/ui/pages/main/SoundPracticePage.dart';
 import 'package:logosmart/ui/pages/main/VideoLessonsPage.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
+
+import 'firstspeech/FirstSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

@@ -40,6 +40,8 @@ dependencies:
   flutter_timer_countdown: ^1.0.7
   dropdown_button2: ^2.3.9
   dotted_border: ^3.1.0
+  signal_strength_indicator: ^0.4.1
+  google_fonts: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -70,8 +72,7 @@ flutter:
   - assets/jsons/
   - assets/jsons/regions.json
   - assets/icons/
-
-
+  - assets/backround/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -80,7 +80,6 @@ class _StartButtonPageState extends State<StartButtonPage> {
               ),
 
             ),
-
             Container(width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(

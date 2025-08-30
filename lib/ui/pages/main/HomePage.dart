@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/SoundPracticePage.dart';
 import 'package:logosmart/ui/pages/main/VideoLessonsPage.dart';
 import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/SoundPracticePage.dart';
 
 import 'firstspeech/FirstSpeechPage.dart';
 

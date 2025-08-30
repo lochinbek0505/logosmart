@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/MainPage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/SoundPracticePage.dart';
 void main() {
   runApp(const MyApp());
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/profile/ProfilePage.dart';
 
 import 'HomePage.dart';
 
@@ -16,7 +17,7 @@ class _MainPageState extends State<MainPage> {
     Scaffold(backgroundColor: Color(0xffd5eef7),),
     Scaffold(),
     Scaffold(),
-    Scaffold(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {

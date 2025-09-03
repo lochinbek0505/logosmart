@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/MainPage.dart';
+import 'package:logosmart/ui/pages/profile/mychildren/MyChildrenPage.dart';
+import 'package:logosmart/ui/pages/profile/myexpert/MyExpertPage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -89,8 +91,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
 
               SizedBox(height: 25,),
-              _widget(title: "Mening mutaxassislarim", icon: "assets/icons/plus.png", navigation: MainPage()),
-              _widget(title: "Farzandlarim", icon: "assets/icons/user.png", navigation: MainPage()),
+              _widget(title: "Mening mutaxassislarim", icon: "assets/icons/plus.png", navigation: MyExpertPage()),
+              _widget(title: "Farzandlarim", icon: "assets/icons/user.png", navigation: MyChildrenPage()),
               _widget(title: "Mening ma'lumotlarim", icon: "assets/icons/user.png", navigation: MainPage()),
               _widget(title: "Til", icon: "assets/icons/language.png", navigation: MainPage()),
               _widget(title: "Sozlamalar", icon: "assets/icons/settings.png", navigation: MainPage()),

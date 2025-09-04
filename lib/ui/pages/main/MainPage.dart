@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/profile/ProfilePage.dart';
+import 'package:logosmart/ui/pages/society/SocietyPage.dart';
 
 import 'HomePage.dart';
 
@@ -16,14 +17,14 @@ class _MainPageState extends State<MainPage> {
     HomePage(),
     Scaffold(backgroundColor: Color(0xffd5eef7),),
     Scaffold(),
-    Scaffold(),
+    SocietyPage(),
     ProfilePage(),
   ];
   final List<Color> _bottomNavColors = [
     Color(0xffd5eef7), // Home
     Color(0xfff7e5d5), // O‘yinlar
     Color(0xffe5f7d5), // Konsultatsiya
-    Color(0xfff7d5e5), // Jamiyat
+    Colors.grey.shade50, // Jamiyat
     Color(0xffffffff), // Profil
   ];
 
@@ -52,10 +53,10 @@ class _MainPageState extends State<MainPage> {
             border: Border(top:BorderSide(color: Colors.grey.shade300), ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.shade300, // soya rangi
-                offset: Offset(0, -3), // yuqoridan tushishi uchun minus Y
+                color: Colors.grey.shade300,
+                offset: Offset(0, -3),
                 blurRadius: 8,
-                spreadRadius: 0// tarqalishi
+                spreadRadius: 0
               ),
             ],
 

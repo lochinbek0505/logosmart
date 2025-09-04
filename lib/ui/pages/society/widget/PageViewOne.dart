@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../pages/society/specialist/SpecialistPage.dart';
+import '../specialist/SpecialistPage.dart';
 
-class PageOne extends StatefulWidget {
-  const PageOne({super.key});
+
+class PageViewOne extends StatefulWidget {
+  const PageViewOne({super.key});
 
   @override
-  State<PageOne> createState() => _PageOneState();
+  State<PageViewOne> createState() => _PageViewOneState();
 }
 
-class _PageOneState extends State<PageOne> {
+class _PageViewOneState extends State<PageViewOne> {
   List<Map<dynamic, dynamic>> societyinfo = [
     {
       "image": "assets/images/yarimta_qizcha.png",
@@ -204,6 +205,6 @@ class _PageOneState extends State<PageOne> {
           ),
         );
       },
-    );;
+    );
   }
 }

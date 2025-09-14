@@ -16,14 +16,14 @@ class _HomePageState extends State<HomePage> {
 
   final List<Map<String, dynamic>> cards = [
     {
-      "title": "Ilk nutqni\n rivojlantirish",
+      "title": "Ilk nutqni\nrivojlantirish",
       "image": "assets/images/mashgulot_bad.png",
       "mainColor": Color(0xffebb6ae),
-      "text": "2+ yosh",
+      "text": "4+ yosh",
       "page": FirstSpeechPage(),
     },
     {
-      "title": "Tovushlar\n talaffuzini\nrivojlantirish",
+      "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
       "image": "assets/images/mashgulot_son.png",
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
     },
     {
-      "title": "Video\n mashg'ulotlar",
+      "title": "Video\nmashg'ulotlar",
       "image": "assets/images/mashgulot_nice.png",
       "mainColor": Colors.blueGrey.shade700,
       "text": "0-5 yosh",
@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Text(
-                          "Lobarxon!",
+                          "Lobarxonim !",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

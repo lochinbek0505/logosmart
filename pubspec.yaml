@@ -42,7 +42,7 @@ dependencies:
   dotted_border: ^3.1.0
   signal_strength_indicator: ^0.4.1
   google_fonts: ^6.3.0
-  path_drawing: ^1.0.1
+  smooth_page_indicator: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -74,7 +74,6 @@ flutter:
   - assets/jsons/regions.json
   - assets/icons/
   - assets/backround/
-  - assets/alphabet/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

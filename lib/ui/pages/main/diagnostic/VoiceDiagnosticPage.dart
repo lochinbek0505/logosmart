@@ -10,6 +10,7 @@ class VoiceDiagnosticPage extends StatefulWidget {
 
 class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage> {
   final heights = [4.0, 6.0, 8.0, 11.0, 15.0, 21.0, 28.0, 33.0, 36.0];
+  var activeBars = 9;
 
   void initState() {
     super.initState();
@@ -94,7 +95,6 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(heights.length, (index) {
-                      var activeBars = 5;
                       Color? color;
                       if (activeBars == 0) {
                         color = Colors.white;

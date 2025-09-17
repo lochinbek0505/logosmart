@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 
-class Onboard3Page extends StatefulWidget {
+class Onboard3Page extends StatelessWidget {
   const Onboard3Page({super.key});
 
-  @override
-  State<Onboard3Page> createState() => _Onboard3PageState();
-}
-
-class _Onboard3PageState extends State<Onboard3Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

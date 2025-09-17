@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
+              automaticallyImplyLeading: false,
               collapsedHeight: 80,
               backgroundColor: Color(0xffd5eef7),
               title: Padding(
@@ -87,7 +88,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SliverAppBar(
               backgroundColor: Color(0xffd5eef7),
-
+              automaticallyImplyLeading: false,
 
               pinned: true,
               title: Container(

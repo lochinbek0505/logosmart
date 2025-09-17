@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:logosmart/ui/pages/start/Onboard2Page.dart';
 import 'package:logosmart/ui/pages/start/Onboard3Page.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
@@ -17,7 +18,7 @@ class _OnboardPageState extends State<OnboardPage> {
   final _controller = PageController();
   int _index = 0;
 
-  final _items = const [OnboardPage(), Onboard2Page(), Onboard3Page()];
+  final _items = const [Onboard1Page(), Onboard2Page(), Onboard3Page()];
 
   @override
   void dispose() {
@@ -28,7 +29,9 @@ class _OnboardPageState extends State<OnboardPage> {
   void _next() {
     final isLast = _index == _items.length - 1;
     if (isLast) {
-      Navigator.of(context).pop();
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => HomePage()));
     } else {
       _controller.nextPage(
         duration: const Duration(milliseconds: 320),
@@ -38,7 +41,9 @@ class _OnboardPageState extends State<OnboardPage> {
   }
 
   void _skip() {
-    Navigator.of(context).pop();
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => HomePage()));
   }
 
   @override
@@ -135,20 +140,4 @@ class _OnboardPageState extends State<OnboardPage> {
       ),
     );
   }
-}
-
-class _PageData {
-  final String title;
-  final String subtitle;
-  final Color topColor;
-  final Color bottomColor;
-
-  // final String imagePath;
-  const _PageData({
-    required this.title,
-    required this.subtitle,
-    required this.topColor,
-    required this.bottomColor,
-    // this.imagePath = '',
-  });
 }

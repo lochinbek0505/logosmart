@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/main/firstspeech/CameraPage.dart';
 import 'package:logosmart/ui/pages/start/OnboardPage.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:wave_linear_progress_indicator/wave_linear_progress_indicator.dart';
@@ -44,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 if (_navigated) return;
                 _navigated = true;
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const OnboardPage()),
+                  MaterialPageRoute(builder: (_) => const CameraPage()),
                 );
               },
               builder: (context, value, _) {

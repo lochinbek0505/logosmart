@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/firstspeech/FinishButtonPage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logosmart/ui/widgets/AICamera.dart';
+import 'package:camera/camera.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -9,14 +11,12 @@ class CameraPage extends StatefulWidget {
 }
 
 class _CameraPageState extends State<CameraPage> {
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  FinishButtonPage()),);
-    });
-
+    // Future.delayed(const Duration(seconds: 5), () {
+    //   Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  FinishButtonPage()),);
+    // });
   }
 
   @override
@@ -30,8 +30,18 @@ class _CameraPageState extends State<CameraPage> {
 
         child: Stack(
           children: [
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/backround_xira.png"),
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
             SizedBox(
-              width:size.width,
+              width: size.width,
               height: size.height,
               child: SafeArea(
                 child: Column(
@@ -77,100 +87,90 @@ class _CameraPageState extends State<CameraPage> {
                 ),
               ),
             ),
-            Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/backround_xira.png"),
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
+
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(width: size.width, height: 115),
+                SizedBox(width: size.width, height: 150),
                 Container(
-                  width: size.width * 0.7,
-                  height: size.width * 0.7,
+                  width: size.width * 0.6,
+                  height: size.width * 0.6,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Colors.white
-
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: Color(0xff20B9E8), width: 3
+                    ),
                   ),
-                  padding: EdgeInsets.all(5),
                   child: Container(
-                    padding: EdgeInsets.all(5),
-
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: LinearGradient(  colors: [
-                        Color(0xffbee9f7),
-                        Color(0xff20B9E8),
-                      ],
-                        end: Alignment.bottomCenter,
-                        begin: Alignment.topCenter,)
-                    ),
-                    child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        color: Colors.white,
-                        image: DecorationImage(image: AssetImage("assets/images/yarimta_qizcha.png"),)
-
-
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8,),
-                Container(
-                  width: size.width * 0.7,
-                  height: size.width * 0.7,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      color: Colors.white
-
-                  ),
-                  padding: EdgeInsets.all(5),
-                  child: Container(
-                    padding: EdgeInsets.all(5),
-
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(  colors: [
-                          Color(0xffbee9f7),
-                          Color(0xff20B9E8),
-                        ],
-                          end: Alignment.bottomCenter,
-                          begin: Alignment.topCenter,)
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: Colors.white,
-                          image: DecorationImage(image: AssetImage("assets/images/camera_girl.png"),fit: BoxFit.fill)
-
-
-
+                      borderRadius: BorderRadius.circular(19),
+                      color: Colors.white,
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/yarimta_qizcha.png"),
                       ),
                     ),
                   ),
                 ),
 
+                SizedBox(height: 15),
+                Container(
+                  width: size.width * 0.6,
+                  height: size.width * 0.6,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                        color: Color(0xff20B9E8), width: 3
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(19),
+                    child: AICamera(
+                      modelPath: 'assets/models/model3.tflite',
+                      labelsPath: 'assets/models/labels.txt',
+                      useGpu: true,
+                      numThreads: 2,
+                      lensDirection: CameraLensDirection.front,
+                      intervalMs: 450,
+                      iouThreshold: 0.45,
+                      confThreshold: 0.35,
+                      classThreshold: 0.5,
+                      // Natijalarni olish: UI’da chizmaymiz, faqat yuqoriga yuboramiz
+                      onDetections: _onDetectionsLog,
+                    ),
+                  )
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+
+
   }
+
+
+  static void _onDetectionsLog(List<Map<String, dynamic>> results, Size imgSize) {
+    if (results.isEmpty) return;
+
+    // Birinchi natijani toast qilib ko‘rsatamiz
+    final first = results.first;
+    final tag = first['tag'] ?? 'Unknown';
+    final box = first['box'] as List?;
+    final conf = box != null && box.length > 4
+        ? ((box[4] as num).toDouble() * 100).toStringAsFixed(0)
+        : '?';
+
+    Fluttertoast.showToast(
+      msg: "Aniqlandi: $tag ($conf%)",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/MainPage.dart';
+import 'package:logosmart/ui/pages/main/firstspeech/RoadPage.dart';
 import 'package:logosmart/ui/pages/start/OnboardPage.dart';
 import 'package:logosmart/ui/pages/start/SplashScreen.dart';
 
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: SplashScreen(),
+      home: LevelMapPage(),
     );
   }
 }

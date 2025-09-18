@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/VideoButtonPage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/VideoPage.dart';
 
-class PinwheelPage extends StatefulWidget {
-  const PinwheelPage({super.key});
+class BreathPage extends StatefulWidget {
+  const BreathPage({super.key});
 
   @override
-  State<PinwheelPage> createState() => _PinwheelPageState();
+  State<BreathPage> createState() => _BreathPageState();
 }
 
-class _PinwheelPageState extends State<PinwheelPage> {
+class _BreathPageState extends State<BreathPage> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 5), () {

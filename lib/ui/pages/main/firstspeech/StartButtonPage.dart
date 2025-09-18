@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/firstspeech/CameraPage.dart';
+
+import '../soundpracrice/CameraPage.dart';
 
 class StartButtonPage extends StatefulWidget {
   const StartButtonPage({super.key});

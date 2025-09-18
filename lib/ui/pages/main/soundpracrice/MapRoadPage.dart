@@ -42,8 +42,8 @@ List<Offset> generatePositions(int count) {
 
 // Level, LevelSkin, LevelButton, TiledBackground sizning loyihangizda mavjud bo'lsin.
 
-class LevelMapPage extends StatelessWidget {
-  LevelMapPage({super.key});
+class MapRoadPage extends StatelessWidget {
+  MapRoadPage({super.key});
 
   // --- Skinlar (asset yo'llarini o'zingiznikiga moslang)
   static const skinGold = 'assets/icons/gold.png';
@@ -126,67 +126,92 @@ class LevelMapPage extends StatelessWidget {
     final levels = buildLevels();
 
     return Scaffold(
-      appBar: AppBar(
+      extendBodyBehindAppBar: true, // status bar ortiga ham cho‘zadi
+      body: SingleChildScrollView(
+        child: SizedBox(
+          height: mapHeight,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final size = Size(constraints.maxWidth, constraints.maxHeight);
 
-        backgroundColor: Color(0xffF4DBCE),
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: mapHeight,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final size = Size(constraints.maxWidth, constraints.maxHeight);
-
-                return Stack(
-                  children: [
-                    // 1) FON – vertikal takrorlanadigan rasm
-                    Positioned.fill(
-                      child: TiledBackground(
-                        asset: 'assets/backround/map_background.png',
-                        height: mapHeight,
-                      ),
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: TiledBackground(
+                      asset: 'assets/backround/map_background.png',
+                      height: mapHeight,
                     ),
+                  ),
 
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 18.0),
+                  Positioned(
+                    top: 60,
+                    child: SizedBox(
+                      width: size.width,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                            child: Image.asset("assets/icons/star.png",scale: 2,),
+                            padding: const EdgeInsets.only(
+                              left: 25.0,
+                            ),
+                            child: Row(
+                              children: [
+                                Image.asset("assets/icons/star.png", scale: 2.5),
+                                SizedBox(width: 10,),
+                                Text(
+                                  "18",
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    color: AppColors.orange_300,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          Image.asset("assets/icons/circle_bad.png",width: 60,height: 60,fit: BoxFit.cover,),
+                          Image.asset(
+                            "assets/icons/circle_bad.png",
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
 
-                          Image.asset("assets/icons/close_red.png",width: 60,height: 60,fit: BoxFit.cover,),
-
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 25.0,
+                            ),
+                            child: Image.asset(
+                              "assets/icons/close_red.png",
+                              width: 55,
+                              height: 55,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ],
-
                       ),
                     ),
-                    ...levels.map((l) {
-                      final px = l.dx * size.width * 0.85;
-                      final py = l.dy * size.height;
-                      return Positioned(
-                        left: px - 28,
-                        top: py - 28,
-                        child: LevelButton(
-                          level: l,
-                          onTap: () {
-                            if (l.locked) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Level ${l.id} ochildi')),
-                            );
-                          },
-                        ),
-                      );
-                    }),
-                  ],
-                );
-              },
-            ),
+                  ),
+
+                  ...levels.map((l) {
+                    final px = l.dx * size.width * 0.85;
+                    final py = l.dy * size.height + 60;
+                    return Positioned(
+                      left: px - 28,
+                      top: py - 28,
+                      child: LevelButton(
+                        level: l,
+                        onTap: () {
+                          if (l.locked) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Level ${l.id} ochildi')),
+                          );
+                        },
+                      ),
+                    );
+                  }),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -211,7 +236,7 @@ class TiledBackground extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(asset),
-            fit: BoxFit.fitWidth,
+            fit: BoxFit.cover,
             alignment: Alignment.topCenter,
             repeat: ImageRepeat.repeatY, // MUHIM: vertikal tile
           ),

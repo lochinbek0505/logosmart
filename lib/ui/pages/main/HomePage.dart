@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/SoundPracticePage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
 
 import 'firstspeech/FirstSpeechPage.dart';
@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       "image": "assets/images/mashgulot_son.png",
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
-      "page": SoundPracticePage(),
+      "page": AlphabetPage(),
 
     },
     {

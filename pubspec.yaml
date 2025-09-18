@@ -84,6 +84,8 @@ flutter:
   - assets/jsons/
   - assets/jsons/regions.json
   - assets/icons/
+  - assets/alphabet/
+
   - assets/backround/
   - assets/models/
   - assets/models/tessdata/

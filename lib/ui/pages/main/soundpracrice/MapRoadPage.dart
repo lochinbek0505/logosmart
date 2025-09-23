@@ -1,16 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/CameraPage.dart';
 import 'package:provider/provider.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 
 import '../../../../core/storage/level_state.dart';
 import '../../../../providers/level_provider.dart';
 
-class LevelSkin {
-  final String badge;
-
-  const LevelSkin({required this.badge});
-}
 
 class Level {
   final int id;
@@ -30,7 +26,6 @@ class Level {
   });
 }
 
-// Istasangiz bu sinusiy funksiya ham turaversin
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
     final t = i / (count - 1);
@@ -43,7 +38,37 @@ List<Offset> generatePositionsSin(int count) {
 class MapRoadPage extends StatelessWidget {
   MapRoadPage({super.key});
 
-  /// Zigzag joylashuv (siz so‘ragan tartib)
+  bool _hasLevelProvider(BuildContext context) {
+    try {
+      Provider.of<LevelProvider>(context, listen: false);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasLevelProvider(context)) {
+      // Mavjud provider bilan hozirgi UI
+      return const _MapRoadBody();
+    }
+    // Lokal provider (faqat shu sahifa uchun), arxitekturani o'zgartirmaymiz
+    return ChangeNotifierProvider<LevelProvider>(
+      create: (_) {
+        final p = LevelProvider();
+        // Sizdagi LevelProvider bootstrap()ni main.dart da chaqirilmagan bo‘lishi mumkin,
+        // shu yerda xavfsiz chaqirib olamiz:
+        p.bootstrap();
+        return p;
+      },
+      child: const _MapRoadBody(),
+    );
+  }
+}
+class _MapRoadBody extends StatelessWidget {
+  const _MapRoadBody();
+
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
       return [const Offset(0.5, 0.1)];
@@ -62,7 +87,6 @@ class MapRoadPage extends StatelessWidget {
     });
   }
 
-  /// Provider’dan olingan LevelState + pozitsiyani birlashtirib UI uchun Level tuzamiz
   List<Level> _buildLevelsFromState(List<LevelState> states) {
     final positions = generatePositions(states.length);
     return List.generate(states.length, (i) {
@@ -83,10 +107,7 @@ class MapRoadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final mapHeight = MediaQuery.of(context).size.height * 2.4;
 
-    // Provider’dan holatni olamiz
     final levelStates = context.watch<LevelProvider>().levels;
-    print(levelStates.length);
-    print(levelStates);
     final levels = _buildLevelsFromState(levelStates);
 
     return Scaffold(
@@ -159,14 +180,12 @@ class MapRoadPage extends StatelessWidget {
                         onTap: () {
                           if (l.locked) return;
 
-                          // Misol uchun: bosganda yulduz +1 qilib ko‘rsatamiz
-                          final prov = context.read<LevelProvider>();
-                          final next = (l.stars + 1).clamp(0, 3);
-                          prov.setStars(l.id, next);
+                          // final prov = context.read<LevelProvider>();
+                          // final next = (l.stars + 1).clamp(0, 3);
+                          // prov.setStars(l.id, next);
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Level ${l.id} → stars: $next')),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (b)=>CameraPage(data: levelStates[l.id-1])));
+
                         },
                       ),
                     );

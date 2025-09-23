@@ -7,28 +7,23 @@ import 'package:provider/provider.dart';
 
 import 'core/storage/level_state.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Hive init
   await Hive.initFlutter();
 
-  // Manual adapterni ro‘yxatdan o‘tkazamiz
-  Hive.registerAdapter(LevelStateAdapter());
+  // --- Faqat BITTA marta register qilamiz:
+  if (!Hive.isAdapterRegistered(71)) Hive.registerAdapter(ExerciseStepAdapter());  // codegen
+  if (!Hive.isAdapterRegistered(72)) Hive.registerAdapter(ExerciseInfoAdapter());  // codegen
+  if (!Hive.isAdapterRegistered(73)) Hive.registerAdapter(GameInfoAdapter());      // codegen
 
-  // Box ochamiz (LevelState turiga mos)
+  // LevelState uchun - qo'lda yozilgan adapterni tanlaymiz:
+  if (!Hive.isAdapterRegistered(7))  Hive.registerAdapter(LevelStateAdapter());    // MANUAL
+
   await Hive.openBox<LevelState>(kLevelsBox);
-  final levelProvider = LevelProvider();
-  await levelProvider.bootstrap();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider<LevelProvider>.value(value: levelProvider),
-      ],
-      child: const MyApp(),
-    ),
-  );}
 
+  runApp(const MyApp());
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

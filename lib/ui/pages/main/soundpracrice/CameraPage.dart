@@ -3,8 +3,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logosmart/ui/widgets/AICamera.dart';
 import 'package:camera/camera.dart';
 
+import '../../../../core/storage/level_state.dart';
+
 class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
+  LevelState data;
+  CameraPage({super.key , required this.data});
 
   @override
   State<CameraPage> createState() => _CameraPageState();
@@ -127,8 +130,8 @@ class _CameraPageState extends State<CameraPage> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(19),
                     child: AICamera(
-                      modelPath: 'assets/models/model3.tflite',
-                      labelsPath: 'assets/models/labels.txt',
+                      modelPath: widget.data.exercise!.modelPath,
+                      labelsPath: widget.data.exercise!.labelsPath,
                       useGpu: true,
                       numThreads: 2,
                       lensDirection: CameraLensDirection.front,

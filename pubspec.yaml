@@ -91,10 +91,11 @@ flutter:
   - assets/jsons/regions.json
   - assets/icons/
   - assets/alphabet/
-
+  - assets/media/
   - assets/backround/
   - assets/models/
   - assets/models/tessdata/
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

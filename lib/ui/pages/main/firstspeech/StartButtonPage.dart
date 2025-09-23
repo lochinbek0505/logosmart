@@ -140,9 +140,9 @@ class _StartButtonPageState extends State<StartButtonPage> {
                         });
                       });
 
-                      Future.delayed(const Duration(milliseconds: 180), () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  CameraPage()),);
-                      });
+                      // Future.delayed(const Duration(milliseconds: 180), () {
+                      //   Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  CameraPage()),);
+                      // });
                     },
                     child: Container(
                       padding: EdgeInsets.all(7),

@@ -1,12 +1,13 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 
-// -------------------- MODELLAR --------------------
+import '../../../../core/storage/level_state.dart';
+import '../../../../providers/level_provider.dart';
 
 class LevelSkin {
-  final String badge; // lock PNG (ixtiyoriy)
+  final String badge;
 
   const LevelSkin({required this.badge});
 }
@@ -29,104 +30,67 @@ class Level {
   });
 }
 
-List<Offset> generatePositions(int count) {
+// Istasangiz bu sinusiy funksiya ham turaversin
+List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
     final t = i / (count - 1);
-
     final dx = 0.5 + 0.3 * math.sin(t * math.pi * 2);
     final dy = 0.05 + 0.9 * (t * t);
-
     return Offset(dx.clamp(0.05, 0.95), dy.clamp(0.05, 0.95));
   });
 }
 
-// Level, LevelSkin, LevelButton, TiledBackground sizning loyihangizda mavjud bo'lsin.
-
 class MapRoadPage extends StatelessWidget {
   MapRoadPage({super.key});
 
-  // --- Skinlar (asset yo'llarini o'zingiznikiga moslang)
-  static const skinGold = 'assets/icons/gold.png';
-  static const skinSilver = 'assets/icons/silver.png';
-
-  /// --- Level metadata (joylashuvdan tashqari barcha ma'lumotlar)
-  final List<Map<String, dynamic>> levelData = const [
-    {"id": 1, "stars": 3, "locked": false, "skin": skinGold},
-    {"id": 2, "stars": 3, "locked": false, "skin": skinGold},
-    {"id": 3, "stars": 2, "locked": false, "skin": skinGold},
-    {"id": 4, "stars": 3, "locked": false, "skin": skinGold},
-    {"id": 5, "stars": 2, "locked": false, "skin": skinGold},
-    {"id": 6, "stars": 1, "locked": false, "skin": skinGold},
-    {"id": 7, "stars": 3, "locked": false, "skin": skinGold},
-    {"id": 8, "stars": 0, "locked": false, "skin": skinSilver},
-    {"id": 9, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 10, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 11, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 12, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 13, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 14, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 15, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 16, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 17, "stars": 0, "locked": true, "skin": skinSilver},
-    {"id": 18, "stars": 0, "locked": true, "skin": skinSilver},
-  ];
-
-  /// --- Joylashuvlarni egri chiziq bo'yicha generatsiya qiladi (0..1 oralig'ida).
-  /// dx -> sinus orqali chap-o'ngga tebranish, dy -> yuqoridan pastga kvadratik
+  /// Zigzag joylashuv (siz so‘ragan tartib)
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
       return [const Offset(0.5, 0.1)];
     }
-
-    final stepY = 0.9 / (count - 1); // vertikal bosqich
-    double dx = 0.1; // boshlang‘ich x (chap tomonda)
-    double dir = 1; // 1 = o‘ngga, -1 = chapga
-    final stepX = 0.30; // gorizontal bosqich
+    final stepY = 0.9 / (count - 1);
+    double dx = 0.1;
+    double dir = 1;
+    final stepX = 0.30;
 
     return List.generate(count, (i) {
       final dy = 0.05 + stepY * i;
-
-      // Natijaviy nuqta
       final point = Offset(dx.clamp(0.05, 0.95), dy.clamp(0.05, 0.95));
-
-      // Keyingi bosqich uchun tayyorlash
       dx += dir * stepX;
-      if (dx >= 0.9 || dx <= 0.1) {
-        // chegaraga yetganda yo‘nalishni o‘zgartiramiz
-        dir *= -1;
-      }
-
+      if (dx >= 0.9 || dx <= 0.1) dir *= -1;
       return point;
     });
   }
 
-  /// --- Joylashuv + metadata ni birlashtirib yakuniy Level ro'yxatini qaytaradi
-  List<Level> buildLevels() {
-    final positions = generatePositions(levelData.length);
-    return List.generate(levelData.length, (i) {
-      final d = levelData[i];
+  /// Provider’dan olingan LevelState + pozitsiyani birlashtirib UI uchun Level tuzamiz
+  List<Level> _buildLevelsFromState(List<LevelState> states) {
+    final positions = generatePositions(states.length);
+    return List.generate(states.length, (i) {
+      final s = states[i];
       final pos = positions[i];
       return Level(
-        id: d["id"] as int,
+        id: s.id,
         dx: pos.dx,
         dy: pos.dy,
-        stars: d["stars"] as int,
-        locked: d["locked"] as bool,
-        skin: d["skin"],
+        stars: s.stars,
+        locked: s.locked,
+        skin: s.skin,
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // scrollable zona balandligi (xaritani uzun qilish uchun)
     final mapHeight = MediaQuery.of(context).size.height * 2.4;
 
-    // Yakuniy level ro'yxati
-    final levels = buildLevels();
+    // Provider’dan holatni olamiz
+    final levelStates = context.watch<LevelProvider>().levels;
+    print(levelStates.length);
+    print(levelStates);
+    final levels = _buildLevelsFromState(levelStates);
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // status bar ortiga ham cho‘zadi
+      extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
         child: SizedBox(
           height: mapHeight,
@@ -151,15 +115,14 @@ class MapRoadPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(
-                              left: 25.0,
-                            ),
+                            padding: const EdgeInsets.only(left: 25.0),
                             child: Row(
                               children: [
                                 Image.asset("assets/icons/star.png", scale: 2.5),
-                                SizedBox(width: 10,),
+                                const SizedBox(width: 10),
                                 Text(
-                                  "18",
+                                  // Masalan: jami yulduzlar summasini ko‘rsatish
+                                  levelStates.fold<int>(0, (p, e) => p + e.stars).toString(),
                                   style: TextStyle(
                                     fontSize: 40,
                                     color: AppColors.orange_300,
@@ -171,20 +134,13 @@ class MapRoadPage extends StatelessWidget {
                           ),
                           Image.asset(
                             "assets/icons/circle_bad.png",
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
+                            width: 80, height: 80, fit: BoxFit.cover,
                           ),
-
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 25.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
                             child: Image.asset(
                               "assets/icons/close_red.png",
-                              width: 55,
-                              height: 55,
-                              fit: BoxFit.cover,
+                              width: 55, height: 55, fit: BoxFit.cover,
                             ),
                           ),
                         ],
@@ -202,8 +158,14 @@ class MapRoadPage extends StatelessWidget {
                         level: l,
                         onTap: () {
                           if (l.locked) return;
+
+                          // Misol uchun: bosganda yulduz +1 qilib ko‘rsatamiz
+                          final prov = context.read<LevelProvider>();
+                          final next = (l.stars + 1).clamp(0, 3);
+                          prov.setStars(l.id, next);
+
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Level ${l.id} ochildi')),
+                            SnackBar(content: Text('Level ${l.id} → stars: $next')),
                           );
                         },
                       ),
@@ -215,11 +177,37 @@ class MapRoadPage extends StatelessWidget {
           ),
         ),
       ),
+      // Test uchun pastga quick-action tugmalar (ixtiyoriy)
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'unlockNext',
+            onPressed: () {
+              final prov = context.read<LevelProvider>();
+              final locked = prov.levels.firstWhere(
+                    (e) => e.locked,
+                orElse: () => prov.levels.last,
+              );
+              prov.unlock(locked.id);
+            },
+            label: const Text('Unlock next'),
+            icon: const Icon(Icons.lock_open),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'resetAll',
+            onPressed: () => context.read<LevelProvider>().resetAll(),
+            label: const Text('Reset all'),
+            icon: const Icon(Icons.restart_alt),
+          ),
+        ],
+      ),
     );
   }
 }
 
-// -------------------- VIDJETLAR --------------------
+// -------------------- VIDJETLAR (o‘zingizdagi kabi) --------------------
 
 class TiledBackground extends StatelessWidget {
   final String asset;
@@ -238,7 +226,7 @@ class TiledBackground extends StatelessWidget {
             image: AssetImage(asset),
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
-            repeat: ImageRepeat.repeatY, // MUHIM: vertikal tile
+            repeat: ImageRepeat.repeatY,
           ),
         ),
       ),
@@ -246,12 +234,11 @@ class TiledBackground extends StatelessWidget {
   }
 }
 
-/// 0..max oralig‘idagi yulduz metr
 class StarMeter extends StatelessWidget {
-  final int value; // nechta to‘liq yulduz (0..max)
-  final int max; // jami yulduzlar soni (default: 3)
-  final Color filledColor; // to‘liq yulduz rangi
-  final Color emptyColor; // bo‘sh yulduz rangi
+  final int value;
+  final int max;
+  final Color filledColor;
+  final Color emptyColor;
   final EdgeInsets spacing;
 
   const StarMeter({
@@ -266,12 +253,11 @@ class StarMeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final v = value.clamp(0, max);
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(max, (i) {
         final filled = i < v;
-        double size = i == 1 ? 35 : 25;
+        final size = i == 1 ? 35.0 : 25.0;
         return Padding(
           padding: spacing,
           child: Image.asset(
@@ -302,17 +288,16 @@ class LevelButton extends StatelessWidget {
       onTap: l.locked ? null : onTap,
       child: Column(
         children: [
-          !l.locked
-              ? SizedBox(
-                  height: 35,
-                  child: StarMeter(
-                    value: l.stars,
-                    max: 3,
-                    filledColor: starFilled,
-                    emptyColor: starEmpty,
-                  ),
-                )
-              : SizedBox(),
+          if (!l.locked)
+            SizedBox(
+              height: 35,
+              child: StarMeter(
+                value: l.stars,
+                max: 3,
+                filledColor: starFilled,
+                emptyColor: starEmpty,
+              ),
+            ),
           const SizedBox(height: 5),
           Stack(
             alignment: Alignment.center,
@@ -323,7 +308,7 @@ class LevelButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.bold,
-                  color: l.stars != 0 ? Colors.white : AppColors.grey_600,
+                  color: !l.locked  ? Colors.white : AppColors.grey_600,
                 ),
               ),
             ],

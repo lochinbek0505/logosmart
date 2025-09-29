@@ -13,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final List<Map<String, dynamic>> cards = [
     {
       "title": "Ilk nutqni\nrivojlantirish",
@@ -28,7 +27,6 @@ class _HomePageState extends State<HomePage> {
       "mainColor": Color(0xff20B9E8),
       "text": "3-5 yosh",
       "page": AlphabetPage(),
-
     },
     {
       "title": "Video\nmashg'ulotlar",
@@ -36,9 +34,9 @@ class _HomePageState extends State<HomePage> {
       "mainColor": Colors.blueGrey.shade700,
       "text": "0-5 yosh",
       "page": VideoLessonsPage(),
-
     },
   ];
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -110,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                           backgroundColor: Color(0xff20B9E8),
                           radius: 11,
                           child: Transform.translate(
-                            offset: Offset(0.9,0),
+                            offset: Offset(0.9, 0),
                             child: ImageIcon(
                               AssetImage("assets/icons/right_back.png"),
                               size: 12,
@@ -162,7 +160,10 @@ class _HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(8),
                                         value: 0.5,
                                         backgroundColor: Colors.grey.shade300,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.orange,
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -180,83 +181,100 @@ class _HomePageState extends State<HomePage> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16,right: 16,
-                bottom: 8,top: 20),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 8,
+                  top: 20,
+                ),
                 child: Container(
                   width: double.infinity,
                   height: 152,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
-                      image: AssetImage("assets/images/diagnostika.png",),
+                      image: AssetImage("assets/images/diagnostika.png"),
                       fit: BoxFit.fill,
                     ),
-
                   ),
                   child: Row(
                     children: [
                       Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            top: 14,
-                            bottom: 14,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Ekpress-\n diagnostika",
-                                style: TextStyle(
-                                  color: Colors.blueGrey.shade800,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          top: 14,
+                          bottom: 14,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Ekpress-\n diagnostika",
+                              style: TextStyle(
+                                color: Colors.blueGrey.shade800,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
                               ),
-                              SizedBox(height: 14),
+                            ),
+                            SizedBox(height: 14),
 
-                              GestureDetector(
-                                onTap: (){
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>DiagnosticPage()));
-                                },
-                                child: Container(
-                                  width: 110,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    color: Colors.orange.shade400,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (builder) => DiagnosticPage(),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 9),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text("Boshlash",style: TextStyle(
-                                            color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
-                                        ),),
-                                        Card(
-                                          elevation: 2,
-                                          shadowColor: Colors.orange.shade800,
-                                          child: CircleAvatar(
-                                            backgroundColor: Colors.orange,
-                                            radius: 11,
-                                            child: Transform.translate(
-                                              offset: Offset(0.9,0),
-                                              child: ImageIcon(
-                                                AssetImage("assets/icons/right_back.png"),
-                                                size: 12,
-                                                color: Colors.white,
+                                );
+                              },
+                              child: Container(
+                                width: 110,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: Colors.orange.shade400,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 9,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Boshlash",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Card(
+                                        elevation: 2,
+                                        shadowColor: Colors.orange.shade800,
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.orange,
+                                          radius: 11,
+                                          child: Transform.translate(
+                                            offset: Offset(0.9, 0),
+                                            child: ImageIcon(
+                                              AssetImage(
+                                                "assets/icons/right_back.png",
                                               ),
+                                              size: 12,
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
 
                       Spacer(),
                     ],
@@ -269,7 +287,10 @@ class _HomePageState extends State<HomePage> {
               delegate: SliverChildBuilderDelegate(
                 childCount: cards.length,
                 (contex, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16,
+                  ),
                   child: Container(
                     width: double.infinity,
                     height: 190,
@@ -303,8 +324,13 @@ class _HomePageState extends State<HomePage> {
                                 SizedBox(height: 12),
 
                                 GestureDetector(
-                                  onTap: (){
-                                    Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>cards[index]["page"]));
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (builder) =>
+                                            cards[index]["page"],
+                                      ),
+                                    );
                                   },
                                   child: Container(
                                     width: 110,
@@ -314,22 +340,33 @@ class _HomePageState extends State<HomePage> {
                                       color: cards[index]["mainColor"],
                                     ),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("Boshlash",style: TextStyle(
-                                            color: Colors.white,fontSize: 14,fontWeight: FontWeight.w700
-                                          ),),
+                                          Text(
+                                            "Boshlash",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
                                           CircleAvatar(
                                             backgroundColor: Colors.white,
                                             radius: 11,
                                             child: Transform.translate(
-                                              offset: Offset(0.9,0),
+                                              offset: Offset(0.9, 0),
                                               child: ImageIcon(
-                                                AssetImage("assets/icons/right_back.png"),
+                                                AssetImage(
+                                                  "assets/icons/right_back.png",
+                                                ),
                                                 size: 12,
-                                                color: cards[index]["mainColor"],
+                                                color:
+                                                    cards[index]["mainColor"],
                                               ),
                                             ),
                                           ),
@@ -349,11 +386,14 @@ class _HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Center(
-                                        child: Text("40 ta o'yin",style: TextStyle(
-                                          fontSize: 10.5,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600
-                                        ),),
+                                        child: Text(
+                                          "40 ta o'yin",
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     SizedBox(width: 4),
@@ -365,13 +405,15 @@ class _HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Center(
-                                        child: Text(cards[index]["text"],style: TextStyle(
+                                        child: Text(
+                                          cards[index]["text"],
+                                          style: TextStyle(
                                             fontSize: 10.5,
                                             color: Colors.white,
-                                            fontWeight: FontWeight.w600
-                                        ),),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
-
                                     ),
                                   ],
                                 ),
@@ -379,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        Spacer()
+                        Spacer(),
                       ],
                     ),
                   ),

@@ -1,12 +1,12 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/CameraPage.dart';
-import 'package:provider/provider.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
 import '../../../../providers/level_provider.dart';
-
 
 class Level {
   final int id;
@@ -66,6 +66,7 @@ class MapRoadPage extends StatelessWidget {
     );
   }
 }
+
 class _MapRoadBody extends StatelessWidget {
   const _MapRoadBody();
 
@@ -129,7 +130,7 @@ class _MapRoadBody extends StatelessWidget {
                   ),
 
                   Positioned(
-                    top: 60,
+                    top: 50,
                     child: SizedBox(
                       width: size.width,
                       child: Row(
@@ -139,13 +140,18 @@ class _MapRoadBody extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 25.0),
                             child: Row(
                               children: [
-                                Image.asset("assets/icons/star.png", scale: 2.5),
+                                Image.asset(
+                                  "assets/icons/star.png",
+                                  scale: 3,
+                                ),
                                 const SizedBox(width: 10),
                                 Text(
                                   // Masalan: jami yulduzlar summasini ko‘rsatish
-                                  levelStates.fold<int>(0, (p, e) => p + e.stars).toString(),
+                                  levelStates
+                                      .fold<int>(0, (p, e) => p + e.stars)
+                                      .toString(),
                                   style: TextStyle(
-                                    fontSize: 40,
+                                    fontSize: 35,
                                     color: AppColors.orange_300,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -155,13 +161,19 @@ class _MapRoadBody extends StatelessWidget {
                           ),
                           Image.asset(
                             "assets/icons/circle_bad.png",
-                            width: 80, height: 80, fit: BoxFit.cover,
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 25.0,
+                            ),
                             child: Image.asset(
                               "assets/icons/close_red.png",
-                              width: 55, height: 55, fit: BoxFit.cover,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ],
@@ -184,8 +196,13 @@ class _MapRoadBody extends StatelessWidget {
                           // final next = (l.stars + 1).clamp(0, 3);
                           // prov.setStars(l.id, next);
 
-                          Navigator.push(context, MaterialPageRoute(builder: (b)=>CameraPage(data: levelStates[l.id-1])));
-
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (b) =>
+                                  CameraPage(data: levelStates[l.id - 1]),
+                            ),
+                          );
                         },
                       ),
                     );
@@ -205,10 +222,10 @@ class _MapRoadBody extends StatelessWidget {
             onPressed: () {
               final prov = context.read<LevelProvider>();
               final locked = prov.levels.firstWhere(
-                    (e) => e.locked,
+                (e) => e.locked,
                 orElse: () => prov.levels.last,
               );
-              prov.unlock(locked.id);
+              prov.unlock(locked.id,0);
             },
             label: const Text('Unlock next'),
             icon: const Icon(Icons.lock_open),
@@ -276,7 +293,7 @@ class StarMeter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(max, (i) {
         final filled = i < v;
-        final size = i == 1 ? 35.0 : 25.0;
+        final size = i == 1 ? 30.0 : 20.0;
         return Padding(
           padding: spacing,
           child: Image.asset(
@@ -321,13 +338,13 @@ class LevelButton extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              Image.asset(l.skin, width: 80, height: 80, fit: BoxFit.cover),
+              Image.asset(l.skin, width: 70, height: 70, fit: BoxFit.cover),
               Text(
                 '${l.id}',
                 style: TextStyle(
-                  fontSize: 27,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
-                  color: !l.locked  ? Colors.white : AppColors.grey_600,
+                  color: !l.locked ? Colors.white : AppColors.grey_600,
                 ),
               ),
             ],

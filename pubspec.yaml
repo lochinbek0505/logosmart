@@ -59,6 +59,11 @@ dependencies:
   hive_flutter: ^1.1.0
   hive_generator: ^2.0.1
   provider: ^6.1.5+1
+  gif: ^2.3.0
+  gif_player: ^0.0.8
+  video_player: ^2.10.0
+  noise_meter: ^5.1.0
+  permission_handler: ^12.0.1
 #  fluttertoast: ^8.2.12
 dev_dependencies:
   flutter_test:

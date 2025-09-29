@@ -25,7 +25,7 @@ class AICamera extends StatefulWidget {
     this.imageFormat = ImageFormatGroup.jpeg,
     this.intervalMs = 450,
     this.iouThreshold = 0.45,
-    this.confThreshold = 0.35,
+    this.confThreshold = 0.5,
     this.classThreshold = 0.5,
     required this.onDetections,
   });

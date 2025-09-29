@@ -1,4 +1,3 @@
-// lib/providers/level_provider.dart
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
@@ -6,10 +5,9 @@ import '../core/storage/level_state.dart';
 
 const String kLevelsBox = 'levelsBox';
 
-const String skinGold   = 'assets/icons/gold.png';
+const String skinGold = 'assets/icons/gold.png';
 const String skinSilver = 'assets/icons/silver.png';
 
-/// TEST defaultlar: 1-2 level 'game', 3-4 level 'exercise' ko'rsatma uchun.
 final List<LevelState> kDefaultLevels = [
   LevelState(
     id: 1,
@@ -22,9 +20,19 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels.txt',
       mediaPath: 'assets/media/ic_ong.gif',
       steps: [
-        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'open_mouth'),
-        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'tongue_left'),
-        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'tongue_right'),
+        ExerciseStep(text: 'Og‘zingizni keng oching', action: "chap"),
+        ExerciseStep(
+          text: 'Tilni chapga chiqarib ko‘rsating',
+          action: 'ong',
+        ),
+        ExerciseStep(
+          text: 'Tilni o‘ngga chiqarib ko‘rsating',
+          action: 'chap',
+        ),
+        ExerciseStep(
+          text: 'Tilni o‘ngga chiqarib ko‘rsating',
+          action: 'ong',
+        ),
       ],
     ),
   ),
@@ -53,8 +61,14 @@ final List<LevelState> kDefaultLevels = [
 
       steps: [
         ExerciseStep(text: 'Og‘zingizni keng oching', action: 'open_mouth'),
-        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'tongue_left'),
-        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'tongue_right'),
+        ExerciseStep(
+          text: 'Tilni chapga chiqarib ko‘rsating',
+          action: 'tongue_left',
+        ),
+        ExerciseStep(
+          text: 'Tilni o‘ngga chiqarib ko‘rsating',
+          action: 'tongue_right',
+        ),
       ],
     ),
   ),
@@ -70,12 +84,14 @@ final List<LevelState> kDefaultLevels = [
       mediaPath: 'assets/media/lips.mp4',
       steps: [
         ExerciseStep(text: 'Lablarni bukib “u-u-u” deng', action: 'lips_round'),
-        ExerciseStep(text: 'Lablarni cho‘zing, keyin bo‘shating', action: 'lips_relax'),
+        ExerciseStep(
+          text: 'Lablarni cho‘zing, keyin bo‘shating',
+          action: 'lips_relax',
+        ),
       ],
     ),
   ),
 
-  // Qolganlari bo'sh qoladi (keyin siz to'ldirasiz):
   for (int i = 5; i <= 18; i++)
     LevelState(
       id: i,
@@ -83,16 +99,10 @@ final List<LevelState> kDefaultLevels = [
       locked: true,
       skin: skinSilver,
       mode: 'game',
-      game: GameInfo(
-        type: 'comingSoon',
-        jsonConfig: '{}',
-        objective: null,
-      ),
+      game: GameInfo(type: 'comingSoon', jsonConfig: '{}', objective: null),
     ),
 ];
 
-/// UIga ochish vazifasini tashqaridan berish uchun ixtiyoriy callback.
-/// (Masalan: `provider.onOpenLevel = (lv){ Navigator.push(...); };`)
 typedef OpenLevelCallback = void Function(LevelState level);
 
 class LevelProvider extends ChangeNotifier {
@@ -106,6 +116,7 @@ class LevelProvider extends ChangeNotifier {
   late Box<LevelState> _box;
 
   List<LevelState> _levels = [];
+
   List<LevelState> get levels => _levels;
 
   OpenLevelCallback? onOpenLevel;
@@ -120,18 +131,15 @@ class LevelProvider extends ChangeNotifier {
 
     if (_box.isEmpty) {
       // id'ni key sifatida ishlatamiz (barqaror va putAt muammosiz)
-      await _box.putAll({
-        for (final lv in kDefaultLevels) lv.id: lv,
-      });
+      await _box.putAll({for (final lv in kDefaultLevels) lv.id: lv});
     } else {
       // Agar mavjud box dagi elementlar soni yoki id set'i mos kelmasa, sinxronlash:
       final existingIds = _box.keys.cast<int>().toSet();
-      final defaultIds  = kDefaultLevels.map((e) => e.id).toSet();
-      if (existingIds.length != defaultIds.length || !existingIds.containsAll(defaultIds)) {
+      final defaultIds = kDefaultLevels.map((e) => e.id).toSet();
+      if (existingIds.length != defaultIds.length ||
+          !existingIds.containsAll(defaultIds)) {
         await _box.clear();
-        await _box.putAll({
-          for (final lv in kDefaultLevels) lv.id: lv,
-        });
+        await _box.putAll({for (final lv in kDefaultLevels) lv.id: lv});
       }
     }
 
@@ -158,10 +166,10 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> unlock(int id) async {
+  Future<void> unlock(int id , int stars) async {
     final lv = _box.get(id);
     if (lv == null) return;
-    final updated = lv.copyWith(locked: false, skin: skinGold);
+    final updated = lv.copyWith(locked: false, skin: skinGold , stars: stars);
     await _box.put(id, updated);
     _levels = _readAllSorted();
     notifyListeners();
@@ -201,8 +209,14 @@ class LevelProvider extends ChangeNotifier {
     } else {
       updated = updated.copyWith(
         game: null,
-        exercise: lv.exercise ??
-            const ExerciseInfo(modelPath: '', labelsPath: '', steps: [] , mediaPath: ''),
+        exercise:
+            lv.exercise ??
+            const ExerciseInfo(
+              modelPath: '',
+              labelsPath: '',
+              steps: [],
+              mediaPath: '',
+            ),
       );
     }
     await _box.put(id, updated);
@@ -230,9 +244,7 @@ class LevelProvider extends ChangeNotifier {
 
   Future<void> resetAll() async {
     await _box.clear();
-    await _box.putAll({
-      for (final lv in kDefaultLevels) lv.id: lv,
-    });
+    await _box.putAll({for (final lv in kDefaultLevels) lv.id: lv});
     _levels = _readAllSorted();
     notifyListeners();
   }

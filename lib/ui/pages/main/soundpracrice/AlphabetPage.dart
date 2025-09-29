@@ -14,7 +14,6 @@ class _AlphabetPageState extends State<AlphabetPage> {
     {"alphabet": "assets/alphabet/l.png", "text": "L", "number": 32},
     {"alphabet": "assets/alphabet/s.png", "text": "S", "number": 32},
     {"alphabet": "assets/alphabet/y.png", "text": "Y", "number": 32},
-    {"alphabet": "assets/alphabet/r.png", "text": "R", "number": 32},
   ];
 
   @override
@@ -79,7 +78,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 7),
                         child: Container(
-                          height: 130,
+                          height: 115,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 14,
@@ -109,8 +108,8 @@ class _AlphabetPageState extends State<AlphabetPage> {
                               Row(
                                 children: [
                                   Container(
-                                    width: 74,
-                                    height: 74,
+                                    width: 60,
+                                    height: 60,
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(40),
@@ -131,8 +130,8 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                       child: Center(
                                         child: Image.asset(
                                           alphabet[index]["alphabet"],
-                                          height: 46,
-                                          width: 46,
+                                          height: 35,
+                                          width: 35,
                                         ),
                                       ),
                                     ),
@@ -148,7 +147,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                         style: const TextStyle(
                                           color: Color(0xff093e5e),
                                           fontWeight: FontWeight.w600,
-                                          fontSize: 20,
+                                          fontSize: 17,
                                         ),
                                       ),
                                       const SizedBox(height: 6),
@@ -158,12 +157,12 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                             backgroundImage: const AssetImage(
                                               "assets/icons/circle.png",
                                             ),
-                                            radius: 18,
+                                            radius: 15,
                                             child: Transform.translate(
                                               offset: const Offset(1, -1),
                                               child: Image.asset(
                                                 "assets/icons/play.png",
-                                                width: 15,
+                                                width: 13,
                                               ),
                                             ),
                                           ),
@@ -172,7 +171,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                             "Boshlash",
                                             style: TextStyle(
                                               color: Color(0xff20B9E8),
-                                              fontSize: 14,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),

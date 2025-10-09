@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/StartButtonPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/BreathPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/MapRoadPage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/VoiceGamePage.dart';
 import 'package:logosmart/ui/pages/start/SplashScreen.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +43,7 @@ class MyApp extends StatelessWidget {
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MapRoadPage(),
+      home: VoiceGamePage(),
     );
   }
 }

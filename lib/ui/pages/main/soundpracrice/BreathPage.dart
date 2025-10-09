@@ -1,11 +1,16 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:video_player/video_player.dart';
+
+import '../../../../core/storage/level_state.dart';
 
 class BreathPage extends StatefulWidget {
-  const BreathPage({super.key});
+  final LevelState data;
+
+  BreathPage({super.key, required this.data});
 
   @override
   State<BreathPage> createState() => _BreathPageState();
@@ -18,7 +23,7 @@ class _BreathPageState extends State<BreathPage> {
   NoiseMeter? _noiseMeter;
   StreamSubscription<NoiseReading>? _noiseSub;
 
-  bool _sessionActive = false;         // 2s seans davom etyaptimi
+  bool _sessionActive = false; // 2s seans davom etyaptimi
   Timer? _sessionTimer;
 
   // Puflash sezgirligi (kuchsiz atrof shovqindan balandroq bo‘lishi kerak)
@@ -138,7 +143,9 @@ class _BreathPageState extends State<BreathPage> {
                       onTap: _startBlowSession,
                       child: CircleAvatar(
                         radius: 40,
-                        backgroundImage: const AssetImage("assets/icons/circle.png"),
+                        backgroundImage: const AssetImage(
+                          "assets/icons/circle.png",
+                        ),
                         child: Transform.translate(
                           offset: const Offset(0, -1),
                           child: Image.asset(
@@ -155,7 +162,9 @@ class _BreathPageState extends State<BreathPage> {
                       onTap: _pauseManually,
                       child: CircleAvatar(
                         radius: 30,
-                        backgroundImage: const AssetImage("assets/icons/circle.png"),
+                        backgroundImage: const AssetImage(
+                          "assets/icons/circle.png",
+                        ),
                         child: Transform.translate(
                           offset: const Offset(0, -1),
                           child: Image.asset(
@@ -178,14 +187,22 @@ class _BreathPageState extends State<BreathPage> {
               right: 12,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: _sessionActive ? Colors.green.withOpacity(0.85) : Colors.black45,
+                  color: _sessionActive
+                      ? Colors.green.withOpacity(0.85)
+                      : Colors.black45,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   _sessionActive ? "Seans: 2s ichida puflang" : "Tayyor",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

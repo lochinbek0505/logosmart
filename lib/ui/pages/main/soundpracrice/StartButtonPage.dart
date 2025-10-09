@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/BreathPage.dart';
 
-import '../soundpracrice/CameraPage.dart';
+import '../../../../core/storage/level_state.dart';
+import 'CameraPage.dart';
 
-class StartButtonPage extends StatefulWidget {
-  const StartButtonPage({super.key});
+class StartTextPage extends StatefulWidget {
+  final LevelState data;
+
+   StartTextPage({super.key , required this.data});
 
   @override
-  State<StartButtonPage> createState() => _StartButtonPageState();
+  State<StartTextPage> createState() => _StartTextPageState();
 }
 
-class _StartButtonPageState extends State<StartButtonPage> {
+class _StartTextPageState extends State<StartTextPage> {
   bool _isPressed = false;
 
   @override
@@ -81,16 +85,7 @@ class _StartButtonPageState extends State<StartButtonPage> {
               ),
 
             ),
-            Container(width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/backround_xira.png"),
-                  fit: BoxFit.fill,
-                ),
-              ),
 
-            ),
             SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,7 +109,7 @@ class _StartButtonPageState extends State<StartButtonPage> {
                     child: Transform.translate(
                       offset: Offset(0, 10),
                       child: Text(
-                        "Qani ketdik, meni\nortimdan taqlid qil!",
+                        widget.data.exercise!.steps[0].text,
                         textAlign: TextAlign.center,
 
                         style: TextStyle(
@@ -140,9 +135,19 @@ class _StartButtonPageState extends State<StartButtonPage> {
                         });
                       });
 
-                      // Future.delayed(const Duration(milliseconds: 180), () {
-                      //   Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  CameraPage()),);
-                      // });
+                      if(widget.data.mode=="exercise"){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CameraPage(data: widget.data,)),
+                        );
+                      }
+                      else if(widget.data.mode=="game"){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => BreathPage(data: widget.data,)),
+                        );
+                      }
+
                     },
                     child: Container(
                       padding: EdgeInsets.all(7),

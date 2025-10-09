@@ -6,25 +6,9 @@ import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
+import '../../../../models/level_model.dart';
 import '../../../../providers/level_provider.dart';
-
-class Level {
-  final int id;
-  final double dx;
-  final double dy;
-  final int stars;
-  final bool locked;
-  final String skin;
-
-  const Level({
-    required this.id,
-    required this.dx,
-    required this.dy,
-    required this.stars,
-    required this.locked,
-    required this.skin,
-  });
-}
+import 'StartButtonPage.dart';
 
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
@@ -140,10 +124,7 @@ class _MapRoadBody extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 25.0),
                             child: Row(
                               children: [
-                                Image.asset(
-                                  "assets/icons/star.png",
-                                  scale: 3,
-                                ),
+                                Image.asset("assets/icons/star.png", scale: 3),
                                 const SizedBox(width: 10),
                                 Text(
                                   // Masalan: jami yulduzlar summasini ko‘rsatish
@@ -196,13 +177,33 @@ class _MapRoadBody extends StatelessWidget {
                           // final next = (l.stars + 1).clamp(0, 3);
                           // prov.setStars(l.id, next);
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (b) =>
-                                  CameraPage(data: levelStates[l.id - 1]),
-                            ),
+                          var lv = levelStates[l.id - 1];
+
+                          var aa = lv.exercise!.steps[0].action == "about";
+                          print(levelStates[0].exercise!.steps[0].text);
+                          print(lv.exercise!.steps.length);
+                          print(
+                            "AÀAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAA",
                           );
+                          print(lv.exercise!.steps[0].action);
+                          if (aa) {
+                            // lv.exercise!.steps.removeAt(0);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (b) =>
+                                    StartTextPage(data: levelStates[l.id - 1]),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (b) =>
+                                    CameraPage(data: levelStates[l.id - 1]),
+                              ),
+                            );
+                          }
                         },
                       ),
                     );
@@ -225,7 +226,7 @@ class _MapRoadBody extends StatelessWidget {
                 (e) => e.locked,
                 orElse: () => prov.levels.last,
               );
-              prov.unlock(locked.id,0);
+              prov.unlock(locked.id, 0);
             },
             label: const Text('Unlock next'),
             icon: const Icon(Icons.lock_open),

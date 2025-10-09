@@ -64,6 +64,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     final steps = widget.data.exercise!.steps;
+    steps.removeAt(0);
     _sequence = steps
         .map((s) => _normalizeUz(s.action.toString()))
         .where((a) => a.isNotEmpty)

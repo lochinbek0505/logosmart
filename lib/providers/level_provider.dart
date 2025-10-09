@@ -20,6 +20,8 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels.txt',
       mediaPath: 'assets/media/ic_ong.gif',
       steps: [
+        ExerciseStep(text: "Qani ketdik, meni ortimdan mashqni bajar!", action: "about"),
+
         ExerciseStep(text: 'Og‘zingizni keng oching', action: "chap"),
         ExerciseStep(
           text: 'Tilni chapga chiqarib ko‘rsating',
@@ -54,7 +56,7 @@ final List<LevelState> kDefaultLevels = [
     locked: true,
     skin: skinSilver,
     mode: 'exercise',
-    exercise: ExerciseInfo(
+    exercise: ExerciseInfo( 
       modelPath: 'assets/ml/tongue_model.tflite',
       labelsPath: 'assets/ml/labels.txt',
       mediaPath: 'assets/media/lips.mp4',

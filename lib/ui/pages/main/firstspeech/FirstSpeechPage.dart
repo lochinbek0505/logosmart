@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/firstspeech/StartButtonPage.dart';
+import 'package:logosmart/ui/pages/main/soundpracrice/StartButtonPage.dart';
 
 class FirstSpeechPage extends StatefulWidget {
   const FirstSpeechPage({super.key});
@@ -93,7 +93,7 @@ class _FirstSpeechPageState extends State<FirstSpeechPage> {
                           });
 
                           Future.delayed(const Duration(milliseconds: 180), () {
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const StartButtonPage()),);
+                            // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const StartButtonPage()),);
                           });
                         },
                         child: Container(

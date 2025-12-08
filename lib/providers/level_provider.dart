@@ -18,23 +18,17 @@ final List<LevelState> kDefaultLevels = [
     exercise: ExerciseInfo(
       modelPath: 'assets/models/model3.tflite',
       labelsPath: 'assets/models/labels.txt',
-      mediaPath: 'assets/media/ic_ong.gif',
+      mediaPath: 'assets/media/ong_chap.MP4',
       steps: [
-        ExerciseStep(text: "Qani ketdik, meni ortimdan mashqni bajar!", action: "about"),
+        ExerciseStep(
+          text: "Qani ketdik, meni ortimdan mashqni bajar!",
+          action: "about",
+        ),
 
         ExerciseStep(text: 'Og‘zingizni keng oching', action: "chap"),
-        ExerciseStep(
-          text: 'Tilni chapga chiqarib ko‘rsating',
-          action: 'ong',
-        ),
-        ExerciseStep(
-          text: 'Tilni o‘ngga chiqarib ko‘rsating',
-          action: 'chap',
-        ),
-        ExerciseStep(
-          text: 'Tilni o‘ngga chiqarib ko‘rsating',
-          action: 'ong',
-        ),
+        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'ong'),
+        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'chap'),
+        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'ong'),
       ],
     ),
   ),
@@ -43,11 +37,21 @@ final List<LevelState> kDefaultLevels = [
     stars: 0,
     locked: true,
     skin: skinSilver,
-    mode: 'game',
-    game: GameInfo(
-      type: 'balloonPop',
-      jsonConfig: '{"target":30,"timeLimitSec":45}',
-      objective: 'Pop 30 balloons',
+    mode: 'exercise',
+    exercise: ExerciseInfo(
+      modelPath: 'assets/models/ogiz_lab_tish.tflite',
+      labelsPath: 'assets/models/labels_olt.txt',
+      mediaPath: 'assets/media/ogiz_lab.MP4',
+      steps: [
+        ExerciseStep(
+          text: "Qani ketdik, meni ortimdan mashqni bajar!",
+          action: "about",
+        ),
+        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'ogiz'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'ogiz'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+      ],
     ),
   ),
   LevelState(
@@ -56,40 +60,41 @@ final List<LevelState> kDefaultLevels = [
     locked: true,
     skin: skinSilver,
     mode: 'exercise',
-    exercise: ExerciseInfo( 
-      modelPath: 'assets/ml/tongue_model.tflite',
-      labelsPath: 'assets/ml/labels.txt',
-      mediaPath: 'assets/media/lips.mp4',
-
+    exercise: ExerciseInfo(
+      modelPath: 'assets/models/ogiz_lab_tish.tflite',
+      labelsPath: 'assets/models/labels_olt.txt',
+      mediaPath: 'assets/media/tish_lab.MP4',
       steps: [
-        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'open_mouth'),
         ExerciseStep(
-          text: 'Tilni chapga chiqarib ko‘rsating',
-          action: 'tongue_left',
+          text: "Qani ketdik, meni ortimdan mashqni bajar!",
+          action: "about",
         ),
-        ExerciseStep(
-          text: 'Tilni o‘ngga chiqarib ko‘rsating',
-          action: 'tongue_right',
-        ),
+        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
       ],
     ),
   ),
   LevelState(
-    id: 4,
+    id: 3,
     stars: 0,
     locked: true,
     skin: skinSilver,
     mode: 'exercise',
     exercise: ExerciseInfo(
-      modelPath: 'assets/ml/lips_model.tflite',
-      labelsPath: 'assets/ml/labels.txt',
-      mediaPath: 'assets/media/lips.mp4',
+      modelPath: 'assets/models/ogiz_lab_tish.tflite',
+      labelsPath: 'assets/models/labels_olt.txt',
+      mediaPath: 'assets/media/tish_lab.MP4',
       steps: [
-        ExerciseStep(text: 'Lablarni bukib “u-u-u” deng', action: 'lips_round'),
         ExerciseStep(
-          text: 'Lablarni cho‘zing, keyin bo‘shating',
-          action: 'lips_relax',
+          text: "Qani ketdik, meni ortimdan mashqni bajar!",
+          action: "about",
         ),
+        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
+        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
       ],
     ),
   ),
@@ -168,10 +173,10 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> unlock(int id , int stars) async {
+  Future<void> unlock(int id, int stars) async {
     final lv = _box.get(id);
     if (lv == null) return;
-    final updated = lv.copyWith(locked: false, skin: skinGold , stars: stars);
+    final updated = lv.copyWith(locked: false, skin: skinGold, stars: stars);
     await _box.put(id, updated);
     _levels = _readAllSorted();
     notifyListeners();

@@ -148,6 +148,7 @@ class LevelState {
 /// Qo'lda yozilgan adapter (typeId = 7).
 /// Eski yozuvlarda yangi maydonlar bo'lmasa ham xatosiz ochiladi.
 class LevelStateAdapter extends TypeAdapter<LevelState> {
+
   @override
   final int typeId = 7;
 

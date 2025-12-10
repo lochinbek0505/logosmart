@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ResaultButtonPage extends StatefulWidget {
-  const ResaultButtonPage({super.key});
+class ResaultPage extends StatefulWidget {
+  const ResaultPage({super.key});
 
   @override
-  State<ResaultButtonPage> createState() => _ResaultButtonPageState();
+  State<ResaultPage> createState() => _ResaultPageState();
 }
 
-class _ResaultButtonPageState extends State<ResaultButtonPage> {
+class _ResaultPageState extends State<ResaultPage> {
   bool _isPressed = false;
 
   @override

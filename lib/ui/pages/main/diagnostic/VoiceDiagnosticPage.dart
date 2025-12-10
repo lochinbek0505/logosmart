@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/ResaultButtonPage.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/ResultPage.dart';
 
 class VoiceDiagnosticPage extends StatefulWidget {
   const VoiceDiagnosticPage({super.key});
@@ -14,8 +14,8 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage> {
 
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  ResaultButtonPage()),);
+    Future.delayed(const Duration(seconds: 1000), () {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) =>  ResaultPage()),);
     });
 
   }
@@ -31,7 +31,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage> {
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/backround_toq.png"),
+            image: AssetImage("assets/images/backround_frame.png"),
             fit: BoxFit.fill,
           ),
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/videolesson/VediosPape.dart';
+import 'package:logosmart/ui/pages/main/videolesson/VideosPape.dart';
 
 class VideoLessonsPage extends StatefulWidget {
   const VideoLessonsPage({super.key});
@@ -154,7 +154,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (builder) => VediosPage(
+                                      builder: (builder) => VideosPage(
                                         title: vedioLesson[index]["text"],
                                       ),
                                     ),

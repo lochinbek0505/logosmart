@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/StartButtonPage.dart';
 
-class FirstSpeechPage extends StatefulWidget {
-  const FirstSpeechPage({super.key});
+class StartSpeechPage extends StatefulWidget {
+  const StartSpeechPage({super.key});
 
   @override
-  State<FirstSpeechPage> createState() => _FirstSpeechPageState();
+  State<StartSpeechPage> createState() => _StartSpeechPageState();
 }
 
-class _FirstSpeechPageState extends State<FirstSpeechPage> {
+class _StartSpeechPageState extends State<StartSpeechPage> {
   bool _isPressed = false;
 
   @override

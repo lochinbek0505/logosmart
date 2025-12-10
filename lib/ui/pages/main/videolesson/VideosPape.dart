@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class VediosPage extends StatefulWidget {
+class VideosPage extends StatefulWidget {
   final String title;
-  const VediosPage({super.key, required this.title});
+  const VideosPage({super.key, required this.title});
 
   @override
-  State<VediosPage> createState() => _VediosPageState();
+  State<VideosPage> createState() => _VideosPageState();
 }
 
-class _VediosPageState extends State<VediosPage> {
+class _VideosPageState extends State<VideosPage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;

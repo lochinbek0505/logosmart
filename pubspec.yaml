@@ -41,7 +41,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   dotted_border: ^3.1.0
   signal_strength_indicator: ^0.4.1
-  google_fonts: ^6.3.0
+  google_fonts: ^6.3.2
   smooth_page_indicator: ^1.2.1
   wave_linear_progress_indicator: ^0.1.0
   image_picker: ^1.2.0
@@ -49,10 +49,10 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   fluttertoast: ^8.2.12
 
-#  cupertino_icons: ^1.0.8
-#  flutter_speed_dial: ^6.2.0
-#  image_picker: ^0.8.6+3
-#  flutter_vision: ^1.1.4
+  #  cupertino_icons: ^1.0.8
+  #  flutter_speed_dial: ^6.2.0
+  #  image_picker: ^0.8.6+3
+  #  flutter_vision: ^1.1.4
   camera: ^0.11.2
 
   path_provider: ^2.1.5
@@ -65,6 +65,7 @@ dependencies:
   noise_meter: ^5.1.0
   permission_handler: ^12.0.1
   video_player: ^2.10.0
+  shiny_striped_progress_bar: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -91,16 +92,16 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-  - assets/fonts/
-  - assets/images/
-  - assets/jsons/
-  - assets/jsons/regions.json
-  - assets/icons/
-  - assets/alphabet/
-  - assets/media/
-  - assets/backround/
-  - assets/models/
-  - assets/models/tessdata/
+    - assets/fonts/
+    - assets/images/
+    - assets/jsons/
+    - assets/jsons/regions.json
+    - assets/icons/
+    - assets/alphabet/
+    - assets/media/
+    - assets/backround/
+    - assets/models/
+    - assets/models/tessdata/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -114,10 +115,10 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-     - family: Nunito
-       fonts:
-         - asset: assets/fonts/nunito.ttf
-           weight: 700
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/nunito.ttf
+          weight: 700
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
+import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
-import 'firstspeech/FirstSpeechPage.dart';
+import 'firstspeech/StartSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       "image": "assets/images/mashgulot_bad.png",
       "mainColor": Color(0xffebb6ae),
       "text": "4+ yosh",
-      "page": FirstSpeechPage(),
+      "page": StartSpeechPage(),
     },
     {
       "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
@@ -50,27 +53,29 @@ class _HomePageState extends State<HomePage> {
               automaticallyImplyLeading: false,
               collapsedHeight: 80,
               backgroundColor: Color(0xffd5eef7),
-              title: Padding(
-                padding: const EdgeInsets.only(top: 30, bottom: 10),
+              title: SizedBox(
+                height: 110,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Assalomu alaykum",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blueGrey.shade700,
+                          style: GoogleFonts.nunito(
+                            fontSize: 18,
+                            color: AppColors.main_blue_900,
                           ),
                         ),
                         Text(
-                          "Lobarxonim !",
+                          "Lobarxon !",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 27,
                             fontWeight: FontWeight.w600,
-                            color: Colors.blueGrey.shade800,
+                            color: AppColors.main_blue_900,
                           ),
                         ),
                       ],
@@ -78,13 +83,15 @@ class _HomePageState extends State<HomePage> {
                     ImageIcon(
                       AssetImage("assets/icons/notification.png"),
                       size: 20,
-                      color: Colors.blueGrey.shade800,
+                      color: AppColors.main_blue_900,
                     ),
                   ],
                 ),
               ),
             ),
             SliverAppBar(
+              toolbarHeight: 110,
+
               backgroundColor: Color(0xffd5eef7),
               automaticallyImplyLeading: false,
 
@@ -134,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                           Row(
                             children: [
                               CircleAvatar(
-                                radius: 25,
+                                radius: 28,
                                 backgroundImage: AssetImage(
                                   "assets/icons/circle_avatar.png",
                                 ),
@@ -156,14 +163,10 @@ class _HomePageState extends State<HomePage> {
                                     height: 10,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: LinearProgressIndicator(
-                                        borderRadius: BorderRadius.circular(8),
-                                        value: 0.5,
-                                        backgroundColor: Colors.grey.shade300,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.orange,
-                                            ),
+                                      child: ShinyStripedProgressBar(
+                                        progressColor: AppColors.orange_200,
+                                        stripeColor: AppColors.orange_500,
+                                        targetProgress: .5,
                                       ),
                                     ),
                                   ),
@@ -177,7 +180,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              toolbarHeight: 110,
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -209,9 +211,9 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Ekpress-\n diagnostika",
+                              "Ekpress-\ndiagnostika",
                               style: TextStyle(
-                                color: Colors.blueGrey.shade800,
+                                color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -379,8 +381,8 @@ class _HomePageState extends State<HomePage> {
                                 Row(
                                   children: [
                                     Container(
-                                      width: 64,
-                                      height: 22,
+                                      width: 67,
+                                      height: 27,
                                       decoration: BoxDecoration(
                                         color: Color(0xff60e04c),
                                         borderRadius: BorderRadius.circular(12),
@@ -389,7 +391,7 @@ class _HomePageState extends State<HomePage> {
                                         child: Text(
                                           "40 ta o'yin",
                                           style: TextStyle(
-                                            fontSize: 10.5,
+                                            fontSize: 11,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -398,17 +400,17 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     SizedBox(width: 4),
                                     Container(
-                                      width: 62,
-                                      height: 22,
+                                      width: 67,
+                                      height: 27,
                                       decoration: BoxDecoration(
-                                        color: Colors.orange.shade400,
+                                        color: Colors.orange.shade300,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Center(
                                         child: Text(
                                           cards[index]["text"],
                                           style: TextStyle(
-                                            fontSize: 10.5,
+                                            fontSize: 11,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                           ),

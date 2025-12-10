@@ -71,9 +71,19 @@ class _AlphabetPageState extends State<AlphabetPage> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => MapRoadPage()),
-                        );
+                        if (index == 0) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => MapRoadPage()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Bu qism bo'yicha ishlar davom etyabdi",
+                              ),
+                            ),
+                          );
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 7),

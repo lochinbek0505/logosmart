@@ -48,7 +48,10 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                                   height: 40,
                                 ),
                                 SizedBox(width: 12),
-                                Image.asset("assets/icons/namber_o.png", height: 35),
+                                Image.asset(
+                                  "assets/icons/namber_o.png",
+                                  height: 35,
+                                ),
                               ],
                             ),
                             Container(
@@ -78,8 +81,9 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                       ),
                       SizedBox(height: 30),
                       Container(
-                        width: size.width*0.75,// 290,
-                        height:202,
+                        width: size.width * 0.75,
+                        // 290,
+                        height: 202,
                         padding: EdgeInsets.only(
                           left: 10,
                           right: 10,
@@ -89,7 +93,7 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/images/big_cloud.png"),
-                            fit: BoxFit.fill
+                            fit: BoxFit.fill,
                           ),
                         ),
                         child: Transform.translate(
@@ -97,7 +101,7 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                           child: Text(
                             "Rasmlarni nomini\nayting! Tashxislarni\nshovqinsiz olib\nboring.",
                             textAlign: TextAlign.center,
-            
+
                             style: TextStyle(
                               color: Colors.blueGrey.shade700,
                               fontWeight: FontWeight.w600,
@@ -106,10 +110,8 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: size.width*0.82,
-                      ),
-            
+                      SizedBox(height: size.width * 0.82),
+
                       GestureDetector(
                         onTap: () {
                           setState(() {
@@ -120,9 +122,13 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                               _isPressed = false;
                             });
                           });
-            
+
                           Future.delayed(const Duration(milliseconds: 180), () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VoiceDiagnosticPage()),);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const VoiceDiagnosticPage(),
+                              ),
+                            );
                           });
                         },
                         child: Container(
@@ -189,23 +195,25 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                                 ),
                         ),
                       ),
-                      SizedBox(height: 30,)
+                      SizedBox(height: 30),
                     ],
                   ),
                 ),
                 Center(
                   child: Column(
                     children: [
-                      SizedBox(height: 300,),
+                      SizedBox(height: 300),
                       SizedBox(
-                        width: size.width*0.43,
-                        height: size.width*0.85,
-                        child: Image.asset("assets/images/women.png",fit: BoxFit.fill,),
+                        width: size.width * 0.43,
+                        height: size.width * 0.85,
+                        child: Image.asset(
+                          "assets/images/women.png",
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ],
                   ),
                 ),
-            
               ],
             ),
           ),

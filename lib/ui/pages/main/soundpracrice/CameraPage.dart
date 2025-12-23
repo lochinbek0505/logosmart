@@ -1,16 +1,17 @@
 import 'dart:async';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:logosmart/ui/widgets/AICamera.dart';
-import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/storage/level_state.dart';
-import '../../../../providers/level_provider.dart';
+import '../widgets/camera_box.dart';
+import '../widgets/debug_panel.dart';
+import '../widgets/detection_overlay.dart';
+import '../widgets/instruction_text.dart';
+import '../widgets/top_bar.dart';
+import '../widgets/video_box.dart';
 
-/// MP4 video fayllar bilan ishlovchi optimallashtirilgan kamera sahifasi
 class CameraPage extends StatefulWidget {
   final LevelState data;
 
@@ -20,97 +21,424 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-enum _SeqState { idle, waiting, success, fail }
-
 class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Key _camKey = UniqueKey();
   bool _cameraActive = true;
-  Color _camBorderColor = const Color(0xff20B9E8);
-  late List<String> _sequence;
-  int _idx = 0;
-  int _errors = 0;
 
-  static const Duration _acceptCooldown = Duration(milliseconds: 600);
-  DateTime? _lastAcceptedAt;
-  _SeqState _seqState = _SeqState.idle;
-  DateTime? _lastToastAt;
+  // ====== FRAME-BASED VOTING SOZLAMALARI ======
+  final double _minConfidencePerVote =
+      0.60; // ✅ 60% dan yuqori ovlarni qabul qilish
+  final int _requiredFrames = 3; // ✅ 3 ta frame kerak
+  final double _requiredAvgConfidence =
+      0.60; // ✅ O'rtacha 65% dan yuqori bo'lishi kerak
 
-  static const int _windowMs = 800;
-  static const int _minHoldMs = 300;
-  static const int _stepTimeoutMs = 5000;
-  static const int _minVotes = 1;
-  static const double _minAvgConf = 0.50;
-
-  // ====== VIDEO CONTROLLER - MP4 uchun optimallashtirilgan ======
+  // ====== VIDEO CONTROLLER ======
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
   String? _currentVideoPath;
 
-  late DateTime _stepStartAt;
-  final _VoteWindow _vote = _VoteWindow(windowMs: _windowMs);
-  String? _lastAcceptedLabel;
-
   List<Map<String, dynamic>> _lastDetections = [];
   Map<String, dynamic>? _currentBest;
-  double _stability = 0.0;
   bool _showDebugPanel = false;
+
+  // ====== KETMA-KETLIK NAZORATI ======
+  late List<ExerciseStep> _steps;
+  int _currentStepIndex = 0;
+  int _completedCycles = 0;
+  final int _totalCycles = 7;
+
+  // ====== FRAME-BASED VOTING TIZIMI ======
+  List<double> _confidenceVotes = [];
+  int _currentFrameCount = 0; // Joriy frame hisoblagich
+  bool _isProcessingVote = false;
+
+  // ====== VIZUAL FEEDBACK ======
+  Color _cameraBoxBorderColor = const Color(0xff20B9E8);
+  bool _showSuccessAnimation = false;
+  String _feedbackMessage = '';
+
+  // ====== MASHQ SOZLAMALARI ======
+  bool _isExerciseCompleted = false;
+  bool _waitingForNextStep = false;
+
+  // ====== FPS TRACKING ======
+  int _frameCount = 0;
+  DateTime _lastFpsUpdate = DateTime.now();
+  double _currentFps = 0.0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Mashq bosqichlarini tayyorlash
-    final steps = List<ExerciseStep>.from(widget.data.exercise!.steps);
-    if (steps.isNotEmpty) {
-      steps.removeAt(0); // Birinchi "about" stepni olib tashlash
+    _steps = widget.data.exercise?.steps ?? [];
+
+    if (_steps.isEmpty) {
+      debugPrint('❌ Steps topilmadi');
+      return;
     }
 
-    _sequence = steps
-        .map((s) => _normalizeUz(s.action.toString()))
-        .where((a) => a.isNotEmpty)
-        .toList();
+    debugPrint('🎯 Ketma-ketlik boshlandi:  ${_steps.length} ta bosqich');
+    debugPrint('📊 Frame-based Voting sozlamalari: ');
+    debugPrint(
+      '  - Minimal konfidenslik: $_minConfidencePerVote (${(_minConfidencePerVote * 100).toInt()}%)',
+    );
+    debugPrint('  - Kerakli frame lar: $_requiredFrames ta');
+    debugPrint(
+      '  - O\'rtacha talabi: $_requiredAvgConfidence (${(_requiredAvgConfidence * 100).toInt()}%)',
+    );
+    _logSteps();
 
-    if (_sequence.length > 4) {
-      _sequence = _sequence.take(4).toList();
-    }
-
-    _seqState = _SeqState.waiting;
-    _setBorderNormal();
-    _stepStartAt = DateTime.now();
-
-    // Video initsializatsiya - MP4 fayl
     _initializeVideo();
+  }
 
-    // Birinchi ko'rsatma
-    _showStepInstruction();
+  void _logSteps() {
+    for (int i = 0; i < _steps.length; i++) {
+      debugPrint('  [$i] ${_steps[i].text} (action: ${_steps[i].action})');
+    }
+  }
+
+  // ====== DETEKSIYA LOGIKASI ======
+
+  void _onDetections(List<Map<String, dynamic>> results, Size imgSize) {
+    _lastDetections = results;
+
+    // FPS hisoblash
+    _updateFps();
+
+    if (!mounted ||
+        results.isEmpty ||
+        _waitingForNextStep ||
+        _isExerciseCompleted ||
+        _isProcessingVote) {
+      return;
+    }
+
+    // Eng yaxshi deteksiyani topish
+    Map<String, dynamic>? best;
+    double bestConf = -1;
+
+    for (final r in results) {
+      final conf = _extractConfidence(r);
+      if (conf > bestConf) {
+        bestConf = conf;
+        best = r;
+      }
+    }
+
+    if (best != null) {
+      _currentBest = best;
+      double conf = _extractConfidence(best);
+      String label = _extractLabel(best);
+
+      // Kutilgan harakat bilan solishtirish
+      String expectedAction = _steps[_currentStepIndex].action;
+
+      if (label.toLowerCase().contains(expectedAction.toLowerCase())) {
+        // ✅ Faqat 60% dan yuqori ovlarni qabul qilish
+        if (conf >= _minConfidencePerVote) {
+          _currentFrameCount++;
+          _confidenceVotes.add(conf);
+
+          debugPrint(
+            '✅ FRAME ${_currentFrameCount}/$_requiredFrames: '
+            'conf=${(conf * 100).toStringAsFixed(1)}% | '
+            'action="$label"',
+          );
+
+          // ✅ Kerakli framelar yig'ilganda tekshirish
+          if (_currentFrameCount >= _requiredFrames) {
+            _processFrameVotingResult();
+          }
+        } else {
+          debugPrint(
+            '⏭️ FRAME RAD: conf=${(conf * 100).toStringAsFixed(1)}% '
+            '(< ${(_minConfidencePerVote * 100).toStringAsFixed(1)}%)',
+          );
+        }
+      } else {
+        // ❌ Noto'g'ri harakat - frame lar ni reset qilish
+        if (_currentFrameCount > 0) {
+          debugPrint(
+            '❌ NOTO\'G\'RI HARAKAT: "$label" != "$expectedAction" | '
+            'Frame lar reset qilindi (${_currentFrameCount} ta)',
+          );
+          _resetFrameVoting();
+        }
+      }
+
+      if (mounted) setState(() {});
+    }
+  }
+
+  /// FPS ni yangilash
+  void _updateFps() {
+    _frameCount++;
+    final now = DateTime.now();
+    final duration = now.difference(_lastFpsUpdate);
+
+    if (duration.inMilliseconds >= 1000) {
+      _currentFps = _frameCount / (duration.inMilliseconds / 1000);
+      debugPrint('📸 Kamera FPS: ${_currentFps.toStringAsFixed(1)} fps');
+
+      _frameCount = 0;
+      _lastFpsUpdate = now;
+
+      if (mounted) setState(() {});
+    }
+  }
+
+  /// Frame-based voting natijasini qayta ishlash
+  void _processFrameVotingResult() {
+    if (_isProcessingVote) {
+      debugPrint('⚠️ Allaqachon processing, skip');
+      return;
+    }
+
+    _isProcessingVote = true;
+
+    debugPrint('\n📊 ========== FRAME VOTING NATIJASI ==========');
+
+    // 1-TEKSHIRUV:  Frame lar soni to'g'rimi?
+    if (_confidenceVotes.length < _requiredFrames) {
+      debugPrint('❌ KAM FRAME LAR: ');
+      debugPrint('  Hozirgi:  ${_confidenceVotes.length} ta');
+      debugPrint('  Talab: $_requiredFrames ta');
+      _onStepFailure();
+      _resetFrameVoting();
+      return;
+    }
+
+    // 2-TEKSHIRUV: O'rtacha konfidenslik yetarlimi?
+    double avgConfidence =
+        _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
+
+    debugPrint('📈 FRAME TAHLILI:');
+    debugPrint('  Frame lar: ${_confidenceVotes.length} ta');
+    debugPrint(
+      '  Konfidensliklar: ${_confidenceVotes.map((e) => '${(e * 100).toStringAsFixed(0)}%').join(', ')}',
+    );
+    debugPrint('  O\'rtacha: ${(avgConfidence * 100).toStringAsFixed(1)}%');
+    debugPrint(
+      '  Talab: ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
+    );
+
+    bool voteSuccessful = avgConfidence >= _requiredAvgConfidence;
+
+    if (voteSuccessful) {
+      debugPrint('✅ QABUL QILINDI! ');
+      debugPrint(
+        '  Sabab:  Avg ${(avgConfidence * 100).toStringAsFixed(1)}% >= ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
+      );
+      debugPrint('============================================\n');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '✅ TO\'G\'RI:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}% ($_requiredFrames frame)',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(milliseconds: 800),
+        ),
+      );
+
+      _onStepSuccess();
+    } else {
+      debugPrint('❌ RAD ETILDI! ');
+      debugPrint(
+        '  Sabab:  Avg ${(avgConfidence * 100).toStringAsFixed(1)}% < ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
+      );
+      debugPrint('============================================\n');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '❌ QAYTA:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}% < ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(milliseconds: 800),
+        ),
+      );
+
+      _onStepFailure();
+    }
+
+    _resetFrameVoting();
+  }
+
+  /// Frame voting holatini qayta tiklash
+  void _resetFrameVoting() {
+    debugPrint('🔄 Frame voting holati qayta tiklanmoqda.. .');
+    _isProcessingVote = false;
+    _currentFrameCount = 0;
+    _confidenceVotes.clear();
+  }
+
+  /// Bosqich muvaffaqiyatli
+  void _onStepSuccess() {
+    debugPrint(
+      '✅ Bosqich muvaffaqiyatli!  Action: ${_steps[_currentStepIndex].action}',
+    );
+
+    setState(() {
+      _cameraBoxBorderColor = Colors.green;
+      _showSuccessAnimation = true;
+      _feedbackMessage = '✅ To\'g\'ri! ';
+    });
+
+    Fluttertoast.showToast(
+      msg: '✅ To\'g\'ri bajarildi! ',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+
+    _moveToNextStep();
+  }
+
+  /// Bosqich muvaffaqiyatsiz
+  void _onStepFailure() {
+    debugPrint('❌ Bosqich muvaffaqiyatsiz.  Qayta urinib ko\'ring');
+
+    setState(() {
+      _cameraBoxBorderColor = Colors.red;
+      _feedbackMessage = '❌ Qayta urinib ko\'ring';
+    });
+
+    Fluttertoast.showToast(
+      msg: '❌ Noto\'g\'ri, qayta urinib ko\'ring',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        setState(() {
+          _cameraBoxBorderColor = const Color(0xff20B9E8);
+          _showSuccessAnimation = false;
+          _feedbackMessage = '';
+        });
+      }
+    });
+  }
+
+  /// Keyingi bosqichga o'tish
+  void _moveToNextStep() {
+    _waitingForNextStep = true;
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+
+      if (_currentStepIndex < _steps.length - 1) {
+        setState(() {
+          _currentStepIndex++;
+          _cameraBoxBorderColor = const Color(0xff20B9E8);
+          _showSuccessAnimation = false;
+          _feedbackMessage = '';
+          _waitingForNextStep = false;
+        });
+        debugPrint('➡️ Keyingi bosqichga o\'tildi:  $_currentStepIndex');
+      } else {
+        _completedCycles++;
+        debugPrint('🔄 Tsikl tugadi: $_completedCycles / $_totalCycles');
+
+        if (_completedCycles < _totalCycles) {
+          setState(() {
+            _currentStepIndex = 0;
+            _cameraBoxBorderColor = const Color(0xff20B9E8);
+            _showSuccessAnimation = false;
+            _feedbackMessage = '';
+            _waitingForNextStep = false;
+          });
+          debugPrint(
+            '♻️ Yangi tsikl boshlandi: $_completedCycles / $_totalCycles',
+          );
+        } else {
+          _onAllExercisesCompleted();
+        }
+      }
+    });
+  }
+
+  /// Barcha mashqlar tugaganda
+  void _onAllExercisesCompleted() {
+    debugPrint('🎉 MASHQ YAKUNLANDI!  7 marta to\'liq ketma-ketlik');
+
+    setState(() {
+      _isExerciseCompleted = true;
+      _cameraActive = false;
+      _showSuccessAnimation = false;
+      _feedbackMessage = '🎉 Tabriklaymiz! ';
+    });
+
+    _videoController?.pause();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '🎉 Ajoyib! ',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Siz barcha mashqlarni muvaffaqiyatli bajardingiz!\n\n'
+          'Jami: $_totalCycles marta to\'liq ketma-ketlik',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Tayyor',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// MP4 video faylni yuklash va sozlash
   Future<void> _initializeVideo() async {
     try {
-      // Video fayl yo'lini olish
-      _currentVideoPath = widget.data.exercise?.mediaPath ?? 'assets/video.mp4';
+      _currentVideoPath =
+          widget.data.exercise?.mediaPath ?? 'assets/video. mp4';
 
-      debugPrint('🎬 MP4 video yuklanmoqda: $_currentVideoPath');
+      debugPrint('🎬 MP4 video yuklanmoqda:  $_currentVideoPath');
 
-      // Eski controller'ni tozalash (agar mavjud bo'lsa)
       await _videoController?.dispose();
 
-      // Yangi controller yaratish - MP4 fayl uchun
       _videoController = VideoPlayerController.asset(
         _currentVideoPath!,
         videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true, // Boshqa audio bilan aralashishi mumkin
-          allowBackgroundPlayback: false, // Fonda ijro etilmasin
+          mixWithOthers: true,
+          allowBackgroundPlayback: false,
         ),
       );
 
-      // Controller listener qo'shish - xatolarni ushlash uchun
       _videoController!.addListener(() {
         if (_videoController!.value.hasError) {
-          debugPrint('❌ Video xatolik: ${_videoController!.value.errorDescription}');
+          debugPrint(
+            '❌ Video xatolik: ${_videoController!.value.errorDescription}',
+          );
           if (mounted) {
             setState(() {
               _isVideoError = true;
@@ -118,21 +446,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
             });
           }
         }
-
-        // Video tugaganda (agar loop bo'lmasa)
-        if (_videoController!.value.position >= _videoController!.value.duration) {
-          debugPrint('🔄 Video tugadi, qayta boshlanmoqda...');
-        }
       });
 
-      // Video'ni initsializatsiya qilish
       await _videoController!.initialize();
-
-      debugPrint('✅ Video muvaffaqiyatli initsializatsiya qilindi');
-      debugPrint('📊 Video ma\'lumotlari:');
-      debugPrint('   - O\'lcham: ${_videoController!.value.size.width}x${_videoController!.value.size.height}');
-      debugPrint('   - Davomiyligi: ${_videoController!.value.duration.inSeconds}s');
-      debugPrint('   - Aspect Ratio: ${_videoController!.value.aspectRatio}');
 
       if (mounted) {
         setState(() {
@@ -140,12 +456,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           _isVideoError = false;
         });
 
-        // Video sozlamalarini qo'llash
-        await _videoController!.setLooping(true);  // Takroriy ijro
-        await _videoController!.setVolume(0.0);     // Ovozni o'chirish (mashqda chalg'itmasin)
-        await _videoController!.play();             // Avtomatik boshlash
+        await _videoController!.setLooping(true);
+        await _videoController!.setVolume(0.0);
+        await _videoController!.play();
 
-        debugPrint('▶️ Video ijro etilmoqda (loop: true, volume: 0)');
+        debugPrint('▶️ Video ijro etilmoqda (loop: true)');
       }
     } catch (e, stackTrace) {
       debugPrint('❌ Video yuklashda xatolik: $e');
@@ -157,9 +472,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           _isVideoError = true;
         });
 
-        // Xatolik haqida toast ko'rsatish
         Fluttertoast.showToast(
-          msg: "⚠️ Video yuklashda xatolik",
+          msg: '⚠️ Video yuklashda xatolik',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
@@ -171,15 +485,13 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    debugPrint('🧹 CameraPage dispose qilinmoqda...');
+    debugPrint('🧹 CameraPage dispose qilinmoqda.. .');
 
-    // Video controller'ni to'xtatish va tozalash
     _videoController?.removeListener(() {});
     _videoController?.pause();
     _videoController?.dispose();
     _videoController = null;
 
-    // Observer'ni olib tashlash
     WidgetsBinding.instance.removeObserver(this);
 
     super.dispose();
@@ -188,7 +500,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   @override
   void reassemble() {
     super.reassemble();
-    // Hot reload'da video'ni qayta yuklash
     _safeRestartVideo();
   }
 
@@ -196,30 +507,22 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     debugPrint('📱 App lifecycle o\'zgardi: $state');
 
-    // Video'ni lifecycle'ga qarab boshqarish
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      // Fon'ga ketganda to'xtatish
-      debugPrint('⏸️ Video to\'xtatilmoqda (app background)');
       _videoController?.pause();
 
       if (_cameraActive) {
         setState(() => _cameraActive = false);
       }
     } else if (state == AppLifecycleState.resumed) {
-      // Qaytib kelganda davom ettirish
-      debugPrint('▶️ Video qayta boshlanmoqda (app resumed)');
-
       if (_isVideoInitialized && _videoController != null) {
         _videoController!.play();
       } else {
-        // Agar video muammoli bo'lsa, qayta yuklash
         _initializeVideo();
       }
 
-      // Kamera'ni ham qayta ishga tushirish
       Future.delayed(const Duration(milliseconds: 150), () {
-        if (mounted) {
+        if (mounted && !_isExerciseCompleted) {
           setState(() {
             _camKey = UniqueKey();
             _cameraActive = true;
@@ -229,11 +532,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
   }
 
-  /// Video'ni xavfsiz tarzda qayta yuklash
   void _safeRestartVideo() {
     if (!mounted) return;
-
-    debugPrint('🔄 Video qayta yuklanmoqda...');
 
     setState(() {
       _isVideoInitialized = false;
@@ -245,42 +545,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         _initializeVideo();
       }
     });
-  }
-
-  /// Kamera'ni xavfsiz tarzda qayta yuklash
-  void _safeStopCameraAndRemount() {
-    if (!mounted) return;
-
-    debugPrint('📷 Kamera qayta yuklanmoqda...');
-
-    setState(() => _cameraActive = false);
-
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (!mounted) return;
-      setState(() {
-        _camKey = UniqueKey();
-        _cameraActive = true;
-      });
-    });
-  }
-
-  void _showStepInstruction() {
-    if (_idx >= _sequence.length) return;
-
-    final currentAction = _sequence[_idx];
-    final step = widget.data.exercise!.steps.firstWhere(
-          (s) => _normalizeUz(s.action.toString()) == currentAction,
-      orElse: () => widget.data.exercise!.steps.first,
-    );
-
-    Fluttertoast.showToast(
-      msg: "📋 ${step.text}",
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.TOP,
-      backgroundColor: const Color(0xff20B9E8),
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
   }
 
   @override
@@ -296,12 +560,14 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           mini: true,
-          backgroundColor: _showDebugPanel ? Colors.red : const Color(0xff20B9E8),
+          backgroundColor: _showDebugPanel
+              ? Colors.red
+              : const Color(0xff20B9E8),
           onPressed: () {
             setState(() => _showDebugPanel = !_showDebugPanel);
           },
           child: Icon(
-            _showDebugPanel ? Icons.bug_report : Icons.bug_report,
+            _showDebugPanel ? Icons.bug_report : Icons.bug_report_outlined,
             color: Colors.white,
           ),
         ),
@@ -316,46 +582,19 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                 height: double.infinity,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("assets/images/backround_xira.png"),
+                    image: AssetImage('assets/images/backround_xira.png'),
                     fit: BoxFit.fill,
                   ),
                 ),
               ),
 
               // Yuqori panel
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Orqaga qaytish
-                      SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (mounted) setState(() => _cameraActive = false);
-                            _videoController?.pause();
-                            Navigator.of(context).pop();
-                          },
-                          child: Image.asset(
-                            "assets/icons/arrow_right_button.png",
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                      ),
-                      // Yulduzlar
-                      Row(
-                        children: [
-                          Image.asset("assets/icons/star.png", width: 40, height: 40),
-                          const SizedBox(width: 12),
-                          Image.asset("assets/icons/namber_o.png", height: 35),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              TopBar(
+                onBack: () {
+                  if (mounted) setState(() => _cameraActive = false);
+                  _videoController?.pause();
+                  Navigator.of(context).pop();
+                },
               ),
 
               // Markaziy content
@@ -365,30 +604,97 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   SizedBox(width: size.width, height: 150),
 
                   // MP4 Video player
-                  _buildMP4VideoBox(size),
+                  VideoBox(
+                    size: size,
+                    isVideoInitialized: _isVideoInitialized,
+                    isVideoError: _isVideoError,
+                    currentVideoPath: _currentVideoPath,
+                    videoController: _videoController,
+                    showDebugPanel: _showDebugPanel,
+                    onRetry: _initializeVideo,
+                  ),
 
                   const SizedBox(height: 15),
 
-                  // Progress
-                  _buildProgressIndicator(),
+                  // Tsikl progress
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Tsikl:  $_completedCycles / $_totalCycles',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 15),
 
-                  // Kamera
-                  _buildCameraBox(size),
+                  // Kamera (rings bilan)
+                  _buildCameraBoxWithBorder(size),
 
                   const SizedBox(height: 15),
 
                   // Ko'rsatma
-                  _buildCurrentInstructionText(),
+                  InstructionText(
+                    stepNumber: _currentStepIndex + 1,
+                    totalSteps: _steps.length,
+                    instructionText: _steps.isNotEmpty
+                        ? _steps[_currentStepIndex].text
+                        : 'Steps topilmadi',
+                  ),
                 ],
               ),
 
               // Debug panel
-              if (_showDebugPanel) _buildDebugPanel(),
+              if (_showDebugPanel)
+                DebugPanel(
+                  isVideoInitialized: _isVideoInitialized,
+                  isVideoError: _isVideoError,
+                  videoController: _videoController,
+                  currentBest: _currentBest,
+                  lastDetections: _lastDetections,
+                ),
 
               // Deteksiya overlay
-              _buildDetectionOverlay(),
+              if (_currentBest != null)
+                DetectionOverlay(
+                  currentBest: _currentBest,
+                  onExtractLabel: _extractLabel,
+                  onExtractConfidence: _extractConfidence,
+                ),
+
+              // Debug ma'lumotlari
+              if (_showDebugPanel) _buildDebugInfo(),
+
+              // Feedback message
+              if (_feedbackMessage.isNotEmpty)
+                Positioned(
+                  top: size.height * 0.35,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _cameraBoxBorderColor.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _feedbackMessage,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -396,427 +702,62 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     );
   }
 
-  /// MP4 video player qutisi - TO'LIQ OPTIMALLASHTIRILGAN
-  Widget _buildMP4VideoBox(Size size) {
-    return Container(
+  Widget _buildCameraBoxWithBorder(Size size) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: size.width * 0.6,
       height: size.width * 0.6,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xff20B9E8), width: 3),
+        border: Border.all(color: _cameraBoxBorderColor, width: 4),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff20B9E8).withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(19),
-        child: _buildVideoContent(),
-      ),
-    );
-  }
-
-  /// Video content - holat bo'yicha render qilish
-  Widget _buildVideoContent() {
-    // 1. XATOLIK holati
-    if (_isVideoError) {
-      return Container(
-        color: Colors.black12,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Colors.red.shade400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'MP4 video yuklashda xatolik',
-              style: TextStyle(
-                color: Colors.red.shade700,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _currentVideoPath ?? 'Video yo\'li topilmadi',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 11,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _isVideoError = false;
-                  _isVideoInitialized = false;
-                });
-                _initializeVideo();
-              },
-              icon: const Icon(Icons.refresh, size: 20),
-              label: const Text('Qayta yuklash'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff20B9E8),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // 2. YUKLANMOQDA holati
-    if (!_isVideoInitialized || _videoController == null) {
-      return Container(
-        color: Colors.black12,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xff20B9E8)),
-              strokeWidth: 3,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'MP4 video yuklanmoqda...',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _currentVideoPath?.split('/').last ?? '',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // 3. VIDEO TAYYOR - ko'rsatish
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Video player - aspect ratio to'g'ri
-        Center(
-          child: AspectRatio(
-            aspectRatio: _videoController!.value.aspectRatio,
-            child: VideoPlayer(_videoController!),
-          ),
-        ),
-
-        // Play/Pause va progress (debug rejimida)
-        if (_showDebugPanel) ...[
-          // Progress bar
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: VideoProgressIndicator(
-              _videoController!,
-              allowScrubbing: true,
-              colors: const VideoProgressColors(
-                playedColor: Color(0xff20B9E8),
-                bufferedColor: Colors.white30,
-                backgroundColor: Colors.white10,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            ),
-          ),
-
-          // Play/Pause button
-          Positioned(
-            bottom: 24,
-            right: 8,
-            child: Material(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  setState(() {
-                    if (_videoController!.value.isPlaying) {
-                      _videoController!.pause();
-                      debugPrint('⏸️ Video to\'xtatildi (manual)');
-                    } else {
-                      _videoController!.play();
-                      debugPrint('▶️ Video davom ettirildi (manual)');
-                    }
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    _videoController!.value.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Video info badge
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'MP4 • ${_videoController!.value.duration.inSeconds}s',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
-
-        // Center play button (video to'xtaganda)
-        if (!_videoController!.value.isPlaying && !_showDebugPanel)
-          Center(
-            child: Material(
-              color: Colors.black54,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
-                  _videoController!.play();
-                },
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                    size: 48,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildProgressIndicator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          // Progress bar
-          Row(
-            children: List.generate(_sequence.length, (index) {
-              Color color;
-              if (index < _idx) {
-                color = Colors.green; // Bajarilgan
-              } else if (index == _idx) {
-                color = const Color(0xff20B9E8); // Joriy
-              } else {
-                color = Colors.grey.shade300; // Kutilayotgan
-              }
-
-              return Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: index == _idx
-                        ? [
-                      BoxShadow(
-                        color: color.withOpacity(0.5),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                        : null,
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 8),
-          // Progress matn
-          Text(
-            '${_idx + 1} / ${_sequence.length} bosqich',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xff20B9E8),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCameraBox(Size size) {
-    return Container(
-      width: size.width * 0.6,
-      height: size.width * 0.6,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: _camBorderColor, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: _camBorderColor.withOpacity(0.5),
-            blurRadius: _seqState == _SeqState.waiting ? 15 : 10,
-            spreadRadius: _seqState == _SeqState.waiting ? 2 : 0,
+            color: _cameraBoxBorderColor.withOpacity(0.6),
+            blurRadius: 15,
+            spreadRadius: 2,
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(19),
         child: _cameraActive
-            ? AICamera(
-          key: _camKey,
-          modelPath: widget.data.exercise!.modelPath,
-          labelsPath: widget.data.exercise!.labelsPath,
-          useGpu: true,
-          numThreads: 2,
-          lensDirection: CameraLensDirection.front,
-          intervalMs: 400,
-          iouThreshold: 0.45,
-          confThreshold: 0.35,
-          classThreshold: 0.5,
-          onDetections: _onDetections,
-        )
-            : const _SuccessGifPlaceholder(),
-      ),
-    );
-  }
-
-  Widget _buildCurrentInstructionText() {
-    if (_idx >= _sequence.length) {
-      return const SizedBox.shrink();
-    }
-
-    final currentAction = _sequence[_idx];
-    final step = widget.data.exercise!.steps.firstWhere(
-          (s) => _normalizeUz(s.action.toString()) == currentAction,
-      orElse: () => widget.data.exercise!.steps.first,
-    );
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.white,
-            Colors.white.withOpacity(0.95),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xff20B9E8),
-                  const Color(0xff20B9E8).withOpacity(0.7),
-                ],
+            ? CameraBox(
+                size: Size(size.width * 0.6, size.width * 0.6),
+                cameraActive: _cameraActive,
+                camKey: _camKey,
+                modelPath: widget.data.exercise!.modelPath,
+                labelsPath: widget.data.exercise!.labelsPath,
+                onDetections: _onDetections,
+              )
+            : Container(
+                color: Colors.black,
+                child: const Center(
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 60,
+                  ),
+                ),
               ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xff20B9E8).withOpacity(0.3),
-                  blurRadius: 8,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.accessibility_new,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Bosqich ${_idx + 1}/${_sequence.length}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  step.text,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildDetectionOverlay() {
+  Widget _buildDebugInfo() {
+    double avgConf = _confidenceVotes.isEmpty
+        ? 0
+        : _confidenceVotes. reduce((a, b) => a + b) / _confidenceVotes.length;
+
     return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
+      top: 200,
+      left: 10,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.black.withOpacity(0.8),
-              Colors.black.withOpacity(0.7),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.black.withOpacity(0.85),
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.cyan.withOpacity(0.5),
             width: 1,
           ),
         ),
@@ -824,253 +765,61 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Aniqlangan harakat
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _currentBest != null
-                        ? Colors.green.withOpacity(0.3)
-                        : Colors.orange.withOpacity(0.3),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _currentBest != null ? Icons.check_circle : Icons.hourglass_empty,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _currentBest != null ? "ANIQLANDI" : "KUTILMOQDA",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _currentBest != null
-                            ? _extractLabel(_currentBest!).toUpperCase()
-                            : "Harakatni bajaring...",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            if (_currentBest != null) ...[
-              const SizedBox(height: 16),
-
-              // Ishonch darajasi
-              _buildProgressRow(
-                "Ishonch",
-                _extractConfidence(_currentBest!),
-                _getConfidenceColor(_extractConfidence(_currentBest!)),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Barqarorlik
-              _buildProgressRow(
-                "Barqarorlik",
-                _stability,
-                _getStabilityColor(_stability),
-              ),
-            ],
-
-            // Vaqt
-            if (_seqState == _SeqState.waiting && _idx < _sequence.length) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    color: Colors.white.withOpacity(0.7),
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Qolgan vaqt: ${_getRemainingTime()}s",
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            _row('📍', '${_currentStepIndex + 1}/${_steps.length}', Colors.cyan),
+            _row('🔄', '${_completedCycles}/${_totalCycles}', Colors.purple),
+            _row('📊', '$_currentFrameCount/$_requiredFrames',
+                _currentFrameCount >= _requiredFrames ? Colors. green : Colors.orange),
+            _row('⚡', '${(avgConf * 100).toStringAsFixed(0)}%',
+                avgConf >= _requiredAvgConfidence ? Colors.green : Colors. yellow),
+            _row('📸', '${_currentFps. toStringAsFixed(0)}',
+                _currentFps < 15 ? Colors.red : Colors. green),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProgressRow(String label, double value, Color color) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: value,
-              backgroundColor: Colors.white.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 8,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 45,
-          child: Text(
-            "${(value * 100).toStringAsFixed(0)}%",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDebugPanel() {
-    return Positioned(
-      top: 100,
-      right: 10,
-      child: Container(
-        width: 220,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.green, width: 2),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.bug_report, color: Colors.green, size: 18),
-                const SizedBox(width: 8),
-                const Text(
-                  "DEBUG PANEL",
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(color: Colors.green, height: 16),
-
-            // Video ma'lumotlari
-            _debugSection("VIDEO", [
-              _debugRow("Holat", _isVideoInitialized ? "✅ Tayyor" : "⏳ Yuklanmoqda"),
-              _debugRow("Xatolik", _isVideoError ? "❌ Ha" : "✅ Yo'q"),
-              if (_videoController != null && _isVideoInitialized)
-                _debugRow("Ijro", _videoController!.value.isPlaying ? "▶️ Ha" : "⏸️ Yo'q"),
-              if (_videoController != null && _isVideoInitialized)
-                _debugRow("O'lcham", "${_videoController!.value.size.width.toInt()}x${_videoController!.value.size.height.toInt()}"),
-            ]),
-
-            const Divider(color: Colors.green, height: 16),
-
-            // Mashq ma'lumotlari
-            _debugSection("MASHQ", [
-              _debugRow("Holat", _seqState.toString().split('.').last.toUpperCase()),
-              _debugRow("Bosqich", "${_idx + 1}/${_sequence.length}"),
-              _debugRow("Xatolar", "$_errors"),
-              _debugRow("Kutilmoqda", _idx < _sequence.length ? _sequence[_idx] : "-"),
-            ]),
-
-            if (_currentBest != null) ...[
-              const Divider(color: Colors.green, height: 16),
-              _debugSection("DETEKSIYA", [
-                _debugRow("Label", _extractLabel(_currentBest!)),
-                _debugRow("Conf", "${(_extractConfidence(_currentBest!) * 100).toStringAsFixed(1)}%"),
-                _debugRow("Stab", "${(_stability * 100).toStringAsFixed(1)}%"),
-                _debugRow("Soni", "${_lastDetections.length}"),
-              ]),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _debugSection(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.green.shade300,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        ...children,
-      ],
-    );
-  }
-
-  Widget _debugRow(String label, String value) {
+  Widget _row(String icon, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 1.5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
+          Text(icon, style: TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
           Text(
-            "$label:",
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 11,
+            value,
+            style:  TextStyle(
+              color: color,
+              fontSize: 9,
+              fontWeight: FontWeight. bold,
             ),
           ),
-          Flexible(
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.right,
-              overflow: TextOverflow.ellipsis,
+        ],
+      ),
+    );
+  }
+  Widget _infoChip(String text, Color color, {String? icon}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.5), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Text(icon, style: TextStyle(fontSize: 9)),
+            const SizedBox(width: 3),
+          ],
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -1078,174 +827,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     );
   }
 
-  Color _getConfidenceColor(double conf) {
-    if (conf >= 0.7) return Colors.green;
-    if (conf >= 0.5) return Colors.orange;
-    return Colors.red;
-  }
-
-  Color _getStabilityColor(double stability) {
-    if (stability >= 0.7) return Colors.green;
-    if (stability >= 0.4) return Colors.yellow;
-    return Colors.orange;
-  }
-
-  int _getRemainingTime() {
-    final elapsed = DateTime.now().difference(_stepStartAt).inMilliseconds;
-    final remaining = _stepTimeoutMs - elapsed;
-    return (remaining / 1000).ceil().clamp(0, 999);
-  }
-
-  // ====== DETEKSIYA LOGIKASI ======
-
-  void _onDetections(List<Map<String, dynamic>> results, Size imgSize) {
-    _lastDetections = results;
-
-    if (!mounted || results.isEmpty) {
-      _currentBest = null;
-      _stability = 0.0;
-      if (mounted) setState(() {});
-      return;
-    }
-
-    if (_seqState == _SeqState.success) return;
-
-    Map<String, dynamic>? best;
-    double bestConf = -1;
-
-    for (final r in results) {
-      final conf = _extractConfidence(r);
-      if (conf > bestConf) {
-        bestConf = conf;
-        best = r;
-      }
-    }
-
-    if (best == null) {
-      _currentBest = null;
-      _stability = 0.0;
-      if (mounted) setState(() {});
-      return;
-    }
-
-    _currentBest = best;
-    final tag = _normalizeUz(_extractLabel(best));
-
-    if (tag.isEmpty) {
-      _stability = 0.0;
-      if (mounted) setState(() {});
-      return;
-    }
-
-    _maybeToast(tag);
-
-    final expected = (_idx < _sequence.length) ? _sequence[_idx] : null;
-    if (expected == null) return;
-
-    final now = DateTime.now();
-    _vote.add(label: tag, conf: bestConf, at: now);
-
-    final votesForExpected = _vote.countLabel(expected);
-    final avgConfExpected = _vote.avgConf(expected);
-    final expectedFirstSeen = _vote.firstSeen(expected);
-
-    final maxPossibleVotes = (_windowMs / 400).ceil();
-    _stability = (votesForExpected / maxPossibleVotes).clamp(0.0, 1.0);
-
-    if (mounted) setState(() {});
-
-    final hasMinVotes = votesForExpected >= _minVotes;
-    final hasMinConf = avgConfExpected >= _minAvgConf;
-    final heldLongEnough = expectedFirstSeen != null &&
-        now.difference(expectedFirstSeen) >= Duration(milliseconds: _minHoldMs);
-
-    if (hasMinVotes && hasMinConf && heldLongEnough) {
-      if (_lastAcceptedLabel == expected &&
-          _lastAcceptedAt != null &&
-          now.difference(_lastAcceptedAt!) < _acceptCooldown) {
-        return;
-      }
-
-      _acceptStep(expected, now);
-      return;
-    }
-
-    if (now.difference(_stepStartAt) >= Duration(milliseconds: _stepTimeoutMs)) {
-      _timeoutStep(now);
-    }
-  }
-
-  void _acceptStep(String expected, DateTime now) {
-    debugPrint('✅ Bosqich qabul qilindi: $expected');
-
-    _lastAcceptedAt = now;
-    _lastAcceptedLabel = expected;
-    _idx++;
-    _seqState = _SeqState.waiting;
-    _setBorderGreen();
-    _vote.clear();
-    _stepStartAt = now;
-    _stability = 0.0;
-
-    if (_idx >= _sequence.length) {
-      debugPrint('🎉 Barcha bosqichlar bajarildi!');
-      _seqState = _SeqState.success;
-
-      if (mounted) {
-        setState(() => _cameraActive = false);
-      }
-
-      _videoController?.pause();
-      _showSuccessDialog();
-      return;
-    }
-
-    _showStepInstruction();
-
-    Future.delayed(const Duration(milliseconds: 250), () {
-      if (!mounted || _seqState == _SeqState.success) return;
-      _setBorderNormal();
-    });
-  }
-
-  void _timeoutStep(DateTime now) {
-    debugPrint('⏰ Timeout: ${_sequence[_idx]}');
-
-    _errors += 1;
-    _seqState = _SeqState.waiting;
-    _setBorderRed();
-
-    Fluttertoast.showToast(
-      msg: "⏰ Vaqt tugadi! Keyingi bosqich",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-
-    _idx = (_idx + 1).clamp(0, _sequence.length);
-    _vote.clear();
-    _stepStartAt = now;
-    _stability = 0.0;
-
-    if (_idx >= _sequence.length) {
-      _seqState = _SeqState.success;
-      if (mounted) {
-        setState(() => _cameraActive = false);
-      }
-      _videoController?.pause();
-      _showSuccessDialog();
-      return;
-    }
-
-    _showStepInstruction();
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted || _seqState == _SeqState.success) return;
-      _setBorderNormal();
-    });
-  }
+  // ====== DETEKSIYA HELPER FUNKSIYALARI ======
 
   double _extractConfidence(Map<String, dynamic> r) {
     final candidates = [
@@ -1278,313 +860,5 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
 
     return '';
-  }
-
-  void _setBorderNormal() {
-    if (mounted) setState(() => _camBorderColor = const Color(0xff20B9E8));
-  }
-
-  void _setBorderGreen() {
-    if (mounted) setState(() => _camBorderColor = Colors.green);
-  }
-
-  void _setBorderRed() {
-    if (mounted) setState(() => _camBorderColor = Colors.red);
-  }
-
-  Future<void> _showSuccessDialog() async {
-    final prov = context.read<LevelProvider>();
-    final locked = prov.levels.firstWhere(
-          (e) => e.locked,
-      orElse: () => prov.levels.last,
-    );
-
-    int stars = 3;
-    if (_errors == 1) {
-      stars = 2;
-    } else if (_errors > 1) {
-      stars = 1;
-    }
-
-    prov.unlock(locked.id, stars);
-
-    if (!mounted) return;
-
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Success icon
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle,
-                  size: 80,
-                  color: Colors.green.shade400,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                "🎉 Ajoyib!",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.green,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 12),
-
-              Text(
-                "Siz barcha bosqichlarni\nmuvaffaqiyatli bajardingiz!",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 20),
-
-              // Statistika
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    _statRow("Bosqichlar", "${_sequence.length}/${_sequence.length}", Icons.check_circle_outline),
-                    const Divider(height: 16),
-                    _statRow("Xatolar", "$_errors", Icons.error_outline,
-                        color: _errors == 0 ? Colors.green : Colors.orange),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Yulduzlar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(3, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(
-                      index < stars ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
-                      size: 48,
-                    ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Tugma
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff20B9E8),
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    "Davom etish",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _statRow(String label, String value, IconData icon, {Color? color}) {
-    return Row(
-      children: [
-        Icon(icon, color: color ?? Colors.grey.shade600, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
-            ),
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: color ?? Colors.grey.shade800,
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _normalizeUz(String s) {
-    var t = s.toLowerCase();
-    t = t
-        .replaceAll(''', "'")
-        .replaceAll('ʼ', "'")
-        .replaceAll(''', "'")
-        .replaceAll('`', "'")
-        .replaceAll('ʻ', "'")
-        .replaceAll('´', "'");
-    t = t
-        .replaceAll("o'", "o")
-        .replaceAll("g'", "g");
-    t = t.replaceAll(RegExp(r'\s+|\.'), '');
-    return t;
-  }
-
-  void _maybeToast(String msg) {
-    final now = DateTime.now();
-    if (_lastToastAt == null ||
-        now.difference(_lastToastAt!) > const Duration(milliseconds: 900)) {
-      _lastToastAt = now;
-      Fluttertoast.showToast(
-        msg: "👁️ $msg",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.black87,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    }
-  }
-}
-
-// ====== VOTING TIZIMI ======
-
-class _VoteWindow {
-  final int windowMs;
-  final List<_Hit> _hits = [];
-
-  _VoteWindow({required this.windowMs});
-
-  void add({required String label, required double conf, required DateTime at}) {
-    _hits.add(_Hit(label, conf, at));
-    _trim(at);
-  }
-
-  void _trim(DateTime now) {
-    final cutoff = now.subtract(Duration(milliseconds: windowMs));
-    while (_hits.isNotEmpty && _hits.first.at.isBefore(cutoff)) {
-      _hits.removeAt(0);
-    }
-  }
-
-  int countLabel(String label) => _hits.where((h) => h.label == label).length;
-
-  double avgConf(String label) {
-    final list = _hits.where((h) => h.label == label).toList();
-    if (list.isEmpty) return 0.0;
-    final sum = list.fold<double>(0.0, (a, b) => a + b.conf);
-    return sum / list.length;
-  }
-
-  DateTime? firstSeen(String label) {
-    for (final h in _hits) {
-      if (h.label == label) return h.at;
-    }
-    return null;
-  }
-
-  void clear() => _hits.clear();
-}
-
-class _Hit {
-  final String label;
-  final double conf;
-  final DateTime at;
-  _Hit(this.label, this.conf, this.at);
-}
-
-// ====== SUCCESS PLACEHOLDER ======
-
-class _SuccessGifPlaceholder extends StatelessWidget {
-  const _SuccessGifPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.green.shade50,
-            Colors.green.shade100,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green.withOpacity(0.3),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.check_circle,
-              size: 80,
-              color: Colors.green,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            "✅ Yakunlandi",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Colors.green,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

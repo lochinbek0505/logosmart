@@ -20,15 +20,9 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels.txt',
       mediaPath: 'assets/media/ong_chap.MP4',
       steps: [
-        ExerciseStep(
-          text: "Qani ketdik, meni ortimdan mashqni bajar!",
-          action: "about",
-        ),
 
-        ExerciseStep(text: 'Og‘zingizni keng oching', action: "chap"),
-        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'ong'),
-        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'chap'),
-        ExerciseStep(text: 'Tilni o‘ngga chiqarib ko‘rsating', action: 'ong'),
+        ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
+        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'chap'),
       ],
     ),
   ),

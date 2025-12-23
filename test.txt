@@ -1,0 +1,1225 @@
+import 'dart:ui' as ui;
+
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:logosmart/ui/widgets/AICamera.dart';
+import 'package:logosmart/ui/widgets/AiCameraOptimized.dart';
+
+/// AI Camera test va debug sahifasi
+/// Model ishlashini to'liq monitor qilish uchun
+class AICameraTestPage extends StatefulWidget {
+  const AICameraTestPage({super.key});
+
+  @override
+  State<AICameraTestPage> createState() => _AICameraTestPageState();
+}
+
+class _AICameraTestPageState extends State<AICameraTestPage> {
+  // Model parametrlari - O'ZGARTIRING!
+  final String _modelPath = 'assets/models/model3.tflite';
+  final String _labelsPath = 'assets/models/labels.txt';
+
+  // Deteksiya natijalari
+  List<Map<String, dynamic>> _detections = [];
+  ui.Size _imageSize = ui.Size.zero;
+
+  // Statistika
+  int _totalDetections = 0;
+  int _frameCount = 0;
+  DateTime _startTime = DateTime.now();
+  String? _errorMessage;
+
+  // Filtrlar
+  double _minConfidence = 0.3;
+  bool _showAllDetections = true;
+
+  // Color palette
+  final List<Color> _colors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.cyan,
+    Colors.pink,
+    Colors.amber,
+    Colors.teal,
+    Colors.indigo,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(),
+
+            // Kamera va overlay
+            Expanded(
+              child: Stack(
+                children: [
+                  // AI Camera
+                  AICamera(
+                    modelPath: _modelPath,
+                    labelsPath: _labelsPath,
+                    useGpu: true,
+                    numThreads: 2,
+                    lensDirection: CameraLensDirection.front,
+                    intervalMs: 300,
+                    confThreshold: _minConfidence,
+                    iouThreshold: 0.45,
+                    onDetections: _onDetections,
+                    onError: _onError,
+                    showLoadingIndicator: true,
+                  ),
+
+                  // Bounding boxes overlay
+                  if (_detections.isNotEmpty)
+                    CustomPaint(
+                      painter: _BoundingBoxPainter(
+                        detections: _detections,
+                        imageSize: _imageSize,
+                        colors: _colors,
+                      ),
+                      child: Container(),
+                    ),
+
+                  // Error overlay
+                  if (_errorMessage != null)
+                    Positioned(
+                      top: 20,
+                      left: 20,
+                      right: 20,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error, color: Colors.white),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                setState(() => _errorMessage = null);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // Deteksiya ma'lumotlari panel
+            _buildDetectionPanel(),
+          ],
+        ),
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Reset statistika
+          FloatingActionButton(
+            heroTag: 'reset',
+            mini: true,
+            backgroundColor: Colors.orange,
+            onPressed: _resetStats,
+            child: const Icon(Icons.refresh),
+          ),
+          const SizedBox(height: 12),
+          // Settings
+          FloatingActionButton(
+            heroTag: 'settings',
+            mini: true,
+            backgroundColor: Colors.blue,
+            onPressed: _showSettings,
+            child: const Icon(Icons.settings),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    final uptime = DateTime.now().difference(_startTime).inSeconds;
+    final avgDetectionsPerFrame = _frameCount > 0
+        ? _totalDetections / _frameCount
+        : 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade900, Colors.blue.shade700],
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const Expanded(
+                child: Text(
+                  '🧪 AI Camera Test Lab',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(width: 48),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Statistika
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _statChip('Uptime', '${uptime}s', Icons.timer),
+              _statChip('Frames', '$_frameCount', Icons.image),
+              _statChip('Total Det. ', '$_totalDetections', Icons.visibility),
+              _statChip(
+                'Avg/Frame',
+                avgDetectionsPerFrame.toStringAsFixed(1),
+                Icons.analytics,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statChip(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.white, size: 16),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetectionPanel() {
+    return Container(
+      height: 300,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade900,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 5,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.radar,
+                      color: _detections.isEmpty ? Colors.grey : Colors.green,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Deteksiyalar (${_detections.length})',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Switch(
+                  value: _showAllDetections,
+                  onChanged: (value) {
+                    setState(() => _showAllDetections = value);
+                  },
+                  activeColor: Colors.green,
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(color: Colors.white24, height: 1),
+
+          // Deteksiyalar ro'yxati
+          Expanded(
+            child: _detections.isEmpty
+                ? _buildEmptyState()
+                : _buildDetectionList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: Colors.white.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Hech narsa aniqlanmadi',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Kamera oldiga obyekt qo\'ying',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.3),
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetectionList() {
+    final filteredDetections = _showAllDetections
+        ? _detections
+        : _detections.where((d) => d['confidence'] >= _minConfidence).toList();
+
+    // Class bo'yicha guruhlash
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+    for (final det in filteredDetections) {
+      final tag = det['tag'] as String;
+      grouped.putIfAbsent(tag, () => []).add(det);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: grouped.length,
+      itemBuilder: (context, index) {
+        final className = grouped.keys.elementAt(index);
+        final detections = grouped[className]!;
+        final color = _colors[index % _colors.length];
+
+        return _buildClassGroup(className, detections, color);
+      },
+    );
+  }
+
+  Widget _buildClassGroup(
+    String className,
+    List<Map<String, dynamic>> detections,
+    Color color,
+  ) {
+    // O'rtacha confidence
+    final avgConf =
+        detections.fold<double>(
+          0.0,
+          (sum, det) => sum + (det['confidence'] as double),
+        ) /
+        detections.length;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Theme(
+        data: ThemeData.dark(),
+        child: ExpansionTile(
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '${detections.length}',
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            className.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          subtitle: Text(
+            'O\'rtacha ishonch: ${(avgConf * 100).toStringAsFixed(1)}%',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 12,
+            ),
+          ),
+          children: detections.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final det = entry.value;
+            return _buildDetectionItem(det, idx + 1, color);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetectionItem(
+    Map<String, dynamic> detection,
+    int index,
+    Color color,
+  ) {
+    final confidence = detection['confidence'] as double;
+    final box = detection['box'] as Map<String, dynamic>;
+
+    final x1 = box['x1'] as double;
+    final y1 = box['y1'] as double;
+    final x2 = box['x2'] as double;
+    final y2 = box['y2'] as double;
+
+    final width = (x2 - x1).abs();
+    final height = (y2 - y1).abs();
+    final area = width * height;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade900,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '#$index',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ishonch darajasi',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      '${(confidence * 100).toStringAsFixed(2)}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              CircularProgressIndicator(
+                value: confidence,
+                backgroundColor: Colors.white.withOpacity(0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  confidence > 0.7
+                      ? Colors.green
+                      : confidence > 0.5
+                      ? Colors.orange
+                      : Colors.red,
+                ),
+                strokeWidth: 6,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Bounding box ma'lumotlari
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                _infoRow('📍 Pozitsiya', 'X: ${x1.toInt()}, Y: ${y1.toInt()}'),
+                const Divider(color: Colors.white12, height: 16),
+                _infoRow(
+                  '📏 O\'lcham',
+                  '${width.toInt()} × ${height.toInt()} px',
+                ),
+                const Divider(color: Colors.white12, height: 16),
+                _infoRow('📦 Maydon', '${area.toInt()} px²'),
+                const Divider(color: Colors.white12, height: 16),
+                _infoRow(
+                  '🎯 Koordinatlar',
+                  '(${x1.toInt()}, ${y1.toInt()}) → (${x2.toInt()}, ${y2.toInt()})',
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: confidence,
+              backgroundColor: Colors.white.withOpacity(0.1),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _onDetections(List<Map<String, dynamic>> results, ui.Size imageSize) {
+    setState(() {
+      _detections = results;
+      _imageSize = imageSize;
+      _frameCount++;
+      _totalDetections += results.length;
+    });
+  }
+
+  void _onError(String error) {
+    setState(() {
+      _errorMessage = error;
+    });
+  }
+
+  void _resetStats() {
+    setState(() {
+      _totalDetections = 0;
+      _frameCount = 0;
+      _startTime = DateTime.now();
+      _errorMessage = null;
+    });
+  }
+
+  void _showSettings() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey.shade900,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '⚙️ Sozlamalar',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  const Text(
+                    'Minimal ishonch:',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${(_minConfidence * 100).toInt()}%',
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Slider(
+                value: _minConfidence,
+                min: 0.1,
+                max: 0.9,
+                divisions: 8,
+                label: '${(_minConfidence * 100).toInt()}%',
+                onChanged: (value) {
+                  setModalState(() => _minConfidence = value);
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.check),
+                label: const Text('Saqlash'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size.fromHeight(50),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bounding box chizuvchi
+class _BoundingBoxPainter extends CustomPainter {
+  final List<Map<String, dynamic>> detections;
+  final ui.Size imageSize;
+  final List<Color> colors;
+
+  _BoundingBoxPainter({
+    required this.detections,
+    required this.imageSize,
+    required this.colors,
+  });
+
+  @override
+  void paint(Canvas canvas, ui.Size size) {
+    if (imageSize.width == 0 || imageSize.height == 0) return;
+
+    final scaleX = size.width / imageSize.width;
+    final scaleY = size.height / imageSize.height;
+
+    // Class'larga rang berish
+    final Map<String, Color> classColors = {};
+    int colorIndex = 0;
+
+    for (final detection in detections) {
+      final tag = detection['tag'] as String;
+      final confidence = detection['confidence'] as double;
+      final box = detection['box'] as Map<String, dynamic>;
+
+      // Rang
+      if (!classColors.containsKey(tag)) {
+        classColors[tag] = colors[colorIndex % colors.length];
+        colorIndex++;
+      }
+      final color = classColors[tag]!;
+
+      // Koordinatalar
+      final x1 = (box['x1'] as double) * scaleX;
+      final y1 = (box['y1'] as double) * scaleY;
+      final x2 = (box['x2'] as double) * scaleX;
+      final y2 = (box['y2'] as double) * scaleY;
+
+      final rect = Rect.fromLTRB(x1, y1, x2, y2);
+
+      // Box paint
+      final boxPaint = Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.0;
+
+      // Fill paint (shaffof)
+      final fillPaint = Paint()
+        ..color = color.withOpacity(0.2)
+        ..style = PaintingStyle.fill;
+
+      // Chizish
+      canvas.drawRect(rect, fillPaint);
+      canvas.drawRect(rect, boxPaint);
+
+      // Label background
+      final label = '$tag ${(confidence * 100).toInt()}%';
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+
+      textPainter.layout();
+
+      final labelRect = Rect.fromLTWH(
+        x1,
+        y1 - textPainter.height - 8,
+        textPainter.width + 12,
+        textPainter.height + 8,
+      );
+
+      final labelPaint = Paint()..color = color;
+      canvas.drawRect(labelRect, labelPaint);
+
+      // Label text
+      textPainter.paint(canvas, Offset(x1 + 6, y1 - textPainter.height - 4));
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BoundingBoxPainter oldDelegate) => true;
+}
+ mana shu kodda AICamera ni ishlatganimda kod ishladi lekin sen oldin yozib bergan optimized da ishlamadi kod , yani label aniqlanmadi lekin AiCamera widgetida camerada tasvir qotyabdi va aniqlash ham juda og'ir kechyabdi shuni to'g'irla lekin model ishlab tursin
+
+import 'dart:async';
+import 'dart:io';
+import 'dart:isolate';
+import 'dart:typed_data';
+import 'dart:ui' show decodeImageFromList, Size;
+
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:image/image.dart' as img;
+
+/// Deteksiya natijalari uchun callback turi
+typedef OnDetections = void Function(
+    List<Map<String, dynamic>> results,
+    Size imageSize,
+    );
+
+/// Deteksiya xatolari uchun callback turi
+typedef OnError = void Function(String error);
+
+/// AI-powered real-time object detection kamera widget'i
+class AICamera extends StatefulWidget {
+  const AICamera({
+    super.key,
+    required this. modelPath,
+    required this. labelsPath,
+    this.useGpu = true,
+    this.numThreads = 2,
+    this. lensDirection = CameraLensDirection.back,
+    this.resolution = ResolutionPreset.medium,
+    this.imageFormat = ImageFormatGroup.jpeg,
+    this.intervalMs = 450,
+    this.iouThreshold = 0.45,
+    this.confThreshold = 0.5,
+    required this.onDetections,
+    this.onError,
+    this.showLoadingIndicator = true,
+    this. inputSize = 640,
+  });
+
+  final String modelPath;
+  final String labelsPath;
+  final bool useGpu;
+  final int numThreads;
+  final CameraLensDirection lensDirection;
+  final ResolutionPreset resolution;
+  final ImageFormatGroup imageFormat;
+  final int intervalMs;
+  final double iouThreshold;
+  final double confThreshold;
+  final OnDetections onDetections;
+  final OnError?  onError;
+  final bool showLoadingIndicator;
+  final int inputSize;
+
+  @override
+  State<AICamera> createState() => _AICameraState();
+}
+
+class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
+  Interpreter? _interpreter;
+  List<String> _labels = [];
+  CameraController? _controller;
+  Timer? _timer;
+  bool _busy = false;
+  bool _ready = false;
+  bool _disposed = false;
+  int _errorCount = 0;
+  static const int _maxErrors = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance. addObserver(this);
+    _init();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final controller = _controller;
+
+    if (controller == null || ! controller.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      _stopPolling();
+      controller.dispose();
+      _controller = null;
+      _ready = false;
+    } else if (state == AppLifecycleState.resumed) {
+      _init();
+    }
+  }
+
+  Future<void> _init() async {
+    if (_disposed) return;
+
+    try {
+      // 1. Label'larni yuklaymiz
+      await _loadLabels();
+
+      // 2. TFLite modelni yuklaymiz
+      await _loadModel();
+
+      // 3. Kamera initsializatsiya
+      final cameras = await availableCameras();
+
+      if (cameras.isEmpty) {
+        _handleError('Kamera topilmadi');
+        return;
+      }
+
+      final cam = cameras.firstWhere(
+            (c) => c.lensDirection == widget.lensDirection,
+        orElse: () => cameras.first,
+      );
+
+      final controller = CameraController(
+        cam,
+        widget.resolution,
+        enableAudio: false,
+        imageFormatGroup: widget.imageFormat,
+      );
+
+      await controller.initialize();
+
+      if (_disposed) {
+        await controller.dispose();
+        return;
+      }
+
+      _controller = controller;
+
+      if (! mounted) return;
+
+      setState(() {
+        _ready = true;
+        _errorCount = 0;
+      });
+
+      _startPolling();
+    } catch (e) {
+      _handleError('Initsializatsiya xatosi: $e');
+    }
+  }
+
+  Future<void> _loadLabels() async {
+    final labelsData = await rootBundle.loadString(widget.labelsPath);
+    _labels = labelsData.split('\n').where((l) => l.trim().isNotEmpty).toList();
+  }
+
+  Future<void> _loadModel() async {
+    final options = InterpreterOptions();
+    options.threads = widget.numThreads;
+
+    // GPU delegate'ni to'g'ri qo'shish
+    if (widget.useGpu) {
+      if (Platform.isAndroid) {
+        // Android uchun GPU delegate
+        options.addDelegate(GpuDelegateV2());
+      } else if (Platform. isIOS) {
+        // iOS uchun Metal delegate
+        options.addDelegate(GpuDelegate());
+      }
+    }
+
+    _interpreter = await Interpreter. fromAsset(
+      widget.modelPath,
+      options: options,
+    );
+  }
+
+  void _startPolling() {
+    _stopPolling();
+    _timer = Timer.periodic(
+      Duration(milliseconds: widget. intervalMs),
+          (_) => _pollOnce(),
+    );
+  }
+
+  void _stopPolling() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  Future<void> _pollOnce() async {
+    final controller = _controller;
+    final interpreter = _interpreter;
+
+    if (! mounted ||
+        controller == null ||
+        interpreter == null ||
+        !controller. value.isInitialized ||
+        _busy) {
+      return;
+    }
+
+    _busy = true;
+
+    try {
+      final XFile shot = await controller.takePicture();
+      if (_disposed) return;
+
+      final bytes = await File(shot.path).readAsBytes();
+
+      final decodedImage = await decodeImageFromList(bytes);
+      final originalWidth = decodedImage.width;
+      final originalHeight = decodedImage.height;
+      decodedImage.dispose();
+
+      if (! mounted || _disposed) return;
+
+      // Preprocessing
+      final inputImage = await _preprocessImage(bytes);
+
+      // Inference
+      final outputs = _runInference(interpreter, inputImage);
+
+      // Post-processing
+      final detections = _postprocessOutputs(
+        outputs,
+        originalWidth,
+        originalHeight,
+      );
+
+      if (mounted && ! _disposed) {
+        widget.onDetections(
+          detections,
+          Size(originalWidth. toDouble(), originalHeight.toDouble()),
+        );
+      }
+
+      try {
+        await File(shot.path).delete();
+      } catch (_) {}
+    } catch (e) {
+      _errorCount++;
+      if (_errorCount >= _maxErrors) {
+        _handleError('Juda ko\'p inference xatoliklari:  $e');
+        _stopPolling();
+      }
+    } finally {
+      _busy = false;
+    }
+  }
+
+  Future<List<List<List<List<double>>>>> _preprocessImage(
+      Uint8List bytes) async {
+    img.Image? image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception('Rasm decode qilishda xatolik');
+    }
+
+    img.Image resized = img.copyResize(
+      image,
+      width: widget.inputSize,
+      height: widget.inputSize,
+    );
+
+    var input = List.generate(
+      1,
+          (b) => List.generate(
+        widget.inputSize,
+            (y) => List.generate(
+          widget.inputSize,
+              (x) {
+            final pixel = resized.getPixel(x, y);
+            return [
+              pixel.r / 255.0,
+              pixel.g / 255.0,
+              pixel.b / 255.0,
+            ];
+          },
+        ),
+      ),
+    );
+
+    return input;
+  }
+
+  List<dynamic> _runInference(
+      Interpreter interpreter,
+      List<List<List<List<double>>>> input,
+      ) {
+    final outputShape = interpreter.getOutputTensor(0).shape;
+
+    var output = List.generate(
+      outputShape[0],
+          (i) => List.generate(
+        outputShape[1],
+            (j) => List.filled(outputShape[2], 0.0),
+      ),
+    );
+
+    interpreter.run(input, output);
+
+    return output;
+  }
+
+  List<Map<String, dynamic>> _postprocessOutputs(
+      List<dynamic> outputs,
+      int imageWidth,
+      int imageHeight,
+      ) {
+    List<Map<String, dynamic>> detections = [];
+
+    final output = outputs[0] as List;
+    final numDetections = output[0].length;
+    final numClasses = _labels.length;
+
+    for (int i = 0; i < numDetections; i++) {
+      final x = output[0][i] as double;
+      final y = output[1][i] as double;
+      final w = output[2][i] as double;
+      final h = output[3][i] as double;
+
+      double maxConf = 0.0;
+      int maxClassIndex = 0;
+
+      for (int c = 0; c < numClasses; c++) {
+        final conf = output[4 + c][i] as double;
+        if (conf > maxConf) {
+          maxConf = conf;
+          maxClassIndex = c;
+        }
+      }
+
+      if (maxConf < widget.confThreshold) continue;
+
+      final scaleX = imageWidth / widget.inputSize;
+      final scaleY = imageHeight / widget. inputSize;
+
+      final left = (x - w / 2) * scaleX;
+      final top = (y - h / 2) * scaleY;
+      final right = (x + w / 2) * scaleX;
+      final bottom = (y + h / 2) * scaleY;
+
+      detections.add({
+        'tag': _labels[maxClassIndex],
+        'confidence': maxConf,
+        'box': {
+          'x1': left,
+          'y1': top,
+          'x2': right,
+          'y2': bottom,
+        },
+      });
+    }
+
+    return _applyNMS(detections);
+  }
+
+  List<Map<String, dynamic>> _applyNMS(List<Map<String, dynamic>> detections) {
+    detections.sort((a, b) =>
+        (b['confidence'] as double).compareTo(a['confidence'] as double));
+
+    List<Map<String, dynamic>> selected = [];
+
+    while (detections.isNotEmpty) {
+      final current = detections.removeAt(0);
+      selected.add(current);
+
+      detections.removeWhere((detection) {
+        if (detection['tag'] == current['tag']) {
+          final iou = _calculateIoU(
+            current['box'] as Map<String, dynamic>,
+            detection['box'] as Map<String, dynamic>,
+          );
+          return iou > widget.iouThreshold;
+        }
+        return false;
+      });
+    }
+
+    return selected;
+  }
+
+  double _calculateIoU(Map<String, dynamic> box1, Map<String, dynamic> box2) {
+    final x1 = (box1['x1'] as double).clamp(box2['x1'] as double, box2['x2'] as double);
+    final y1 = (box1['y1'] as double).clamp(box2['y1'] as double, box2['y2'] as double);
+    final x2 = (box1['x2'] as double).clamp(box2['x1'] as double, box2['x2'] as double);
+    final y2 = (box1['y2'] as double).clamp(box2['y1'] as double, box2['y2'] as double);
+
+    final intersectionArea = (x2 - x1).clamp(0.0, double.infinity) *
+        (y2 - y1).clamp(0.0, double.infinity);
+
+    final box1Area = (box1['x2'] - box1['x1']) * (box1['y2'] - box1['y1']);
+    final box2Area = (box2['x2'] - box2['x1']) * (box2['y2'] - box2['y1']);
+    final unionArea = box1Area + box2Area - intersectionArea;
+
+    return intersectionArea / unionArea;
+  }
+
+  void _handleError(String error) {
+    if (! mounted || _disposed) return;
+    widget.onError?.call(error);
+    debugPrint('AICamera Error: $error');
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    WidgetsBinding.instance.removeObserver(this);
+    _stopPolling();
+    _controller?.dispose();
+    _controller = null;
+    _interpreter?. close();
+    _interpreter = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+
+    if (! _ready || controller == null || ! controller.value.isInitialized) {
+      return Container(
+        color: Colors.black,
+        child: widget.showLoadingIndicator
+            ? const Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        )
+            : null,
+      );
+    }
+
+    return ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.center,
+        child: FittedBox(
+          fit:  BoxFit.cover,
+          child: SizedBox(
+            width: controller.value.previewSize! .height,
+            height: controller.value.previewSize!.width,
+            child: CameraPreview(controller),
+          ),
+        ),
+      ),
+    );
+  }
+}

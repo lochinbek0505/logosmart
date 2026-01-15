@@ -215,31 +215,28 @@ class _MapRoadBody extends StatelessWidget {
         ),
       ),
       // Test uchun pastga quick-action tugmalar (ixtiyoriy)
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            heroTag: 'unlockNext',
-            onPressed: () {
-              final prov = context.read<LevelProvider>();
-              final locked = prov.levels.firstWhere(
-                (e) => e.locked,
-                orElse: () => prov.levels.last,
-              );
-              prov.unlock(locked.id, 0);
-            },
-            label: const Text('Unlock next'),
-            icon: const Icon(Icons.lock_open),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton.extended(
-            heroTag: 'resetAll',
-            onPressed: () => context.read<LevelProvider>().resetAll(),
-            label: const Text('Reset all'),
-            icon: const Icon(Icons.restart_alt),
-          ),
-        ],
-      ),
+      // floatingActionButton: Column(
+      //   mainAxisSize: MainAxisSize.min,
+      //   children: [
+      //     FloatingActionButton.extended(
+      //       heroTag: 'unlockNext',
+      //       onPressed: () {
+      //         final prov = context.read<LevelProvider>();
+      //
+      //         prov.unlock();
+      //       },
+      //       label: const Text('Unlock next'),
+      //       icon: const Icon(Icons.lock_open),
+      //     ),
+      //     const SizedBox(height: 12),
+      //     FloatingActionButton.extended(
+      //       heroTag: 'resetAll',
+      //       onPressed: () => context.read<LevelProvider>().resetAll(),
+      //       label: const Text('Reset all'),
+      //       icon: const Icon(Icons.restart_alt),
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

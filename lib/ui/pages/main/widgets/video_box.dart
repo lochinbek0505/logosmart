@@ -55,7 +55,7 @@ class VideoBox extends StatelessWidget {
             Icon(Icons.error_outline, size: 48, color: Colors.red. shade400),
             const SizedBox(height: 16),
             Text(
-              'MP4 video yuklashda xatolik',
+              'Video yuklashda xatolik',
               style:  TextStyle(
                 color: Colors.red.shade700,
                 fontSize: 14,
@@ -104,7 +104,7 @@ class VideoBox extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'MP4 video yuklanmoqda.. .',
+              'Video yuklanmoqda.. .',
               style: TextStyle(
                 color: Colors.black54,
                 fontSize: 14,
@@ -112,10 +112,10 @@ class VideoBox extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              currentVideoPath?. split('/').last ?? '',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-            ),
+            // Text(
+            //   currentVideoPath?. split('/').last ?? '',
+            //   style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+            // ),
           ],
         ),
       );
@@ -158,7 +158,7 @@ class VideoBox extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'MP4 • ${videoController!.value.duration.inSeconds}s',
+                '${videoController!.value.duration.inSeconds}s',
                 style: const TextStyle(
                   color:  Colors.white,
                   fontSize: 10,

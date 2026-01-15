@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/storage/level_state.dart';
+import '../widgets/Custom3dButton.dart';
 import '../widgets/camera_box.dart';
 import '../widgets/debug_panel.dart';
 import '../widgets/detection_overlay.dart';
@@ -25,14 +26,10 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Key _camKey = UniqueKey();
   bool _cameraActive = true;
 
-  // ====== FRAME-BASED VOTING SOZLAMALARI ======
-  final double _minConfidencePerVote =
-      0.60; // ✅ 60% dan yuqori ovlarni qabul qilish
-  final int _requiredFrames = 3; // ✅ 3 ta frame kerak
-  final double _requiredAvgConfidence =
-      0.60; // ✅ O'rtacha 65% dan yuqori bo'lishi kerak
+  final double _minConfidencePerVote = 0.60;
+  final int _requiredFrames = 3;
+  final double _requiredAvgConfidence = 0.60;
 
-  // ====== VIDEO CONTROLLER ======
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
@@ -42,27 +39,22 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Map<String, dynamic>? _currentBest;
   bool _showDebugPanel = false;
 
-  // ====== KETMA-KETLIK NAZORATI ======
   late List<ExerciseStep> _steps;
   int _currentStepIndex = 0;
-  int _completedCycles = 0;
-  final int _totalCycles = 7;
+  int _completedCycles = 1;
+  final int _totalCycles = 1;
 
-  // ====== FRAME-BASED VOTING TIZIMI ======
   List<double> _confidenceVotes = [];
-  int _currentFrameCount = 0; // Joriy frame hisoblagich
+  int _currentFrameCount = 0;
   bool _isProcessingVote = false;
 
-  // ====== VIZUAL FEEDBACK ======
   Color _cameraBoxBorderColor = const Color(0xff20B9E8);
   bool _showSuccessAnimation = false;
   String _feedbackMessage = '';
 
-  // ====== MASHQ SOZLAMALARI ======
   bool _isExerciseCompleted = false;
   bool _waitingForNextStep = false;
 
-  // ====== FPS TRACKING ======
   int _frameCount = 0;
   DateTime _lastFpsUpdate = DateTime.now();
   double _currentFps = 0.0;
@@ -80,16 +72,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
 
     debugPrint('🎯 Ketma-ketlik boshlandi:  ${_steps.length} ta bosqich');
-    debugPrint('📊 Frame-based Voting sozlamalari: ');
-    debugPrint(
-      '  - Minimal konfidenslik: $_minConfidencePerVote (${(_minConfidencePerVote * 100).toInt()}%)',
-    );
-    debugPrint('  - Kerakli frame lar: $_requiredFrames ta');
-    debugPrint(
-      '  - O\'rtacha talabi: $_requiredAvgConfidence (${(_requiredAvgConfidence * 100).toInt()}%)',
-    );
     _logSteps();
-
     _initializeVideo();
   }
 
@@ -99,23 +82,99 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
   }
 
-  // ====== DETEKSIYA LOGIKASI ======
+  Widget _buildCycleProgress(Size size) {
+    double progressValue = _totalCycles > 0
+        ? _completedCycles / _totalCycles
+        : 0;
+    bool isCompleted = _completedCycles == _totalCycles;
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 26,
+              height: 26,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: 1.0,
+                    strokeWidth: 3,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                  CircularProgressIndicator(
+                    value: progressValue,
+                    strokeWidth: 3,
+                    backgroundColor: Colors.transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isCompleted
+                          ? Colors.greenAccent
+                          : const Color(0xff20B9E8),
+                    ),
+                  ),
+                  Icon(
+                    isCompleted ? Icons.check : Icons.loop,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              isCompleted ? "Yakunlandi" : "Bosqich",
+              style: const TextStyle(
+                color: Colors.blue,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 1,
+              height: 14,
+              color: Colors.blue.withOpacity(0.3),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$_completedCycles/$_totalCycles',
+              style: TextStyle(
+                color: isCompleted ? Colors.greenAccent : Colors.blue,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _onDetections(List<Map<String, dynamic>> results, Size imgSize) {
     _lastDetections = results;
-
-    // FPS hisoblash
     _updateFps();
 
+    // ✅ KRITIK: Tsikllar tugaganda deteksiyani BUTUNLAY to'xtatish
     if (!mounted ||
         results.isEmpty ||
         _waitingForNextStep ||
         _isExerciseCompleted ||
-        _isProcessingVote) {
+        _isProcessingVote ||
+        _completedCycles >= _totalCycles ||
+        !_cameraActive) {
       return;
     }
 
-    // Eng yaxshi deteksiyani topish
     Map<String, dynamic>? best;
     double bestConf = -1;
 
@@ -132,11 +191,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       double conf = _extractConfidence(best);
       String label = _extractLabel(best);
 
-      // Kutilgan harakat bilan solishtirish
       String expectedAction = _steps[_currentStepIndex].action;
 
       if (label.toLowerCase().contains(expectedAction.toLowerCase())) {
-        // ✅ Faqat 60% dan yuqori ovlarni qabul qilish
         if (conf >= _minConfidencePerVote) {
           _currentFrameCount++;
           _confidenceVotes.add(conf);
@@ -147,23 +204,12 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
             'action="$label"',
           );
 
-          // ✅ Kerakli framelar yig'ilganda tekshirish
           if (_currentFrameCount >= _requiredFrames) {
             _processFrameVotingResult();
           }
-        } else {
-          debugPrint(
-            '⏭️ FRAME RAD: conf=${(conf * 100).toStringAsFixed(1)}% '
-            '(< ${(_minConfidencePerVote * 100).toStringAsFixed(1)}%)',
-          );
         }
       } else {
-        // ❌ Noto'g'ri harakat - frame lar ni reset qilish
         if (_currentFrameCount > 0) {
-          debugPrint(
-            '❌ NOTO\'G\'RI HARAKAT: "$label" != "$expectedAction" | '
-            'Frame lar reset qilindi (${_currentFrameCount} ta)',
-          );
           _resetFrameVoting();
         }
       }
@@ -172,7 +218,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
   }
 
-  /// FPS ni yangilash
   void _updateFps() {
     _frameCount++;
     final now = DateTime.now();
@@ -180,107 +225,61 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     if (duration.inMilliseconds >= 1000) {
       _currentFps = _frameCount / (duration.inMilliseconds / 1000);
-      debugPrint('📸 Kamera FPS: ${_currentFps.toStringAsFixed(1)} fps');
-
       _frameCount = 0;
       _lastFpsUpdate = now;
-
       if (mounted) setState(() {});
     }
   }
 
-  /// Frame-based voting natijasini qayta ishlash
   void _processFrameVotingResult() {
-    if (_isProcessingVote) {
-      debugPrint('⚠️ Allaqachon processing, skip');
-      return;
-    }
-
+    if (_isProcessingVote) return;
     _isProcessingVote = true;
 
-    debugPrint('\n📊 ========== FRAME VOTING NATIJASI ==========');
-
-    // 1-TEKSHIRUV:  Frame lar soni to'g'rimi?
     if (_confidenceVotes.length < _requiredFrames) {
-      debugPrint('❌ KAM FRAME LAR: ');
-      debugPrint('  Hozirgi:  ${_confidenceVotes.length} ta');
-      debugPrint('  Talab: $_requiredFrames ta');
       _onStepFailure();
       _resetFrameVoting();
       return;
     }
 
-    // 2-TEKSHIRUV: O'rtacha konfidenslik yetarlimi?
     double avgConfidence =
         _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
-
-    debugPrint('📈 FRAME TAHLILI:');
-    debugPrint('  Frame lar: ${_confidenceVotes.length} ta');
-    debugPrint(
-      '  Konfidensliklar: ${_confidenceVotes.map((e) => '${(e * 100).toStringAsFixed(0)}%').join(', ')}',
-    );
-    debugPrint('  O\'rtacha: ${(avgConfidence * 100).toStringAsFixed(1)}%');
-    debugPrint(
-      '  Talab: ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
-    );
 
     bool voteSuccessful = avgConfidence >= _requiredAvgConfidence;
 
     if (voteSuccessful) {
-      debugPrint('✅ QABUL QILINDI! ');
-      debugPrint(
-        '  Sabab:  Avg ${(avgConfidence * 100).toStringAsFixed(1)}% >= ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
-      );
-      debugPrint('============================================\n');
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '✅ TO\'G\'RI:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}% ($_requiredFrames frame)',
+            '✅ TO\'G\'RI:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}%',
           ),
           backgroundColor: Colors.green,
           duration: const Duration(milliseconds: 800),
         ),
       );
-
       _onStepSuccess();
     } else {
-      debugPrint('❌ RAD ETILDI! ');
-      debugPrint(
-        '  Sabab:  Avg ${(avgConfidence * 100).toStringAsFixed(1)}% < ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
-      );
-      debugPrint('============================================\n');
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '❌ QAYTA:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}% < ${(_requiredAvgConfidence * 100).toStringAsFixed(1)}%',
+            '❌ QAYTA: Avg=${(avgConfidence * 100).toStringAsFixed(1)}%',
           ),
           backgroundColor: Colors.red,
           duration: const Duration(milliseconds: 800),
         ),
       );
-
       _onStepFailure();
     }
 
     _resetFrameVoting();
   }
 
-  /// Frame voting holatini qayta tiklash
   void _resetFrameVoting() {
-    debugPrint('🔄 Frame voting holati qayta tiklanmoqda.. .');
     _isProcessingVote = false;
     _currentFrameCount = 0;
     _confidenceVotes.clear();
   }
 
-  /// Bosqich muvaffaqiyatli
   void _onStepSuccess() {
-    debugPrint(
-      '✅ Bosqich muvaffaqiyatli!  Action: ${_steps[_currentStepIndex].action}',
-    );
-
     setState(() {
       _cameraBoxBorderColor = Colors.green;
       _showSuccessAnimation = true;
@@ -288,34 +287,20 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
 
     Fluttertoast.showToast(
-      msg: '✅ To\'g\'ri bajarildi! ',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
+      msg: '✅ To\'g\'ri bajarildi!',
       backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
     );
 
     _moveToNextStep();
   }
 
-  /// Bosqich muvaffaqiyatsiz
   void _onStepFailure() {
-    debugPrint('❌ Bosqich muvaffaqiyatsiz.  Qayta urinib ko\'ring');
-
     setState(() {
       _cameraBoxBorderColor = Colors.red;
       _feedbackMessage = '❌ Qayta urinib ko\'ring';
     });
 
-    Fluttertoast.showToast(
-      msg: '❌ Noto\'g\'ri, qayta urinib ko\'ring',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
+    Fluttertoast.showToast(msg: '❌ Noto\'g\'ri', backgroundColor: Colors.red);
 
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
@@ -328,7 +313,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
   }
 
-  /// Keyingi bosqichga o'tish
   void _moveToNextStep() {
     _waitingForNextStep = true;
 
@@ -343,10 +327,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           _feedbackMessage = '';
           _waitingForNextStep = false;
         });
-        debugPrint('➡️ Keyingi bosqichga o\'tildi:  $_currentStepIndex');
       } else {
         _completedCycles++;
-        debugPrint('🔄 Tsikl tugadi: $_completedCycles / $_totalCycles');
 
         if (_completedCycles < _totalCycles) {
           setState(() {
@@ -356,74 +338,48 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
             _feedbackMessage = '';
             _waitingForNextStep = false;
           });
-          debugPrint(
-            '♻️ Yangi tsikl boshlandi: $_completedCycles / $_totalCycles',
-          );
         } else {
-          _onAllExercisesCompleted();
+          _onAllCyclesCompleted();
         }
       }
     });
   }
 
-  /// Barcha mashqlar tugaganda
-  void _onAllExercisesCompleted() {
-    debugPrint('🎉 MASHQ YAKUNLANDI!  7 marta to\'liq ketma-ketlik');
+  void _onAllCyclesCompleted() {
+    debugPrint('🎉 BARCHA TSIKLLAR YAKUNLANDI!');
 
-    setState(() {
-      _isExerciseCompleted = true;
-      _cameraActive = false;
-      _showSuccessAnimation = false;
-      _feedbackMessage = '🎉 Tabriklaymiz! ';
+    // ✅ 1.  AVVAL kamerani o'chirish (eng muhim!)
+    if (mounted) {
+      setState(() {
+        _cameraActive = false; // ← Bu model inference ni to'xtatadi
+        _isExerciseCompleted = true;
+        _showSuccessAnimation = false;
+        _feedbackMessage = '';
+      });
+    }
+
+    // ✅ 2. Kamera to'xtagandan keyin video ni pause qilish
+    Future.delayed(const Duration(milliseconds: 500), () {
+      try {
+        _videoController?.pause();
+        debugPrint('⏸️ Video to\'xtatildi');
+      } catch (e) {
+        debugPrint('⚠️ Video pause xatolik: $e');
+      }
+
+      Fluttertoast.showToast(
+        msg: '🎉 Barcha tsikllar yakunlandi!',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.green,
+      );
     });
-
-    _videoController?.pause();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          '🎉 Ajoyib! ',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'Siz barcha mashqlarni muvaffaqiyatli bajardingiz!\n\n'
-          'Jami: $_totalCycles marta to\'liq ketma-ketlik',
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Tayyor',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
-  /// MP4 video faylni yuklash va sozlash
   Future<void> _initializeVideo() async {
     try {
       _currentVideoPath =
           widget.data.exercise?.mediaPath ?? 'assets/video. mp4';
-
-      debugPrint('🎬 MP4 video yuklanmoqda:  $_currentVideoPath');
-
       await _videoController?.dispose();
 
       _videoController = VideoPlayerController.asset(
@@ -436,9 +392,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
       _videoController!.addListener(() {
         if (_videoController!.value.hasError) {
-          debugPrint(
-            '❌ Video xatolik: ${_videoController!.value.errorDescription}',
-          );
           if (mounted) {
             setState(() {
               _isVideoError = true;
@@ -459,64 +412,68 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         await _videoController!.setLooping(true);
         await _videoController!.setVolume(0.0);
         await _videoController!.play();
-
-        debugPrint('▶️ Video ijro etilmoqda (loop: true)');
       }
     } catch (e, stackTrace) {
-      debugPrint('❌ Video yuklashda xatolik: $e');
-      debugPrint('Stack trace: $stackTrace');
+      debugPrint('❌ Video xatolik: $e\n$stackTrace');
 
       if (mounted) {
         setState(() {
           _isVideoInitialized = false;
           _isVideoError = true;
         });
-
-        Fluttertoast.showToast(
-          msg: '⚠️ Video yuklashda xatolik',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
       }
     }
   }
 
   @override
   void dispose() {
-    debugPrint('🧹 CameraPage dispose qilinmoqda.. .');
+    debugPrint('🧹 CameraPage dispose');
 
-    _videoController?.removeListener(() {});
-    _videoController?.pause();
-    _videoController?.dispose();
-    _videoController = null;
+    // ✅ AVVAL kamerani o'chirish
+    _cameraActive = false;
+
+    // ✅ Keyin video ni tozalash
+    try {
+      _videoController?.removeListener(() {});
+      _videoController?.pause();
+      _videoController?.dispose();
+      _videoController = null;
+    } catch (e) {
+      debugPrint('⚠️ Video dispose xatolik: $e');
+    }
 
     WidgetsBinding.instance.removeObserver(this);
-
     super.dispose();
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    _safeRestartVideo();
+    if (_completedCycles < _totalCycles && !_isExerciseCompleted) {
+      _safeRestartVideo();
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint('📱 App lifecycle o\'zgardi: $state');
-
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      _videoController?.pause();
+      try {
+        _videoController?.pause();
+      } catch (e) {}
 
-      if (_cameraActive) {
+      if (_cameraActive && mounted) {
         setState(() => _cameraActive = false);
       }
     } else if (state == AppLifecycleState.resumed) {
+      if (_completedCycles >= _totalCycles || _isExerciseCompleted) {
+        return;
+      }
+
       if (_isVideoInitialized && _videoController != null) {
-        _videoController!.play();
+        try {
+          _videoController!.play();
+        } catch (e) {}
       } else {
         _initializeVideo();
       }
@@ -541,9 +498,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
 
     Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        _initializeVideo();
-      }
+      if (mounted) _initializeVideo();
     });
   }
 
@@ -553,8 +508,14 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     return WillPopScope(
       onWillPop: () async {
-        if (mounted) setState(() => _cameraActive = false);
-        _videoController?.pause();
+        if (mounted) {
+          setState(() => _cameraActive = false);
+        }
+        // ✅ Kamera to'xtagandan keyin video pause
+        await Future.delayed(const Duration(milliseconds: 300));
+        try {
+          _videoController?.pause();
+        } catch (e) {}
         return true;
       },
       child: Scaffold(
@@ -576,7 +537,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           height: size.height,
           child: Stack(
             children: [
-              // Fon
               Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -588,25 +548,31 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                 ),
               ),
 
-              // Yuqori panel
               TopBar(
                 onBack: () {
                   if (mounted) setState(() => _cameraActive = false);
-                  _videoController?.pause();
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    try {
+                      _videoController?.pause();
+                    } catch (e) {}
+                  });
                   Navigator.of(context).pop();
                 },
               ),
 
-              // Markaziy content
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(width: size.width, height: 150),
+                  SizedBox(width: size.width, height: 120),
+                  _buildCycleProgress(size),
 
-                  // MP4 Video player
                   VideoBox(
                     size: size,
-                    isVideoInitialized: _isVideoInitialized,
+                    isVideoInitialized:
+                        (_completedCycles >= _totalCycles ||
+                            _isExerciseCompleted)
+                        ? false
+                        : _isVideoInitialized,
                     isVideoError: _isVideoError,
                     currentVideoPath: _currentVideoPath,
                     videoController: _videoController,
@@ -616,38 +582,26 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
                   const SizedBox(height: 15),
 
-                  // Tsikl progress
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Tsikl:  $_completedCycles / $_totalCycles',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // Kamera (rings bilan)
                   _buildCameraBoxWithBorder(size),
 
                   const SizedBox(height: 15),
 
-                  // Ko'rsatma
-                  InstructionText(
-                    stepNumber: _currentStepIndex + 1,
-                    totalSteps: _steps.length,
-                    instructionText: _steps.isNotEmpty
-                        ? _steps[_currentStepIndex].text
-                        : 'Steps topilmadi',
-                  ),
+                  if (_completedCycles < _totalCycles &&
+                      !_isExerciseCompleted &&
+                      _currentStepIndex < _steps.length)
+                    InstructionText(
+                      stepNumber: _currentStepIndex + 1,
+                      totalSteps: _steps.length,
+                      instructionText: _steps.isNotEmpty
+                          ? _steps[_currentStepIndex].text
+                          : 'Steps topilmadi',
+                    ),
+
+                  if (_completedCycles >= _totalCycles || _isExerciseCompleted)
+                    const Custom3DButton(),
                 ],
               ),
 
-              // Debug panel
               if (_showDebugPanel)
                 DebugPanel(
                   isVideoInitialized: _isVideoInitialized,
@@ -657,18 +611,18 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   lastDetections: _lastDetections,
                 ),
 
-              // Deteksiya overlay
-              if (_currentBest != null)
+              if (_currentBest != null &&
+                  _completedCycles < _totalCycles &&
+                  !_isExerciseCompleted &&
+                  _cameraActive)
                 DetectionOverlay(
                   currentBest: _currentBest,
                   onExtractLabel: _extractLabel,
                   onExtractConfidence: _extractConfidence,
                 ),
 
-              // Debug ma'lumotlari
               if (_showDebugPanel) _buildDebugInfo(),
 
-              // Feedback message
               if (_feedbackMessage.isNotEmpty)
                 Positioned(
                   top: size.height * 0.35,
@@ -703,16 +657,23 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   }
 
   Widget _buildCameraBoxWithBorder(Size size) {
+    bool shouldStopCamera =
+        _completedCycles >= _totalCycles || _isExerciseCompleted;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: size.width * 0.6,
       height: size.width * 0.6,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: _cameraBoxBorderColor, width: 4),
+        border: Border.all(
+          color: shouldStopCamera ? Colors.green : _cameraBoxBorderColor,
+          width: 4,
+        ),
         boxShadow: [
           BoxShadow(
-            color: _cameraBoxBorderColor.withOpacity(0.6),
+            color: (shouldStopCamera ? Colors.green : _cameraBoxBorderColor)
+                .withOpacity(0.6),
             blurRadius: 15,
             spreadRadius: 2,
           ),
@@ -720,25 +681,33 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(19),
-        child: _cameraActive
-            ? CameraBox(
-                size: Size(size.width * 0.6, size.width * 0.6),
-                cameraActive: _cameraActive,
-                camKey: _camKey,
-                modelPath: widget.data.exercise!.modelPath,
-                labelsPath: widget.data.exercise!.labelsPath,
-                onDetections: _onDetections,
-              )
-            : Container(
+        // ✅ KRITIK: shouldStopCamera true bo'lsa CameraBox widgetini UMUMAN render qilmaslik
+        child: shouldStopCamera
+            ? Container(
                 color: Colors.black,
                 child: const Center(
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 60,
-                  ),
+                  child: Icon(Icons.celebration, color: Colors.green, size: 60),
                 ),
-              ),
+              )
+            : (_cameraActive
+                  ? CameraBox(
+                      size: Size(size.width * 0.6, size.width * 0.6),
+                      cameraActive: true,
+                      camKey: _camKey,
+                      modelPath: widget.data.exercise!.modelPath,
+                      labelsPath: widget.data.exercise!.labelsPath,
+                      onDetections: _onDetections,
+                    )
+                  : Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 60,
+                        ),
+                      ),
+                    )),
       ),
     );
   }
@@ -746,7 +715,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Widget _buildDebugInfo() {
     double avgConf = _confidenceVotes.isEmpty
         ? 0
-        : _confidenceVotes. reduce((a, b) => a + b) / _confidenceVotes.length;
+        : _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
 
     return Positioned(
       top: 200,
@@ -756,23 +725,40 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.85),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: Colors.cyan.withOpacity(0.5),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.cyan.withOpacity(0.5), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _row('📍', '${_currentStepIndex + 1}/${_steps.length}', Colors.cyan),
-            _row('🔄', '${_completedCycles}/${_totalCycles}', Colors.purple),
-            _row('📊', '$_currentFrameCount/$_requiredFrames',
-                _currentFrameCount >= _requiredFrames ? Colors. green : Colors.orange),
-            _row('⚡', '${(avgConf * 100).toStringAsFixed(0)}%',
-                avgConf >= _requiredAvgConfidence ? Colors.green : Colors. yellow),
-            _row('📸', '${_currentFps. toStringAsFixed(0)}',
-                _currentFps < 15 ? Colors.red : Colors. green),
+            _row(
+              '📍',
+              '${_currentStepIndex + 1}/${_steps.length}',
+              Colors.cyan,
+            ),
+            _row('🔄', '$_completedCycles/$_totalCycles', Colors.purple),
+            _row(
+              '📊',
+              '$_currentFrameCount/$_requiredFrames',
+              _currentFrameCount >= _requiredFrames
+                  ? Colors.green
+                  : Colors.orange,
+            ),
+            _row(
+              '⚡',
+              '${(avgConf * 100).toStringAsFixed(0)}%',
+              avgConf >= _requiredAvgConfidence ? Colors.green : Colors.yellow,
+            ),
+            _row(
+              '📸',
+              '${_currentFps.toStringAsFixed(0)}',
+              _currentFps < 15 ? Colors.red : Colors.green,
+            ),
+            _row(
+              '📷',
+              _cameraActive ? 'ON' : 'OFF',
+              _cameraActive ? Colors.green : Colors.red,
+            ),
           ],
         ),
       ),
@@ -785,40 +771,13 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(icon, style: TextStyle(fontSize: 10)),
+          Text(icon, style: const TextStyle(fontSize: 10)),
           const SizedBox(width: 4),
           Text(
             value,
-            style:  TextStyle(
-              color: color,
-              fontSize: 9,
-              fontWeight: FontWeight. bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  Widget _infoChip(String text, Color color, {String? icon}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Text(icon, style: TextStyle(fontSize: 9)),
-            const SizedBox(width: 3),
-          ],
-          Text(
-            text,
             style: TextStyle(
               color: color,
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -826,8 +785,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       ),
     );
   }
-
-  // ====== DETEKSIYA HELPER FUNKSIYALARI ======
 
   double _extractConfidence(Map<String, dynamic> r) {
     final candidates = [
@@ -841,7 +798,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     for (final c in candidates) {
       if (c is num) return c.toDouble();
     }
-
     return 0.0;
   }
 
@@ -858,7 +814,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     for (final c in candidates) {
       if (c != null) return c.toString();
     }
-
     return '';
   }
 }

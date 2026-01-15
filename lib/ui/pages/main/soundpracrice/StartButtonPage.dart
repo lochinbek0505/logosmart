@@ -7,7 +7,7 @@ import 'CameraPage.dart';
 class StartTextPage extends StatefulWidget {
   final LevelState data;
 
-   StartTextPage({super.key , required this.data});
+  StartTextPage({super.key, required this.data});
 
   @override
   State<StartTextPage> createState() => _StartTextPageState();
@@ -20,16 +20,15 @@ class _StartTextPageState extends State<StartTextPage> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    return  Scaffold(
+    return Scaffold(
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
 
-
-
         child: Stack(
           children: [
-            Container(width: double.infinity,
+            Container(
+              width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -38,62 +37,67 @@ class _StartTextPageState extends State<StartTextPage> {
                 ),
               ),
               child: SafeArea(
-                child: Column(children: [
-                  SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset(
-                              "assets/icons/star.png",
-                              width: 40,
-                              height: 40,
-                            ),
-                            SizedBox(width: 12),
-                            Image.asset("assets/icons/namber_o.png", height: 35),
-                          ],
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                            top: 8.5,
-                            bottom: 11.5,
+                child: Column(
+                  children: [
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/star.png",
+                                width: 40,
+                                height: 40,
+                              ),
+                              SizedBox(width: 12),
+                              Image.asset(
+                                "assets/icons/namber_o.png",
+                                height: 35,
+                              ),
+                            ],
                           ),
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage("assets/icons/circle.png"),
-                              fit: BoxFit.fill,
+                          Container(
+                            padding: EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                              top: 8.5,
+                              bottom: 11.5,
+                            ),
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage("assets/icons/circle.png"),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: AssetImage(
+                                "assets/icons/circle_bad.png",
+                              ),
                             ),
                           ),
-                          child: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: AssetImage(
-                              "assets/icons/circle_bad.png",
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],),
+                  ],
+                ),
               ),
-
             ),
 
             SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 130,width: size.width,),
+                  SizedBox(height: 130, width: size.width),
                   Container(
-                    width: size.width*0.67,// 290,
-                    height:165,
+                    width: size.width * 0.67,
+                    // 290,
+                    height: 165,
                     padding: EdgeInsets.only(
                       left: 10,
                       right: 10,
@@ -102,8 +106,8 @@ class _StartTextPageState extends State<StartTextPage> {
                     ),
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: AssetImage("assets/icons/cloud.png"),
-                          fit: BoxFit.fill
+                        image: AssetImage("assets/icons/cloud.png"),
+                        fit: BoxFit.fill,
                       ),
                     ),
                     child: Transform.translate(
@@ -120,9 +124,7 @@ class _StartTextPageState extends State<StartTextPage> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: size.width*0.82,
-                  ),
+                  SizedBox(height: size.width * 0.82),
 
                   GestureDetector(
                     onTap: () {
@@ -135,19 +137,24 @@ class _StartTextPageState extends State<StartTextPage> {
                         });
                       });
 
-                      if(widget.data.mode=="exercise"){
-                        Navigator.push(
+                      if (widget.data.mode == "exercise") {
+                        widget.data.exercise!.steps.removeAt(0);
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => CameraPage(data: widget.data,)),
+                          MaterialPageRoute(
+                            builder: (context) => CameraPage(data: widget.data),
+                          ),
                         );
-                      }
-                      else if(widget.data.mode=="game"){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => BreathPage(data: widget.data,)),
-                        );
-                      }
+                      } else if (widget.data.mode == "game") {
+                        widget.data.exercise!.steps.removeAt(0);
 
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BreathPage(data: widget.data),
+                          ),
+                        );
+                      }
                     },
                     child: Container(
                       padding: EdgeInsets.all(7),
@@ -159,85 +166,80 @@ class _StartTextPageState extends State<StartTextPage> {
                       ),
                       child: _isPressed
                           ? Container(
-                        width: size.width,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Color(0xff20B9E8),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "BOSHLADIK!",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      )
+                              width: size.width,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Color(0xff20B9E8),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "BOSHLADIK!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
+                            )
                           : Container(
-                        padding: EdgeInsets.only(bottom: 3),
-                        width: size.width,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Color(0xff47809e),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Container(
-                          padding: EdgeInsets.only(top: 2),
-                          width: 190,
-                          height: 57,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(29),
-                            gradient: LinearGradient(
-                              colors: [
-                                Color(0xffbee9f7),
-                                Color(0xff20B9E8),
-                              ],
-                              end: Alignment.bottomCenter,
-                              begin: Alignment.topCenter,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "BOSHLADIK!",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
+                              padding: EdgeInsets.only(bottom: 3),
+                              width: size.width,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Color(0xff47809e),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.only(top: 2),
+                                width: 190,
+                                height: 57,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(29),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xffbee9f7),
+                                      Color(0xff20B9E8),
+                                    ],
+                                    end: Alignment.bottomCenter,
+                                    begin: Alignment.topCenter,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "BOSHLADIK!",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
-                  SizedBox(height: 30,)
+                  SizedBox(height: 30),
                 ],
               ),
             ),
             SafeArea(
               child: Column(
-
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 268,width: size.width,),
+                  SizedBox(height: 268, width: size.width),
                   SizedBox(
-                    width: size.width*0.43,
-                    height: size.width*0.85,
-                    child: Image.asset("assets/images/women.png",fit: BoxFit.fill,),
+                    width: size.width * 0.43,
+                    height: size.width * 0.85,
+                    child: Image.asset(
+                      "assets/images/women.png",
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ],
               ),
             ),
-
-
-
-
-
-
-
           ],
         ),
       ),

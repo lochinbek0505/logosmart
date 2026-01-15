@@ -20,6 +20,7 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels.txt',
       mediaPath: 'assets/media/ong_chap.MP4',
       steps: [
+        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
 
         ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
         ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'chap'),
@@ -37,12 +38,7 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels_olt.txt',
       mediaPath: 'assets/media/ogiz_lab.MP4',
       steps: [
-        ExerciseStep(
-          text: "Qani ketdik, meni ortimdan mashqni bajar!",
-          action: "about",
-        ),
-        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'ogiz'),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
         ExerciseStep(text: 'Og‘zingizni keng oching', action: 'ogiz'),
         ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
       ],
@@ -59,41 +55,43 @@ final List<LevelState> kDefaultLevels = [
       labelsPath: 'assets/models/labels_olt.txt',
       mediaPath: 'assets/media/tish_lab.MP4',
       steps: [
+        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
+
         ExerciseStep(
-          text: "Qani ketdik, meni ortimdan mashqni bajar!",
-          action: "about",
+          text: 'Og‘zingizni ochib tishlarni ko\'rsating',
+          action: 'tish',
         ),
-        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-      ],
-    ),
-  ),
-  LevelState(
-    id: 3,
-    stars: 0,
-    locked: true,
-    skin: skinSilver,
-    mode: 'exercise',
-    exercise: ExerciseInfo(
-      modelPath: 'assets/models/ogiz_lab_tish.tflite',
-      labelsPath: 'assets/models/labels_olt.txt',
-      mediaPath: 'assets/media/tish_lab.MP4',
-      steps: [
-        ExerciseStep(
-          text: "Qani ketdik, meni ortimdan mashqni bajar!",
-          action: "about",
-        ),
-        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-        ExerciseStep(text: 'Og‘zingizni ochib tishlarni ko\'rsating', action: 'tish'),
         ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
       ],
     ),
   ),
 
-  for (int i = 5; i <= 18; i++)
+  // LevelState(
+  //   id: 4,
+  //   stars: 0,
+  //   locked: true,
+  //   skin: skinSilver,
+  //   mode: 'exercise',
+  //   exercise: ExerciseInfo(
+  //     modelPath: 'assets/models/ogiz_lab_tish.tflite',
+  //     labelsPath: 'assets/models/labels_olt.txt',
+  //     mediaPath: 'assets/media/tish_lab.MP4',
+  //     steps: [
+  //
+  //       ExerciseStep(
+  //         text: 'Og‘zingizni ochib tishlarni ko\'rsating',
+  //         action: 'tish',
+  //       ),
+  //       ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+  //       ExerciseStep(
+  //         text: 'Og‘zingizni ochib tishlarni ko\'rsating',
+  //         action: 'tish',
+  //       ),
+  //       ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+  //     ],
+  //   ),
+  // ),
+  for (int i = 4; i <= 18; i++)
     LevelState(
       id: i,
       stars: 0,
@@ -167,13 +165,25 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> unlock(int id, int stars) async {
+  Future<bool> unlock({int stars = 0}) async {
+    final locked = levels.firstWhere(
+      (e) => e.locked,
+      orElse: () => levels.last,
+    );
+    var id = locked.id;
     final lv = _box.get(id);
-    if (lv == null) return;
-    final updated = lv.copyWith(locked: false, skin: skinGold, stars: stars);
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
+    if (lv == null) false;
+    if (id < 4) {
+      print("Locked id $id");
+      print("List id ${kDefaultLevels.length}");
+
+      final updated = lv!.copyWith(locked: false, skin: skinGold, stars: stars);
+      await _box.put(id, updated);
+      _levels = _readAllSorted();
+      notifyListeners();
+      return true;
+    }
+    return false;
   }
 
   Future<void> lock(int id) async {

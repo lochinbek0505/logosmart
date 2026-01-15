@@ -4,7 +4,7 @@ import 'package:logosmart/ui/widgets/AICamera.dart';
 
 import '../widgets/SuccessGifPlaceholder.dart';
 
-class CameraBox extends StatelessWidget {
+class CameraBox extends StatefulWidget {
   final Size size;
   final bool cameraActive;
   final Key camKey;
@@ -14,45 +14,87 @@ class CameraBox extends StatelessWidget {
 
   const CameraBox({
     super.key,
-    required this.size,
+    required this. size,
     required this.cameraActive,
-    required this.camKey,
-    required this.modelPath,
-    required this.labelsPath,
+    required this. camKey,
+    required this. modelPath,
+    required this. labelsPath,
     required this.onDetections,
   });
 
   @override
+  State<CameraBox> createState() => _CameraBoxState();
+}
+
+class _CameraBoxState extends State<CameraBox> {
+  // ✅ Local camera active state
+  bool _localCameraActive = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _localCameraActive = widget.cameraActive;
+  }
+
+  @override
+  void didUpdateWidget(CameraBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // ✅ Agar cameraActive false ga o'zgardi, local state'ni yangilaymiz
+    if (oldWidget.cameraActive != widget. cameraActive) {
+      if (!widget.cameraActive && _localCameraActive) {
+        debugPrint('🛑 CameraBox: cameraActive false bo\'ldi, kamerani o\'chirish');
+        setState(() {
+          _localCameraActive = false;
+        });
+      } else if (widget.cameraActive && !_localCameraActive) {
+        debugPrint('▶️ CameraBox: cameraActive true bo\'ldi, kamerani yoqish');
+        setState(() {
+          _localCameraActive = true;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    debugPrint('🧹 CameraBox dispose qilinmoqda');
+    // ✅ Dispose dan oldin kamerani o'chirish
+    _localCameraActive = false;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width * 0.6,
-      height: size.width * 0.6,
+      width: widget.size.width * 0.6,
+      height: widget.size.width * 0.6,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xff20B9E8), width: 3),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff20B9E8).withOpacity(0.5),
+            color:  const Color(0xff20B9E8).withOpacity(0.5),
             blurRadius: 10,
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(19),
-        child: cameraActive
-            ? AICamera(
-                key: camKey,
-                modelPath: modelPath,
-                labelsPath: labelsPath,
-                useGpu: true,
-                numThreads: 2,
-                lensDirection: CameraLensDirection.front,
-                // intervalMs: 400,
-                iouThreshold: 0.45,
-                confThreshold: 0.35,
-                classThreshold: 0.5,
-                onDetections: onDetections,
-              )
+        // ✅ Local state'dan foydalanish
+        child:  _localCameraActive && widget.cameraActive
+            ?  AICamera(
+          key: widget.camKey,
+          modelPath: widget.modelPath,
+          labelsPath: widget.labelsPath,
+          useGpu: true,
+          numThreads: 2,
+          lensDirection: CameraLensDirection.front,
+          iouThreshold: 0.45,
+          confThreshold: 0.35,
+          classThreshold: 0.5,
+          onDetections: widget.onDetections,
+        )
             : const SuccessGifPlaceholder(),
       ),
     );

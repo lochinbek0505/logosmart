@@ -67,6 +67,7 @@ dependencies:
   shiny_striped_progress_bar: ^1.1.0
   tflite_flutter: ^0.12.1
   image: ^4.6.0
+  spine_flutter: ^4.0.0 # Use the latest version from pub.dev
 
 dev_dependencies:
   flutter_test:
@@ -96,6 +97,7 @@ flutter:
     - assets/fonts/
     - assets/images/
     - assets/jsons/
+    - assets/
     - assets/jsons/regions.json
     - assets/icons/
     - assets/alphabet/

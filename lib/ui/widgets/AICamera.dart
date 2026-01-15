@@ -1,16 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui' show decodeImageFromList, Size;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
-typedef OnDetections = void Function(
-    List<Map<String, dynamic>> results,
-    Size imageSize,
-    );
+typedef OnDetections =
+    void Function(List<Map<String, dynamic>> results, Size imageSize);
 
 typedef OnError = void Function(String error);
 
@@ -34,53 +30,20 @@ class AICamera extends StatefulWidget {
     this.showLoadingIndicator = true,
   });
 
-  /// TFLite model fayl yo'li (assets/model.tflite)
   final String modelPath;
-
-  /// Obyekt nomlari fayli yo'li (assets/labels.txt)
   final String labelsPath;
-
-  /// YOLO model versiyasi (yolov5, yolov8, yolov9, etc.)
   final String modelVersion;
-
-  /// GPU akseleratsiyasidan foydalanish (tezroq inference)
   final bool useGpu;
-
-  /// CPU thread'lar soni (ko'proq = tezroq, lekin batareya sarfi ko'p)
   final int numThreads;
-
-  /// Qaysi kamera: old yoki orqa
   final CameraLensDirection lensDirection;
-
-  /// Video sifati (low, medium, high, veryHigh)
-  /// Medium - optimal balans tezlik va sifat o'rtasida
   final ResolutionPreset resolution;
-
-  /// Rasm format guruhi (jpeg - siqilgan, tez)
   final ImageFormatGroup imageFormat;
-
-  /// Kadr tekshirish intervali millisekund'larda
-  /// Kichikroq = tez-tez tekshirish, ko'proq resurs sarfi
   final int intervalMs;
-
-  /// IoU (Intersection over Union) threshold - qo'shaloq deteksiyalarni filtrlash
-  /// 0.45 = 45% o'xshash box'larni birlashtriradi
   final double iouThreshold;
-
-  /// Confidence threshold - minimal ishonch darajasi
-  /// 0.5 = 50% va undan yuqori ishonchli natijalarni ko'rsatadi
   final double confThreshold;
-
-  /// Class threshold - klasifikatsiya ishonch chegarasi
   final double classThreshold;
-
-  /// Deteksiya natijalari callback'i - har safar obyekt topilganda chaqiriladi
   final OnDetections onDetections;
-
-  /// Xatolik callback'i - muammolar yuz berganda xabar beradi
   final OnError? onError;
-
-  /// Yuklanish indikatorini ko'rsatish
   final bool showLoadingIndicator;
 
   @override
@@ -88,197 +51,168 @@ class AICamera extends StatefulWidget {
 }
 
 class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
-  /// Flutter Vision SDK instance'i - YOLO modelini boshqaradi
   late final FlutterVision _vision;
-
-  /// Kamera kontrolyori - kamera'ni boshqaradi
   CameraController? _controller;
-
-  /// Vaqt bo'yicha tekshirish uchun timer
   Timer? _timer;
-
-  /// Hozir inference bajarilayotganini bildiruvchi flag
-  /// Bir vaqtning o'zida bir nechta inference'dan saqlaydi
   bool _busy = false;
-
-  /// Model va kamera tayyor bo'lganini bildiruvchi flag
   bool _ready = false;
-
-  /// Widget dispose qilinganini kuzatish uchun
   bool _disposed = false;
-
-  /// Xatoliklar hisoblagichi - bir xil xatoni takrorlamaslik uchun
   int _errorCount = 0;
   static const int _maxErrors = 3;
 
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding observer qo'shamiz - app lifecycle'ni kuzatish uchun
     WidgetsBinding.instance.addObserver(this);
-
-    // FlutterVision instance'ini yaratamiz
     _vision = FlutterVision();
-
-    // Asinxron initsializatsiyani boshlaymiz
     _init();
   }
 
-  /// App lifecycle o'zgarishlarini kuzatish
-  /// Fon'ga ketganda kamera'ni to'xtatish, qaytganda qayta ishga tushirish
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     final controller = _controller;
 
-    // Agar controller yo'q yoki tayyor emas bo'lsa, hech narsa qilmaymiz
     if (controller == null || !controller.value.isInitialized) {
       return;
     }
 
-    // App background'ga ketganda
-    if (state == AppLifecycleState.inactive) {
-      _stopPolling(); // Polling'ni to'xtatamiz
-      controller.dispose(); // Kamera resurslarini bo'shatamiz
-      _controller = null;
-      _ready = false;
-    }
-    // App qaytib kelganda
-    else if (state == AppLifecycleState.resumed) {
-      _init(); // Qayta initsializatsiya qilamiz
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      debugPrint('📱 AICamera: App inactive/paused, kamerani to\'xtatish');
+      _stopPolling();
+      _disposeCamera();
+    } else if (state == AppLifecycleState.resumed) {
+      if (!_disposed) {
+        debugPrint('📱 AICamera: App resumed, kamerani qayta boshlash');
+        _init();
+      }
     }
   }
 
-  /// Kamera va model'ni initsializatsiya qilish
   Future<void> _init() async {
-    // Agar widget dispose qilingan bo'lsa, hech narsa qilmaymiz
-    if (_disposed) return;
+    if (_disposed) {
+      debugPrint('⚠️ AICamera allaqachon dispose qilingan, init skip');
+      return;
+    }
 
     try {
-      // 1. Mavjud kameralar ro'yxatini olamiz
       final cameras = await availableCameras();
 
-      // Agar kameralar yo'q bo'lsa, xatolik
       if (cameras.isEmpty) {
         _handleError('Kamera topilmadi');
         return;
       }
 
-      // 2. Kerakli yo'nalishda kamerani topamiz
       final cam = cameras.firstWhere(
-            (c) => c.lensDirection == widget.lensDirection,
-        orElse: () => cameras.first, // Topilmasa birinchisini olamiz
+        (c) => c.lensDirection == widget.lensDirection,
+        orElse: () => cameras.first,
       );
 
-      // 3. Kamera controller'ini yaratamiz va sozlaymiz
       final controller = CameraController(
         cam,
         widget.resolution,
-        enableAudio: false, // Audio kerak emas
+        enableAudio: false,
         imageFormatGroup: widget.imageFormat,
       );
 
-      // 4. Kamera'ni initsializatsiya qilamiz
       await controller.initialize();
 
-      // Widget dispose qilingan bo'lsa, yangi controller'ni o'chiramiz
       if (_disposed) {
+        debugPrint('⚠️ AICamera dispose qilingan, controller ni o\'chirish');
         await controller.dispose();
         return;
       }
 
-      // Controller'ni saqlash
       _controller = controller;
 
-      // 5. YOLO modelini yuklash
+      debugPrint('🤖 YOLO modelni yuklash: ${widget.modelPath}');
       await _vision.loadYoloModel(
         labels: widget.labelsPath,
         modelPath: widget.modelPath,
         modelVersion: widget.modelVersion,
-        quantization: false, // Full precision model
+        quantization: false,
         useGpu: widget.useGpu,
         numThreads: widget.numThreads,
       );
+      debugPrint('✅ YOLO model yuklandi');
 
-      // Widget hali mounted bo'lsa UI'ni yangilaymiz
-      if (!mounted) return;
+      if (!mounted || _disposed) {
+        debugPrint(
+          '⚠️ Widget unmounted, model yuklanganidan keyin to\'xtatish',
+        );
+        return;
+      }
 
       setState(() {
-        _ready = true; // Hamma narsa tayyor
-        _errorCount = 0; // Xatoliklar hisobini resetlaymiz
+        _ready = true;
+        _errorCount = 0;
       });
 
-      // 6. Kadr tekshirishni boshlaymiz
       _startPolling();
-    } catch (e) {
-      // Xatolikni qayta ishlash
+    } catch (e, stack) {
+      debugPrint('❌ AICamera init xatolik: $e');
+      debugPrint('Stack: $stack');
       _handleError('Initsializatsiya xatosi: $e');
     }
   }
 
-  /// Polling jarayonini boshlash
-  /// Belgilangan interval bilan kadrlarni tekshiradi
   void _startPolling() {
-    // Avvalgi timer'ni bekor qilamiz (agar mavjud bo'lsa)
     _stopPolling();
 
-    // Yangi periodic timer yaratamiz
-    _timer = Timer.periodic(
-      Duration(milliseconds: widget.intervalMs),
-          (_) {
-        // Har intervalda _pollOnce'ni chaqiramiz
+    if (_disposed) {
+      debugPrint('⚠️ Disposed, polling boshlanmaydi');
+      return;
+    }
+
+    debugPrint('⏰ Polling boshlandi (interval: ${widget.intervalMs}ms)');
+    _timer = Timer.periodic(Duration(milliseconds: widget.intervalMs), (_) {
+      if (!_disposed) {
         _pollOnce();
-      },
-    );
+      }
+    });
   }
 
-  /// Polling'ni to'xtatish
   void _stopPolling() {
-    _timer?.cancel();
-    _timer = null;
+    if (_timer != null) {
+      debugPrint('⏸️ Polling to\'xtatildi');
+      _timer?.cancel();
+      _timer = null;
+    }
   }
 
-  /// Bir marta kadr olish va inference qilish
   Future<void> _pollOnce() async {
     final controller = _controller;
 
-    // Agar quyidagi shartlardan biri to'g'ri bo'lsa, hech narsa qilmaymiz:
-    // - Widget mounted emas
-    // - Controller yo'q
-    // - Controller initsializatsiya qilinmagan
-    // - Allaqachon inference bajarilayotgan
     if (!mounted ||
+        _disposed ||
         controller == null ||
         !controller.value.isInitialized ||
         _busy) {
       return;
     }
 
-    // Busy flag'ni o'rnatamiz - parallel inference'lardan saqlanish
     _busy = true;
 
     try {
-      // 1. Joriy kadrdan rasm olamiz
       final XFile shot = await controller.takePicture();
 
-      // Widget dispose qilingan bo'lsa, to'xtaymiz
-      if (_disposed) return;
+      if (_disposed || !mounted) {
+        _busy = false;
+        return;
+      }
 
-      // 2. Rasmni byte array sifatida o'qiymiz
       final bytes = await File(shot.path).readAsBytes();
-
-      // 3. Rasmni decode qilib o'lchamlarini olamiz
       final img = await decodeImageFromList(bytes);
       final imageWidth = img.width;
       final imageHeight = img.height;
-
-      // Rasm resurslarini bo'shatamiz
       img.dispose();
 
-      // Widget hali mounted emasligini tekshiramiz
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed) {
+        _busy = false;
+        return;
+      }
 
-      // 4. YOLO inference bajaramiz
       final result = await _vision.yoloOnImage(
         bytesList: bytes,
         imageHeight: imageHeight,
@@ -288,8 +222,6 @@ class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
         classThreshold: widget.classThreshold,
       );
 
-      print("RESULT $result");
-      // 5. Natijalarni callback orqali qaytaramiz
       if (mounted && !_disposed) {
         widget.onDetections(
           result,
@@ -297,58 +229,85 @@ class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
         );
       }
 
-      // 6. Temp faylni o'chiramiz (xotira tozalash)
       try {
         await File(shot.path).delete();
-      } catch (_) {
-        // Fayl o'chirilmasa ham davom etamiz
-      }
+      } catch (_) {}
     } catch (e) {
-      // Xatoliklarni yutamiz - inference jarayoni davom etishi kerak
-      // Lekin juda ko'p xatolik bo'lsa, to'xtatamiz
       _errorCount++;
       if (_errorCount >= _maxErrors) {
         _handleError('Juda ko\'p inference xatoliklari: $e');
         _stopPolling();
       }
     } finally {
-      // Har qanday holatda busy flag'ni resetlaymiz
       _busy = false;
     }
   }
 
-  /// Xatoliklarni qayta ishlash
   void _handleError(String error) {
     if (!mounted || _disposed) return;
-
-    // Agar callback mavjud bo'lsa, xabar yuboramiz
     widget.onError?.call(error);
-
-    // Debug rejimida console'ga ham chiqaramiz
     debugPrint('AICamera Error: $error');
+  }
+
+  // ✅ Kamerani dispose qilish (model'siz)
+  Future<void> _disposeCamera() async {
+    debugPrint('🧹 AICamera:  Camera dispose');
+    _stopPolling();
+
+    final controller = _controller;
+    _controller = null;
+    _ready = false;
+
+    if (controller != null) {
+      try {
+        await controller.dispose();
+        debugPrint('✅ Camera controller dispose qilindi');
+      } catch (e) {
+        debugPrint('⚠️ Camera dispose xatolik: $e');
+      }
+    }
   }
 
   @override
   void dispose() {
-    // Dispose flag'ni o'rnatamiz
+    debugPrint('🧹 AICamera:  Widget dispose boshlandi');
     _disposed = true;
 
-    // Observer'ni o'chiramiz
     WidgetsBinding.instance.removeObserver(this);
 
-    // Timer'ni to'xtatamiz
+    // ✅ 1. Avval polling'ni to'xtatish
     _stopPolling();
 
-    // Kamera'ni o'chiramiz
-    _controller?.dispose();
+    // ✅ 2. Kamera'ni o'chirish
+    final controller = _controller;
     _controller = null;
 
-    // YOLO modelini o'chiramiz
-    // closeYoloModel() aslida Future<void> qaytaradi
-    // lekin dispose() sinxron bo'lishi kerak
-    // Shuning uchun kutmasdan chaqiramiz
-    _vision.closeYoloModel();
+    if (controller != null) {
+      controller
+          .dispose()
+          .then((_) {
+            debugPrint('✅ Camera disposed');
+          })
+          .catchError((e) {
+            debugPrint('⚠️ Camera dispose error: $e');
+          });
+    }
 
+    // ✅ 3. Model'ni xavfsiz yopish
+    try {
+      _vision
+          .closeYoloModel()
+          .then((_) {
+            debugPrint('✅ YOLO model yopildi');
+          })
+          .catchError((e) {
+            debugPrint('⚠️ YOLO model close error: $e');
+          });
+    } catch (e) {
+      debugPrint('⚠️ YOLO close sync error: $e');
+    }
+
+    debugPrint('🏁 AICamera:  Widget dispose tugadi');
     super.dispose();
   }
 
@@ -356,26 +315,19 @@ class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final controller = _controller;
 
-    // Agar hali tayyor bo'lmagan bo'lsa
     if (!_ready || controller == null || !controller.value.isInitialized) {
       return Container(
         color: Colors.black,
-        // Agar loading indicator kerak bo'lsa ko'rsatamiz
         child: widget.showLoadingIndicator
             ? const Center(
-          child: CircularProgressIndicator(
-            color: Colors.white,
-          ),
-        )
+                child: CircularProgressIndicator(color: Colors.white),
+              )
             : null,
       );
     }
 
-    // Tayyor bo'lsa - kamera preview'ni ko'rsatamiz
     return ClipRect(
-      // ClipRect - ortiqcha qismlarni kesib tashlaydi
       child: OverflowBox(
-        // OverflowBox - aspect ratio'ni to'g'ri ko'rsatish uchun
         alignment: Alignment.center,
         child: FittedBox(
           fit: BoxFit.cover,

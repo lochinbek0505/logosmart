@@ -41,8 +41,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   late List<ExerciseStep> _steps;
   int _currentStepIndex = 0;
-  int _completedCycles = 1;
-  final int _totalCycles = 1;
+  int _completedCycles = 0;
+  final int _totalCycles = 4;
 
   List<double> _confidenceVotes = [];
   int _currentFrameCount = 0;
@@ -58,6 +58,19 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   int _frameCount = 0;
   DateTime _lastFpsUpdate = DateTime.now();
   double _currentFps = 0.0;
+
+  double _normalizeConfidence(double v) {
+    if (v > 1.0 && v <= 255.0) return v / 255.0;
+    if (v < 0) return 0.0;
+    if (v > 1.0) return 1.0;
+    return v;
+  }
+
+  bool _isLabelMatch(String label, String expectedAction) {
+    final l = label.trim().toLowerCase();
+    final e = expectedAction.trim().toLowerCase();
+    return l == e || l.contains(e);
+  }
 
   @override
   void initState() {
@@ -83,9 +96,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   }
 
   Widget _buildCycleProgress(Size size) {
-    double progressValue = _totalCycles > 0
-        ? _completedCycles / _totalCycles
-        : 0;
+    double progressValue = _totalCycles > 0 ? _completedCycles / _totalCycles : 0;
     bool isCompleted = _completedCycles == _totalCycles;
 
     return Center(
@@ -116,9 +127,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     strokeWidth: 3,
                     backgroundColor: Colors.transparent,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isCompleted
-                          ? Colors.greenAccent
-                          : const Color(0xff20B9E8),
+                      isCompleted ? Colors.greenAccent : const Color(0xff20B9E8),
                     ),
                   ),
                   Icon(
@@ -164,7 +173,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _lastDetections = results;
     _updateFps();
 
-    // ✅ KRITIK: Tsikllar tugaganda deteksiyani BUTUNLAY to'xtatish
     if (!mounted ||
         results.isEmpty ||
         _waitingForNextStep ||
@@ -188,20 +196,19 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     if (best != null) {
       _currentBest = best;
-      double conf = _extractConfidence(best);
-      String label = _extractLabel(best);
+      final double conf = _extractConfidence(best);
+      final String label = _extractLabel(best);
+      final String expectedAction = _steps[_currentStepIndex].action;
 
-      String expectedAction = _steps[_currentStepIndex].action;
-
-      if (label.toLowerCase().contains(expectedAction.toLowerCase())) {
+      if (_isLabelMatch(label, expectedAction)) {
         if (conf >= _minConfidencePerVote) {
           _currentFrameCount++;
           _confidenceVotes.add(conf);
 
           debugPrint(
             '✅ FRAME ${_currentFrameCount}/$_requiredFrames: '
-            'conf=${(conf * 100).toStringAsFixed(1)}% | '
-            'action="$label"',
+                'conf=${(conf * 100).toStringAsFixed(1)}% | '
+                'action="$label"',
           );
 
           if (_currentFrameCount >= _requiredFrames) {
@@ -241,17 +248,15 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       return;
     }
 
-    double avgConfidence =
+    final double avgConfidence =
         _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
 
-    bool voteSuccessful = avgConfidence >= _requiredAvgConfidence;
+    final bool voteSuccessful = avgConfidence >= _requiredAvgConfidence;
 
     if (voteSuccessful) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '✅ TO\'G\'RI:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}%',
-          ),
+          content: Text('✅ TO\'G\'RI:  Avg=${(avgConfidence * 100).toStringAsFixed(1)}%'),
           backgroundColor: Colors.green,
           duration: const Duration(milliseconds: 800),
         ),
@@ -260,9 +265,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '❌ QAYTA: Avg=${(avgConfidence * 100).toStringAsFixed(1)}%',
-          ),
+          content: Text('❌ QAYTA: Avg=${(avgConfidence * 100).toStringAsFixed(1)}%'),
           backgroundColor: Colors.red,
           duration: const Duration(milliseconds: 800),
         ),
@@ -348,17 +351,15 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   void _onAllCyclesCompleted() {
     debugPrint('🎉 BARCHA TSIKLLAR YAKUNLANDI!');
 
-    // ✅ 1.  AVVAL kamerani o'chirish (eng muhim!)
     if (mounted) {
       setState(() {
-        _cameraActive = false; // ← Bu model inference ni to'xtatadi
+        _cameraActive = false;
         _isExerciseCompleted = true;
         _showSuccessAnimation = false;
         _feedbackMessage = '';
       });
     }
 
-    // ✅ 2. Kamera to'xtagandan keyin video ni pause qilish
     Future.delayed(const Duration(milliseconds: 500), () {
       try {
         _videoController?.pause();
@@ -378,8 +379,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   Future<void> _initializeVideo() async {
     try {
-      _currentVideoPath =
-          widget.data.exercise?.mediaPath ?? 'assets/video. mp4';
+      _currentVideoPath = widget.data.exercise?.mediaPath ?? 'assets/video.mp4';
       await _videoController?.dispose();
 
       _videoController = VideoPlayerController.asset(
@@ -429,12 +429,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   void dispose() {
     debugPrint('🧹 CameraPage dispose');
 
-    // ✅ AVVAL kamerani o'chirish
     _cameraActive = false;
 
-    // ✅ Keyin video ni tozalash
     try {
-      _videoController?.removeListener(() {});
       _videoController?.pause();
       _videoController?.dispose();
       _videoController = null;
@@ -456,24 +453,21 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       try {
         _videoController?.pause();
-      } catch (e) {}
+      } catch (_) {}
 
       if (_cameraActive && mounted) {
         setState(() => _cameraActive = false);
       }
     } else if (state == AppLifecycleState.resumed) {
-      if (_completedCycles >= _totalCycles || _isExerciseCompleted) {
-        return;
-      }
+      if (_completedCycles >= _totalCycles || _isExerciseCompleted) return;
 
       if (_isVideoInitialized && _videoController != null) {
         try {
           _videoController!.play();
-        } catch (e) {}
+        } catch (_) {}
       } else {
         _initializeVideo();
       }
@@ -511,22 +505,17 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         if (mounted) {
           setState(() => _cameraActive = false);
         }
-        // ✅ Kamera to'xtagandan keyin video pause
         await Future.delayed(const Duration(milliseconds: 300));
         try {
           _videoController?.pause();
-        } catch (e) {}
+        } catch (_) {}
         return true;
       },
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           mini: true,
-          backgroundColor: _showDebugPanel
-              ? Colors.red
-              : const Color(0xff20B9E8),
-          onPressed: () {
-            setState(() => _showDebugPanel = !_showDebugPanel);
-          },
+          backgroundColor: _showDebugPanel ? Colors.red : const Color(0xff20B9E8),
+          onPressed: () => setState(() => _showDebugPanel = !_showDebugPanel),
           child: Icon(
             _showDebugPanel ? Icons.bug_report : Icons.bug_report_outlined,
             color: Colors.white,
@@ -554,7 +543,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   Future.delayed(const Duration(milliseconds: 300), () {
                     try {
                       _videoController?.pause();
-                    } catch (e) {}
+                    } catch (_) {}
                   });
                   Navigator.of(context).pop();
                 },
@@ -569,8 +558,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   VideoBox(
                     size: size,
                     isVideoInitialized:
-                        (_completedCycles >= _totalCycles ||
-                            _isExerciseCompleted)
+                    (_completedCycles >= _totalCycles || _isExerciseCompleted)
                         ? false
                         : _isVideoInitialized,
                     isVideoError: _isVideoError,
@@ -581,9 +569,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   ),
 
                   const SizedBox(height: 15),
-
                   _buildCameraBoxWithBorder(size),
-
                   const SizedBox(height: 15),
 
                   if (_completedCycles < _totalCycles &&
@@ -630,10 +616,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   right: 0,
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       decoration: BoxDecoration(
                         color: _cameraBoxBorderColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(12),
@@ -657,8 +640,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   }
 
   Widget _buildCameraBoxWithBorder(Size size) {
-    bool shouldStopCamera =
-        _completedCycles >= _totalCycles || _isExerciseCompleted;
+    final bool shouldStopCamera = _completedCycles >= _totalCycles || _isExerciseCompleted;
+    final exercise = widget.data.exercise;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -672,8 +655,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         ),
         boxShadow: [
           BoxShadow(
-            color: (shouldStopCamera ? Colors.green : _cameraBoxBorderColor)
-                .withOpacity(0.6),
+            color: (shouldStopCamera ? Colors.green : _cameraBoxBorderColor).withOpacity(0.6),
             blurRadius: 15,
             spreadRadius: 2,
           ),
@@ -681,39 +663,34 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(19),
-        // ✅ KRITIK: shouldStopCamera true bo'lsa CameraBox widgetini UMUMAN render qilmaslik
         child: shouldStopCamera
             ? Container(
-                color: Colors.black,
-                child: const Center(
-                  child: Icon(Icons.celebration, color: Colors.green, size: 60),
-                ),
-              )
-            : (_cameraActive
-                  ? CameraBox(
-                      size: Size(size.width * 0.6, size.width * 0.6),
-                      cameraActive: true,
-                      camKey: _camKey,
-                      modelPath: widget.data.exercise!.modelPath,
-                      labelsPath: widget.data.exercise!.labelsPath,
-                      onDetections: _onDetections,
-                    )
-                  : Container(
-                      color: Colors.black,
-                      child: const Center(
-                        child: Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                          size: 60,
-                        ),
-                      ),
-                    )),
+          color: Colors.black,
+          child: const Center(
+            child: Icon(Icons.celebration, color: Colors.green, size: 60),
+          ),
+        )
+            : (_cameraActive && exercise != null
+            ? CameraBox(
+          size: Size(size.width * 0.6, size.width * 0.6),
+          cameraActive: true,
+          camKey: _camKey,
+          modelPath: exercise.modelPath,
+          labelsPath: exercise.labelsPath,
+          onDetections: _onDetections,
+        )
+            : Container(
+          color: Colors.black,
+          child: const Center(
+            child: Icon(Icons.check_circle, color: Colors.green, size: 60),
+          ),
+        )),
       ),
     );
   }
 
   Widget _buildDebugInfo() {
-    double avgConf = _confidenceVotes.isEmpty
+    final double avgConf = _confidenceVotes.isEmpty
         ? 0
         : _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
 
@@ -731,18 +708,12 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _row(
-              '📍',
-              '${_currentStepIndex + 1}/${_steps.length}',
-              Colors.cyan,
-            ),
+            _row('📍', '${_currentStepIndex + 1}/${_steps.length}', Colors.cyan),
             _row('🔄', '$_completedCycles/$_totalCycles', Colors.purple),
             _row(
               '📊',
               '$_currentFrameCount/$_requiredFrames',
-              _currentFrameCount >= _requiredFrames
-                  ? Colors.green
-                  : Colors.orange,
+              _currentFrameCount >= _requiredFrames ? Colors.green : Colors.orange,
             ),
             _row(
               '⚡',
@@ -754,11 +725,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
               '${_currentFps.toStringAsFixed(0)}',
               _currentFps < 15 ? Colors.red : Colors.green,
             ),
-            _row(
-              '📷',
-              _cameraActive ? 'ON' : 'OFF',
-              _cameraActive ? Colors.green : Colors.red,
-            ),
+            _row('📷', _cameraActive ? 'ON' : 'OFF', _cameraActive ? Colors.green : Colors.red),
           ],
         ),
       ),
@@ -791,12 +758,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       r['confidence'],
       r['score'],
       r['conf'],
-      if (r['box'] is List && (r['box'] as List).length > 4)
-        (r['box'] as List)[4],
+      if (r['box'] is List && (r['box'] as List).length > 4) (r['box'] as List)[4],
     ];
 
     for (final c in candidates) {
-      if (c is num) return c.toDouble();
+      if (c is num) return _normalizeConfidence(c.toDouble());
     }
     return 0.0;
   }

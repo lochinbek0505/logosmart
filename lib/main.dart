@@ -1,19 +1,23 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
+import 'package:logosmart/ui/pages/auth/register_page.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:provider/provider.dart';
-import 'package:spine_flutter/spine_flutter.dart';
 
+import 'AICameraTestPage.dart';
 import 'core/storage/level_state.dart';
 
 Future<void> main() async {
-  await initSpineFlutter(enableMemoryDebugging: true);
+  await ScreenUtil.ensureScreenSize();
 
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  // --- Faqat BITTA marta register qilamiz:
   if (!Hive.isAdapterRegistered(71))
     Hive.registerAdapter(ExerciseStepAdapter()); // codegen
   if (!Hive.isAdapterRegistered(72))
@@ -22,7 +26,6 @@ Future<void> main() async {
   if (!Hive.isAdapterRegistered(73))
     Hive.registerAdapter(GameInfoAdapter()); // codegen
 
-  // LevelState uchun - qo'lda yozilgan adapterni tanlaymiz:
   if (!Hive.isAdapterRegistered(7))
     Hive.registerAdapter(LevelStateAdapter()); // MANUAL
 
@@ -36,9 +39,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => LevelProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => LevelProvider()),
+        ChangeNotifierProvider(create: (_) => RegisterProvider()),
+
+      ],
       child: MaterialApp(
+        builder: (ctx,child){
+          ScreenUtil.init(ctx, designSize: const Size(375, 812));
+          return child!;
+        },
+        debugShowMaterialGrid: false,
         debugShowCheckedModeBanner: false,
         title: 'LogoSmart',
         theme: ThemeData(
@@ -48,7 +61,7 @@ class MyApp extends StatelessWidget {
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: HomePage(),
+        home: RegisterPage(),
       ),
     );
   }

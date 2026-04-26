@@ -13,20 +13,31 @@ class AICameraTestPage extends StatefulWidget {
 }
 
 class _AICameraTestPageState extends State<AICameraTestPage> {
+  var sq = ["o'ng", "chap", "o'ng", "chap"];
 
-  var sq=["o'ng","chap","o'ng","chap"];
-
-  final String _modelPath = 'assets/models/model3.tflite';
+  final String _modelPath = 'assets/models/best_int8_ochtp.tflite';
   final String _labelsPath = 'assets/models/labels.txt';
 
   List<Detection> _detections = [];
   ui.Size _imageSize = ui.Size.zero;
   double _minConfidence = 0.5;
 
+  // ✅ Qo‘shildi: kamera yo‘nalishi va rebuild key
+  CameraLensDirection _lensDirection = CameraLensDirection.front;
+  Key _cameraKey = UniqueKey();
+
   @override
   void initState() {
     super.initState();
+  }
 
+  void _toggleCamera() {
+    setState(() {
+      _lensDirection = _lensDirection == CameraLensDirection.front
+          ? CameraLensDirection.back
+          : CameraLensDirection.front;
+      _cameraKey = UniqueKey(); // AICamera qayta init bo‘lishi uchun
+    });
   }
 
   @override
@@ -37,6 +48,12 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
         title: const Text('AI Camera Test'),
         backgroundColor: Colors.blue.shade900,
         actions: [
+          // ✅ Qo‘shildi: old/orqa kamerani almashtirish
+          IconButton(
+            icon: const Icon(Icons.cameraswitch),
+            onPressed: _toggleCamera,
+            tooltip: 'Kamerani almashtirish',
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _showSettings,
@@ -45,22 +62,22 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
       ),
       body: Stack(
         children: [
-          // Kamera
           AICamera(
+            key: _cameraKey,
             modelPath: _modelPath,
             labelsPath: _labelsPath,
             useGpu: true,
-            numThreads: 2,
-            lensDirection: CameraLensDirection.front,
-            // intervalMs: 300,
+            numThreads: 4,
+            lensDirection: _lensDirection,
             confThreshold: _minConfidence,
             iouThreshold: 0.45,
+            intervalMs: 800,
+            resolution: ResolutionPreset.medium,
             onDetections: _onDetections,
             onError: (err) => print('Error: $err'),
             showLoadingIndicator: true,
           ),
 
-          // Bounding boxes
           CustomPaint(
             painter: BoundingBoxPainter(
               detections: _detections,
@@ -69,7 +86,6 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
             child: Container(),
           ),
 
-          // Natijalar
           Positioned(
             bottom: 0,
             left: 0,
@@ -98,49 +114,49 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
                     height: 200,
                     child: _detections.isEmpty
                         ? const Center(
-                            child: Text(
-                              'Hech narsa topilmadi',
-                              style: TextStyle(color: Colors.white54),
-                            ),
-                          )
+                      child: Text(
+                        'Hech narsa topilmadi',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    )
                         : ListView.builder(
-                            itemCount: _detections.length,
-                            itemBuilder: (context, index) {
-                              final det = _detections[index];
-                              return Card(
-                                color: Colors.grey.shade800,
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: det.color,
-                                    child: Text('${index + 1}'),
-                                  ),
-                                  title: Text(
-                                    det.tag.toUpperCase(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    'Ishonch: ${(det.confidence * 100).toStringAsFixed(1)}%',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                  trailing: CircularProgressIndicator(
-                                    value: det.confidence,
-                                    backgroundColor: Colors.white24,
-                                    valueColor: AlwaysStoppedAnimation(
-                                      det.confidence > 0.7
-                                          ? Colors.green
-                                          : Colors.orange,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                      itemCount: _detections.length,
+                      itemBuilder: (context, index) {
+                        final det = _detections[index];
+                        return Card(
+                          color: Colors.grey.shade800,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: det.color,
+                              child: Text('${index + 1}'),
+                            ),
+                            title: Text(
+                              det.tag.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Ishonch: ${(det.confidence * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                              ),
+                            ),
+                            trailing: CircularProgressIndicator(
+                              value: det.confidence,
+                              backgroundColor: Colors.white24,
+                              valueColor: AlwaysStoppedAnimation(
+                                det.confidence > 0.7
+                                    ? Colors.green
+                                    : Colors.orange,
+                              ),
+                            ),
                           ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -151,24 +167,20 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
     );
   }
 
-
   String? checkEvenOdd(int number, {int durationSeconds = 5}) {
-     int even = 0;
-     int odd = 0;
-     bool started = false;
-     bool finished = false;
+    int even = 0;
+    int odd = 0;
+    bool started = false;
+    bool finished = false;
 
-    // Birinchi chaqirilganda timer ishga tushadi
     if (!started) {
       started = true;
 
       Timer(Duration(seconds: durationSeconds), () {
         finished = true;
       });
-
     }
 
-    // Vaqt tugamagan bo‘lsa sonni hisoblaymiz
     if (!finished) {
       if (number % 2 == 0) {
         even++;
@@ -177,7 +189,6 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
       }
     }
 
-    // Agar vaqt tugagan bo‘lsa — natija qaytariladi
     if (finished) {
       if (even > odd) {
         return "Juft ko‘p ($even)";
@@ -188,18 +199,12 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
       }
     }
 
-    // Hali vaqt tugamagan
     return null;
   }
-
-
 
   void _onDetections(List<Map<String, dynamic>> results, ui.Size imageSize) {
     setState(() {
       _detections = results.map((r) => Detection.fromMap(r)).toList();
-
-
-
       _imageSize = imageSize;
     });
   }
@@ -242,7 +247,6 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
     );
   }
 }
-
 
 class Detection {
   final String tag;
@@ -304,7 +308,6 @@ class BoundingBoxPainter extends CustomPainter {
         det.y2 * scaleY,
       );
 
-      // Box
       final paint = Paint()
         ..color = det.color
         ..style = PaintingStyle.stroke
@@ -312,14 +315,12 @@ class BoundingBoxPainter extends CustomPainter {
 
       canvas.drawRect(rect, paint);
 
-      // Fill
       final fillPaint = Paint()
         ..color = det.color.withOpacity(0.2)
         ..style = PaintingStyle.fill;
 
       canvas.drawRect(rect, fillPaint);
 
-      // Label
       final label = '${det.tag} ${(det.confidence * 100).toInt()}%';
       final textPainter = TextPainter(
         text: TextSpan(

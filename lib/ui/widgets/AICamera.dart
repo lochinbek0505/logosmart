@@ -21,7 +21,7 @@ class AICamera extends StatefulWidget {
     this.lensDirection = CameraLensDirection.front,
     this.resolution = ResolutionPreset.low,
     this.imageFormat = ImageFormatGroup.yuv420,
-    this.intervalMs = 450,
+    this.intervalMs = 800,
     this.iouThreshold = 0.4,
     this.confThreshold = 0.4,
     this.classThreshold = 0.5,
@@ -131,7 +131,7 @@ class _AICameraState extends State<AICamera> with WidgetsBindingObserver {
         labels: widget.labelsPath,
         modelPath: widget.modelPath,
         modelVersion: widget.modelVersion,
-        quantization: false,
+        quantization: true,
         useGpu: widget.useGpu,
         numThreads: widget.numThreads,
       );

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
-import 'package:logosmart/ui/pages/auth/login_page.dart';
-import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
+import 'package:logosmart/ui/pages/auth/reset_password_page.dart';
 import 'package:provider/provider.dart';
 
 import 'core/storage/level_state.dart';
-import 'ui/pages/auth/register_information_page.dart';
 
 Future<void> main() async {
   await ScreenUtil.ensureScreenSize();
@@ -59,7 +57,7 @@ class MyApp extends StatelessWidget {
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: LoginPage(),
+        home: ResetPasswordPage(),
       ),
     );
   }

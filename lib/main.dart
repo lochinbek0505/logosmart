@@ -1,16 +1,14 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/auth/login_page.dart';
+import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
-import 'package:logosmart/ui/pages/auth/register_page.dart';
-import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:provider/provider.dart';
 
-import 'AICameraTestPage.dart';
 import 'core/storage/level_state.dart';
+import 'ui/pages/auth/register_information_page.dart';
 
 Future<void> main() async {
   await ScreenUtil.ensureScreenSize();
@@ -39,18 +37,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LevelProvider()),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
-
       ],
+
       child: MaterialApp(
-        builder: (ctx,child){
+        builder: (ctx, child) {
           ScreenUtil.init(ctx, designSize: const Size(375, 812));
           return child!;
         },
+
         debugShowMaterialGrid: false,
         debugShowCheckedModeBanner: false,
         title: 'LogoSmart',
@@ -61,7 +59,7 @@ class MyApp extends StatelessWidget {
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: RegisterPage(),
+        home: LoginPage(),
       ),
     );
   }

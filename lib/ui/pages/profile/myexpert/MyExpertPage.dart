@@ -27,7 +27,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset("assets/images/eror.png", width: 70, height: 70),
+                  Image.asset("assets/images/error.png", width: 70, height: 70),
 
                   SizedBox(height: 16),
 

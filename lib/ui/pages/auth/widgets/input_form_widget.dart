@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/AppColors.dart';
 
 class InputFormWidget extends StatefulWidget {
@@ -55,7 +56,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.w), // O'ng tomondan ham padding berildi
+          padding: EdgeInsets.symmetric(horizontal: 15.w),
           child: TextFormField(
             controller: widget.controller,
             obscureText: _obscureText,
@@ -64,30 +65,36 @@ class _InputFormWidgetState extends State<InputFormWidget> {
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
             ),
-            keyboardType: widget.isPhone ? TextInputType.phone : TextInputType.text,
+            keyboardType: widget.isPhone
+                ? TextInputType.phone
+                : TextInputType.text,
             inputFormatters: widget.inputFormatters,
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 20.w),
-              prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, color: AppColors.grey_700) : null,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 14.h,
+                horizontal: 20.w,
+              ),
+              prefixIcon: widget.prefixIcon != null
+                  ? Icon(widget.prefixIcon, color: AppColors.grey_700)
+                  : null,
 
               suffixIcon: widget.isPassword
                   ? IconButton(
-                icon: Icon(
-                  _obscureText ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
-                  color: AppColors.grey_700,
-                  size: 20.sp,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText; // Holatni teskarisiga o'zgartirish
-                  });
-                },
-              )
+                      icon: Icon(
+                        _obscureText
+                            ? CupertinoIcons.eye_slash
+                            : CupertinoIcons.eye,
+                        color: AppColors.grey_700,
+                        size: 20.sp,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
                   : null,
 
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(36.r),
-              ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(36.r),
                 borderSide: const BorderSide(
@@ -98,14 +105,31 @@ class _InputFormWidgetState extends State<InputFormWidget> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(36.r),
                 borderSide: const BorderSide(
+                  color: AppColors.sky_blue_500,
+                  width: 1.5,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(36.r),
+                borderSide: const BorderSide(
+                  color: AppColors.light_grey_500,
+                  width: 1,
+                ),
+              ),
+
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(36.r),
+                borderSide: const BorderSide(
                   color: AppColors.light_grey_500,
                   width: 1.5,
                 ),
               ),
-              errorBorder: OutlineInputBorder( // Xatolik bo'lgandagi border
-                borderRadius: BorderRadius.circular(36.r),
-                borderSide: const BorderSide(color: Colors.red, width: 1),
+
+              errorStyle: GoogleFonts.nunito(
+                color: Colors.red,
+                fontSize: 12.sp,
               ),
+
               filled: true,
               fillColor: Colors.white,
             ),

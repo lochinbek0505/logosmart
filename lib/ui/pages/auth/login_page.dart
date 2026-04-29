@@ -3,19 +3,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
-import 'package:logosmart/ui/pages/auth/register_information_page.dart' show RegisterInformationPage;
+import 'package:logosmart/ui/pages/auth/register_information_page.dart'
+    show RegisterInformationPage;
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:provider/provider.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _LoginPageState extends State<LoginPage> {
   late TextEditingController _phoneController;
   late TextEditingController _passwordInitController;
 
@@ -57,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Padding(
                       padding: EdgeInsets.only(left: 15.w),
                       child: Text(
-                        "Yangi hisob yaratish",
+                        "Ilovaga kirish",
                         style: GoogleFonts.nunito(
                           color: AppColors.grey_900,
                           fontSize: 32.sp,
@@ -108,23 +109,23 @@ class _RegisterPageState extends State<RegisterPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 24.h),
-                    InputFormWidget(
-                      controller: _passwordVerifyController,
-                      label: "Parolni tasdiqlang",
-                      isPassword: true,
-                      validator: (v) {
-                        if (v!.isEmpty || v == null)
-                          return "Parol kiritilishi shart";
-
-                        if (v != _passwordInitController.text)
-                          return "Parollar mos emas";
-                         if (v.length < 8)
-                          return "Parol kamida 8 ta belgidan iborat bo'lishi kerak";
-
-                        return null;
-                      },
+                    SizedBox(height: 12.h),
+                    Container(
+                      width: double.infinity,
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Text(
+                          "Login yoki parol esdan chiqdimi?",
+                          style: GoogleFonts.nunito(
+                            color: AppColors.red_500,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
+                    SizedBox(height: 24.h),
 
                     const Spacer(),
 
@@ -150,13 +151,62 @@ class _RegisterPageState extends State<RegisterPage> {
                               };
                               provider.payload = payload;
 
-                              Navigator.push(context, MaterialPageRoute(builder: (builder)=> RegisterInformationPage()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (builder) =>
+                                      RegisterInformationPage(),
+                                ),
+                              );
                             }
                           },
                           child: Text(
-                            "Davom etish",
+                            "Kirish",
                             style: GoogleFonts.nunito(
                               color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.w),
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: AppColors.white,
+                            elevation: 0,
+                            side: BorderSide(color: AppColors.main_blue_600),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(36.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16.h),
+                          ),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              var payload = {
+                                "phoneNumber": _phoneController.text,
+                                "password": _passwordInitController.text,
+                              };
+                              provider.payload = payload;
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (builder) =>
+                                      RegisterInformationPage(),
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            "Yangi hisob yaratish",
+                            style: GoogleFonts.nunito(
+                              color: AppColors.grey_900,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
                             ),

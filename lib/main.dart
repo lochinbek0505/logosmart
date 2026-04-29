@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
-import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
-import 'package:logosmart/ui/pages/auth/reset_password_page.dart';
+import 'package:logosmart/ui/pages/auth/login_page.dart';
+import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
+import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:provider/provider.dart';
 
 import 'core/storage/level_state.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LevelProvider()),
-        ChangeNotifierProvider(create: (_) => RegisterProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
 
       child: MaterialApp(
@@ -51,14 +52,46 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'LogoSmart',
         theme: ThemeData(
-          fontFamily: "Nurito",
-          textSelectionTheme: TextSelectionThemeData(
+          fontFamily: "Nunito", // Nurito emas, ehtimol Nunito bo'lsa kerak
+          textSelectionTheme: const TextSelectionThemeData(
             selectionHandleColor: Colors.transparent, // tomchi rangi
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: ResetPasswordPage(),
+
+        home: const AuthChecker(),
       ),
+    );
+  }
+}
+
+class AuthChecker extends StatelessWidget {
+  const AuthChecker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).checkLoginData(),
+      builder: (context, snapshot) {
+        // 1. Kutish jarayonida (ma'lumot o'qilgunicha) loading ko'rsatamiz
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // 2. Agar token bor bo'lsa (true), HomePage'ga o'tkazamiz
+        if (snapshot.hasData && snapshot.data == true) {
+          return const HomePage();
+        }
+
+        // 3. Aks holda (token yo'q bo'lsa), LoginPage'ga o'tkazamiz
+        return const LoginPage();
+      },
     );
   }
 }

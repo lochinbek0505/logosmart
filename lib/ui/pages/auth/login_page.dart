@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
+import 'package:logosmart/ui/pages/auth/forgot_password_page.dart';
+import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
+import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/register_information_page.dart'
     show RegisterInformationPage;
+import 'package:logosmart/ui/pages/auth/register_page.dart';
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +23,6 @@ class _LoginPageState extends State<LoginPage> {
   late TextEditingController _phoneController;
   late TextEditingController _passwordInitController;
 
-  late TextEditingController _passwordVerifyController;
-
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -29,20 +30,28 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _phoneController = TextEditingController();
     _passwordInitController = TextEditingController();
-    _passwordVerifyController = TextEditingController();
     _phoneController.text = "+998";
   }
 
   @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordInitController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var provider = Provider.of<RegisterProvider>(context);
+    var provider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+      ),
       body: SafeArea(
-        // Notch (tepa qism) bilan to'qnashmasligi uchun
         child: SingleChildScrollView(
           child: Container(
-            // Ekran balandligidan kam bo'lmagan joy egallashi uchun
             constraints: BoxConstraints(
               minHeight:
                   MediaQuery.of(context).size.height -
@@ -89,8 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                         LengthLimitingTextInputFormatter(13),
                       ],
                       validator: (v) {
-                        if (v == null || v.isEmpty)
-                          return "Tefon raqam kiritilishi shart";
+                        if (v == null || v.isEmpty) {
+                          return "Telefon raqam kiritilishi shart";
+                        }
                         final phoneRegex = RegExp(r'^\+998[0-9]{9}$');
                         if (!phoneRegex.hasMatch(v)) return "Format noto'g'ri";
                         return null;
@@ -102,10 +112,12 @@ class _LoginPageState extends State<LoginPage> {
                       label: "Parol",
                       isPassword: true,
                       validator: (v) {
-                        if (v!.isEmpty || v == null)
+                        if (v == null || v.isEmpty) {
                           return "Parol kiritilishi shart";
-                        if (v.length < 8)
+                        }
+                        if (v.length < 8) {
                           return "Parol kamida 8 ta belgidan iborat bo'lishi kerak";
+                        }
                         return null;
                       },
                     ),
@@ -115,21 +127,33 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Text(
-                          "Login yoki parol esdan chiqdimi?",
-                          style: GoogleFonts.nunito(
-                            color: AppColors.red_500,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (builder) =>
+                                    const ForgotPasswordPage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Login yoki parol esdan chiqdimi?",
+                            style: GoogleFonts.nunito(
+                              color: AppColors.red_500,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 24.h),
 
                     const Spacer(),
 
                     SizedBox(height: 24.h),
+
+                    // KIRISH TUGMASI
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
@@ -142,36 +166,70 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(36.r),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16.h),
+                            // Disabled holatida tugma rangi o'zgarib qolmasligi uchun (ixtiyoriy)
+                            disabledBackgroundColor: AppColors.main_blue_600
+                                .withOpacity(0.7),
                           ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              var payload = {
-                                "phoneNumber": _phoneController.text,
-                                "password": _passwordInitController.text,
-                              };
-                              provider.payload = payload;
+                          // DIQQAT: provider.isLoading true bo'lsa, tugma bosilmaydi (null)
+                          onPressed: provider.isLoading
+                              ? null
+                              : () async {
+                                  FocusScope.of(context).unfocus();
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (builder) =>
-                                      RegisterInformationPage(),
+                                  if (_formKey.currentState!.validate()) {
+                                    bool isSuccess = await provider.loginInit(
+                                      context,
+                                      _phoneController.text,
+                                      _passwordInitController.text,
+                                    );
+
+                                    if (isSuccess && context.mounted) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (builder) =>
+                                              OtpVerificationPage(
+                                                check: "login",
+                                                phone: _phoneController.text,
+                                              ),
+                                        ),
+                                      );
+                                    }
+                                  }else{
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (builder) =>
+                                            OtpVerificationPage(
+                                              check: "login",
+                                              phone: _phoneController.text,
+                                            ),
+                                      ),
+                                    );
+                                  }
+                                },
+                          child: provider.isLoading
+                              ? SizedBox(
+                                  height: 24.h,
+                                  width: 24.h,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  "Kirish",
+                                  style: GoogleFonts.nunito(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              );
-                            }
-                          },
-                          child: Text(
-                            "Kirish",
-                            style: GoogleFonts.nunito(
-                              color: Colors.white,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ),
                     ),
                     SizedBox(height: 12.h),
+
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
@@ -187,21 +245,13 @@ class _LoginPageState extends State<LoginPage> {
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                           ),
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              var payload = {
-                                "phoneNumber": _phoneController.text,
-                                "password": _passwordInitController.text,
-                              };
-                              provider.payload = payload;
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (builder) =>
-                                      RegisterInformationPage(),
-                                ),
-                              );
-                            }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (builder) =>
+                                    const RegisterPage(),
+                              ),
+                            );
                           },
                           child: Text(
                             "Yangi hisob yaratish",

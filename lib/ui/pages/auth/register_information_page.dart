@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
+import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
+import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
   }
 
   void load() async {
-    var provider = Provider.of<RegisterProvider>(context, listen: false);
+    var provider = Provider.of<AuthProvider>(context, listen: false);
     await provider.initRegions();
   }
 
@@ -146,7 +147,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
 
   @override
   Widget build(BuildContext context) {
-    var provider = Provider.of<RegisterProvider>(context);
+    var provider = Provider.of<AuthProvider>(context);
     var regions = provider.regionsList;
     var districts = provider.districts;
 
@@ -314,39 +315,68 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                             borderRadius: BorderRadius.circular(36.r),
                           ),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
+                          // Loading vaqtida tugma rangi biroz xiralashib, chiroyli turadi
+                          disabledBackgroundColor: AppColors.main_blue_600
+                              .withOpacity(0.7),
                         ),
-                        onPressed: () {
-                          if (selectedGender == null) {
-                            _showWarningDialog(context);
-                            return;
-                          }
+                        // Agar yuklanayotgan bo'lsa (true), tugmani bosib bo'lmaydi (null)
+                        onPressed: provider.isLoading
+                            ? null
+                            : () async {
+                                if (selectedGender == null) {
+                                  _showWarningDialog(context);
+                                  return;
+                                }
 
-                          if (_formKey.currentState!.validate()) {
-                            var payload = {
-                              ...provider.payload,
-                              "fullName": _nameController.text,
-                              "region": selectedRegionValue?['name'],
-                              "district": selectedDistrictValue?['name'],
-                              "gender": selectedGender,
-                              "age": selectedAgeValue,
-                              "roles": ["ROLE_USER"],
-                            };
-                            provider.payload = payload;
+                                if (_formKey.currentState!.validate()) {
+                                  var payload = {
+                                    ...provider.payload,
+                                    "fullName": _nameController.text,
+                                    "region": selectedRegionValue?['name'],
+                                    "district": selectedDistrictValue?['name'],
+                                    "gender": selectedGender,
+                                    "age": selectedAgeValue,
+                                    "roles": ["ROLE_USER"],
+                                  };
+                                  provider.payload = payload;
 
-                          }
-                        },
-                        child: Text(
-                          "Davom etish",
-                          style: GoogleFonts.nunito(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                  var aa = await provider.registerInit(context);
+
+                                  if (aa && context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (builder) =>
+                                            OtpVerificationPage(
+                                              check: "register",
+                                              phone: payload["phoneNumber"],
+                                            ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                        // Loading bo'lsa indikator aylanadi, yo'qsa yozuv chiqadi
+                        child: provider.isLoading
+                            ? SizedBox(
+                                height: 24.h,
+                                width: 24.h,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                "Davom etish",
+                                style: GoogleFonts.nunito(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                   ),
-
                   SizedBox(height: 40.h),
                 ],
               ),

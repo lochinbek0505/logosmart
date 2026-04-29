@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
+import 'package:logosmart/models/login_model.dart';
 
 class ApiService {
   late Dio _dio;
@@ -49,5 +51,212 @@ class ApiService {
         },
       ),
     );
+  }
+
+  Future<bool> login_init(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post("auth/login/init", data: data);
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+
+  Future<LoginModel?> login_verify(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post("auth/login/verify", data: data);
+
+      // Status 200 yoki 201 bo'lishi mumkin, API hujjatiga qarab to'g'rilaysiz
+      if (response.statusCode == 200) {
+        showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+        return LoginModel.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+  Future<bool> register_init(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post("auth/register/init", data: data);
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+
+  Future<LoginModel?> register_verify(
+    context,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      var response = await _dio.post("auth/register/verify", data: data);
+
+      // Status 200 yoki 201 bo'lishi mumkin, API hujjatiga qarab to'g'rilaysiz
+      if (response.statusCode == 200) {
+        showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+        return LoginModel.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+  Future<bool> forgot_init(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post("auth/forgot-password/init", data: data);
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+
+  Future<bool> forgot_verify_otp(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post(
+        "auth/forgot-password/verify-otp",
+        data: data,
+      );
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+
+  Future<bool> reset_password(context, Map<String, dynamic> data) async {
+    try {
+      var response = await _dio.post(
+        "auth/forgot-password/reset",
+        data: data,
+      );
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+
+  void showSnakBar(context, message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

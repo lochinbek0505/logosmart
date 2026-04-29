@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/auth/providera/register_provider.dart';
-import 'package:logosmart/ui/pages/auth/register_information_page.dart'
-    show RegisterInformationPage;
+import 'package:logosmart/ui/pages/auth/login_page.dart';
+import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
 import 'package:logosmart/ui/theme/AppColors.dart';
 import 'package:provider/provider.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({super.key});
+  String phone;
+
+  ResetPasswordPage({super.key, required this.phone});
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -35,12 +35,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    var provider = Provider.of<RegisterProvider>(context);
+    var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
-
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
+        ),
+      ),
       body: SafeArea(
-        // Notch (tepa qism) bilan to'qnashmasligi uchun
         child: SingleChildScrollView(
           child: Container(
             // Ekran balandligidan kam bo'lmagan joy egallashi uchun
@@ -115,25 +122,42 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               borderRadius: BorderRadius.circular(36.r),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16.h),
+                            // Loading vaqtida rang xiralashadi
+                            disabledBackgroundColor: AppColors.main_blue_600.withOpacity(0.7),
                           ),
-                          onPressed: () {
+                          onPressed: provider.isLoading
+                              ? null
+                              : () async {
                             if (_formKey.currentState!.validate()) {
                               var payload = {
-                                "phoneNumber": _phoneController.text,
-                                "password": _passwordInitController.text,
+                                "phoneNumber": widget.phone,
+                                "newPassword": _passwordInitController.text,
                               };
-                              provider.payload = payload;
-
-                              Navigator.push(
+                              bool aa = await provider.resetPassword(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (builder) =>
-                                      RegisterInformationPage(),
-                                ),
+                                payload,
                               );
+                              if (aa && context.mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (builder) => const LoginPage(),
+                                  ),
+                                      (Route<dynamic> route) => false,
+                                );
+                              }
                             }
                           },
-                          child: Text(
+                          child: provider.isLoading
+                              ? SizedBox(
+                            height: 24.h,
+                            width: 24.h,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                              : Text(
                             "Tasdiqlash",
                             style: GoogleFonts.nunito(
                               color: Colors.white,
@@ -143,8 +167,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 12.h),
+                    ),                    SizedBox(height: 12.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: RichText(

@@ -10,7 +10,7 @@ plugins {
 
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties().apply {
-    if (keystorePropertiesFile. exists()) {
+    if (keystorePropertiesFile.exists()) {
         load(FileInputStream(keystorePropertiesFile))
     }
 }
@@ -27,6 +27,9 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+    aaptOptions {
+        noCompress += "tflite"
     }
 
     defaultConfig {
@@ -62,12 +65,12 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
             // R8 optimizatsiya
-//            isMinifyEnabled = true
-//            isShrinkResources = true
-//            proguardFiles(
-//                getDefaultProguardFile("proguard-android-optimize.txt"),
-//                "proguard-rules.pro"
-//            )
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         getByName("debug") {
             // debug uchun standart

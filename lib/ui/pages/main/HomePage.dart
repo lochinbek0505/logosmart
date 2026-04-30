@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import 'firstspeech/StartSpeechPage.dart';

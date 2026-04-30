@@ -6,7 +6,7 @@ import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/register_information_page.dart'
     show RegisterInformationPage;
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {

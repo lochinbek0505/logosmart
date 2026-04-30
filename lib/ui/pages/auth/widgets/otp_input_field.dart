@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:pinput/pinput.dart';
 
 class OtpInputField extends StatefulWidget {

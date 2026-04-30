@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:logosmart/ui/pages/start/Onboard2Page.dart';
 import 'package:logosmart/ui/pages/start/Onboard3Page.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'Onboard1Page.dart';

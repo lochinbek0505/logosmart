@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:wave_linear_progress_indicator/wave_linear_progress_indicator.dart';
 
 import '../main/HomePage.dart';

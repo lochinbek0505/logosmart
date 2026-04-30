@@ -7,7 +7,7 @@ import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/reset_password_page.dart';
 import 'package:logosmart/ui/pages/auth/widgets/otp_input_field.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
-import 'package:logosmart/ui/theme/AppColors.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class OtpVerificationPage extends StatefulWidget {

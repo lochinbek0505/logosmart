@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:logosmart/AICameraTestPage.dart';
 import 'package:logosmart/providers/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
 
-        home: const AuthChecker(),
+        home: const AICameraTestPage(),
       ),
     );
   }
@@ -86,7 +87,7 @@ class AuthChecker extends StatelessWidget {
 
         // 2. Agar token bor bo'lsa (true), HomePage'ga o'tkazamiz
         if (snapshot.hasData && snapshot.data == true) {
-          return const HomePage();
+          return const AICameraTestPage();
         }
 
         // 3. Aks holda (token yo'q bo'lsa), LoginPage'ga o'tkazamiz

@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/widgets/AICamera.dart';
+import 'package:logosmart/ui/widgets/yolo_camera_widget.dart';
 
 import '../widgets/SuccessGifPlaceholder.dart';
 
@@ -83,17 +83,11 @@ class _CameraBoxState extends State<CameraBox> {
         borderRadius: BorderRadius.circular(19),
         // ✅ Local state'dan foydalanish
         child:  _localCameraActive && widget.cameraActive
-            ?  AICamera(
+            ?  YoloCameraWidget(
           key: widget.camKey,
           modelPath: widget.modelPath,
-          labelsPath: widget.labelsPath,
           useGpu: false,
-          numThreads: 4,
-          lensDirection: CameraLensDirection.front,
-          iouThreshold: 0.45,
-          confThreshold: 0.35,
-          classThreshold: 0.5,
-          resolution: ResolutionPreset.medium,
+
           onDetections: widget.onDetections,
         )
             : const SuccessGifPlaceholder(),

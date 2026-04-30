@@ -45,7 +45,6 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   wave_linear_progress_indicator: ^0.1.0
   image_picker: ^1.2.0
-  flutter_vision: ^2.0.0
   flutter_speed_dial: ^7.0.0
   fluttertoast: ^8.2.12
 
@@ -65,7 +64,6 @@ dependencies:
   permission_handler: ^12.0.1
   video_player: ^2.10.0
   shiny_striped_progress_bar: ^1.1.0
-  tflite_flutter: ^0.12.1
   image: ^4.6.0
   spine_flutter: ^4.0.0 # Use the latest version from pub.dev
   flutter_launcher_icons: ^0.14.4
@@ -73,6 +71,7 @@ dependencies:
   dio: ^5.9.2
   flutter_secure_storage: ^10.0.0
   animated_custom_dropdown: ^3.1.1
+  ultralytics_yolo: ^0.3.1
 
 dev_dependencies:
   flutter_test:
@@ -115,7 +114,6 @@ flutter:
     - assets/media/
     - assets/backround/
     - assets/models/
-    - assets/models/tessdata/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

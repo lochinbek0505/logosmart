@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/widgets/AICamera.dart';
+import 'package:logosmart/ui/widgets/yolo_camera_widget.dart';
 
 class AICameraTestPage extends StatefulWidget {
   const AICameraTestPage({super.key});
@@ -62,20 +62,13 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
       ),
       body: Stack(
         children: [
-          AICamera(
+          YoloCameraWidget(
             key: _cameraKey,
             modelPath: _modelPath,
-            labelsPath: _labelsPath,
             useGpu: true,
-            numThreads: 4,
-            lensDirection: _lensDirection,
-            confThreshold: _minConfidence,
-            iouThreshold: 0.45,
             intervalMs: 800,
-            resolution: ResolutionPreset.medium,
             onDetections: _onDetections,
-            onError: (err) => print('Error: $err'),
-            showLoadingIndicator: true,
+
           ),
 
           CustomPaint(

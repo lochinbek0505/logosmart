@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 
 class Onboard2Page extends StatefulWidget {
@@ -16,33 +18,34 @@ class _Onboard2PageState extends State<Onboard2Page> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Image.asset(
-              "assets/images/onboard2.png",
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-            ),
+          Image.asset(
+            "assets/images/onboard2.png",
+            fit: BoxFit.cover,
+            height: 390.h,
+
+            alignment: Alignment.center,
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 33.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+            padding:  EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 10.h),
             child: Text(
               "Logosmart ilovasiga \nXush kelibsiz!",
-              style: TextStyle(
-                fontSize: 32,
+              style: GoogleFonts.nunito(
+                fontSize: 32.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.sky_blue_900,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+            padding:  EdgeInsets.symmetric(horizontal: 18.0.w),
             child: Text(
               "The app is designed for children and their caregivers to learn about autism, find resources and connect with others in the community. Let's get started!",
-              style: TextStyle(fontSize: 18),
+              style: GoogleFonts.nunito(
+                  fontSize: 14),
             ),
           ),
-          SizedBox(height: 20,)
+          SizedBox(height: 34,)
         ],
       ),
     );

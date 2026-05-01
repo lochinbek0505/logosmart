@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/reset_password_page.dart';
+import 'package:logosmart/ui/pages/auth/success_page.dart' show SuccessPage;
 import 'package:logosmart/ui/pages/auth/widgets/otp_input_field.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -178,7 +179,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (builder) => const HomePage(),
+                                      builder: (builder) => const SuccessPage(),
                                     ),
                                     (Route<dynamic> route) => false,
                                   );
@@ -213,7 +214,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (builder) => const HomePage(),
+                                      builder: (builder) => const SuccessPage(),
                                     ),
                                     (Route<dynamic> route) =>
                                         false, // false qaytsa, barcha eski sahifalar tozalanadi

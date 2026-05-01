@@ -6,9 +6,12 @@ import 'package:logosmart/providers/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
+import 'package:logosmart/ui/pages/start/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'core/storage/level_state.dart';
+import 'ui/pages/auth/success_page.dart';
+import 'ui/pages/start/onboard_page.dart';
 
 Future<void> main() async {
   await ScreenUtil.ensureScreenSize();
@@ -60,7 +63,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
 
-        home: const AICameraTestPage(),
+        home: const AuthChecker(),
       ),
     );
   }
@@ -85,12 +88,10 @@ class AuthChecker extends StatelessWidget {
           );
         }
 
-        // 2. Agar token bor bo'lsa (true), HomePage'ga o'tkazamiz
         if (snapshot.hasData && snapshot.data == true) {
-          return const AICameraTestPage();
+          return const SplashScreen();
         }
 
-        // 3. Aks holda (token yo'q bo'lsa), LoginPage'ga o'tkazamiz
         return const LoginPage();
       },
     );

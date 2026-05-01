@@ -16,13 +16,11 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
   var sq = ["o'ng", "chap", "o'ng", "chap"];
 
   final String _modelPath = 'assets/models/best_int8_ochtp.tflite';
-  final String _labelsPath = 'assets/models/labels.txt';
 
   List<Detection> _detections = [];
   ui.Size _imageSize = ui.Size.zero;
   double _minConfidence = 0.5;
 
-  // ✅ Qo‘shildi: kamera yo‘nalishi va rebuild key
   CameraLensDirection _lensDirection = CameraLensDirection.front;
   Key _cameraKey = UniqueKey();
 
@@ -68,7 +66,6 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
             useGpu: true,
             intervalMs: 800,
             onDetections: _onDetections,
-
           ),
 
           CustomPaint(
@@ -107,49 +104,49 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
                     height: 200,
                     child: _detections.isEmpty
                         ? const Center(
-                      child: Text(
-                        'Hech narsa topilmadi',
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                    )
+                            child: Text(
+                              'Hech narsa topilmadi',
+                              style: TextStyle(color: Colors.white54),
+                            ),
+                          )
                         : ListView.builder(
-                      itemCount: _detections.length,
-                      itemBuilder: (context, index) {
-                        final det = _detections[index];
-                        return Card(
-                          color: Colors.grey.shade800,
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: det.color,
-                              child: Text('${index + 1}'),
-                            ),
-                            title: Text(
-                              det.tag.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                              'Ishonch: ${(det.confidence * 100).toStringAsFixed(1)}%',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                              ),
-                            ),
-                            trailing: CircularProgressIndicator(
-                              value: det.confidence,
-                              backgroundColor: Colors.white24,
-                              valueColor: AlwaysStoppedAnimation(
-                                det.confidence > 0.7
-                                    ? Colors.green
-                                    : Colors.orange,
-                              ),
-                            ),
+                            itemCount: _detections.length,
+                            itemBuilder: (context, index) {
+                              final det = _detections[index];
+                              return Card(
+                                color: Colors.grey.shade800,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: det.color,
+                                    child: Text('${index + 1}'),
+                                  ),
+                                  title: Text(
+                                    det.tag.toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Ishonch: ${(det.confidence * 100).toStringAsFixed(1)}%',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  trailing: CircularProgressIndicator(
+                                    value: det.confidence,
+                                    backgroundColor: Colors.white24,
+                                    valueColor: AlwaysStoppedAnimation(
+                                      det.confidence > 0.7
+                                          ? Colors.green
+                                          : Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),

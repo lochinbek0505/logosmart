@@ -227,12 +227,10 @@ class ApiService {
 
   Future<bool> reset_password(context, Map<String, dynamic> data) async {
     try {
-      var response = await _dio.post(
-        "auth/forgot-password/reset",
-        data: data,
-      );
 
+      var response = await _dio.post("auth/forgot-password/reset", data: data);
       showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
@@ -245,7 +243,6 @@ class ApiService {
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }
-
       showSnakBar(context, errorMessage);
       return false;
     } catch (e) {

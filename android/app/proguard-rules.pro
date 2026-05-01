@@ -10,3 +10,4 @@
 # Agar sizda tflite_flutter paketidan foydalanilayotgan bo'lsa:
 -keep class tflite.** { *; }
 -dontwarn tflite.**
+

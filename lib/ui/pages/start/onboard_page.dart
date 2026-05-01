@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/main/HomePage.dart';
-import 'package:logosmart/ui/pages/start/Onboard2Page.dart';
-import 'package:logosmart/ui/pages/start/Onboard3Page.dart';
+import 'package:logosmart/ui/pages/start/onboard_2_page.dart';
+import 'package:logosmart/ui/pages/start/onboard_3_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import 'Onboard1Page.dart';
+import 'onboard_1_page.dart';
 
 class OnboardPage extends StatefulWidget {
   const OnboardPage({super.key});
@@ -73,46 +75,45 @@ class _OnboardPageState extends State<OnboardPage> {
             child: SmoothPageIndicator(
               controller: _controller,
               count: _items.length,
-              effect: const ExpandingDotsEffect(
-                dotHeight: 6,
-                dotWidth: 16,
-                spacing: 6,
+              effect:  ExpandingDotsEffect(
+                dotHeight: 6.h,
+                dotWidth: 16.w,
+                spacing: 6.w,
                 expansionFactor: 2,
-                radius: 8,
+                radius: 8.r,
                 activeDotColor: AppColors.main_blue_500,
-                dotColor: Color(0x3318A6DF), // yengil ko‘k shaffof
+                dotColor: AppColors.light_blue_600, // yengil ko‘k shaffof
               ),
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Asosiy tugma (Keyingisi / Boshlash)
           SizedBox(
             width: size.width,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
+              padding:  EdgeInsets.symmetric(
                 vertical: 8.0,
-                horizontal: 15,
+                horizontal: 16,
               ),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.main_blue_500,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(36.r),
                   ),
                 ),
                 onPressed: _next,
                 child: Text(
                   isLast ? "Boshlash" : "Keyingisi",
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                  style: GoogleFonts.nunito(color: AppColors.white, fontSize: 14.sp,fontWeight: FontWeight.w600),
                 ),
               ),
             ),
           ),
-
-          // O‘tkazib yuborish
+          SizedBox(height: 4.h,),
           SizedBox(
             width: size.width,
             child: Padding(
@@ -121,16 +122,16 @@ class _OnboardPageState extends State<OnboardPage> {
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: AppColors.main_blue_500),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding:  EdgeInsets.symmetric(vertical: 15.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(36.r),
                   ),
                   foregroundColor: const Color(0xFF0C5B7B),
                 ),
                 onPressed: _skip,
-                child: const Text(
+                child:  Text(
                   "O'tkazib yuborish",
-                  style: TextStyle(color: Colors.black, fontSize: 18),
+                  style: GoogleFonts.nunito(color:AppColors.grey_900, fontSize: 14.sp),
                 ),
               ),
             ),

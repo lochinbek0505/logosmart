@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/profile/mychildren/ChildFullInfoPage.dart';
 import 'package:logosmart/ui/pages/profile/mychildren/MyChildrenPage.dart';
 import 'package:logosmart/ui/pages/profile/myexpert/MyExpertPage.dart';
 import 'package:logosmart/ui/pages/profile/notification/NotificationPage.dart';
 import 'package:logosmart/ui/pages/profile/settings/SettingsPage.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,77 +21,74 @@ class _ProfilePageState extends State<ProfilePage> {
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 15.w),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Text(
-                    "Profil",
-                    style: TextStyle(
-                      color: Colors.blueGrey.shade800,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                    ),
+                SizedBox(height: 30.h),
+                Text(
+                  "Profil",
+                  style: GoogleFonts.nunito(
+                    color: AppColors.main_blue_900,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 30.h),
                 Align(
                   alignment: Alignment.center,
                   child: CircleAvatar(
-                    radius: 45,
+                    radius: 39.r,
                     backgroundColor: Colors.blueGrey.shade200,
                     backgroundImage: AssetImage(
                       "assets/images/yarimta_qizcha.png",
                     ),
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 8.h),
                 Align(
                   alignment: Alignment.center,
                   child: Text(
                     "Abdusattorova Lobarxon",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      color: Colors.blueGrey.shade800,
+                    style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.sp,
+                      color: AppColors.main_blue_900,
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
                   child: Container(
                     width: size.width,
-                    height: 1,
+                    height: 1.h,
                     color: Colors.grey.shade300,
                   ),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 32.h),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
                   child: GestureDetector(
                     onTap: () {},
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       width: size.width,
-                      height: 52,
+                      height: 52.h,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                         color: Colors.white,
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.shade200,
-                            spreadRadius: 2,
-                            blurRadius: 2,
+                            spreadRadius: 2.r,
+                            blurRadius: 2.r,
                             offset: Offset(0, 2),
                           ),
                         ],
@@ -98,10 +98,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Text(
                           "Balans : 99 000 000 so'm",
 
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 17,
-                            color: Color(0xff20B9E8),
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp,
+                            color: AppColors.main_blue_600,
                           ),
                         ),
                       ),
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
 
-                SizedBox(height: 25),
+                SizedBox(height: 24.h),
                 _widget(
                   title: "Mening mutaxassislarim",
                   icon: "assets/icons/plus.png",
@@ -140,41 +140,41 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: "assets/icons/qungiroq.png",
                   navigation: NotificationPage(),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 36.h),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
                   child: GestureDetector(
                     onTap: () {},
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 11),
+                      padding: EdgeInsets.symmetric(horizontal: 11.w),
                       width: size.width,
-                      height: 52,
+                      height: 52.h,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                         color: Colors.white,
-                        border: Border.all(color: Colors.red.shade300),
+                        border: Border.all(color:AppColors.red_200),
                       ),
                       child: Center(
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: Colors.red.shade300,
-                              radius: 15,
+                              backgroundColor: AppColors.red_200,
+                              radius: 14.r,
                               child: Center(
                                 child: Image.asset(
                                   "assets/icons/delete.png",
-                                  width: 16,
-                                  height: 16,
+                                  width: 16.w,
+                                  height: 16.h,
                                 ),
                               ),
                             ),
-                            SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Text(
                               "Hisobni o'chirish",
-                              style: TextStyle(
-                                color: Colors.red.shade600,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w500,
+                              style: GoogleFonts.nunito(
+                                color:AppColors.red_400,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -184,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
 
-                SizedBox(height: 50),
+                SizedBox(height: 50.h),
               ],
             ),
           ),
@@ -201,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var size = MediaQuery.of(context).size;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 6, right: 6),
+      padding:  EdgeInsets.symmetric(horizontal: 6.w,vertical: 6.h),
       child: GestureDetector(
         onTap: () {
           Navigator.of(
@@ -209,18 +209,18 @@ class _ProfilePageState extends State<ProfilePage> {
           ).push(MaterialPageRoute(builder: (builder) => navigation));
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 11),
+          padding: EdgeInsets.symmetric(horizontal: 11.w),
           width: size.width,
-          height: 52,
+          height: 52.h,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
             color: Colors.white,
             border: Border.all(color: Colors.grey.shade200),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.shade200,
-                spreadRadius: 2,
-                blurRadius: 2,
+                spreadRadius: 2.r,
+                blurRadius: 2.r,
                 offset: Offset(0, 2),
               ),
             ],
@@ -232,27 +232,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Color(0xff20B9E8),
-                      radius: 15,
+                      backgroundColor: AppColors.main_blue_600,
+                      radius: 14.r,
                       child: Center(
-                        child: Image.asset(icon, width: 16, height: 16),
+                        child: Image.asset(icon, width: 16.w, height: 16.h),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Text(
                       title,
-                      style: TextStyle(
-                        color: Colors.blueGrey.shade700,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
+                      style: GoogleFonts.nunito(
+                        color: AppColors.main_blue_900,
+                        fontSize:14.sp,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  size: 15,
-                  color: Colors.blueGrey.shade800,
+                  size: 20.w,
+                  color: AppColors.main_blue_900,
                 ),
               ],
             ),

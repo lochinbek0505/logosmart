@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/main/HomePage.dart';
+import 'package:logosmart/ui/pages/home/home_page.dart';
+import 'package:logosmart/ui/pages/main/main_page.dart';
 import 'package:logosmart/ui/pages/start/onboard_2_page.dart';
 import 'package:logosmart/ui/pages/start/onboard_3_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -33,7 +34,7 @@ class _OnboardPageState extends State<OnboardPage> {
     if (isLast) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (context) => HomePage()));
+      ).push(MaterialPageRoute(builder: (context) => MainPage()));
     } else {
       _controller.nextPage(
         duration: const Duration(milliseconds: 320),
@@ -45,7 +46,7 @@ class _OnboardPageState extends State<OnboardPage> {
   void _skip() {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (context) => HomePage()));
+    ).push(MaterialPageRoute(builder: (context) => MainPage()));
   }
 
   @override

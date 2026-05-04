@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 
-import '../main/HomePage.dart';
+import '../home/home_page.dart';
+import '../main/main_page.dart';
 
 class SuccessPage extends StatefulWidget {
   const SuccessPage({super.key});
@@ -106,7 +107,7 @@ class _SuccessPageState extends State<SuccessPage> {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (builder) => const HomePage()),
+                    MaterialPageRoute(builder: (builder) => const MainPage()),
                     (Route<dynamic> route) =>
                         false, // false qaytsa, barcha eski sahifalar tozalanadi
                   );

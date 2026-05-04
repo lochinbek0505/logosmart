@@ -6,7 +6,7 @@ import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
-import 'firstspeech/StartSpeechPage.dart';
+import '../main/firstspeech/StartSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:wave_linear_progress_indicator/wave_linear_progress_indicator.dart';
 
-import '../main/HomePage.dart';
+import '../home/home_page.dart';
+import '../main/main_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 if (_navigated) return;
                 _navigated = true;
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const HomePage()),
+                  MaterialPageRoute(builder: (_) => const MainPage()),
                 );
               },
               builder: (context, value, _) {

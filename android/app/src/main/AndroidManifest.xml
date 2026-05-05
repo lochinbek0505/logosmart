@@ -6,7 +6,12 @@
     <!-- Eski versiyalar uchun (Android 12 va undan past) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"

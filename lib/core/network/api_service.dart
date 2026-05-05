@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
 import 'package:logosmart/models/login_model.dart';
+import 'package:logosmart/models/pay_link_response.dart';
+import 'package:logosmart/models/profile_response.dart';
 
 class ApiService {
   late Dio _dio;
@@ -227,7 +229,6 @@ class ApiService {
 
   Future<bool> reset_password(context, Map<String, dynamic> data) async {
     try {
-
       var response = await _dio.post("auth/forgot-password/reset", data: data);
       showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
 
@@ -248,6 +249,67 @@ class ApiService {
     } catch (e) {
       showSnakBar(context, "Kutilmagan xato: $e");
       return false;
+    }
+  }
+
+  Future<PayLinkResponse?> getPayLink(
+    context,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      var response = await _dio.post("payment/click/pay-link", data: data);
+      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+
+      if (response.statusCode == 200) {
+        return PayLinkResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+  Future<ProfileResponse?> getProfile(context) async {
+    try {
+      var response = await _dio.get("profile/me");
+      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+
+      if (response.statusCode == 200) {
+        return ProfileResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
     }
   }
 

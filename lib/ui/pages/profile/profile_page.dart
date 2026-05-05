@@ -5,8 +5,10 @@ import 'package:logosmart/ui/pages/profile/mychildren/ChildFullInfoPage.dart';
 import 'package:logosmart/ui/pages/profile/mychildren/MyChildrenPage.dart';
 import 'package:logosmart/ui/pages/profile/myexpert/MyExpertPage.dart';
 import 'package:logosmart/ui/pages/profile/notification/NotificationPage.dart';
+import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/profile/settings/SettingsPage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,9 +19,17 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileProvider>(context, listen: false).init(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
+    var provider = Provider.of<ProfileProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -44,8 +54,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: CircleAvatar(
                     radius: 39.r,
                     backgroundColor: Colors.blueGrey.shade200,
-                    backgroundImage: AssetImage(
-                      "assets/images/yarimta_qizcha.png",
+                    backgroundImage: NetworkImage(
+                      provider.profileResponse?.profileImage ??
+                          "https://www.pngall.com/wp-content/uploads/5/Profile-PNG-High-Quality-Image.png",
                     ),
                   ),
                 ),
@@ -53,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Align(
                   alignment: Alignment.center,
                   child: Text(
-                    "Abdusattorova Lobarxon",
+                    provider.profileResponse.fullName!,
                     style: GoogleFonts.nunito(
                       fontWeight: FontWeight.bold,
                       fontSize: 18.sp,
@@ -63,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 SizedBox(height: 20.h),
                 Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
                   child: Container(
                     width: size.width,
                     height: 1.h,
@@ -73,13 +84,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 32.h),
 
                 Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () async {
+                      await provider.createPayLink(context, 100);
+                    },
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       width: size.width,
-                      height: 52.h,
+                      height: 80.h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20.r),
                         color: Colors.white,
@@ -95,14 +108,30 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Balans : 99 000 000 so'm",
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Balans : ${provider.profileResponse.amount} so'm",
 
-                          style: GoogleFonts.nunito(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.sp,
-                            color: AppColors.main_blue_600,
-                          ),
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                                color: AppColors.main_blue_600,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              "Balansni to'ldirish",
+
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.sp,
+                                color: AppColors.light_blue_800,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -142,7 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 SizedBox(height: 36.h),
                 Padding(
-                  padding:  EdgeInsets.symmetric(horizontal: 6.w),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
                   child: GestureDetector(
                     onTap: () {},
                     child: Container(
@@ -152,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20.r),
                         color: Colors.white,
-                        border: Border.all(color:AppColors.red_200),
+                        border: Border.all(color: AppColors.red_200),
                       ),
                       child: Center(
                         child: Row(
@@ -172,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Text(
                               "Hisobni o'chirish",
                               style: GoogleFonts.nunito(
-                                color:AppColors.red_400,
+                                color: AppColors.red_400,
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -201,7 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var size = MediaQuery.of(context).size;
 
     return Padding(
-      padding:  EdgeInsets.symmetric(horizontal: 6.w,vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
       child: GestureDetector(
         onTap: () {
           Navigator.of(
@@ -243,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       title,
                       style: GoogleFonts.nunito(
                         color: AppColors.main_blue_900,
-                        fontSize:14.sp,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

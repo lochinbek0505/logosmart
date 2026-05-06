@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/profile/mychildren/ChildFullInfoPage.dart';
+import 'package:logosmart/ui/pages/profile/ChildFullInfoPage.dart';
 
 class MyChildrenPage extends StatefulWidget {
   const MyChildrenPage({super.key});

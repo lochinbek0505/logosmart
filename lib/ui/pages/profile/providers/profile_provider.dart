@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/network/api_service.dart';
 
 class ProfileProvider with ChangeNotifier {
-  bool loading = false;
+  bool isLoading = false;
 
   PayLinkResponse _payLinkResponse = PayLinkResponse();
 
@@ -17,25 +17,25 @@ class ProfileProvider with ChangeNotifier {
   ProfileResponse get profileResponse => _profileResponse;
 
   Future<void> init(context) async {
-    loading = true;
+    isLoading = true;
     notifyListeners();
     var response = await ApiService().getProfile(context);
     if (response != null) {
       _profileResponse = response;
     }
-    loading = false;
+    isLoading = false;
     notifyListeners();
   }
 
-  Future<void> createPayLink(context, num amount) async {
-    loading = true;
+  Future<void> createPayLink(context,  amount) async {
+    isLoading = true;
     notifyListeners();
-    var response = await ApiService().getPayLink(context, {"amount": amount});
+    var response = await ApiService().getPayLink(context, amount);
     if (response != null) {
       print(response.toJson());
       await openMyLink(response!.url!);
     }
-    loading = false;
+    isLoading = false;
     notifyListeners();
   }
 

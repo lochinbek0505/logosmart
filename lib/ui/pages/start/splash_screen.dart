@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:wave_linear_progress_indicator/wave_linear_progress_indicator.dart';
 
-import '../home/home_page.dart';
 import '../main/main_page.dart';
 
 class SplashScreen extends StatefulWidget {

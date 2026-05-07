@@ -9,7 +9,8 @@ class SpineTestPage extends StatefulWidget {
 }
 
 class _SpineTestPageState extends State<SpineTestPage> {
-  // 1. Controller va Drawable ob'ektlarini e'lon qilamiz
+
+
   late SpineWidgetController _controller;
   Future<SkeletonDrawableFlutter>? _spineLoader;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:logosmart/models/pay_link_response.dart';
+import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +17,13 @@ class ProfileProvider with ChangeNotifier {
 
   ProfileResponse get profileResponse => _profileResponse;
 
+  PlansModel _plansModel = PlansModel();
+
+  PlansModel get plansModel => _plansModel;
+  Map<String, List> _combinedPlanDetails = {};
+
+  Map<String, List> get combinedPlanDetails => _combinedPlanDetails;
+
   Future<void> init(context) async {
     isLoading = true;
     notifyListeners();
@@ -27,25 +35,70 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPayLink(context,  amount) async {
-    isLoading = true;
-    notifyListeners();
-    var response = await ApiService().getPayLink(context, amount);
-    if (response != null) {
-      print(response.toJson());
-      await openMyLink(response!.url!);
+  Future<void> initPlans(BuildContext context) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      var response = await ApiService().getPlans(context);
+      if (response != null) {
+        _plansModel = response;
+      }
+    } catch (e) {
+      debugPrint("Planlarni yuklashda xato: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-    isLoading = false;
-    notifyListeners();
+  }
+
+  Future<void> createPayLink(BuildContext context, dynamic amount) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      var response = await ApiService().getPayLink(context, amount);
+      if (response != null && response.url != null) {
+        await openMyLink(response.url!);
+      }
+    } catch (e) {
+      debugPrint("To'lov xatosi: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> openMyLink(String urlString) async {
     final Uri url = Uri.parse(urlString);
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      print("Havolani ochib bo'lmadi: $urlString");
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        debugPrint("Havolani ochib bo'lmadi: $urlString");
+      }
+    } catch (e) {
+      debugPrint("URL ochishda xato: $e");
     }
+  }
+
+  Future<bool> activatePlan(
+    BuildContext context,
+    String planCode,
+    String promoCode,
+  ) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      var req = {"planCode": planCode, "promoCode": promoCode};
+      var response = await ApiService().activatePlan(context, req);
+      if (response != null && response.activePaid!) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Rejani faollashtirishda xato: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+    return false;
   }
 }

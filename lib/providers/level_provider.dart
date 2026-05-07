@@ -16,7 +16,7 @@ final List<LevelState> kDefaultLevels = [
     skin: skinGold,
     mode: 'exercise',
     exercise: ExerciseInfo(
-      modelPath: 'assets/models/model3.tflite',
+      modelPath: 'assets/models/ochtp.tflite',
       labelsPath: 'assets/models/labels.txt',
       mediaPath: 'assets/media/ong_chap.MP4',
       steps: [

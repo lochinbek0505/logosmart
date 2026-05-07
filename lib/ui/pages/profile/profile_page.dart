@@ -7,6 +7,7 @@ import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
 import 'package:logosmart/ui/pages/profile/payment_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/profile/SettingsPage.dart';
+import 'package:logosmart/ui/pages/profile/subscription_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -144,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _widget(
                       title: "${provider.profileResponse.subscriptionCode=="DEFAULT"?"Obuna bo'lish":provider.profileResponse.subscriptionCode}",
                       icon: "assets/icons/crown.png",
-                      navigation: MyExpertPage(),
+                      navigation: SubscriptionPage(),
                     ),
                     _widget(
                       title: "To'lov tarixi",

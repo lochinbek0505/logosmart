@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
 import 'package:logosmart/models/login_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
+import 'package:logosmart/models/plan_activate_response.dart';
+import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 
 class ApiService {
@@ -318,4 +320,81 @@ class ApiService {
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
+
+  // subscriptions/plans
+
+
+  Future<PlansModel?> getPlans(context) async {
+    try {
+      
+      var response = await _dio.get("subscriptions/plans");
+      print("RESPONSE: ${response.data}");
+      if (response.statusCode == 200) {
+        return PlansModel.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      print("RESPONSE: ${e}");
+
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        // 1-O'ZGARISH: data qanday formatda ekanini tekshiramiz
+        if (e.response?.data is Map<String, dynamic>) {
+          // Agar to'g'ri JSON kelsa, "message" ni olamiz
+          errorMessage = e.response?.data["message"] ??
+              e.response?.statusMessage ??
+              "Noma'lum xato";
+        } else {
+          // Agar oddiy matn (String) yoki HTML kelsa, shunchaki stringga o'giramiz
+          errorMessage = e.response?.statusMessage ?? "Noma'lum xato";
+          // Yoki kerak bo'lsa to'g'ridan-to'g'ri e.response?.data.toString() dan foydalanishingiz mumkin
+        }
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      print("RESPONSE: ${e}");
+
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+
+  Future<PlanActivateResponse?> activatePlan(
+      context,
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      var response = await _dio.post("subscriptions/activate", data: data);
+
+      if (response.statusCode == 200) {
+        return PlanActivateResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+                e.response?.statusMessage ??
+                "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
 }

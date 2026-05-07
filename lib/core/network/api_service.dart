@@ -6,6 +6,7 @@ import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plan_activate_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
+import 'package:logosmart/models/promo_check_model.dart';
 
 class ApiService {
   late Dio _dio;
@@ -323,10 +324,8 @@ class ApiService {
 
   // subscriptions/plans
 
-
   Future<PlansModel?> getPlans(context) async {
     try {
-      
       var response = await _dio.get("subscriptions/plans");
       print("RESPONSE: ${response.data}");
       if (response.statusCode == 200) {
@@ -343,7 +342,8 @@ class ApiService {
         // 1-O'ZGARISH: data qanday formatda ekanini tekshiramiz
         if (e.response?.data is Map<String, dynamic>) {
           // Agar to'g'ri JSON kelsa, "message" ni olamiz
-          errorMessage = e.response?.data["message"] ??
+          errorMessage =
+              e.response?.data["message"] ??
               e.response?.statusMessage ??
               "Noma'lum xato";
         } else {
@@ -365,11 +365,10 @@ class ApiService {
     }
   }
 
-
   Future<PlanActivateResponse?> activatePlan(
-      context,
-      Map<String, dynamic> data,
-      ) async {
+    context,
+    Map<String, dynamic> data,
+  ) async {
     try {
       var response = await _dio.post("subscriptions/activate", data: data);
 
@@ -384,8 +383,8 @@ class ApiService {
       if (e.response != null && e.response?.data != null) {
         errorMessage =
             e.response?.data["message"] ??
-                e.response?.statusMessage ??
-                "Noma'lum xato";
+            e.response?.statusMessage ??
+            "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }
@@ -397,4 +396,32 @@ class ApiService {
     }
   }
 
+  Future<PromoCheckModel?> checkPromo(context, code) async {
+    try {
+      var response = await _dio.get("promocodes/check/${code}");
+      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+
+      if (response.statusCode == 200) {
+        return PromoCheckModel.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+            e.response?.statusMessage ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
 }

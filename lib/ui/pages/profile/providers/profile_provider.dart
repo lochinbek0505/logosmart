@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
+import 'package:logosmart/models/promo_check_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/network/api_service.dart';
@@ -20,9 +21,6 @@ class ProfileProvider with ChangeNotifier {
   PlansModel _plansModel = PlansModel();
 
   PlansModel get plansModel => _plansModel;
-  Map<String, List> _combinedPlanDetails = {};
-
-  Map<String, List> get combinedPlanDetails => _combinedPlanDetails;
 
   Future<void> init(context) async {
     isLoading = true;
@@ -91,6 +89,7 @@ class ProfileProvider with ChangeNotifier {
       var req = {"planCode": planCode, "promoCode": promoCode};
       var response = await ApiService().activatePlan(context, req);
       if (response != null && response.activePaid!) {
+        await init(context);
         return true;
       }
     } catch (e) {
@@ -100,5 +99,25 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
     }
     return false;
+  }
+
+  Future<PromoCheckModel> checkPromoCode(
+    BuildContext context,
+    String promoCode,
+  ) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      var response = await ApiService().checkPromo(context, promoCode);
+      if (response != null) {
+        return response;
+      }
+    } catch (e) {
+      debugPrint("Promo kodni tekshirishda xato: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+    return PromoCheckModel();
   }
 }

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/profile/ChildFullInfoPage.dart';
-import 'package:logosmart/ui/pages/profile/MyExpertPage.dart';
 import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
+import 'package:logosmart/ui/pages/profile/SettingsPage.dart';
 import 'package:logosmart/ui/pages/profile/payment_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
-import 'package:logosmart/ui/pages/profile/SettingsPage.dart';
 import 'package:logosmart/ui/pages/profile/subscription_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +91,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: EdgeInsets.symmetric(horizontal: 6.w),
                       child: GestureDetector(
                         onTap: () async {
-                          Navigator.push(context, MaterialPageRoute(builder: (builder)=> PaymentPage()));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (builder) => PaymentPage(),
+                            ),
+                          );
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -118,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Balans : ${provider.profileResponse.amount??0} so'm",
+                                  "Balans : ${provider.profileResponse.amount ?? 0} so'm",
                                   style: GoogleFonts.nunito(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16.sp,
@@ -143,7 +147,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     SizedBox(height: 24.h),
                     _widget(
-                      title: "${provider.profileResponse.subscriptionCode=="DEFAULT"?"Obuna bo'lish":provider.profileResponse.subscriptionCode}",
+                      title:
+                          "${provider.profileResponse.subscriptionCode == "DEFAULT" ? "Obuna bo'lish" : provider.profileResponse.subscriptionCode}",
                       icon: "assets/icons/crown.png",
                       navigation: SubscriptionPage(),
                     ),

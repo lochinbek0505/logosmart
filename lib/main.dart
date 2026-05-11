@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:logosmart/AICameraTestPage.dart';
 import 'package:logosmart/providers/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
+import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/start/splash_screen.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +47,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LevelProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_)=>ProfileProvider())
+        ChangeNotifierProvider(create: (_)=>ProfileProvider()),
+        ChangeNotifierProvider(create: (_)=>BillingsProvider())
+
       ],
 
       child: MaterialApp(

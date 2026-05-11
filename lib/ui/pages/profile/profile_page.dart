@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/profile/ChildFullInfoPage.dart';
 import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
 import 'package:logosmart/ui/pages/profile/SettingsPage.dart';
 import 'package:logosmart/ui/pages/profile/payment_page.dart';
+import 'package:logosmart/ui/pages/profile/profile_edit_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/profile/subscription_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import 'MyChildrenPage.dart';
+import 'billings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -155,17 +156,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     _widget(
                       title: "To'lov tarixi",
                       icon: "assets/icons/bill.png",
-                      navigation: MyChildrenPage(),
+                      navigation: BillingsPage(),
                     ),
                     _widget(
                       title: "Mening ma'lumotlarim",
                       icon: "assets/icons/user.png",
-                      navigation: ChildFullInfoPage(),
-                    ),
-                    _widget(
-                      title: "Til",
-                      icon: "assets/icons/language.png",
-                      navigation: SettingsPage(),
+                      navigation: FlutterEditPage(),
                     ),
                     _widget(
                       title: "Sozlamalar",

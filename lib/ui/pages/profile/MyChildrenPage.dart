@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/profile/ChildFullInfoPage.dart';
+import 'package:logosmart/ui/pages/profile/profile_edit_page.dart';
 
 class MyChildrenPage extends StatefulWidget {
   const MyChildrenPage({super.key});
@@ -156,7 +156,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                               width: double.infinity,
                               height: 45,
                               child: ElevatedButton(onPressed: (){
-                                Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>ChildFullInfoPage()));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>FlutterEditPage()));
                               },
                                   style: OutlinedButton.styleFrom(
 

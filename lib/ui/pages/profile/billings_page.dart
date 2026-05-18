@@ -96,7 +96,6 @@ class _BillingsPageState extends State<BillingsPage> {
       ),
     );
   }
-
   Widget _billingCard(DataList item, _StatusInfo statusInfo) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
@@ -116,6 +115,7 @@ class _BillingsPageState extends State<BillingsPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1. Ikonka qismi
           CircleAvatar(
             radius: 18.r,
             backgroundColor: statusInfo.bgColor,
@@ -126,19 +126,41 @@ class _BillingsPageState extends State<BillingsPage> {
             ),
           ),
           SizedBox(width: 12.w),
+
+          // 2. Asosiy ma'lumotlar ustuni (Column)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  statusInfo.title,
-                  style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
-                    color: AppColors.main_blue_900,
-                  ),
+                // 1-qator: Title va Amount (Summa)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        statusInfo.title,
+                        style: GoogleFonts.nunito(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                          color: AppColors.main_blue_900,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      "${item.amount ?? "0"} so'm",
+                      style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.sp,
+                        color: statusInfo.amountColor,
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 6.h),
+
+                // 2-qator: Description (Tavsif)
                 Text(
                   item.description ?? "",
                   style: GoogleFonts.nunito(
@@ -147,6 +169,8 @@ class _BillingsPageState extends State<BillingsPage> {
                   ),
                 ),
                 SizedBox(height: 6.h),
+
+                // 3-qator: Telefon raqam va Sana
                 Row(
                   children: [
                     Text(
@@ -157,7 +181,7 @@ class _BillingsPageState extends State<BillingsPage> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(width: 10.w),
+                    SizedBox(width: 8.w),
                     Text(
                       formatDateTime(item.createdAt!) ?? "",
                       style: GoogleFonts.nunito(
@@ -167,6 +191,8 @@ class _BillingsPageState extends State<BillingsPage> {
                     ),
                   ],
                 ),
+
+                // 4-qator: Xatolik matni (agar mavjud bo'lsa)
                 if (item.errorNote != null)
                   Padding(
                     padding: EdgeInsets.only(top: 6.h),
@@ -180,15 +206,6 @@ class _BillingsPageState extends State<BillingsPage> {
                     ),
                   ),
               ],
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            "${item.amount ?? "0"} so'm",
-            style: GoogleFonts.nunito(
-              fontWeight: FontWeight.bold,
-              fontSize: 13.sp,
-              color: statusInfo.amountColor,
             ),
           ),
         ],

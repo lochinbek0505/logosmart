@@ -13,13 +13,12 @@ class AICameraTestPage extends StatefulWidget {
 }
 
 class _AICameraTestPageState extends State<AICameraTestPage> {
-  var sq = ["o'ng", "chap", "o'ng", "chap"];
-
-  final String _modelPath = 'assets/models/best_int8_ochtp.tflite';
+  var sq = ["ichki_tepa", "ichki_past"];
+  final String _modelPath = 'assets/models/argumchoq_int8.tflite';
 
   List<Detection> _detections = [];
   ui.Size _imageSize = ui.Size.zero;
-  double _minConfidence = 0.5;
+  double _minConfidence = 0.65;
 
   CameraLensDirection _lensDirection = CameraLensDirection.front;
   Key _cameraKey = UniqueKey();

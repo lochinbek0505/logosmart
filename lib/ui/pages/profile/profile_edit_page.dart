@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/models/profile_response.dart';
+import 'package:logosmart/ui/pages/profile/profile_edit_info_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
+import 'package:logosmart/ui/pages/profile/widgets/avatar_selector_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -83,7 +85,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Rasm uchun tavsiya etilgan\no'lcham 1200x1200 px",
+                          "Rasm uchun tavsiya etilgan\navatarlardan birini tanlang",
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             color: Colors.grey.shade700,
@@ -93,7 +95,8 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         CircleAvatar(
                           radius: 30,
                           backgroundImage: NetworkImage(
-                            profile.profileImage??"assets/icons/circle_avatar.png",
+                            profile.profileImage ??
+                                "assets/icons/circle_avatar.png",
                           ),
                         ),
                       ],
@@ -131,7 +134,18 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           width: size.width * 0.41,
                           height: 45,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (builder) => AvatarSelectionPage(
+                                    avatars:
+                                        provider.avatarsModel.dataListList!,
+                                    initialAvatarUrl: profile.profileImage,
+                                  ),
+                                ),
+                              );
+                            },
 
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Color(0xff20B9E8),
@@ -297,7 +311,12 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                     disabledBackgroundColor: AppColors.main_blue_600
                         .withOpacity(0.7),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ProfileEditInfoPage()),
+                    );
+                  },
                   child: provider.isLoading
                       ? SizedBox(
                           height: 24.h,

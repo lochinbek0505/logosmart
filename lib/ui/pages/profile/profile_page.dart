@@ -10,7 +10,6 @@ import 'package:logosmart/ui/pages/profile/subscription_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-import 'MyChildrenPage.dart';
 import 'billings_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -149,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 24.h),
                     _widget(
                       title:
-                          "${provider.profileResponse.subscriptionCode == "DEFAULT" ? "Obuna bo'lish" : provider.profileResponse.subscriptionCode}",
+                          "${provider.profileResponse.subscriptionCode == "DEFAULT" ? "Obuna bo'lish" : "${provider.profileResponse.subscriptionName} obuna"}",
                       icon: "assets/icons/crown.png",
                       navigation: SubscriptionPage(),
                     ),

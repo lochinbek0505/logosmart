@@ -10,38 +10,65 @@ class ProfileResponse {
   String? status;
   List<String>? rolesList;
   dynamic teacherProfile;
+  String? subscriptionName; // Yangi maydon
   String? subscriptionCode;
   String? subscriptionStartedAt;
   dynamic subscriptionExpiresAt;
 
   ProfileResponse({
-    this.id, this.fullName, this.age, this.phoneNumber, this.profileImage, this.region, this.district, this.amount, this.status, this.rolesList, this.teacherProfile, this.subscriptionCode, this.subscriptionStartedAt, this.subscriptionExpiresAt
+    this.id,
+    this.fullName,
+    this.age,
+    this.phoneNumber,
+    this.profileImage,
+    this.region,
+    this.district,
+    this.amount,
+    this.status,
+    this.rolesList,
+    this.teacherProfile,
+    this.subscriptionName,
+    this.subscriptionCode,
+    this.subscriptionStartedAt,
+    this.subscriptionExpiresAt,
   });
 
   ProfileResponse copyWith({
-    String? id, String? fullName, num? age, String? phoneNumber, String? profileImage, String? region, String? district, num? amount, String? status, List<
-        String>? rolesList, dynamic teacherProfile, String? subscriptionCode, String? subscriptionStartedAt, dynamic subscriptionExpiresAt
-  }) =>
-      ProfileResponse(id: id ?? this.id,
-          fullName: fullName ?? this.fullName,
-          age: age ?? this.age,
-          phoneNumber: phoneNumber ?? this.phoneNumber,
-          profileImage: profileImage ?? this.profileImage,
-          region: region ?? this.region,
-          district: district ?? this.district,
-          amount: amount ?? this.amount,
-          status: status ?? this.status,
-          rolesList: rolesList ?? this.rolesList,
-          teacherProfile: teacherProfile ?? this.teacherProfile,
-          subscriptionCode: subscriptionCode ?? this.subscriptionCode,
-          subscriptionStartedAt: subscriptionStartedAt ??
-              this.subscriptionStartedAt,
-          subscriptionExpiresAt: subscriptionExpiresAt ??
-              this.subscriptionExpiresAt);
+    String? id,
+    String? fullName,
+    num? age,
+    String? phoneNumber,
+    String? profileImage,
+    String? region,
+    String? district,
+    num? amount,
+    String? status,
+    List<String>? rolesList,
+    dynamic teacherProfile,
+    String? subscriptionName,
+    String? subscriptionCode,
+    String? subscriptionStartedAt,
+    dynamic subscriptionExpiresAt,
+  }) => ProfileResponse(
+    id: id ?? this.id,
+    fullName: fullName ?? this.fullName,
+    age: age ?? this.age,
+    phoneNumber: phoneNumber ?? this.phoneNumber,
+    profileImage: profileImage ?? this.profileImage,
+    region: region ?? this.region,
+    district: district ?? this.district,
+    amount: amount ?? this.amount,
+    status: status ?? this.status,
+    rolesList: rolesList ?? this.rolesList,
+    teacherProfile: teacherProfile ?? this.teacherProfile,
+    subscriptionName: subscriptionName ?? this.subscriptionName,
+    subscriptionCode: subscriptionCode ?? this.subscriptionCode,
+    subscriptionStartedAt: subscriptionStartedAt ?? this.subscriptionStartedAt,
+    subscriptionExpiresAt: subscriptionExpiresAt ?? this.subscriptionExpiresAt,
+  );
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-    };
+    final map = <String, dynamic>{};
     map["id"] = id;
     map["fullName"] = fullName;
     map["age"] = age;
@@ -53,6 +80,7 @@ class ProfileResponse {
     map["status"] = status;
     map["roles"] = rolesList;
     map["teacherProfile"] = teacherProfile;
+    map["subscriptionName"] = subscriptionName;
     map["subscriptionCode"] = subscriptionCode;
     map["subscriptionStartedAt"] = subscriptionStartedAt;
     map["subscriptionExpiresAt"] = subscriptionExpiresAt;
@@ -71,6 +99,7 @@ class ProfileResponse {
     status = json["status"];
     rolesList = json["roles"] != null ? json["roles"].cast<String>() : [];
     teacherProfile = json["teacherProfile"];
+    subscriptionName = json["subscriptionName"];
     subscriptionCode = json["subscriptionCode"];
     subscriptionStartedAt = json["subscriptionStartedAt"];
     subscriptionExpiresAt = json["subscriptionExpiresAt"];

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:logosmart/models/avatars_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
@@ -22,13 +23,22 @@ class ProfileProvider with ChangeNotifier {
 
   PlansModel get plansModel => _plansModel;
 
+  AvatarsModel _avatarsModel = AvatarsModel();
+
+  AvatarsModel get avatarsModel => _avatarsModel;
+
   Future<void> init(context) async {
     isLoading = true;
     notifyListeners();
     var response = await ApiService().getProfile(context);
+    var avatarsResponse = await ApiService().getAvatars(context);
+    if (avatarsResponse != null) {
+      _avatarsModel = avatarsResponse;
+    }
     if (response != null) {
       _profileResponse = response;
     }
+
     isLoading = false;
     notifyListeners();
   }
@@ -119,5 +129,26 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
     }
     return PromoCheckModel();
+  }
+
+  Future<ProfileResponse> updateProfile(
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      var response = await ApiService().updateProfile(context, data);
+      if (response != null) {
+        init(context);
+        return response;
+      }
+    } catch (e) {
+      debugPrint("Promo kodni tekshirishda xato: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+    return ProfileResponse();
   }
 }

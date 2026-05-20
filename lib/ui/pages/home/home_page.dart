@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
+import '../main/diagnostic/diagnostic_group_page.dart';
 import '../main/firstspeech/StartSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,21 +21,21 @@ class _HomePageState extends State<HomePage> {
     {
       "title": "Ilk nutqni\nrivojlantirish",
       "image": "assets/images/mashgulot_bad.png",
-      "mainColor": Color(0xffebb6ae),
+      "mainColor": const Color(0xffebb6ae),
       "text": "4+ yosh",
       "page": StartSpeechPage(),
     },
     {
       "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
-      "image": "assets/images/mashgulot_son.png",
-      "mainColor": Color(0xff20B9E8),
+      "image": "assets/images/mashg'ulot_son.png",
+      "mainColor": const Color(0xff20B9E8),
       "text": "3-5 yosh",
       "page": AlphabetPage(),
     },
     {
       "title": "Video\nmashg'ulotlar",
       "image": "assets/images/mashgulot_nice.png",
-      "mainColor": Colors.blueGrey.shade700,
+      "mainColor": Colors.blueGrey,
       "text": "0-5 yosh",
       "page": VideoLessonsPage(),
     },
@@ -42,133 +43,143 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xffd5eef7),
+      backgroundColor: AppColors.main_blue_50,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
+            // Header AppBar
             SliverAppBar(
               automaticallyImplyLeading: false,
-              collapsedHeight: 80,
-              backgroundColor: Color(0xffd5eef7),
-              title: SizedBox(
-                height: 110,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Assalomu alaykum",
-                          style: GoogleFonts.nunito(
-                            fontSize: 18,
-                            color: AppColors.main_blue_900,
+              collapsedHeight: 70.h,
+              backgroundColor: AppColors.main_blue_50,
+              title: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: SizedBox(
+                  height: 55.h,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Assalomu alaykum",
+                            style: GoogleFonts.nunito(
+                              fontSize: 19.sp,
+                              color: AppColors.main_blue_900,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "Lobarxon !",
-                          style: TextStyle(
-                            fontSize: 27,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.main_blue_900,
+                          Text(
+                            "Lobarxon !",
+                            style: GoogleFonts.nunito(
+                              fontSize: 23.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.main_blue_900,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    ImageIcon(
-                      AssetImage("assets/icons/notification.png"),
-                      size: 20,
-                      color: AppColors.main_blue_900,
-                    ),
-                  ],
+                        ],
+                      ),
+                      ImageIcon(
+                        const AssetImage("assets/icons/notification.png"),
+                        size: 24.w,
+                        color: AppColors.main_blue_900,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            SliverAppBar(
-              toolbarHeight: 110,
 
-              backgroundColor: Color(0xffd5eef7),
-              automaticallyImplyLeading: false,
-
+            SliverPersistentHeader(
               pinned: true,
-              title: Container(
-                width: size.width,
-                // height: 150,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        right: 0,
-                        top: 26,
-
-                        child: CircleAvatar(
-                          backgroundColor: Color(0xff20B9E8),
-                          radius: 11,
-                          child: Transform.translate(
-                            offset: Offset(0.9, 0),
-                            child: ImageIcon(
-                              AssetImage("assets/icons/right_back.png"),
-                              size: 12,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+              delegate: _LastActionHeaderDelegate(
+                minHeight: 110.h,
+                maxHeight: 110.h,
+                child: Container(
+                  color: AppColors.main_blue_50,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: size.width,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      color: Colors.white,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 12.h,
                       ),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-
+                      child: Stack(
                         children: [
-                          Text(
-                            "So'ngi harakat",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade900,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundImage: AssetImage(
-                                  "assets/icons/circle_avatar.png",
+                          Positioned(
+                            right: 0,
+                            top: 26,
+                            child: CircleAvatar(
+                              backgroundColor: const Color(0xff20B9E8),
+                              radius: 13.r,
+                              child: Transform.translate(
+                                offset: const Offset(0.9, 0),
+                                child: ImageIcon(
+                                  AssetImage("assets/icons/right_back.png"),
+                                  size: 10.w,
+                                  color: Colors.white,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "So'ngi harakat",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey.shade900,
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
+                              Row(
                                 children: [
-                                  Text(
-                                    "01. Nutqni rivojlantirish va...",
-                                    style: TextStyle(
-                                      color: Colors.grey.shade900,
-                                      fontSize: 14,
+                                  CircleAvatar(
+                                    radius: 25.r,
+                                    backgroundImage: AssetImage(
+                                      "assets/icons/circle_avatar.png",
                                     ),
                                   ),
-                                  SizedBox(height: 10),
-                                  SizedBox(
-                                    width: size.width - 143,
-                                    height: 10,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: ShinyStripedProgressBar(
-                                        progressColor: AppColors.orange_200,
-                                        stripeColor: AppColors.orange_500,
-                                        targetProgress: .5,
+                                  SizedBox(width: 5.w),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "01. Nutqni rivojlantirish va...",
+                                        style: GoogleFonts.nunito(
+                                          color: Colors.grey.shade900,
+                                          fontSize: 16.sp,
+                                        ),
                                       ),
-                                    ),
+                                      SizedBox(height: 8.h),
+                                      SizedBox(
+                                        width: size.width - 143,
+                                        height: 9.h,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8.r,
+                                          ),
+                                          child: ShinyStripedProgressBar(
+                                            progressColor: AppColors.orange_200,
+                                            stripeColor: AppColors.orange_500,
+                                            targetProgress: .5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -176,68 +187,68 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
+
+            // Diagnostic card
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  bottom: 8,
-                  top: 20,
+                padding: EdgeInsets.only(
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 8.h,
+                  top: 20.h,
                 ),
-                child: Container(
-                  width: double.infinity,
-                  height: 152,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/diagnostika.png"),
-                      fit: BoxFit.fill,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (builder) => const DiagnosticGroupPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 152.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      image: const DecorationImage(
+                        image: AssetImage("assets/images/diagnostika.png"),
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          top: 14,
-                          bottom: 14,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Ekpress-\ndiagnostika",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 10.h,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Ekpress-\ndiagnostika",
+                                style: GoogleFonts.nunito(
+                                  color: Colors.white,
+                                  fontSize: 24.sp,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 14),
-
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (builder) => DiagnosticPage(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                width: 110,
-                                height: 48,
+                              SizedBox(height: 14.h),
+                              Container(
+                                width: 125.w,
+                                height: 45.h,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(25),
                                   color: Colors.orange.shade400,
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 9,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 12.h,
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
@@ -245,27 +256,28 @@ class _HomePageState extends State<HomePage> {
                                     children: [
                                       Text(
                                         "Boshlash",
-                                        style: TextStyle(
+                                        style: GoogleFonts.nunito(
                                           color: Colors.white,
-                                          fontSize: 14,
+                                          fontSize: 14.sp,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                       Card(
                                         elevation: 2,
+                                        margin: EdgeInsets.zero,
+                                        // Standart bo'shliqni olib tashlash
+                                        shape: const CircleBorder(),
+                                        // <--- Asosiy yechim
                                         shadowColor: Colors.orange.shade800,
                                         child: CircleAvatar(
                                           backgroundColor: Colors.orange,
-                                          radius: 11,
-                                          child: Transform.translate(
-                                            offset: Offset(0.9, 0),
-                                            child: ImageIcon(
-                                              AssetImage(
-                                                "assets/icons/right_back.png",
-                                              ),
-                                              size: 12,
-                                              color: Colors.white,
+                                          radius: 10.r,
+                                          child: ImageIcon(
+                                            AssetImage(
+                                              "assets/icons/right_back.png",
                                             ),
+                                            size: 5.w,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
@@ -273,29 +285,29 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-
-                      Spacer(),
-                    ],
+                        const Spacer(),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
 
+            // Cards list
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 childCount: cards.length,
-                (contex, index) => Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16,
+                (context, index) => Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 8.0.h,
+                    horizontal: 16.w,
                   ),
                   child: Container(
                     width: double.infinity,
-                    height: 190,
+                    height: 190.h,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       image: DecorationImage(
@@ -305,26 +317,28 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: [
-                        SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              top: 14,
-                              bottom: 14,
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 20,
+                            top: 14,
+                            bottom: 14,
+                          ),
+                          // Elementlar sig'may qolsa scroll bo'lishi uchun qo'shildi
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            // Scroll yumshoq va bilinmaydigan bo'lishi uchun
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   cards[index]["title"],
-                                  style: TextStyle(
+                                  style: GoogleFonts.nunito(
                                     color: Colors.blueGrey.shade800,
-                                    fontSize: 20,
+                                    fontSize: 22.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                SizedBox(height: 12),
-
+                                SizedBox(height: 14.h),
                                 GestureDetector(
                                   onTap: () {
                                     Navigator.of(context).push(
@@ -335,15 +349,16 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                   child: Container(
-                                    width: 110,
-                                    height: 48,
+                                    width: 125.w,
+                                    height: 50.h,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25),
+                                      borderRadius: BorderRadius.circular(35.r),
                                       color: cards[index]["mainColor"],
                                     ),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                        vertical: 12.h,
                                       ),
                                       child: Row(
                                         mainAxisAlignment:
@@ -351,22 +366,22 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           Text(
                                             "Boshlash",
-                                            style: TextStyle(
+                                            style: GoogleFonts.nunito(
                                               color: Colors.white,
-                                              fontSize: 14,
+                                              fontSize: 14.sp,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                           CircleAvatar(
                                             backgroundColor: Colors.white,
-                                            radius: 11,
+                                            radius: 11.w,
                                             child: Transform.translate(
-                                              offset: Offset(0.9, 0),
+                                              offset: const Offset(0.9, 0),
                                               child: ImageIcon(
-                                                AssetImage(
+                                                const AssetImage(
                                                   "assets/icons/right_back.png",
                                                 ),
-                                                size: 12,
+                                                size: 12.w,
                                                 color:
                                                     cards[index]["mainColor"],
                                               ),
@@ -377,31 +392,33 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16),
+                                SizedBox(height: 14.h),
                                 Row(
                                   children: [
                                     Container(
-                                      width: 67,
-                                      height: 27,
+                                      width: 70.w,
+                                      height: 25.h,
                                       decoration: BoxDecoration(
-                                        color: Color(0xff60e04c),
-                                        borderRadius: BorderRadius.circular(12),
+                                        color: AppColors.green_600,
+                                        borderRadius: BorderRadius.circular(
+                                          46.r,
+                                        ),
                                       ),
                                       child: Center(
                                         child: Text(
                                           "40 ta o'yin",
-                                          style: TextStyle(
-                                            fontSize: 11,
+                                          style: GoogleFonts.nunito(
+                                            fontSize: 12.sp,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 4),
+                                    SizedBox(width: 4.w),
                                     Container(
-                                      width: 67,
-                                      height: 27,
+                                      width: 60.w,
+                                      height: 25.h,
                                       decoration: BoxDecoration(
                                         color: Colors.orange.shade300,
                                         borderRadius: BorderRadius.circular(12),
@@ -409,8 +426,8 @@ class _HomePageState extends State<HomePage> {
                                       child: Center(
                                         child: Text(
                                           cards[index]["text"],
-                                          style: TextStyle(
-                                            fontSize: 11,
+                                          style: GoogleFonts.nunito(
+                                            fontSize: 12.sp,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -423,7 +440,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                       ],
                     ),
                   ),
@@ -434,5 +451,39 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+}
+
+class _LastActionHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _LastActionHeaderDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(_LastActionHeaderDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

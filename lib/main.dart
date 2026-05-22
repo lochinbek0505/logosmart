@@ -4,6 +4,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/provider/diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/start/splash_screen.dart';
@@ -44,6 +46,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BillingsProvider()),
+        ChangeNotifierProvider(create: (_) => DiagnosticProvider()),
+        ChangeNotifierProvider(create: (_) => VoiceDiagnosticProvider()),
       ],
 
       child: MaterialApp(

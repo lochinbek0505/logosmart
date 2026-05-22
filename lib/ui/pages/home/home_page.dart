@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
-      "image": "assets/images/mashg'ulot_son.png",
+      "image": "assets/images/mashgulot_son.png",
       "mainColor": const Color(0xff20B9E8),
       "text": "3-5 yosh",
       "page": AlphabetPage(),

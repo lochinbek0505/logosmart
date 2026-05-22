@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/MapRoadPage.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/provider/diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/voice_diagnostic_page.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class DiagnosticGroupPage extends StatefulWidget {
   const DiagnosticGroupPage({super.key});
@@ -9,16 +14,19 @@ class DiagnosticGroupPage extends StatefulWidget {
 }
 
 class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
-  final List<Map<String, dynamic>> alphabet = [
-    {"alphabet": "assets/alphabet/r.png", "text": "R", "number": 32},
-    {"alphabet": "assets/alphabet/l.png", "text": "L", "number": 32},
-    {"alphabet": "assets/alphabet/s.png", "text": "S", "number": 32},
-    {"alphabet": "assets/alphabet/y.png", "text": "Y", "number": 32},
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DiagnosticProvider>(context, listen: false).init(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    var provider = Provider.of<DiagnosticProvider>(context);
+    var groups = provider.diagnosticGroupModel.dataListList ?? [];
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -29,7 +37,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
           height: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/backround_xira.png"),
+              image: AssetImage("assets/images/backround_frame.png"),
               fit: BoxFit.fill,
             ),
           ),
@@ -50,12 +58,12 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                     ),
                     Expanded(
                       child: Text(
-                        "Tovush mashqlari",
+                        "Diagnostika guruhlari",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.blueGrey.shade800,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 24.sp,
+                          color: AppColors.main_blue_900,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -66,159 +74,176 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
 
               Expanded(
                 child: ListView.builder(
-                  itemCount: alphabet.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: groups.length,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        if (index == 0) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => MapRoadPage()),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Bu qism bo'yicha ishlar davom etyabdi",
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 7),
-                        child: Container(
-                          height: 115,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 14,
-                          ),
-                          decoration: BoxDecoration(
-                            image: const DecorationImage(
-                              image: AssetImage(
-                                "assets/backround/bacround_sound.png",
-                              ),
-                              fit: BoxFit.fill,
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.blueGrey.shade200.withOpacity(
-                                  0.5,
-                                ),
-                                spreadRadius: 4,
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              /// Left side
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40),
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xffb5e9f7),
-                                          Color(0xff5ad4f2),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ),
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(35),
-                                        color: Colors.cyan.shade50,
-                                      ),
-                                      child: Center(
-                                        child: Image.asset(
-                                          alphabet[index]["alphabet"],
-                                          height: 35,
-                                          width: 35,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "${alphabet[index]["text"]} tovushini\nrivojlantirish",
-                                        style: const TextStyle(
-                                          color: Color(0xff093e5e),
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 17,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundImage: const AssetImage(
-                                              "assets/icons/circle.png",
-                                            ),
-                                            radius: 15,
-                                            child: Transform.translate(
-                                              offset: const Offset(1, -1),
-                                              child: Image.asset(
-                                                "assets/icons/play.png",
-                                                width: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          const Text(
-                                            "Boshlash",
-                                            style: TextStyle(
-                                              color: Color(0xff20B9E8),
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                    var group = groups[index];
+                    return provider.isLoading
+                        ? Center(
+                            child: Container(
+                              padding: EdgeInsets.all(20.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
-
-                              /// Right side
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: Container(
-                                  width: 100,
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: const Color(0xffd9F6FB),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "${alphabet[index]["number"]} ta mashg'ulot",
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xff093e5e),
-                                      ),
-                                    ),
-                                  ),
+                              child: const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.main_blue_900,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              if (index == 0) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => VoiceDiagnosticPage(
+                                      templatesList: group.templatesList,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Bu qism bo'yicha ishlar davom etyabdi",
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 5.5,
+                              ),
+                              // 7 -> 5.5
+                              child: Container(
+                                height: 102.h, // 128 -> 102
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, // 18 -> 14
+                                  vertical: 11, // 14 -> 11
+                                ),
+                                decoration: BoxDecoration(
+                                  image: const DecorationImage(
+                                    image: AssetImage(
+                                      "assets/backround/bacround_sound.png",
+                                    ),
+                                    fit: BoxFit.fill,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    12.r,
+                                  ), // 15 -> 12
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    /// Left side
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 58.w,
+                                          // 72 -> 58
+                                          height: 58.h,
+                                          // 72 -> 58
+                                          padding: const EdgeInsets.all(1.5),
+                                          // 2 -> 1.5
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            // Aniq radius o'rniga har doim mukammal aylana qiladi
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Color(0xffb5e9f7),
+                                                Color(0xff5ad4f2),
+                                              ],
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                            ),
+                                          ),
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              // Ichki qism ham aylana
+                                              color: Colors.white,
+                                            ),
+                                            clipBehavior: Clip.antiAlias,
+                                            // Rasm aylanadan tashqariga chiqsa, kesib tashlaydi
+                                            child: Center(
+                                              child: Image.asset(
+                                                "assets/icons/voice_controller.png",
+                                                height: 28.h, // 35 -> 28
+                                                width: 28.w, // 35 -> 28
+                                                fit: BoxFit
+                                                    .contain, // Rasm o'z o'lchamidan oshib ketmasdan joylashadi
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 13.w), // 16 -> 13
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              group.name!,
+                                              style: GoogleFonts.nunito(
+                                                color: AppColors.sky_blue_900,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 19.sp, // 24 -> 19
+                                              ),
+                                            ),
+                                            SizedBox(height: 5.h), // 6 -> 5
+                                            Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundImage:
+                                                      const AssetImage(
+                                                        "assets/icons/circle.png",
+                                                      ),
+                                                  radius: 13.r, // 16 -> 13
+                                                  child: Transform.translate(
+                                                    offset: const Offset(
+                                                      0.8,
+                                                      -0.8,
+                                                    ),
+                                                    // 1, -1 -> 0.8, -0.8
+                                                    child: Image.asset(
+                                                      "assets/icons/play.png",
+                                                      width: 10.w, // 12 -> 10
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 3.w), // 4 -> 3
+                                                Text(
+                                                  "Boshlash",
+                                                  style: GoogleFonts.nunito(
+                                                    color:
+                                                        AppColors.main_blue_600,
+                                                    fontSize: 11.sp, // 14 -> 11
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
                   },
                 ),
               ),

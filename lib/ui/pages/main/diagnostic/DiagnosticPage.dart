@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/VoiceDiagnosticPage.dart';
+import 'package:logosmart/ui/pages/main/diagnostic/voice_diagnostic_page.dart';
 
 class DiagnosticPage extends StatefulWidget {
   const DiagnosticPage({super.key});
@@ -124,11 +124,11 @@ class _DiagnosticPage extends State<DiagnosticPage> {
                           });
 
                           Future.delayed(const Duration(milliseconds: 180), () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const VoiceDiagnosticPage(),
-                              ),
-                            );
+                            // Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //     builder: (_) =>  VoiceDiagnosticPage(),
+                            //   ),
+                            // );
                           });
                         },
                         child: Container(

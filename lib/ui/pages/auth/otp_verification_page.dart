@@ -88,7 +88,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           onPressed: () {
             Navigator.pop(context);
 
-            // switch (widget.check) {
+            // switch (widgets.check) {
             //   case "register":
             //     print("Ro'yxatdan o'tish jarayonidan chiqish");
             //     break;

@@ -4,11 +4,15 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/provider/diagnostic_provider.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/provider/voice_diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/diagnostic/diagnostic_end_page.dart';
+import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/games/arrow_game/arrow_game_page.dart';
+import 'package:logosmart/ui/pages/games/drag_drop/drag_drop_game_page.dart';
+import 'package:logosmart/ui/pages/games/keyboard_game_page.dart';
+import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
-import 'package:logosmart/ui/pages/start/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'core/storage/level_state.dart';
@@ -84,7 +88,6 @@ class AuthChecker extends StatelessWidget {
         listen: false,
       ).checkLoginData(),
       builder: (context, snapshot) {
-        // 1. Kutish jarayonida (ma'lumot o'qilgunicha) loading ko'rsatamiz
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             backgroundColor: Colors.white,
@@ -93,7 +96,7 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return const SplashScreen();
+          return ItemAndFinishPathGamePage();
         }
 
         return LoginPage();

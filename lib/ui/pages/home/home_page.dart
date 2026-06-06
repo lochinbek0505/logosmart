@@ -6,7 +6,7 @@ import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
-import '../main/diagnostic/diagnostic_group_page.dart';
+import '../diagnostic/diagnostic_group_page.dart';
 import '../main/firstspeech/StartSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -206,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (builder) => const DiagnosticGroupPage(),
+                        builder: (builder) =>  DiagnosticGroupPage(),
                       ),
                     );
                   },

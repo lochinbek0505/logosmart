@@ -78,7 +78,7 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                 child: Transform.translate(
                   offset: Offset(0, 25),
                   child: Text(
-                    "widget.data.exercise!.steps[0].text",
+                    "widgets.data.exercise!.steps[0].text",
                     textAlign: TextAlign.center,
 
                     style: TextStyle(

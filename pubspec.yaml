@@ -62,7 +62,7 @@ dependencies:
   gif_player: ^0.0.8
   noise_meter: ^5.1.0
   permission_handler: ^12.0.1
-  video_player: ^2.10.0
+  video_player: ^2.11.1
   shiny_striped_progress_bar: ^1.1.0
   image: ^4.6.0
   spine_flutter: ^4.0.0 # Use the latest version from pub.dev
@@ -121,6 +121,10 @@ flutter:
     - assets/backround/
     - assets/models/
     - assets/sound/
+    - assets/persons/
+    - assets/videos/
+    - assets/animation/
+    - assets/game/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

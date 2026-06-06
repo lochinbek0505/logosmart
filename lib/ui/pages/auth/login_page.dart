@@ -5,8 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/forgot_password_page.dart';
 import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
-import 'package:logosmart/ui/pages/auth/register_information_page.dart'
-    show RegisterInformationPage;
 import 'package:logosmart/ui/pages/auth/register_page.dart';
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -46,9 +44,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-      ),
+      appBar: AppBar(backgroundColor: AppColors.white),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -128,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -195,17 +191,6 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                       );
                                     }
-                                  }else{
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (builder) =>
-                                            OtpVerificationPage(
-                                              check: "login",
-                                              phone: _phoneController.text,
-                                            ),
-                                      ),
-                                    );
                                   }
                                 },
                           child: provider.isLoading
@@ -248,8 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (builder) =>
-                                    const RegisterPage(),
+                                builder: (builder) => const RegisterPage(),
                               ),
                             );
                           },

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/DiagnosticPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/VoiceGamePage.dart';
 import 'package:logosmart/ui/pages/profile/profile_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+
+import '../diagnostic/diagnostic_start_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -22,7 +23,7 @@ class _MainPageState extends State<MainPage> {
   final List<Widget> pages = [
     const HomePage(),
     const AlphabetPage(),
-    const DiagnosticPage(),
+    DiagnosticStartPage(),
     const VoiceGamePage(),
     const ProfilePage(),
   ];

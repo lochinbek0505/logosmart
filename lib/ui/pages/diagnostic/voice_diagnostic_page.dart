@@ -6,7 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logosmart/ui/pages/main/diagnostic/provider/voice_diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +15,7 @@ import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../../../models/diagnostic_group_model.dart';
-import '../../../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
 
 class VoiceDiagnosticPage extends StatefulWidget {
   List<Template>? templatesList;

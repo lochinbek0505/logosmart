@@ -92,20 +92,22 @@ class Template {
 
 class DiagnosticGroup {
   String? id;
+  String? iconUrl;
   String? name;
   String? description;
   List<Template>? templatesList;
   String? createdAt;
 
   DiagnosticGroup({
-    this.id, this.name, this.description, this.templatesList, this.createdAt
+    this.id,this.iconUrl, this.name, this.description, this.templatesList, this.createdAt
   });
 
   DiagnosticGroup copyWith({
-    String? id, String? name, String? description, List<
+    String? id,String? iconUrl, String? name, String? description, List<
         Template>? templatesList, String? createdAt
   }) =>
       DiagnosticGroup(id: id ?? this.id,
+          iconUrl: iconUrl ?? this.iconUrl,
           name: name ?? this.name,
           description: description ?? this.description,
           templatesList: templatesList ?? this.templatesList,
@@ -115,6 +117,7 @@ class DiagnosticGroup {
     final map = <String, dynamic>{
     };
     map["id"] = id;
+    map["iconUrl"] = iconUrl;
     map["name"] = name;
     map["description"] = description;
     if (templatesList != null) {
@@ -126,6 +129,7 @@ class DiagnosticGroup {
 
   DiagnosticGroup.fromJson(dynamic json) {
     id = json["id"];
+    iconUrl = json["iconUrl"];
     name = json["name"];
     description = json["description"];
     if (json["templates"] != null) {

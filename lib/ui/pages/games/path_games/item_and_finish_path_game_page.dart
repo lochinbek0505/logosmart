@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logosmart/ui/pages/games/path_games/widgets/finish_path_game_widget.dart';
 import 'package:logosmart/ui/pages/games/path_games/widgets/iafp_widget.dart';
 import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widget.dart';
 import 'package:logosmart/ui/pages/main/widgets/custom_text_widget.dart';
@@ -260,7 +261,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage> {
                         SizedBox(height: 120.h),
                         SizedBox(
                           height: 430.h,
-                          child: IafpWidget(
+                          child: FinishPathGameWidget(
                             pathConfig: PathConfig.fromJson(level1),
                           ),
                         ),

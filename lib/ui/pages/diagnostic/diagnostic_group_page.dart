@@ -1,7 +1,9 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import 'diagnostic_start_page.dart';
@@ -14,9 +16,20 @@ class DiagnosticGroupPage extends StatefulWidget {
 }
 
 class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
+  late AudioPlayer _audioPlayer;
+
+  @override
+  void dispose() {
+    _audioPlayer.stop(); // Ovozni to'xtatishni kafolatlash
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.play(AssetSource('sound/diagnostic_group_page.mp3'));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DiagnosticProvider>(context, listen: false).init(context);
@@ -31,11 +44,10 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
-
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/backround/fon_q.png"),
               fit: BoxFit.fill,
@@ -49,7 +61,10 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () async {
+                        await _audioPlayer.stop(); // Orqaga qaytganda ovozni to'xtatish
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
                       child: Image.asset(
                         "assets/images/arow_back.png",
                         width: 24.w,
@@ -81,122 +96,113 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                     var group = groups[index];
                     return provider.isLoading
                         ? Center(
-                            child: Container(
-                              padding: EdgeInsets.all(20.r),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: const CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColors.main_blue_900,
-                                ),
-                              ),
+                      child: Container(
+                        padding: EdgeInsets.all(20.r),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              spreadRadius: 2,
                             ),
-                          )
+                          ],
+                        ),
+                        child: const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.main_blue_900,
+                          ),
+                        ),
+                      ),
+                    )
                         : GestureDetector(
-                            onTap: () {
-                              if (index == 0) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => DiagnosticStartPage(
-                                      templatesList: group.templatesList,
-                                    ),
-                                  ),
-                                );
-                                // Navigator.of(context).push(
-                                //   MaterialPageRoute(
-                                //     builder: (_) => VoiceDiagnosticPage(
-                                //       templatesList: group.templatesList,
-                                //     ),
-                                //   ),
-                                // );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Bu qism bo'yicha ishlar davom etyabdi",
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 5.5,
+                      onTap: () async {
+                        if (index == 0) {
+                          await _audioPlayer.stop(); // Keyingi sahifaga o'tishdan oldin ovozni to'xtatish
+
+                          if (context.mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => DiagnosticStartPage(
+                                  templatesList: group.templatesList,
+                                ),
                               ),
-                              // 7 -> 5.5
-                              child: Container(
-                                height: 95.h, // 128 -> 102
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, // 18 -> 14
-                                  vertical: 11, // 14 -> 11
-                                ),
-                                decoration: BoxDecoration(
-                                  image: const DecorationImage(
-                                    image: AssetImage(
-                                      "assets/backround/bacround_sound.png",
-                                    ),
-                                    fit: BoxFit.fill,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    12.r,
-                                  ), // 15 -> 12
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Image.network(
-                                      group.iconUrl!,
-                                      height: 80.h,
-                                      width: 80.w, // 35 -> 28
-                                      fit: BoxFit
-                                          .contain, // Rasm o'z o'lchamidan oshib ketmasdan joylashadi
-                                    ),
-                                    SizedBox(
-                                      width: 160.w, // 200 -> 150
-                                      child: Text(
-                                        group.name!,
-                                        style: GoogleFonts.nunito(
-                                          color: AppColors.sky_blue_900,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 17.sp, // 24 -> 19
-                                        ),
-                                      ),
-                                    ),
-                                    CircleAvatar(
-                                      backgroundImage: const AssetImage(
-                                        "assets/icons/circle.png",
-                                      ),
-                                      radius: 25.r, // 16 -> 13
-                                      child: Transform.translate(
-                                        offset: const Offset(0.8, -0.8),
-                                        // 1, -1 -> 0.8, -0.8
-                                        child: Image.asset(
-                                          "assets/icons/play.png",
-                                          width: 19.w, // 12 -> 10
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Bu qism bo'yicha ishlar davom etyabdi",
                               ),
                             ),
                           );
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5.5,
+                        ),
+                        child: Container(
+                          height: 95.h,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 11,
+                          ),
+                          decoration: BoxDecoration(
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                "assets/backround/bacround_sound.png",
+                              ),
+                              fit: BoxFit.fill,
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                group.iconUrl!,
+                                height: 80.h,
+                                width: 80.w,
+                                fit: BoxFit.contain,
+                              ),
+                              SizedBox(
+                                width: 160.w,
+                                child: Text(
+                                  group.name!,
+                                  style: GoogleFonts.nunito(
+                                    color: AppColors.sky_blue_900,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 17.sp,
+                                  ),
+                                ),
+                              ),
+                              CircleAvatar(
+                                backgroundImage: const AssetImage(
+                                  "assets/icons/circle.png",
+                                ),
+                                radius: 25.r,
+                                child: Transform.translate(
+                                  offset: const Offset(0.8, -0.8),
+                                  child: Image.asset(
+                                    "assets/icons/play.png",
+                                    width: 19.w,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
-
-              Image.asset("assets/persons/girl_2.png", height: 480.h),
+              Image.asset("assets/persons/girl_2.png", height: 460.h),
             ],
           ),
         ),

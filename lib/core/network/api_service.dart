@@ -4,6 +4,7 @@ import 'package:logosmart/core/storage/token_storage.dart';
 import 'package:logosmart/models/avatars_model.dart';
 import 'package:logosmart/models/billings_model.dart';
 import 'package:logosmart/models/diagnostic_group_model.dart';
+import 'package:logosmart/models/diagnostic_submit_model.dart';
 import 'package:logosmart/models/login_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plan_activate_response.dart';
@@ -550,6 +551,38 @@ class ApiService {
             e.response?.data["message"] ??
             e.response?.statusMessage ??
             "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+
+  Future<DiagnosticSubmitModel?> submitDiagnostic(
+      context,
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      var response = await _dio.post("diagnostic/submit", data: data);
+
+      if (response.statusCode == 200) {
+        return DiagnosticSubmitModel.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+                e.response?.statusMessage ??
+                "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }

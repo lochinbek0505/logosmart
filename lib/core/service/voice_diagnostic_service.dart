@@ -1,31 +1,53 @@
 import 'dart:math';
 
 class VoiceDiagnosticService {
-  // promptText ichidagi so‘zlardan biri 100% mos kelsa -> 10 ball
-  // bo‘lmasa, lekin sound (harf) to‘g‘ri aytilgan bo‘lsa -> 5 ball
-  // aks holda 0
+
   ScoreResult evaluate({
     required String recognizedText,
     required String promptText,
     required String sound,
   }) {
-    final rec = _normalize(recognizedText);
+    final recNorm = _normalize(recognizedText);
+    // Recognized so'zlarni asliga ziyon yetkazmasdan massivga ajratamiz
+    final recWords = recNorm.split(' ').where((e) => e.isNotEmpty).toList();
+
     final promptWords = _normalize(promptText).split(' ').where((e) => e.isNotEmpty).toList();
     final soundNorm = _normalize(sound);
 
-    // 1) promptText dagi so‘zlardan bittasi 100% mos kelsa
+    // 1) promptText dagi so‘zlardan bittasi 100% TO'LIQ mos kelsa
     for (final w in promptWords) {
-      if (rec.contains(w)) {
-        return ScoreResult(score: 10, matchedWord: w, matchedSound: false);
+      if (recWords.contains(w)) {
+        return ScoreResult(
+          score: 10,
+          matchedWord: w,
+          sound: sound,
+          matchedSound: true,
+        );
       }
     }
 
-    // 2) sound harfi to‘g‘ri aytilgan bo‘lsa (so‘z ichida uchrashi)
-    if (soundNorm.isNotEmpty && rec.contains(soundNorm)) {
-      return ScoreResult(score: 5, matchedWord: null, matchedSound: true);
+    // 2) sound harfi to‘g‘ri aytilgan bo‘lsa
+    // Bola aytgan so'zlar ichidan soundNorm qatnashgan birinchi so'zni qidiramiz
+    if (soundNorm.isNotEmpty) {
+      for (final recWord in recWords) {
+        if (recWord.contains(soundNorm)) {
+          return ScoreResult(
+            score: 5,
+            // Mos kelgan to'liq so'zni qaytaramiz
+            matchedWord: promptText,
+            sound: sound,
+            matchedSound: false,
+          );
+        }
+      }
     }
 
-    return ScoreResult(score: 0, matchedWord: null, matchedSound: false);
+    return ScoreResult(
+      score: 0,
+      matchedWord: null,
+      sound: sound,
+      matchedSound: false,
+    );
   }
 
   String _normalize(String t) {
@@ -41,11 +63,20 @@ class VoiceDiagnosticService {
 class ScoreResult {
   final int score;
   final String? matchedWord;
+  final String? sound;
   final bool matchedSound;
 
   ScoreResult({
     required this.score,
     required this.matchedWord,
+    required this.sound,
     required this.matchedSound,
   });
+
+  @override
+  String toString() {
+    return 'ScoreResult{score: $score, matchedWord: $matchedWord, sound: $sound, matchedSound: $matchedSound}';
+  }
+
+
 }

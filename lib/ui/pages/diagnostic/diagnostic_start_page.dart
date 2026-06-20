@@ -7,6 +7,7 @@ import 'package:logosmart/ui/theme/app_colors.dart';
 
 import '../../../../core/utils/game_bounce_page_route.dart';
 import '../../../../models/diagnostic_group_model.dart';
+import 'diagnostic_group_page.dart';
 
 class DiagnosticStartPage extends StatefulWidget {
   List<Template>? templatesList;
@@ -65,7 +66,13 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                         width: 56.w,
                         height: 56.h,
                         child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => DiagnosticGroupPage(),
+                              ),
+                            );
+                          },
                           child: Image.asset(
                             "assets/icons/arrow_right_button.png",
                             fit: BoxFit.fill,
@@ -119,7 +126,7 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                   child: Transform.translate(
                     offset: Offset(0, 25.h),
                     child: Text(
-                      "Diagnostika vaqtida ortiqcha shovqin qilmang! Rasmlar nomini ortimdan takrorlang",
+                      "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.nunito(
                         color: AppColors.sky_blue_900,
@@ -141,28 +148,33 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
 
                 SizedBox(height: 20.h),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    // 1. Eng birinchi audioni to'xtatamiz!
+                    await _audioPlayer.stop();
+
+                    // 2. Tugma animatsiyasi uchun holatni o'zgartiramiz
                     setState(() {
                       _isPressed = true;
                     });
-                    Future.delayed(const Duration(milliseconds: 160), () {
-                      if (mounted) {
-                        setState(() {
-                          _isPressed = false;
-                        });
-                      }
-                    });
 
-                    Future.delayed(const Duration(milliseconds: 180), () {});
+                    // Biroz kutamiz (animatsiya ko'rinishi uchun)
+                    await Future.delayed(const Duration(milliseconds: 160));
 
-                    Navigator.push(
-                      context,
-                      GameBouncePageRoute(
-                        page: VoiceDiagnosticPage(
-                          templatesList: widget.templatesList,
+                    if (mounted) {
+                      setState(() {
+                        _isPressed = false;
+                      });
+
+                      // 3. Keyingi sahifaga o'tamiz
+                      Navigator.pushReplacement(
+                        context,
+                        GameBouncePageRoute(
+                          page: VoiceDiagnosticPage(
+                            templatesList: widget.templatesList,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.all(7),

@@ -121,6 +121,7 @@ flutter:
     - assets/backround/
     - assets/models/
     - assets/sound/
+    - assets/sound/diagnostic/
     - assets/persons/
     - assets/videos/
     - assets/animation/

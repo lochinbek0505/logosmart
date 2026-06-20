@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/VoiceGamePage.dart';
@@ -38,7 +39,8 @@ class _MainPageState extends State<MainPage> {
   // Rasm rangi va paddingini sozlash uchun yordamchi funksiya
   Widget _buildIcon(String assetPath, Color color) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.h,top: 8.h), // Icon va label orasiga 8.h lik joy
+      padding: EdgeInsets.only(bottom: 8.h, top: 8.h),
+      // Icon va label orasiga 8.h lik joy
       child: Image.asset(
         assetPath,
         width: 20.w,
@@ -56,7 +58,6 @@ class _MainPageState extends State<MainPage> {
       extendBody: true,
       // Custom height va corner uchun Container bilan o'raymiz
       bottomNavigationBar: Container(
-
         height: 84.h, // O'zingiz xohlagan custom height
         decoration: BoxDecoration(
           color: Colors.transparent,
@@ -65,11 +66,7 @@ class _MainPageState extends State<MainPage> {
             topRight: Radius.circular(18.r),
           ),
           boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
+            BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 1),
           ],
         ),
         child: ClipRRect(
@@ -80,17 +77,19 @@ class _MainPageState extends State<MainPage> {
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.white,
-            elevation: 0, // Container'da shadow borligi uchun default shadow olinadi
+            elevation: 0,
+            // Container'da shadow borligi uchun default shadow olinadi
 
             // Colors matching your design
             selectedItemColor: AppColors.main_blue_600,
             unselectedItemColor: AppColors.grey_500,
 
-            selectedLabelStyle: TextStyle(
+            selectedLabelStyle: GoogleFonts.nunito(
               fontWeight: FontWeight.w600,
               fontSize: 10.sp,
             ),
-            unselectedLabelStyle: TextStyle(
+
+            unselectedLabelStyle: GoogleFonts.nunito(
               fontWeight: FontWeight.w500,
               fontSize: 10.sp,
             ),
@@ -101,27 +100,51 @@ class _MainPageState extends State<MainPage> {
             items: [
               BottomNavigationBarItem(
                 icon: _buildIcon("assets/icons/home.png", AppColors.grey_500),
-                activeIcon: _buildIcon("assets/icons/home.png", AppColors.main_blue_600),
+                activeIcon: _buildIcon(
+                  "assets/icons/home.png",
+                  AppColors.main_blue_600,
+                ),
                 label: "Mashg'ulotlar",
               ),
               BottomNavigationBarItem(
                 icon: _buildIcon("assets/icons/game.png", AppColors.grey_500),
-                activeIcon: _buildIcon("assets/icons/game.png", AppColors.main_blue_600),
+                activeIcon: _buildIcon(
+                  "assets/icons/game.png",
+                  AppColors.main_blue_600,
+                ),
                 label: "O'yinlar",
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon("assets/icons/consultation.png", AppColors.grey_500),
-                activeIcon: _buildIcon("assets/icons/consultation.png", AppColors.main_blue_600),
+                icon: _buildIcon(
+                  "assets/icons/consultation.png",
+                  AppColors.grey_500,
+                ),
+                activeIcon: _buildIcon(
+                  "assets/icons/consultation.png",
+                  AppColors.main_blue_600,
+                ),
                 label: "Konsultatsiya",
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon("assets/icons/community.png", AppColors.grey_500),
-                activeIcon: _buildIcon("assets/icons/community.png", AppColors.main_blue_600),
+                icon: _buildIcon(
+                  "assets/icons/community.png",
+                  AppColors.grey_500,
+                ),
+                activeIcon: _buildIcon(
+                  "assets/icons/community.png",
+                  AppColors.main_blue_600,
+                ),
                 label: "Jamiyat",
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon("assets/icons/profiles.png", AppColors.grey_500),
-                activeIcon: _buildIcon("assets/icons/profiles.png", AppColors.main_blue_600),
+                icon: _buildIcon(
+                  "assets/icons/profiles.png",
+                  AppColors.grey_500,
+                ),
+                activeIcon: _buildIcon(
+                  "assets/icons/profiles.png",
+                  AppColors.main_blue_600,
+                ),
                 label: "Profil",
               ),
             ],

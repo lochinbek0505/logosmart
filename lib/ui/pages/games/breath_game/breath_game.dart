@@ -208,7 +208,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                 SizedBox(height: 10.h),
 
                 Text(
-                  "Siz o\'yinni muvaffaqiyatli yakunladingiz! Sizda +10 Ball yig\'dingiz",
+                  "O\'yinni muvaffaqiyatli yakunladingiz!\n +10 Ball",
                   style: GoogleFonts.nunito(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w500,

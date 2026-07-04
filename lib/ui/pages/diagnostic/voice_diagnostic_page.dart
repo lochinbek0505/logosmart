@@ -125,8 +125,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
       vsync: this,
 
       duration: const Duration(milliseconds: 2000),
-    )
-      ..repeat(reverse: true);
+    )..repeat(reverse: true);
 
     _imageFloatAnim = Tween<double>(
       begin: -6,
@@ -138,8 +137,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
       vsync: this,
 
       duration: const Duration(milliseconds: 500),
-    )
-      ..repeat(reverse: true);
+    )..repeat(reverse: true);
 
     _errorShakeX = Tween<double>(begin: -3, end: 3).animate(
       CurvedAnimation(parent: _errorWobbleCtrl, curve: Curves.easeInOut),
@@ -306,7 +304,6 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         return;
       }
 
-
       if (path != null && File(path).existsSync()) {
         final text = await _stt.transcribe(audioPath: path);
 
@@ -319,7 +316,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         if (result.score > 0) {
           _playSuccessBurst();
 
-          await _player.play(AssetSource("sound/diagnotic_sucess.mp3"));
+          await _player.play(AssetSource("sound/success.mp3"));
         } else {
           _playErrorFlash();
 
@@ -374,9 +371,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     final dir = await getTemporaryDirectory();
 
     final path =
-        '${dir.path}/record_${DateTime
-        .now()
-        .millisecondsSinceEpoch}.m4a';
+        '${dir.path}/record_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     _maxAmplitude = -160.0;
 
@@ -388,14 +383,14 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     _ampSub = _recorder
         .onAmplitudeChanged(const Duration(milliseconds: 120))
         .listen((amp) {
-      if (amp.current > _maxAmplitude) {
-        _maxAmplitude = amp.current;
-      }
+          if (amp.current > _maxAmplitude) {
+            _maxAmplitude = amp.current;
+          }
 
-      final bars = _barsFromAmplitude(amp.current);
+          final bars = _barsFromAmplitude(amp.current);
 
-      if (mounted) setState(() => activeBars = bars);
-    });
+          if (mounted) setState(() => activeBars = bars);
+        });
 
     setState(() => _isRecording = true);
 
@@ -414,9 +409,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery
-        .of(context)
-        .size;
+    var size = MediaQuery.of(context).size;
 
     final provider = context.watch<VoiceDiagnosticProvider>();
 
@@ -425,498 +418,503 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     return Scaffold(
       body: Stack(
         children: [
-        Container(
-        width: size.width,
+          Container(
+            width: size.width,
 
-        height: size.height,
+            height: size.height,
 
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/backround/fon_q.png"),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/backround/fon_q.png"),
 
-            fit: BoxFit.fill,
-          ),
-        ),
-
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-
-          child: Container(
-            color: Colors.black.withOpacity(0.05),
-
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 17.w),
-
-                child: SingleChildScrollView(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                      SizedBox(height: 15.h),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                    children: [
-                    SizedBox(
-                    width: 56.w,
-
-                    height: 56.h,
-
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (builder)=>DiagnosticStartPage()));
-                      },
-
-                      child: Image.asset(
-                      "assets/icons/arrow_right_button.png",
-
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-
-                Row(
-                  children: [
-                    Image.asset(
-                      "assets/icons/star.png",
-
-                      width: 40.w,
-
-                      height: 40.h,
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Stack(
-                      alignment: Alignment.center,
-
-                      children: [
-                        Text(
-                          "${provider.totalScore}",
-
-                          style: TextStyle(
-                            fontSize: 35.sp,
-
-                            fontWeight: FontWeight.w800,
-
-                            color: Colors.white,
-                          ),
-                        ),
-
-                        AnimatedSwitcher(
-                          duration: const Duration(
-                            milliseconds: 400,
-                          ),
-
-                          transitionBuilder: (c, a) =>
-                              ScaleTransition(scale: a, child: c),
-
-                          child: Text(
-                            "${provider.totalScore}",
-
-                            key: ValueKey(provider.totalScore),
-
-                            style: TextStyle(
-                              fontSize: 32.sp,
-
-                              fontWeight: FontWeight.w800,
-
-                              color: const Color(0xFFF7C24B),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                ],
+                fit: BoxFit.fill,
               ),
+            ),
 
-              SizedBox(height: 16.h),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
 
-              SizedBox(
-                width: size.width,
+              child: Container(
+                color: Colors.black.withOpacity(0.05),
 
-                height: 9.h,
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 17.w),
 
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
 
-                  child: ShinyStripedProgressBar(
-                    progressColor: AppColors.orange_200,
+                        children: [
+                          SizedBox(height: 15.h),
 
-                    stripeColor: AppColors.orange_500,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    targetProgress: .5,
-                  ),
-                ),
-              ),
+                            children: [
+                              SizedBox(
+                                width: 56.w,
 
-              SizedBox(height: 48.h),
+                                height: 56.h,
 
-              AnimatedOpacity(
-                opacity: (_isMicReady && !_isAskingGirl)
-                    ? 1.0
-                    : 0.0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (builder) =>
+                                            DiagnosticStartPage(),
+                                      ),
+                                    );
+                                  },
 
-                duration: const Duration(milliseconds: 600),
+                                  child: Image.asset(
+                                    "assets/icons/arrow_right_button.png",
 
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-
-                  crossAxisAlignment: CrossAxisAlignment.end,
-
-                  mainAxisSize: MainAxisSize.min,
-
-                  children: List.generate(heights.length, (index) {
-                    Color? color;
-
-                    if (activeBars == 0) {
-                      color = Colors.white;
-                    } else if (activeBars < heights.length - 1) {
-                      color = index < activeBars
-                          ? AppColors.red_200
-                          : Colors.white;
-                    } else {
-                      color = index < activeBars
-                          ? AppColors.green_600
-                          : Colors.white;
-                    }
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 3,
-                      ),
-
-                      width: 12,
-
-                      height: heights[index],
-
-                      decoration: BoxDecoration(
-                        color: color,
-
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-
-              SizedBox(height: 100.h),
-
-              AnimatedOpacity(
-                opacity: (_isImageReady && !_isAskingGirl)
-                    ? 1.0
-                    : 0.0,
-
-                duration: const Duration(milliseconds: 600),
-
-                child: AnimatedBuilder(
-                  animation: _imageFloat,
-
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, _imageFloatAnim.value),
-
-                      child: Container(
-                        width: 220.w,
-
-                        height: 240.h,
-
-                        padding: EdgeInsets.all(5.w),
-
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28.r),
-
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xff00D3FF),
-
-                              Color(0xff0066FF),
-                            ],
-
-                            begin: Alignment.topLeft,
-
-                            end: Alignment.bottomRight,
-                          ),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xff00D3FF,
-                              ).withOpacity(0.4),
-
-                              blurRadius: 15,
-
-                              spreadRadius: 2,
-
-                              offset: const Offset(-3, 5),
-                            ),
-
-                            BoxShadow(
-                              color: const Color(
-                                0xff0066FF,
-                              ).withOpacity(0.3),
-
-                              blurRadius: 18,
-
-                              spreadRadius: 2,
-
-                              offset: const Offset(3, 8),
-                            ),
-                          ],
-                        ),
-
-                        child: Container(
-                          padding: EdgeInsets.all(12.w),
-
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-
-                            borderRadius: BorderRadius.circular(
-                              28.r - 5.w,
-                            ),
-                          ),
-
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF2F8FF),
-
-                              borderRadius: BorderRadius.circular(
-                                18.r,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
                               ),
-                            ),
+
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/icons/star.png",
+
+                                    width: 40.w,
+
+                                    height: 40.h,
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  Stack(
+                                    alignment: Alignment.center,
+
+                                    children: [
+                                      Text(
+                                        "${provider.totalScore}",
+
+                                        style: TextStyle(
+                                          fontSize: 35.sp,
+
+                                          fontWeight: FontWeight.w800,
+
+                                          color: Colors.white,
+                                        ),
+                                      ),
+
+                                      AnimatedSwitcher(
+                                        duration: const Duration(
+                                          milliseconds: 400,
+                                        ),
+
+                                        transitionBuilder: (c, a) =>
+                                            ScaleTransition(scale: a, child: c),
+
+                                        child: Text(
+                                          "${provider.totalScore}",
+
+                                          key: ValueKey(provider.totalScore),
+
+                                          style: TextStyle(
+                                            fontSize: 32.sp,
+
+                                            fontWeight: FontWeight.w800,
+
+                                            color: const Color(0xFFF7C24B),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 16.h),
+
+                          SizedBox(
+                            width: size.width,
+
+                            height: 9.h,
 
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                18.r,
-                              ),
+                              borderRadius: BorderRadius.circular(8.r),
 
-                              child: Image.network(
-                                template?.itemsList?.first.url ??
-                                    "https://via.placeholder.com/130x150.png?text=No+Image",
+                              child: ShinyStripedProgressBar(
+                                progressColor: AppColors.orange_200,
 
-                                fit: BoxFit.contain,
+                                stripeColor: AppColors.orange_500,
+
+                                targetProgress: .5,
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
 
-              SizedBox(height: 80.h),
+                          SizedBox(height: 48.h),
 
-              AnimatedOpacity(
-                opacity: (_isMicReady && !_isAskingGirl)
-                    ? 1.0
-                    : 0.0,
+                          AnimatedOpacity(
+                            opacity: (_isMicReady && !_isAskingGirl)
+                                ? 1.0
+                                : 0.0,
 
-                duration: const Duration(milliseconds: 600),
+                            duration: const Duration(milliseconds: 600),
 
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
 
-                  mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
 
-                  children: [
-                    SizedBox(width: 6.w),
+                              mainAxisSize: MainAxisSize.min,
 
-                    GestureDetector(
-                      child: AnimatedBuilder(
-                        animation: Listenable.merge([
-                          _pulse,
+                              children: List.generate(heights.length, (index) {
+                                Color? color;
 
-                          _bounce,
-                        ]),
+                                if (activeBars == 0) {
+                                  color = Colors.white;
+                                } else if (activeBars < heights.length - 1) {
+                                  color = index < activeBars
+                                      ? AppColors.red_200
+                                      : Colors.white;
+                                } else {
+                                  color = index < activeBars
+                                      ? AppColors.green_600
+                                      : Colors.white;
+                                }
 
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _bounceAnim.value),
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 3,
+                                  ),
 
-                            child: Stack(
-                              alignment: Alignment.center,
+                                  width: 12,
+
+                                  height: heights[index],
+
+                                  decoration: BoxDecoration(
+                                    color: color,
+
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+
+                          SizedBox(height: 100.h),
+
+                          AnimatedOpacity(
+                            opacity: (_isImageReady && !_isAskingGirl)
+                                ? 1.0
+                                : 0.0,
+
+                            duration: const Duration(milliseconds: 600),
+
+                            child: AnimatedBuilder(
+                              animation: _imageFloat,
+
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, _imageFloatAnim.value),
+
+                                  child: Container(
+                                    width: 220.w,
+
+                                    height: 240.h,
+
+                                    padding: EdgeInsets.all(5.w),
+
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(28.r),
+
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xff00D3FF),
+
+                                          Color(0xff0066FF),
+                                        ],
+
+                                        begin: Alignment.topLeft,
+
+                                        end: Alignment.bottomRight,
+                                      ),
+
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xff00D3FF,
+                                          ).withOpacity(0.4),
+
+                                          blurRadius: 15,
+
+                                          spreadRadius: 2,
+
+                                          offset: const Offset(-3, 5),
+                                        ),
+
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xff0066FF,
+                                          ).withOpacity(0.3),
+
+                                          blurRadius: 18,
+
+                                          spreadRadius: 2,
+
+                                          offset: const Offset(3, 8),
+                                        ),
+                                      ],
+                                    ),
+
+                                    child: Container(
+                                      padding: EdgeInsets.all(12.w),
+
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+
+                                        borderRadius: BorderRadius.circular(
+                                          28.r - 5.w,
+                                        ),
+                                      ),
+
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF2F8FF),
+
+                                          borderRadius: BorderRadius.circular(
+                                            18.r,
+                                          ),
+                                        ),
+
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            18.r,
+                                          ),
+
+                                          child: Image.network(
+                                            template?.itemsList?.first.url ??
+                                                "https://via.placeholder.com/130x150.png?text=No+Image",
+
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                          SizedBox(height: 80.h),
+
+                          AnimatedOpacity(
+                            opacity: (_isMicReady && !_isAskingGirl)
+                                ? 1.0
+                                : 0.0,
+
+                            duration: const Duration(milliseconds: 600),
+
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              mainAxisAlignment: MainAxisAlignment.center,
 
                               children: [
-                                Container(
-                                  width: 110.w,
+                                SizedBox(width: 6.w),
 
-                                  height: 110.h,
+                                GestureDetector(
+                                  child: AnimatedBuilder(
+                                    animation: Listenable.merge([
+                                      _pulse,
 
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
+                                      _bounce,
+                                    ]),
 
-                                    color: _isRecording
-                                        ? _colorAnim.value
-                                        ?.withOpacity(0.25)
-                                        : Colors.white.withOpacity(
-                                      0.15,
-                                    ),
+                                    builder: (context, child) {
+                                      return Transform.translate(
+                                        offset: Offset(0, _bounceAnim.value),
+
+                                        child: Stack(
+                                          alignment: Alignment.center,
+
+                                          children: [
+                                            Container(
+                                              width: 110.w,
+
+                                              height: 110.h,
+
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+
+                                                color: _isRecording
+                                                    ? _colorAnim.value
+                                                          ?.withOpacity(0.25)
+                                                    : Colors.white.withOpacity(
+                                                        0.15,
+                                                      ),
+                                              ),
+                                            ),
+
+                                            Container(
+                                              width: 90.w,
+
+                                              height: 90.h,
+
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+
+                                                color: _isRecording
+                                                    ? _colorAnim.value
+                                                          ?.withOpacity(0.35)
+                                                    : Colors.white.withOpacity(
+                                                        0.2,
+                                                      ),
+                                              ),
+                                            ),
+
+                                            ScaleTransition(
+                                              scale: _scale,
+
+                                              child: CircleAvatar(
+                                                radius: 40.r,
+
+                                                backgroundImage:
+                                                    const AssetImage(
+                                                      "assets/icons/circle.png",
+                                                    ),
+
+                                                child: Image.asset(
+                                                  "assets/icons/micrafon.png",
+
+                                                  width: 26.w,
+
+                                                  height: 38.r,
+
+                                                  color: _isRecording
+                                                      ? _colorAnim.value
+                                                      : null,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
 
-                                Container(
-                                  width: 90.w,
-
-                                  height: 90.h,
-
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-
-                                    color: _isRecording
-                                        ? _colorAnim.value
-                                        ?.withOpacity(0.35)
-                                        : Colors.white.withOpacity(
-                                      0.2,
-                                    ),
-                                  ),
-                                ),
-
-                                ScaleTransition(
-                                  scale: _scale,
-
-                                  child: CircleAvatar(
-                                    radius: 40.r,
-
-                                    backgroundImage:
-                                    const AssetImage(
-                                      "assets/icons/circle.png",
-                                    ),
-
-                                    child: Image.asset(
-                                      "assets/icons/micrafon.png",
-
-                                      width: 26.w,
-
-                                      height: 38.r,
-
-                                      color: _isRecording
-                                          ? _colorAnim.value
-                                          : null,
-                                    ),
-                                  ),
-                                ),
+                                SizedBox(width: 10.w),
                               ],
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
                     ),
-
-                    SizedBox(width: 10.w),
-                  ],
+                  ),
                 ),
               ),
+            ),
+          ),
+
+          IgnorePointer(
+            ignoring: !_isAskingGirl,
+
+            child: AnimatedOpacity(
+              opacity: _isAskingGirl ? 1.0 : 0.0,
+
+              duration: const Duration(milliseconds: 400),
+
+              child: Center(
+                child: Image.asset(
+                  "assets/images/ask_girl.png",
+
+                  width: 473.w,
+
+                  height: 473.h,
+
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+
+          Align(
+            alignment: Alignment.topCenter,
+
+            child: ConfettiWidget(
+              confettiController: _confettiCtrl,
+
+              blastDirectionality: BlastDirectionality.explosive,
+
+              shouldLoop: false,
+
+              gravity: 0.5,
+
+              emissionFrequency: 0.05,
+
+              numberOfParticles: 25,
+
+              colors: const [
+                Colors.green,
+
+                Colors.blue,
+
+                Colors.orange,
+
+                Colors.pink,
+
+                Colors.purple,
               ],
             ),
           ),
-        ),
+
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: Listenable.merge([_errorAnimCtrl, _errorWobbleCtrl]),
+
+              builder: (context, child) {
+                return Opacity(
+                  opacity: _errorOpacity.value,
+
+                  child: Center(
+                    child: ScaleTransition(
+                      scale: _errorScale,
+
+                      child: Transform.translate(
+                        offset: Offset(_errorShakeX.value, 0),
+
+                        child: Transform.rotate(
+                          angle: _errorRotate.value,
+
+                          child: Container(
+                            padding: const EdgeInsets.all(18),
+
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+
+                            child: Image.asset(
+                              "assets/icons/yellow_error.png",
+
+                              width: 100.w,
+
+                              height: 100.h,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-    ),
-    ),
-    ),
-
-    IgnorePointer(
-    ignoring: !_isAskingGirl,
-
-    child: AnimatedOpacity(
-    opacity: _isAskingGirl ? 1.0 : 0.0,
-
-    duration: const Duration(milliseconds: 400),
-
-    child: Center(
-    child: Image.asset(
-    "assets/images/ask_girl.png",
-
-    width: 473.w,
-
-    height: 473.h,
-
-    fit: BoxFit.contain,
-    ),
-    ),
-    ),
-    ),
-
-    Align(
-    alignment: Alignment.topCenter,
-
-    child: ConfettiWidget(
-    confettiController: _confettiCtrl,
-
-    blastDirectionality: BlastDirectionality.explosive,
-
-    shouldLoop: false,
-
-    gravity: 0.5,
-
-    emissionFrequency: 0.05,
-
-    numberOfParticles: 25,
-
-    colors: const [
-    Colors.green,
-
-    Colors.blue,
-
-    Colors.orange,
-
-    Colors.pink,
-
-    Colors.purple,
-    ],
-    ),
-    ),
-
-    IgnorePointer(
-    child: AnimatedBuilder(
-    animation: Listenable.merge([_errorAnimCtrl, _errorWobbleCtrl]),
-
-    builder: (context, child) {
-    return Opacity(
-    opacity: _errorOpacity.value,
-
-    child: Center(
-    child: ScaleTransition(
-    scale: _errorScale,
-
-    child: Transform.translate(
-    offset: Offset(_errorShakeX.value, 0),
-
-    child: Transform.rotate(
-    angle: _errorRotate.value,
-
-    child: Container(
-    padding: const EdgeInsets.all(18),
-
-    decoration: BoxDecoration(
-    shape: BoxShape.circle,
-
-    color: Colors.white.withOpacity(0.9),
-    ),
-
-    child: Image.asset(
-    "assets/icons/yellow_error.png",
-
-    width: 100.w,
-
-    height: 100.h,
-    ),
-    ),
-    ),
-    ),
-    ),
-    ),
-    );
-    },
-    ),
-    ),
-    ],
-    ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/BreathPage.dart';
 
 import '../../../../core/storage/level_state.dart';
+import '../../games/breath_game/breath_game.dart';
 import 'CameraPage.dart';
 
 class StartTextPage extends StatefulWidget {
@@ -150,9 +150,7 @@ class _StartTextPageState extends State<StartTextPage> {
 
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => BreathPage(data: widget.data),
-                          ),
+                          MaterialPageRoute(builder: (context) => BreathPage()),
                         );
                       }
                     },

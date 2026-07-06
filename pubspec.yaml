@@ -133,6 +133,9 @@ flutter:
     - assets/sound/paint/
     - assets/game/paint/
     - assets/backround/paint/
+    - assets/backround/cooking/
+    - assets/sound/cooking/
+    - assets/game/cooking/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

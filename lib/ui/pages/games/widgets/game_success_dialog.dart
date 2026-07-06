@@ -39,7 +39,7 @@ class GameSuccessDialog extends StatelessWidget {
             ),
 
             Text(
-              "Tabriklaymiz",
+              "Tabriklayman",
               style: GoogleFonts.nunito(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w900,
@@ -50,7 +50,7 @@ class GameSuccessDialog extends StatelessWidget {
             SizedBox(height: 10.h),
 
             Text(
-              "O'yinni muvaffaqiyatli yakunladingiz!\n +$earnedScore Ball",
+              "O'yinni muvaffaqiyatli yakunlading!\n +$earnedScore Ball",
               style: GoogleFonts.nunito(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w500,

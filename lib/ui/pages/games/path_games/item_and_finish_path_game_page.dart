@@ -498,7 +498,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                             : IafpWidget(
                                 key: _iafpKey,
                                 pathConfig: PathConfig.fromJson(level1),
-                                image: "assets/game/tiger.png",
+                                image: "assets/game/paint/tiger.png",
                                 sound: "Rrrra",
                                 isLocked: _startPainting,
                                 onFinished: _onPathFinished,

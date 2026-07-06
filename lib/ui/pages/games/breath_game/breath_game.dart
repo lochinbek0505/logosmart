@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:lottie/lottie.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
+import '../widgets/game_success_dialog.dart';
 
 // {
 // "start_voice":"assets/sound/breath/breath_start.mp3",
@@ -104,10 +103,8 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   Future<void> _initPage() async {
     // 1. Ovoz to'liq tugashini kuzatamiz
     _audioCompleteSub = _audioPlayer.onPlayerComplete.listen((_) async {
-      // Keyingi ovozlarda (kapalak uchganda) bu mantiq takrorlanmasligi uchun obunani bekor qilamiz
       _audioCompleteSub?.cancel();
 
-      // 2. Ovoz tugagach, 1 soniya kutamiz
       await Future.delayed(const Duration(seconds: 1));
 
       // 3. Mikrofon ruxsatini so'raymiz
@@ -161,7 +158,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
       _ball += 10;
     });
 
-    // 1. Muvaffaqiyatli ovozni chalish (asset yo'lini o'zingizdagi faylga moslang)
+    // 1. Muvaffaqiyatli ovozni chalish
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
     // 2. Bolalarga mos, qiziqarli dialog ko'rsatish
@@ -170,94 +167,14 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     showDialog(
       context: context,
       barrierDismissible: false,
-      // Ekranning chetini bosganda yopilib ketmasligi uchun
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24.r),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Yutuq animatsiyasi (masalan: mushakbozlik, yulduzchalar yoki tabriklayotgan belgi)
-                Lottie.asset(
-                  'assets/animation/success.json',
-                  // O'zingizdagi Lottie fayl nomiga almashtiring
-                  width: 120.w,
-                  height: 120.h,
-                  repeat: false,
-                ),
-
-                Text(
-                  "Tabriklaymiz",
-                  style: GoogleFonts.nunito(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w900,
-
-                    color: AppColors.sky_blue_900,
-                  ),
-                ),
-
-                SizedBox(height: 10.h),
-
-                Text(
-                  "O\'yinni muvaffaqiyatli yakunladingiz!\n +10 Ball",
-                  style: GoogleFonts.nunito(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.light_blue_900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                SizedBox(height: 30.h),
-
-                // Keyingi bosqichga o'tish yoki chiqish tugmasi
-                Container(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.main_blue_600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 48.w,
-                        vertical: 16.h,
-                      ),
-                      elevation: 5,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context); // Dialogni yopish
-                      Navigator.pop(
-                        context,
-                      ); // O'yin sahifasidan chiqish (yoki boshqa logikangiz)
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Davom etish",
-                          style: GoogleFonts.nunito(
-                            fontSize: 16.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        // Yaratgan widgetimizni chaqiramiz
+        return GameSuccessDialog(
+          earnedScore: 10,
+          onContinue: () {
+            Navigator.pop(context); // Dialogni yopish
+            Navigator.pop(context); // O'yin sahifasidan chiqish
+          },
         );
       },
     );
@@ -296,7 +213,6 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
       print(
         "Blow duration: ${blowDuration.inMilliseconds} ms, Blow count: $_breathCount",
       );
-
     } else {
       // Ovoz pasaysa (uzilib qolsa), taymerni nollaymiz (oraga qisqa shovqin tushgan bo'lsa bekor qilinadi)
       _blowStartTime = null;

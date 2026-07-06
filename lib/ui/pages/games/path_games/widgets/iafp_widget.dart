@@ -1,15 +1,26 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widget.dart'; // Sizning path_config faylingiz
+import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widget.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 
 import 'dashed_path_painter.dart';
 
 class IafpWidget extends StatefulWidget {
   final PathConfig pathConfig;
+  final String image;
+  final String sound;
+  final bool isLocked;
+  final VoidCallback? onFinished;
 
-  const IafpWidget({super.key, required this.pathConfig});
+  const IafpWidget({
+    super.key,
+    required this.pathConfig,
+    required this.image,
+    required this.sound,
+    this.isLocked = false,
+    this.onFinished,
+  });
 
   @override
   State<IafpWidget> createState() => _IafpWidgetState();
@@ -21,6 +32,7 @@ class _IafpWidgetState extends State<IafpWidget> {
   PathMetric? _pathMetric;
   Offset _currentPosition = Offset.zero;
   Size? _widgetSize;
+  bool _hasCalledFinished = false;
 
   void _initPath(Size size) {
     final path = widget.pathConfig.buildPath(size);
@@ -40,37 +52,39 @@ class _IafpWidgetState extends State<IafpWidget> {
     _widgetSize = size;
   }
 
-  // Yaxshilangan barmoq harakati mantig'i
   void _onPanUpdate(DragUpdateDetails details) {
-    if (_pathMetric == null) return;
+    if (widget.isLocked || _pathMetric == null) return;
 
-    // 1. Qahramonning hozirgi turgan nuqtasidagi yo'nalish vektorini (tangent) olamiz
     final currentTangent = _pathMetric!.getTangentForOffset(
       _pathMetric!.length * _progress,
     );
 
     if (currentTangent == null) return;
 
-    // 2. Skalyar ko'paytma (Dot Product):
-    // Barmoq siljishi (delta) ni yo'lning shu joydagi yo'nalishiga (vector) ko'paytiramiz.
-    // Agar barmoq yo'l bo'ylab tortilsa natija musbat (oldinga), teskari tortilsa manfiy (orqaga) bo'ladi.
     double dotProduct = (details.delta.dx * currentTangent.vector.dx) +
         (details.delta.dy * currentTangent.vector.dy);
 
-    // 3. Olingan masofani yo'lning umumiy uzunligiga bo'lib, progress delta'sini topamiz
     double deltaProgress = dotProduct / _pathMetric!.length;
 
     setState(() {
-      // 1.5 - bu harakatlanish sezgirligi (tezligi). O'zingizga qarab o'zgartirishingiz mumkin.
       _progress += deltaProgress * 1.5;
-      _progress = _progress.clamp(0.0, 1.0); // Obyekt yo'ldan chiqib ketmasligi uchun
+      _progress = _progress.clamp(0.0, 1.0);
 
-      // 4. Progress o'zgargandan keyingi yangi joylashuvni yangilaymiz
       final newTangent = _pathMetric!.getTangentForOffset(
         _pathMetric!.length * _progress,
       );
       if (newTangent != null) {
         _currentPosition = newTangent.position;
+      }
+
+      // 2. Oxiriga 90% (0.90) yetganini tekshirish
+      if (_progress >= 0.90 && !_hasCalledFinished) {
+        _hasCalledFinished = true;
+        if (widget.onFinished != null) {
+          widget.onFinished!();
+        }
+      } else if (_progress < 0.90) {
+        _hasCalledFinished = false;
       }
     });
   }
@@ -88,14 +102,11 @@ class _IafpWidgetState extends State<IafpWidget> {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            // 1. Chiziq
             if (_path != null)
               CustomPaint(
                 size: size,
                 painter: DashedPathPainter(path: _path!),
               ),
-
-            // 2. Harakatlanuvchi qahramon
             Positioned(
               left: _currentPosition.dx - 45.w,
               top: _currentPosition.dy - 60.h,
@@ -124,7 +135,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                           child: Padding(
                             padding: EdgeInsets.only(top: 5.0.h, left: 3.w),
                             child: Text(
-                              "Rrr-Rrr",
+                              widget.sound,
                               style: TextStyle(
                                 color: AppColors.sky_blue_900,
                                 fontWeight: FontWeight.bold,

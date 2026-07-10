@@ -7,6 +7,7 @@ import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart'
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/games/breath_game/breath_game.dart';
 import 'package:logosmart/ui/pages/games/cooking/cooking_page.dart';
+import 'package:logosmart/ui/pages/games/hand_game/hand_game_page.dart';
 import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
@@ -93,10 +94,10 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return CookingPage();
+          return HandGamePage();
         }
 
-        return CookingPage();
+        return HandGamePage();
       },
     );
   }

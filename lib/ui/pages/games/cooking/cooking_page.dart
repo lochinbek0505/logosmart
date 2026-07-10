@@ -4,7 +4,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../theme/app_colors.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../widgets/game_success_dialog.dart';
 
@@ -54,6 +53,7 @@ class CookingPage extends StatefulWidget {
   @override
   State<CookingPage> createState() => _CookingPageState();
 }
+
 class _CookingPageState extends State<CookingPage>
     with TickerProviderStateMixin {
   int _ball = 20;
@@ -117,8 +117,8 @@ class _CookingPageState extends State<CookingPage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
   }
 
   Future<void> initPage() async {
@@ -157,7 +157,8 @@ class _CookingPageState extends State<CookingPage>
 
   Future<void> _processAcceptedItem(Map<String, dynamic> item) async {
     setState(() {
-      _activeVoiceItemId = 'success'; // Qizcha yeyotganda boshqa narsalarni qulflash
+      _activeVoiceItemId =
+          'success'; // Qizcha yeyotganda boshqa narsalarni qulflash
       _isRecording = false;
       _pulseController.stop();
       _bounceController.stop();
@@ -269,7 +270,10 @@ class _CookingPageState extends State<CookingPage>
                     scale: isBeingEaten ? 0.0 : 1.0,
                     child: IgnorePointer(
                       // SHU YERDA QULF: Ovoz tugamaguncha boshqa elementlarni ushlab bo'lmaydi
-                      ignoring: !_isDragEnabled || (_activeVoiceItemId != null && _activeVoiceItemId != item['id']),
+                      ignoring:
+                          !_isDragEnabled ||
+                          (_activeVoiceItemId != null &&
+                              _activeVoiceItemId != item['id']),
                       child: Draggable<Map<String, dynamic>>(
                         data: item,
                         onDragStarted: () async {
@@ -287,8 +291,14 @@ class _CookingPageState extends State<CookingPage>
 
                           // Bir-biriga ustma-ust tushib qolmasligi uchun stop() chaqiramiz
                           await _audioPlayer.stop();
-                          _audioPlayer.play(AssetSource(
-                              item['sound'].toString().replaceFirst('assets/', '')));
+                          _audioPlayer.play(
+                            AssetSource(
+                              item['sound'].toString().replaceFirst(
+                                'assets/',
+                                '',
+                              ),
+                            ),
+                          );
                           _startFakeRecording();
                         },
                         onDragEnd: (details) {
@@ -311,7 +321,8 @@ class _CookingPageState extends State<CookingPage>
                           width: 85.w,
                           height: 85.h,
                         ),
-                      ),                    ),
+                      ),
+                    ),
                   ),
                 );
               }),
@@ -329,7 +340,9 @@ class _CookingPageState extends State<CookingPage>
                       duration: const Duration(milliseconds: 200),
                       transform: Matrix4.identity()
                         ..scale(
-                          candidateData.isNotEmpty || _isGirlEating ? 1.05 : 1.0,
+                          candidateData.isNotEmpty || _isGirlEating
+                              ? 1.05
+                              : 1.0,
                         ),
                       transformAlignment: Alignment.bottomCenter,
                       child: Image.asset(

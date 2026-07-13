@@ -5,6 +5,7 @@ class TargetNode {
   final String letter;
   final Color color;
   final double angle;
-
-  TargetNode(this.id, this.letter, this.color, this.angle);
+  final String sound;
+  final String text;
+  TargetNode(this.id, this.letter, this.color, this.angle, this.sound, this.text);
 }

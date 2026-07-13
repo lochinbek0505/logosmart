@@ -23,7 +23,6 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
         child: Column(
           children: [
             SizedBox(height: 10.h),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(

@@ -139,6 +139,9 @@ flutter:
     - assets/game/hand_game/
     - assets/backround/hand_game/
     - assets/sound/hand_game/
+    - assets/sound/arrow/
+    - assets/backround/arrow/
+    - assets/game/arrow/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

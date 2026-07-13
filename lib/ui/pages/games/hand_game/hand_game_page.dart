@@ -42,32 +42,32 @@ class _HandGamePageState extends State<HandGamePage> {
       },
       {
         "box_image": "assets/game/hand_game/box_3.png",
-        "hand_game": "assets/game/hand_game/hand_3.png",
+        "hand_game": "assets/game/hand_game/face_1.png",
         "isOpen": false,
       },
       {
         "box_image": "assets/game/hand_game/box_4.png",
-        "hand_game": "assets/game/hand_game/hand_4.png",
+        "hand_game": "assets/game/hand_game/lib_3.png",
         "isOpen": false,
       },
     ];
     initPage();
   }
-  void _gameEnd() {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return GameSuccessDialog(
-            earnedScore: 10,
-            onContinue: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          );
-        },
-      );
 
+  void _gameEnd() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return GameSuccessDialog(
+          earnedScore: 10,
+          onContinue: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   Future<void> initPage() async {
@@ -114,7 +114,7 @@ class _HandGamePageState extends State<HandGamePage> {
 
       // Sahifadan chiqib ketmaganimizga ishonch hosil qilamiz
       if (mounted) {
-       _gameEnd();
+        _gameEnd();
       }
     }
   }
@@ -133,7 +133,7 @@ class _HandGamePageState extends State<HandGamePage> {
         height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/backround_xira.png"),
+            image: AssetImage("assets/backround/fon_q.png"),
             fit: BoxFit.fill,
           ),
         ),
@@ -152,7 +152,8 @@ class _HandGamePageState extends State<HandGamePage> {
                   width: 300.h,
                   height: 300.h,
                   child: GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(), // O'z-o'zidan scroll bo'lib ketmasligi uchun
+                    physics: const NeverScrollableScrollPhysics(),
+                    // O'z-o'zidan scroll bo'lib ketmasligi uchun
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10.w,
@@ -164,13 +165,18 @@ class _HandGamePageState extends State<HandGamePage> {
 
                       return GestureDetector(
                         onTap: () => _onItemTap(index),
-                        child: SizedBox(
+                        child: Container(
                           width: 120.h,
                           height: 120.h,
+                          decoration: BoxDecoration(
+                            color: item["isOpen"] ? Colors.white : Colors.transparent,
+                            borderRadius: BorderRadius.circular(25.r),
+                          ),
                           // Animatsiya uchun AnimatedSwitcher
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 500),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
+                            transitionBuilder: (Widget child,
+                                Animation<double> animation) {
                               // Chiroyli kattalashish va paydo bo'lish animatsiyasi
                               return ScaleTransition(
                                 scale: animation,

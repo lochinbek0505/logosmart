@@ -41,34 +41,34 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       0,
       "A",
       AppColors.orange_400,
-      -150,
-      "assets/sound/arrow/AGGGG.mp3",
-      "AGGG",
+      -180,
+      "assets/sound/arrow/ar.mp3",
+      "aarr",
     ),
     TargetNode(
       1,
       "O",
       AppColors.green_600,
       -90,
-      "assets/sound/arrow/OLLL.mp3",
-      "OLLL",
+      "assets/sound/arrow/ORRRR.mp3",
+      "oorr",
     ),
     TargetNode(
       2,
       "U",
       AppColors.pink_400,
-      -30,
-      "assets/sound/arrow/ULLL.mp3",
-      "ULLL",
+      0,
+      "assets/sound/arrow/ur.mp3",
+      "uurr",
     ),
-    TargetNode(
-      3,
-      "I",
-      const Color(0xFFF2C860),
-      30,
-      "assets/sound/arrow/ILLL.Lmp3",
-      "ILLLL",
-    ),
+    // TargetNode(
+    //   3,
+    //   "I",
+    //   const Color(0xFFF2C860),
+    //   30,
+    //   "assets/sound/arrow/ir.mp3",
+    //   "iirr",
+    // ),
     TargetNode(
       4,
       "E",
@@ -77,19 +77,21 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       "assets/sound/arrow/ERRR.mp3",
       "ERRR",
     ),
-    TargetNode(
-      5,
-      "O'",
-      AppColors.red_300,
-      150,
-      "assets/sound/arrow/O'LL.mp3",
-      "O'LL",
-    ),
+    // TargetNode(
+    //   5,
+    //   "O'",
+    //   AppColors.red_300,
+    //   150,
+    //   "assets/sound/arrow/o1r.mp3",
+    //   "o'r",
+    // ),
   ];
+
+
 
   Map<int, int> connectedLines = {};
 
-  int _ball = 20; // Boshlang'ich ball
+  int _ball = 20;
   bool _isRecording = false;
   bool _isLoading = false;
   String? _recordedFilePath;
@@ -230,28 +232,30 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   }
 
   bool _checkVoiceMatch(String recognizedText, String targetText) {
-    String cleanRecognized = recognizedText.toLowerCase().replaceAll(
-      RegExp(r'[^a-z]'),
-      '',
-    );
-    String cleanTarget = targetText.toLowerCase().replaceAll(
-      RegExp(r'[^a-z]'),
-      '',
-    );
-
+    // 1. Probel va ortiqcha belgilarni olib tashlaymiz.
+    // O'zbek tilidagi O' va G' uchun tutuq belgisi (') ni ham qoldiramiz.
+    String cleanRecognized = recognizedText.toLowerCase().replaceAll(RegExp(r"[^a-z']"), "");
+    String cleanTarget = targetText.toLowerCase().replaceAll(RegExp(r"[^a-z']"), "");
+    print("Clean Recognized: $cleanRecognized, Clean Target: $cleanTarget");
     if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
 
+    // 2. Target matndan qolib (pattern) yasaymiz
+    // Masalan: Target "arrr" bo'lsa, u "a+r+" qolipiga aylanadi.
     String patternString = "";
     for (int i = 0; i < cleanTarget.length; i++) {
+      // Faqat yonma-yon takrorlanmagan harflarni olamiz
       if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
+        // Har bir harf orqasiga "+" qo'shamiz (ma'nosi: shu harfdan 1 ta yoki undan ko'p bo'lsin)
         patternString += "${cleanTarget[i]}+";
       }
     }
 
+    // 3. Tizim eshitgan matnni shu qolibga solib tekshiramiz
     RegExp regExp = RegExp(patternString);
+
+    // .hasMatch() agar matn ichida biz yasagan qolib (masalan "a+r+") topilsa true qaytaradi.
     return regExp.hasMatch(cleanRecognized);
   }
-
   void _handleWrongAnswer() async {
     _showSnackbar("Xato eshitildi, qayta urinib ko'ring!", Colors.red);
     // Agar xato javob uchun alohida audio bo'lsa:
@@ -416,12 +420,12 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 outerNodes[index].angle,
                               );
                               return Positioned(
-                                left: pos.dx - 18.w,
+                                left: pos.dx - 12.w,
                                 // 36 / 2
-                                top: pos.dy - 18.w,
-                                width: 36.w,
+                                top: pos.dy - 15.w,
+                                width: 30.w,
                                 // Aniq o'lcham
-                                height: 36.w,
+                                height: 30.w,
                                 // Aniq o'lcham
                                 child: Container(
                                   decoration: const BoxDecoration(

@@ -142,6 +142,9 @@ flutter:
     - assets/sound/arrow/
     - assets/backround/arrow/
     - assets/game/arrow/
+    - assets/sound/puzzle_game/
+    - assets/backround/puzzle_game/
+    - assets/game/puzzle_game/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

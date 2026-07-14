@@ -57,7 +57,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                     child: CircleAvatar(
                       radius: 30,
                       backgroundImage: AssetImage(
-                          "assets/icons/circle_bad.png",
+                        "assets/icons/circle_bad.png",
                       ),
                     ),
                   ),
@@ -84,7 +84,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
                   child: Container(
                     width: 44.w,
-                    height: 56.w, // Kvadratga yaqin shakl
+                    height: 56.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12.r),
@@ -101,15 +101,12 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
 
             SizedBox(height: 30.h),
 
-
-
             SizedBox(height: 30.h),
           ],
         ),
       ),
     );
   }
-
 
   Widget _buildKeyboard() {
     return Column(
@@ -170,5 +167,4 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
       child: Icon(icon, color: Colors.white, size: 20.sp),
     );
   }
-
 }

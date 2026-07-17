@@ -3,16 +3,17 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
+import '../widgets/game_success_dialog.dart';
 
-// 1. JSON Modeli
 class PuzzlePieceData {
   final String id;
   final int pairId;
   final Color color;
   final bool isTop;
-  String currentSide; // 'left' yoki 'right'
+  String currentSide;
   final String image;
   final String sound;
 
@@ -40,7 +41,7 @@ class PuzzlePieceData {
 }
 
 // O'yin bosqichlari
-enum GamePhase { idle, checking, error, resolvingMatch }
+enum GamePhase { starting, idle, checking, error, resolvingMatch }
 
 class PuzzleGameWidget extends StatefulWidget {
   const PuzzleGameWidget({super.key});
@@ -49,24 +50,28 @@ class PuzzleGameWidget extends StatefulWidget {
   State<PuzzleGameWidget> createState() => _PuzzleGameWidgetState();
 }
 
-const String _backImage = "assets/backround/puzzle_game/puzzle_back_3.jpg";
+const String _backImage = "assets/backround/puzzle_game/puzzle_back_4.jpg";
 const String _backBtn = "assets/icons/arrow_right_button.png";
+
+// Lottie animatsiya fayllari
+const String _correctAnim = "assets/animation/correct.json";
+const String _incorrectAnim = "assets/animation/xato.json";
 
 class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
   List<PuzzlePieceData> pieces = [
     PuzzlePieceData(
       id: "t1",
       pairId: 1,
-      color: Color(0xFFFFFFFF),
+      color: const Color(0xFFFFFFFF),
       isTop: true,
       currentSide: "left",
-      image: "assets/game/puzzle_game/puzzle_1_game_1.png",
-      sound: "assets/sound/puzzle_game/daraxtlar.mp3",
+      image: "assets/game/puzzle_game/puzzle_1_game_3.png",
+      sound: "assets/sound/puzzle_game/ari.mp3",
     ),
     PuzzlePieceData(
       id: "t2",
       pairId: 2,
-      color: Color(0xFFFFFFFF),
+      color: const Color(0xFFFFFFFF),
       isTop: true,
       currentSide: "right",
       image: "assets/game/puzzle_game/puzzle_1_game_4.png",
@@ -75,42 +80,64 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     PuzzlePieceData(
       id: "b1",
       pairId: 2,
-      color: Color(0xFFFFFFFF),
+      color: const Color(0xFFFFFFFF),
       isTop: false,
       currentSide: "left",
-      image: "assets/game/puzzle_game/puzzle_1_game_3.png",
-      sound: "assets/sound/puzzle_game/ari.mp3",
+      image: "assets/game/puzzle_game/puzzle_1_game_1.png",
+      sound: "assets/sound/puzzle_game/daraxtlar.mp3",
     ),
     PuzzlePieceData(
       id: "b2",
       pairId: 1,
-      color: Color(0xFFFFFFFF),
+      color: const Color(0xFFFFFFFF),
       isTop: false,
       currentSide: "right",
       image: "assets/game/puzzle_game/puzzle_1_game_2.png",
       sound: "assets/sound/puzzle_game/arilar.mp3",
     ),
   ];
+
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   PuzzlePieceData? selectedTop;
   PuzzlePieceData? selectedBottom;
 
-  List<int> matchedPairIds = []; // Topilgan juftliklar ID lari
-  GamePhase _phase = GamePhase.idle;
+  List<int> matchedPairIds = [];
+  GamePhase _phase = GamePhase.starting;
+
+  bool _showCorrectAnim = false;
+  bool _showIncorrectAnim = false;
 
   final String puzzleImage = 'assets/game/puzzle_game/puzzle.png';
+
+  int get _totalPairs => pieces.where((p) => p.isTop).length;
 
   @override
   void initState() {
     super.initState();
+    _playStartSequence();
   }
 
-  // Pazzl bosilganda ishlaydi
-  void _onPieceTap(PuzzlePieceData piece)async {
-    // Agar animatsiya ketayotgan bo'lsa yoki allaqachon topilgan bo'lsa, teginishni bekor qilish
-    if (_phase != GamePhase.idle || matchedPairIds.contains(piece.pairId))
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  Future<void> _playStartSequence() async {
+    await _playAudioAndWait("assets/sound/puzzle_game/puzzle_start_1.mp3");
+    if (mounted) {
+      setState(() {
+        _phase = GamePhase.idle;
+      });
+    }
+  }
+
+  void _onPieceTap(PuzzlePieceData piece) async {
+    if (_phase != GamePhase.idle || matchedPairIds.contains(piece.pairId)) {
       return;
+    }
+
     setState(() {
       if (piece.isTop) {
         selectedTop = selectedTop == piece ? null : piece;
@@ -118,12 +145,14 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
         selectedBottom = selectedBottom == piece ? null : piece;
       }
     });
+
     await _playAudioAndWait(piece.sound);
 
     if (selectedTop != null && selectedBottom != null) {
       _checkMatch();
     }
   }
+
   Future<void> _playAudioAndWait(String path) async {
     final completer = Completer<void>();
     StreamSubscription<void>? subscription;
@@ -135,72 +164,112 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
+    try {
+      await _audioPlayer.play(AssetSource(cleanPath));
+    } catch (e) {
+      if (!completer.isCompleted) completer.complete();
+    }
     return completer.future;
   }
+
   Future<void> _checkMatch() async {
     setState(() {
-      _phase = GamePhase.checking; // Markazga uchishni boshlash
+      _phase = GamePhase.checking;
     });
 
-    // Markazga borib birlashishi uchun kutish
-    // await Future.delayed(const Duration(milliseconds: 600));
+    // Qismlar vertikal birlashishini kutamiz
+    await Future.delayed(const Duration(milliseconds: 600));
 
     if (!mounted) return;
 
     // === TO'G'RI TOPILDI ===
     if (selectedTop!.pairId == selectedBottom!.pairId) {
-      await _playAudioAndWait("assets/sound/success.mp3");
       setState(() {
         _phase = GamePhase.resolvingMatch;
+        _showCorrectAnim = true;
       });
 
-      // Markazda qisqa vaqt birlashib turishini ko'rsatish
-      // await Future.delayed(const Duration(milliseconds: 400));
+      await Future.wait([
+        _playAudioAndWait("assets/sound/success.mp3"),
+        Future.delayed(const Duration(milliseconds: 1100)),
+      ]);
+
       if (!mounted) return;
 
       setState(() {
+        _showCorrectAnim = false;
         matchedPairIds.add(selectedTop!.pairId);
 
-        // Tanlangan ustunni aniqlaymiz (masalan, chap tomon bo'lsa)
+        // Tanlangan ustun qaysi tomonda ekanini topamiz
         String targetSide = selectedTop!.currentSide;
         String oppositeSide = targetSide == 'left' ? 'right' : 'left';
 
-        // 1. Topilgan juftliklarni tanlangan tomonga yuboramiz
         selectedTop!.currentSide = targetSide;
         selectedBottom!.currentSide = targetSide;
 
-        // 2. Qolgan ochiq juftliklarni qarama-qarshi tomonga suramiz
+        // Qolgan topilmagan qismlarni ikkinchi ustunga o'tkazamiz (grid buzilmasligi uchun)
         for (var p in pieces) {
           if (!matchedPairIds.contains(p.pairId)) {
             p.currentSide = oppositeSide;
           }
         }
 
-        // Holatni tozalash
         selectedTop = null;
         selectedBottom = null;
         _phase = GamePhase.idle;
       });
+
+      _maybeShowGameFinishedDialog();
     }
-
+    // === XATO TOPILDI ===
     else {
-
       setState(() {
         _phase = GamePhase.error;
+        _showIncorrectAnim = true;
       });
 
-      // Xato yozuvi turish vaqti
-      await _playAudioAndWait("assets/sound/diagnostic_error.mp3");
+      await Future.wait([
+        _playAudioAndWait("assets/sound/diagnostic_error.mp3"),
+        Future.delayed(const Duration(milliseconds: 1100)),
+      ]);
+
       if (!mounted) return;
 
       setState(() {
-        // Joylariga qaytarish
+        _showIncorrectAnim = false;
         selectedTop = null;
         selectedBottom = null;
         _phase = GamePhase.idle;
       });
     }
+  }
+
+  void _maybeShowGameFinishedDialog() {
+    if (matchedPairIds.length >= _totalPairs) {
+      Future.delayed(const Duration(milliseconds: 350), () {
+        if (mounted) _gameEnd();
+      });
+    }
+  }
+
+  void _gameEnd() async {
+    await _audioPlayer.play(AssetSource('sound/success.mp3'));
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return GameSuccessDialog(
+          earnedScore: 10,
+          onContinue: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -211,15 +280,17 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     final double remainingSpace = screenWidth - (pieceWidth * 2);
     final double equalGap = remainingSpace > 0 ? remainingSpace / 3 : 0;
 
+    // X va Y koordinatalari
     final double leftColumnX = equalGap;
     final double rightColumnX = screenWidth - equalGap - pieceWidth;
-    final double centerColumnX = (screenWidth - pieceWidth) / 2;
 
     final double topUnmergedY = 200.h;
-    final double topMergedY = 160.h;
     final double bottomUnmergedY = 420.h;
-    final double bottomMergedY = 270.h;
-    final double mergedGapY = bottomMergedY - topMergedY;
+
+    // Tepa va pastki qism aynan o'rtada vertikal birlashishi uchun Y masofalari
+    // Original kodingizdagi farq 110.h edi (270 - 160). Shu farqni saqlaymiz:
+    final double topMergedY = 255.h;
+    final double bottomMergedY = 365.h;
 
     return Scaffold(
       body: Container(
@@ -231,76 +302,56 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
         ),
         child: Stack(
           children: [
-            // 1. HEADER (Tepada joylashadi)
             Positioned(
-              top:
-                  MediaQuery.of(context).padding.top +
-                  10.h, // Status bardan pastroqda
+              top: MediaQuery.of(context).padding.top + 10.h,
               left: 0,
               right: 0,
               child: _buildHeader(),
             ),
 
-            // Pazzl qismlari
             ...pieces.map((piece) {
               return _buildAnimatedPiece(
                 piece: piece,
                 leftColumnX: leftColumnX,
                 rightColumnX: rightColumnX,
-                centerColumnX: centerColumnX,
                 topUnmergedY: topUnmergedY,
-                topMergedY: topMergedY,
                 bottomUnmergedY: bottomUnmergedY,
+                topMergedY: topMergedY,
                 bottomMergedY: bottomMergedY,
-                mergedGapY: mergedGapY,
               );
             }),
 
-            // 2. MIKROFON (Pastki markazda joylashadi)
-            Positioned(
-              bottom: 24.h, // Pastdan biroz teparoqda
-              left: 0,
-              right: 0,
-              child: Center(
-                child: CircleAvatar(
-                  radius: 40.r,
-                  backgroundImage: const AssetImage("assets/icons/circle.png"),
-                  child: Image.asset(
-                    "assets/icons/micrafon.png",
-                    width: 24.w,
-                    height: 32.h,
-                  ),
+            // === To'g'ri va xato lottie animatsiyalari markazda kattalashgan holatda ===
+            IgnorePointer(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _showCorrectAnim ? 1.0 : 0.0,
+                child: Center(
+                  child: _showCorrectAnim
+                      ? Lottie.asset(
+                          _correctAnim,
+                          width: 250.w,
+                          height: 250.h,
+                          repeat: false,
+                        )
+                      : SizedBox(width: 400.w, height: 400.h),
                 ),
               ),
             ),
 
-            // XATOLIK XABARI ANIMATSIYASI
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              left: 0,
-              right: 0,
-              top: _phase == GamePhase.error
-                  ? (topMergedY + bottomMergedY) / 2
-                  : (topMergedY + bottomMergedY) / 2 + 50.h,
+            IgnorePointer(
               child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: _phase == GamePhase.error ? 1.0 : 0.0,
-                child: const Center(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Chip(
-                      backgroundColor: Colors.redAccent,
-                      label: Text(
-                        "Xato juftlik!",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ),
+                duration: const Duration(milliseconds: 200),
+                opacity: _showIncorrectAnim ? 1.0 : 0.0,
+                child: Center(
+                  child: _showIncorrectAnim
+                      ? Lottie.asset(
+                          _incorrectAnim,
+                          width: 250.w,
+                          height: 250.h,
+                          repeat: false,
+                        )
+                      : SizedBox(width: 400.w, height: 400.h),
                 ),
               ),
             ),
@@ -314,67 +365,88 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     required PuzzlePieceData piece,
     required double leftColumnX,
     required double rightColumnX,
-    required double centerColumnX,
     required double topUnmergedY,
-    required double topMergedY,
     required double bottomUnmergedY,
+    required double topMergedY,
     required double bottomMergedY,
-    required double mergedGapY,
   }) {
     final bool isSelected = piece == selectedTop || piece == selectedBottom;
     final bool isMatched = matchedPairIds.contains(piece.pairId);
-    final bool isChecking =
-        _phase == GamePhase.checking || _phase == GamePhase.error;
+    final bool isCheckingPhase =
+        _phase == GamePhase.checking ||
+        _phase == GamePhase.resolvingMatch ||
+        _phase == GamePhase.error;
 
-    // Tanlanmagan va topilmagan qismlarni xiralashtirish
-    final bool isOtherFade = isChecking && !isSelected && !isMatched;
+    final bool isOtherFade = isCheckingPhase && !isSelected && !isMatched;
 
-    // X O'qi hisobi
-    double targetX = piece.currentSide == 'left' ? leftColumnX : rightColumnX;
-    if (isSelected && isChecking) {
-      targetX = centerColumnX; // Tanlanganlar markazga keladi
+    double currentScale = 1.0;
+    double currentRotation = 0.0;
+
+    // Animatsiya holatlari (Hajmi o'zgarmasdan turadi)
+    if (isSelected) {
+      if (_phase == GamePhase.idle) {
+        currentScale = 1.08;
+      } else if (_phase == GamePhase.checking) {
+        currentScale = 1.0; // Tekshirilayotganda asl holatiga qaytadi
+      } else if (_phase == GamePhase.resolvingMatch) {
+        currentScale = 1.1; // Topilganda sal kattalashib "pop" effekti beradi
+      } else if (_phase == GamePhase.error) {
+        currentScale = 1.0;
+        currentRotation = piece.isTop ? -0.05 : 0.05; // Xatoda qiyshayadi
+      }
     }
 
-    // Y O'qi hisobi
-    double targetY;
-    if (isSelected && isChecking) {
-      // Markazga kelganda birlashadi
-      targetY = piece.isTop ? topMergedY : bottomMergedY;
-    } else if (isMatched) {
-      // Topilgan bo'lsa, tepadagi qism va pastdagi qism birlashgan holatda joylashadi
-      targetY = piece.isTop ? topUnmergedY : topUnmergedY + mergedGapY;
+    // --- JOYLASHTIRISH KOORDINATALARINI HISBLASH ---
+
+    // 1. X O'qi (Yonma-yon emas, aynan chap yoki o'ng ustunni tanlash)
+    double targetX;
+    if (isSelected && isCheckingPhase) {
+      // Tanlangan qismlar har doim tepadagi qism joylashgan ustunga kelib birlashadi
+      targetX = selectedTop!.currentSide == 'left' ? leftColumnX : rightColumnX;
     } else {
-      // Odatiy (ochiq) joylashuv
+      // Topilgan yoki tinch holatda o'z ustunida (gridda) turadi
+      targetX = piece.currentSide == 'left' ? leftColumnX : rightColumnX;
+    }
+
+    // 2. Y O'qi (Tepa-past, ya'ni Vertikal birlashish)
+    double targetY;
+    if ((isSelected && isCheckingPhase) || isMatched) {
+      // Birlashayotgan va Topib bo'linganlar vertikal yopishgan holda turadi
+      targetY = piece.isTop ? topMergedY : bottomMergedY;
+    } else {
+      // Hali topilmaganlar o'z joyida tarqoq turadi
       targetY = piece.isTop ? topUnmergedY : bottomUnmergedY;
     }
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 600),
-      curve: Curves.easeInOut,
+      curve: Curves.elasticOut,
       left: targetX,
       top: targetY,
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 400),
-        opacity: isOtherFade ? 0.2 : 1.0,
+        opacity: isOtherFade ? 0.3 : 1.0,
         child: GestureDetector(
           onTap: () => _onPieceTap(piece),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            // Pazzl tanlanib juftini kutayotganda ozgina kattalashadi
-            transform: Matrix4.identity()
-              ..scale(isSelected && _phase == GamePhase.idle ? 1.08 : 1.0),
-            transformAlignment: Alignment.center,
-            child: Container(
-              width: 180.w,
-              height: 180.h,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(puzzleImage),
-                  fit: BoxFit.contain,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.bounceOut,
+            scale: currentScale,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: 300),
+              turns: currentRotation,
+              child: Container(
+                width: 180.w,
+                height: 180.h,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(puzzleImage),
+                    fit: BoxFit.contain,
+                  ),
                 ),
+                child: Image.asset(piece.image, scale: 8.w),
               ),
-              child: Image.asset(piece.image, scale: 8.w),
             ),
           ),
         ),
@@ -382,17 +454,10 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     );
   }
 
-  // Image.asset(
-  // puzzleImage,
-  // width: 180.w,
-  // height: 180.h,
-  // // color: piece.color,
-  // fit: BoxFit.contain,
-  // ),
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

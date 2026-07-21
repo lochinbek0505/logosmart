@@ -50,7 +50,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       "O",
       AppColors.green_600,
       -90,
-      "assets/sound/arrow/ORRRR.mp3",
+      "assets/sound/arrow/or.mp3",
       "oorr",
     ),
     TargetNode(
@@ -74,7 +74,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       "E",
       const Color(0xFF7FD8F7),
       90,
-      "assets/sound/arrow/ERRR.mp3",
+      "assets/sound/arrow/er.mp3",
       "ERRR",
     ),
     // TargetNode(

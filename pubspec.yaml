@@ -145,6 +145,13 @@ flutter:
     - assets/sound/puzzle_game/
     - assets/backround/puzzle_game/
     - assets/game/puzzle_game/
+    - assets/sound/find_image/
+    - assets/backround/find_image/
+    - assets/game/find_image/
+    - assets/game/cloud_game/
+    - assets/backround/cloud_game/
+    - assets/sound/cloud_game/
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

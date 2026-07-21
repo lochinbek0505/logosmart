@@ -22,8 +22,6 @@ const String _succesSound = "sound/success.mp3";
 class _HandGamePageState extends State<HandGamePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  // Sahifa har safar ochilganda itemlar qaytadan yopik holatda bo'lishi uchun
-  // ro'yxatni State ichiga oldik.
   late List<Map<String, dynamic>> _handGameItems;
 
   @override

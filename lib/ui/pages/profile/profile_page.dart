@@ -7,6 +7,7 @@ import 'package:logosmart/ui/pages/profile/payment_page.dart';
 import 'package:logosmart/ui/pages/profile/profile_edit_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/profile/subscription_page.dart';
+import 'package:logosmart/ui/pages/profile/widgets/action_confirm_dialog.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -176,7 +177,82 @@ class _ProfilePageState extends State<ProfilePage> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6.w),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (dialogContext) => ActionConfirmDialog(
+                              title: "Tizimdan chiqish",
+                              content:
+                                  "Haqiqatan ham tizimdan chiqmoqchimisiz?",
+                              confirmText: "Chiqish",
+                              confirmColor: Colors.blue,
+                              // Agar xohlasangiz ko'k rang bering
+                              onConfirm: () {
+                                // Provider funksiyasini chaqirish
+                                provider.logout(context);
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 11.w),
+                          width: size.width,
+                          height: 52.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.r),
+                            color: Colors.white,
+                            border: Border.all(color: AppColors.red_200),
+                          ),
+                          child: Center(
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: AppColors.red_200,
+                                  radius: 14.r,
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.logout,
+                                      size: 16.w,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12.w),
+                                Text(
+                                  "Hisobdan chiqish ",
+                                  style: GoogleFonts.nunito(
+                                    color: AppColors.red_400,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6.w),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (dialogContext) => ActionConfirmDialog(
+                              title: "Akkauntni o'chirish",
+                              content:
+                                  "Diqqat! Akkauntni o'chirsangiz, barcha ma'lumotlaringiz tiklanmaydigan bo'lib yo'qotiladi. Davom etasizmi?",
+                              confirmText: "O'chirish",
+                              confirmColor: Colors.red,
+                              // Agar xohlasangiz ko'k rang bering
+                              onConfirm: () {
+                                // Provider funksiyasini chaqirish
+                                provider.deleteAccount(context);
+                              },
+                            ),
+                          );
+                        },
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 11.w),
                           width: size.width,

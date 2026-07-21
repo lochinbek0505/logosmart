@@ -150,8 +150,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     final index = entry.key;
                     final plan = entry.value;
                     final promoTexts = plan.promoTextsList ?? [];
-
-                    final isSelectable = currentPlanDurationDays == null
+                    var planName = provider.profileResponse.subscriptionCode;
+                    final isSelectable = currentPlanDurationDays == null ||
+                        planName =="DEFAULT"
                         ? true
                         : (plan.durationDays ?? 0) > currentPlanDurationDays!;
 
@@ -175,9 +176,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                             }
                           : () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                 SnackBar(
                                   content: Text(
-                                    "Faqat hozirgi obunadan uzoqroq (durationDays katta) reja tanlanadi.",
+                                    "Faqat hozirgi obunadan uzoqroq ($currentPlanDurationDays kundan katta) reja tanlanadi.",
                                   ),
                                   backgroundColor: Colors.orange,
                                 ),

@@ -1,16 +1,18 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:logosmart/models/avatars_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 import 'package:logosmart/models/promo_check_model.dart';
+import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/network/api_service.dart';
+import '../../../../core/storage/token_storage.dart';
 
 class ProfileProvider with ChangeNotifier {
   bool isLoading = false;
-
+  TokenStorage _tokenStorage = TokenStorage();
   PayLinkResponse _payLinkResponse = PayLinkResponse();
 
   PayLinkResponse get payLinkResponse => _payLinkResponse;
@@ -150,5 +152,55 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
     }
     return ProfileResponse();
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      bool response = await ApiService().logout(context);
+
+      if (response) {
+        await _tokenStorage.clearAll();
+
+        if (!context.mounted) return; // Context mavjudligini tekshirish
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (builder) => const LoginPage()),
+        );
+      }
+    } catch (e) {
+      debugPrint("Tizimdan chiqishda xato: $e"); // Matn to'g'irlandi
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      bool response = await ApiService().deleteAccount(context);
+
+      if (response) {
+        await _tokenStorage.clearAll();
+
+        if (!context.mounted) return; // Context mavjudligini tekshirish
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (builder) => const LoginPage()),
+        );
+      }
+    } catch (e) {
+      debugPrint("Akkauntni o'chirishda xato: $e"); // Matn to'g'irlandi
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

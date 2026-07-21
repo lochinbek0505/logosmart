@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
@@ -13,6 +14,8 @@ import 'package:logosmart/ui/pages/games/find_image_game/find_image_game_page.da
 import 'package:logosmart/ui/pages/games/hand_game/hand_game_page.dart';
 import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
 import 'package:logosmart/ui/pages/games/puzzle_game/puzzle_game_widget.dart';
+import 'package:logosmart/ui/pages/home/home_page.dart';
+import 'package:logosmart/ui/pages/main/main_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -98,10 +101,10 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return FindImageGamePage();
+          return MainPage();
         }
 
-        return FindImageGamePage();
+        return LoginPage();
       },
     );
   }

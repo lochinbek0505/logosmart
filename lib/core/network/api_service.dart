@@ -87,6 +87,56 @@ class ApiService {
       return false;
     }
   }
+  Future<bool> logout(context) async {
+    try {
+      var response = await _dio.post("auth/logout");
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+                e.response?.statusMessage ??
+                "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
+  Future<bool> deleteAccount(context) async {
+    try {
+      var response = await _dio.delete("profile/me/delete");
+
+      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            e.response?.data["message"] ??
+                e.response?.statusMessage ??
+                "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+
+      showSnakBar(context, errorMessage);
+      return false;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return false;
+    }
+  }
 
   Future<LoginModel?> login_verify(context, Map<String, dynamic> data) async {
     try {

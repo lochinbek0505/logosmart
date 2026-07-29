@@ -7,7 +7,6 @@ class VideoBox extends StatelessWidget {
   final bool isVideoError;
   final String? currentVideoPath;
   final VideoPlayerController? videoController;
-  final bool showDebugPanel;
   final VoidCallback onRetry;
 
   const VideoBox({
@@ -17,7 +16,6 @@ class VideoBox extends StatelessWidget {
     required this.isVideoError,
     required this.currentVideoPath,
     required this.videoController,
-    required this.showDebugPanel,
     required this. onRetry,
   });
 
@@ -31,7 +29,7 @@ class VideoBox extends StatelessWidget {
         border: Border.all(color: const Color(0xff20B9E8), width: 3),
         boxShadow: [
           BoxShadow(
-            color:  const Color(0xff20B9E8).withOpacity(0.3),
+            color: Colors.white,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -132,42 +130,6 @@ class VideoBox extends StatelessWidget {
           ),
         ),
 
-        if (showDebugPanel) ...[
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: VideoProgressIndicator(
-              videoController! ,
-              allowScrubbing: true,
-              colors: const VideoProgressColors(
-                playedColor: Color(0xff20B9E8),
-                bufferedColor: Colors.white30,
-                backgroundColor: Colors.white10,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            ),
-          ),
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${videoController!.value.duration.inSeconds}s',
-                style: const TextStyle(
-                  color:  Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

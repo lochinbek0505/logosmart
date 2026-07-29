@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/widgets/yolo_camera_widget.dart';
 
-import '../widgets/SuccessGifPlaceholder.dart';
+import 'SuccessGifPlaceholder.dart';
 
 class CameraBox extends StatefulWidget {
   final Size size;

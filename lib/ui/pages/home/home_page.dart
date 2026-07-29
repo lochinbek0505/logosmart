@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/alphabet_page.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';

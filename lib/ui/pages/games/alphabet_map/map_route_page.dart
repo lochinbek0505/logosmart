@@ -1,14 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/CameraPage.dart';
+import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
 import '../../../../models/level_model.dart';
-import '../../../../providers/level_provider.dart';
-import 'StartButtonPage.dart';
+import 'provider/level_provider.dart';
+import '../../main/soundpracrice/StartButtonPage.dart';
 
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
@@ -241,7 +241,6 @@ class _MapRoadBody extends StatelessWidget {
   }
 }
 
-// -------------------- VIDJETLAR (o‘zingizdagi kabi) --------------------
 
 class TiledBackground extends StatelessWidget {
   final String asset;

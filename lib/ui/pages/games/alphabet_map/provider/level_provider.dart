@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
-import '../core/storage/level_state.dart';
+import '../../../../../core/storage/level_state.dart';
 
 const String kLevelsBox = 'levelsBox';
 
@@ -18,12 +18,16 @@ final List<LevelState> kDefaultLevels = [
     exercise: ExerciseInfo(
       modelPath: 'assets/models/ochtp.tflite',
       labelsPath: 'assets/models/labels.txt',
-      mediaPath: 'assets/media/ong_chap.MP4',
+      mediaPath: 'assets/videos/models/ong_chap.mp4',
       steps: [
-        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
+        ExerciseStep(
+          text: "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
+          action: "about",
+        ),
 
         ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
-        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: 'chap'),
+
+        ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: "chap"),
       ],
     ),
   ),
@@ -32,36 +36,39 @@ final List<LevelState> kDefaultLevels = [
     stars: 0,
     locked: true,
     skin: skinSilver,
-    mode: 'exercise',
-    exercise: ExerciseInfo(
-      modelPath: 'assets/models/ogiz_lab_tish.tflite',
-      labelsPath: 'assets/models/labels_olt.txt',
-      mediaPath: 'assets/media/ogiz_lab.MP4',
-      steps: [
-        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
-        ExerciseStep(text: 'Og‘zingizni keng oching', action: 'ogiz'),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-      ],
+    mode: 'game',
+    game: GameInfo(
+      type: "breath",
+      jsonConfig: """{
+    "start_voice":"assets/sound/breath/breath_start.mp3",
+        "blow_voice":"assets/sound/breath/butterfly.mp3",
+        "lottie_animation":"assets/animation/breath/butterfly.json",
+        "background_image":"assets/backround/breath/butterfly_background.jpg",
+        "icon_star":"assets/icons/star.png",
+        "icon_arrow":"assets/icons/arrow_right_button.png",
+        "animation_position":-1.2
+    }""",
     ),
   ),
   LevelState(
     id: 3,
     stars: 0,
     locked: true,
-    skin: skinSilver,
+    skin: skinGold,
     mode: 'exercise',
     exercise: ExerciseInfo(
       modelPath: 'assets/models/ogiz_lab_tish.tflite',
-      labelsPath: 'assets/models/labels_olt.txt',
-      mediaPath: 'assets/media/tish_lab.MP4',
+      labelsPath: 'assets/models/labels.txt',
+      mediaPath: 'assets/videos/models/tish_lab.mp4',
       steps: [
-        ExerciseStep(text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring", action: "about"),
-
         ExerciseStep(
-          text: 'Og‘zingizni ochib tishlarni ko\'rsating',
-          action: 'tish',
+          text: "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
+          action: "about",
         ),
-        ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
+
+        ExerciseStep(text: 'Iltimos tishni ko‘rsating', action: "tish"),
+        ExerciseStep(text: 'Iltimos labni ko‘rsating', action: "lab"),
+
       ],
     ),
   ),

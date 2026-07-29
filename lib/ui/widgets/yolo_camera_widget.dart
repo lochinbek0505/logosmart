@@ -9,7 +9,7 @@ class YoloCameraWidget extends StatefulWidget {
     super.key,
     required this.modelPath,
     this.useGpu = true,
-    this.intervalMs = 600,
+    this.intervalMs = 450,
     required this.onDetections,
   });
 

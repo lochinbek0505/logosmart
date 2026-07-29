@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/MapRoadPage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 

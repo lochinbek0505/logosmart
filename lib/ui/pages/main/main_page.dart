@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/AlphabetPage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/alphabet_page.dart';
 import 'package:logosmart/ui/pages/main/soundpracrice/VoiceGamePage.dart';
 import 'package:logosmart/ui/pages/profile/profile_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';

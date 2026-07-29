@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:provider/provider.dart';
 
 class Custom3DButton extends StatefulWidget {

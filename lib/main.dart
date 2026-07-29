@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:logosmart/providers/level_provider.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
-import 'package:logosmart/ui/pages/games/arrow_game/arrow_game_page.dart';
-import 'package:logosmart/ui/pages/games/breath_game/breath_game.dart';
-import 'package:logosmart/ui/pages/games/cloud_game/cloud_game_page.dart';
-import 'package:logosmart/ui/pages/games/cooking/cooking_page.dart';
-import 'package:logosmart/ui/pages/games/find_image_game/find_image_game_page.dart';
-import 'package:logosmart/ui/pages/games/hand_game/hand_game_page.dart';
-import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
-import 'package:logosmart/ui/pages/games/puzzle_game/puzzle_game_widget.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
 import 'package:logosmart/ui/pages/main/main_page.dart';
+import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -87,6 +81,35 @@ class AuthChecker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    LevelState lv = LevelState(
+      id: 1,
+      stars: 0,
+      locked: false,
+      skin: skinGold,
+      mode: 'exercise',
+      exercise: ExerciseInfo(
+        modelPath: 'assets/models/ochtp.tflite',
+        labelsPath: 'assets/models/labels.txt',
+        mediaPath: 'assets/videos/models/ong_chap.mp4',
+        steps: [
+          ExerciseStep(
+            text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring",
+            action: "about",
+          ),
+
+          ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
+          ExerciseStep(text: 'Tilni pastga chiqarib ko‘rsating', action: "past"),
+
+          ExerciseStep(
+            text: 'Tilni chapga chiqarib ko‘rsating',
+            action: "chap",
+          ),
+          ExerciseStep(text: 'Tilni tepaga chiqarib ko‘rsating', action: "tepa"),
+
+        ],
+      ),
+    );
+
     return FutureBuilder<bool>(
       future: Provider.of<AuthProvider>(
         context,
@@ -101,7 +124,7 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return MainPage();
+          return MapRoadPage();
         }
 
         return LoginPage();

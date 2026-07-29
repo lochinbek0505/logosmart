@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/storage/level_state.dart';
 import '../../games/breath_game/breath_game.dart';
-import 'CameraPage.dart';
+import '../../cv_model/camera_page.dart';
 
 class StartTextPage extends StatefulWidget {
   final LevelState data;

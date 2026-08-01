@@ -68,7 +68,7 @@ final List<LevelState> kDefaultLevels = [
       ],
     ),
   ),
-  for (int i = 4; i <= 18; i++)
+  for (int i = 4; i <= 70; i++)
     LevelState(
       id: i,
       stars: 0,

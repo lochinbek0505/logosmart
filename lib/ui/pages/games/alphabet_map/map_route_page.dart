@@ -6,7 +6,6 @@ import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/level_button.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/tiled_background.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
@@ -54,27 +53,31 @@ class MapRoadPage extends StatelessWidget {
 
 class _MapRoadBody extends StatelessWidget {
   const _MapRoadBody();
-
-  // SIZNING ASL ZIK-ZAK JOYLASUVINGIZ
+// LEVEL TUGMALARI JOYLASHUVI
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
-      return [const Offset(0.5, 0.1)];
+      return [const Offset(0.5, 0.023)];
     }
-    final stepY = 0.9 / (count - 1);
-    double dx = 0.1;
-    double dir = 1;
-    final stepX = 0.30;
+
+    const startY = 0.023; // Tepadagi boshlanish qismi 2.3%
+
+    // O'ZGARISH SHU YERDA: 0.95 ni 0.99 ga o'zgartirdik
+    // Bu oxirgi level eng pastga yaqinroq (99% pastda) bo'lishini ta'minlaydi
+    final stepY = (0.99 - startY) / (count - 1);
+
+    const amplitude = 0.35;
+    const frequency = 0.8;
+    const phaseOffset = 4.0;
 
     return List.generate(count, (i) {
-      final dy = 0.05 + stepY * i;
-      final point = Offset(dx.clamp(0.05, 0.95), dy.clamp(0.05, 0.95));
-      dx += dir * stepX;
-      if (dx >= 0.9 || dx <= 0.1) dir *= -1;
-      return point;
+      final dy = startY + (stepY * i);
+
+      final dx = 0.5 + (amplitude * math.sin((i * frequency) + phaseOffset));
+
+      return Offset(dx.clamp(0.15, 0.85), dy);
     });
   }
-
-  // BO'SH JOYLAR UCHUN ANIMATSIYALAR
+  // LOTTIE ANIMATSIYALARI (Tugmalarga umuman tegmaydigan qilib sozlandi)
   List<DecorationItem> generateDecorations(List<Offset> levelPositions) {
     final List<DecorationItem> decorations = [];
     final List<String> lottieAssets = [
@@ -85,23 +88,33 @@ class _MapRoadBody extends StatelessWidget {
       'assets/animation/map/chest.json',
     ];
 
+    // Animatsiyalarni har 2 ta levelning o'rtasidagi bo'shliqqa qo'yamiz
     for (int i = 0; i < levelPositions.length - 1; i += 2) {
-      final pos = levelPositions[i];
-      double decorDx = pos.dx < 0.5
-          ? 0.75 + (math.Random().nextDouble() * 0.1)
-          : 0.15 + (math.Random().nextDouble() * 0.1);
+      final pos1 = levelPositions[i];
+      final pos2 = levelPositions[i + 1];
 
-      double decorDy = pos.dy + ((levelPositions[i + 1].dy - pos.dy) / 2);
+      // Y o'qida: Ikkita levelning qoq o'rtasidagi bo'shliqni topamiz
+      double decorDy = (pos1.dy + pos2.dy) / 2;
 
-      if(i!=0) {
-        decorations.add(
-          DecorationItem(
-            dx: decorDx,
-            dy: decorDy,
-            assetPath: lottieAssets[i % lottieAssets.length],
-          ),
-        );
+      // X o'qida: Shu oraliqdagi levellar asosan qaysi tomonda ekanini topamiz
+      double avgDx = (pos1.dx + pos2.dx) / 2;
+      double decorDx;
+
+      // Agar levellar chapda bo'lsa, animatsiyani chekka o'ngga suramiz
+      if (avgDx < 0.5) {
+        decorDx = 0.75 + (math.Random().nextDouble() * 0.15); // O'ng tomon
+      } else {
+        // Agar levellar o'ngda bo'lsa, animatsiyani chekka chapga suramiz
+        decorDx = 0.1 + (math.Random().nextDouble() * 0.15);  // Chap tomon
       }
+
+      decorations.add(
+        DecorationItem(
+          dx: decorDx.clamp(0.05, 0.95),
+          dy: decorDy,
+          assetPath: lottieAssets[(i ~/ 2) % lottieAssets.length],
+        ),
+      );
     }
     return decorations;
   }
@@ -124,15 +137,15 @@ class _MapRoadBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mapHeight = MediaQuery.of(context).size.height * 2.4;
-
     final levelStates = context.watch<LevelProvider>().levels;
-    final levels = _buildLevelsFromState(levelStates);
+    final screenHeight = MediaQuery.of(context).size.height;
 
+    final double mapHeight = math.max(screenHeight, levelStates.length * 125.0);
+
+    final levels = _buildLevelsFromState(levelStates);
     final positions = generatePositions(levelStates.length);
     final decorations = generateDecorations(positions);
 
-    // Qaysi level eng oxirgi ochiq level ekanligini topamiz (puls animatsiyasi uchun)
     int currentLevelId = 1;
     for (var l in levels) {
       if (!l.locked) {
@@ -158,7 +171,7 @@ class _MapRoadBody extends StatelessWidget {
                     ),
                   ),
 
-                  // LOTTIE ANIMATSIYALARI
+                  // LOTTIE ANIMATSIYALARI (Eng tagda turishi uchun LevelButtonlardan oldin yoziladi)
                   ...decorations.map((decor) {
                     final px = decor.dx * size.width;
                     final py = decor.dy * size.height;
@@ -172,7 +185,7 @@ class _MapRoadBody extends StatelessWidget {
                     );
                   }),
 
-                  // YUQORI QISM (Sizning asl dizayningiz)
+                  // YUQORI QISM - SCORE VA AVATAR (Header)
                   Positioned(
                     top: 50,
                     child: SizedBox(
@@ -227,26 +240,26 @@ class _MapRoadBody extends StatelessWidget {
                     ),
                   ),
 
-                  // ASOSIY LEVEL TUGMALARI (Sizning asl kordinatalaringiz bilan)
+                  // ASOSIY LEVEL TUGMALARI
                   ...levels.map((l) {
-                    final px = l.dx * size.width * 0.85;
-                    final py = l.dy * size.height + 60;
+                    final px = l.dx * size.width;
+                    final py = l.dy * size.height;
 
-                    // Agar bu foydalanuvchi to'xtagan eng oxirgi bosqich bo'lsa
                     final isCurrent = l.id == currentLevelId;
 
                     return Positioned(
-                      left: px - 28,
-                      top: py - 28,
+                      left: px - 40,
+                      top: py - 40,
                       child: LevelButton(
                         level: l,
-                        isCurrent: isCurrent, // Animatsiya holatini beramiz
+                        isCurrent: isCurrent,
                         onTap: () {
                           if (l.locked) return;
 
                           var lv = levelStates[l.id - 1];
                           var hasAbout = false;
-                          if (lv.exercise != null && lv.exercise!.steps.isNotEmpty) {
+                          if (lv.exercise != null &&
+                              lv.exercise!.steps.isNotEmpty) {
                             hasAbout = lv.exercise!.steps[0].action == "about";
                           }
 
@@ -259,10 +272,14 @@ class _MapRoadBody extends StatelessWidget {
                               ),
                             );
                           } else {
-                            context.read<LevelProvider>().setCurrentLevel(l.id - 1);
+                            context.read<LevelProvider>().setCurrentLevel(
+                              l.id - 1,
+                            );
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const CameraPage()),
+                              MaterialPageRoute(
+                                builder: (context) => const CameraPage(),
+                              ),
                             );
                           }
                         },
@@ -278,7 +295,3 @@ class _MapRoadBody extends StatelessWidget {
     );
   }
 }
-
-
-
-

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 class TiledBackground extends StatelessWidget {
   final String asset;
   final double height;
@@ -9,15 +8,15 @@ class TiledBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height,
+      height: height, // Biz tepadagi level soniga qarab bergan balandlik
       width: double.infinity,
       child: DecoratedBox(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(asset),
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            repeat: ImageRepeat.repeatY,
+            fit: BoxFit.fitWidth, // Ekran kengligiga moslashadi, qolgani pastga cho'ziladi
+            alignment: Alignment.topCenter, // Rasmni tepadan boshlab ko'rsatadi
+            repeat: ImageRepeat.repeatY, // Agar rasm qisqa bo'lsa, sifatini buzmay ulab ketaveradi
           ),
         ),
       ),

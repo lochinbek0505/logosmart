@@ -24,9 +24,7 @@ final List<LevelState> kDefaultLevels = [
           text: "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
           action: "about",
         ),
-
         ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
-
         ExerciseStep(text: 'Tilni chapga chiqarib ko‘rsating', action: "chap"),
       ],
     ),
@@ -40,7 +38,7 @@ final List<LevelState> kDefaultLevels = [
     game: GameInfo(
       type: "breath",
       jsonConfig: """{
-    "start_voice":"assets/sound/breath/breath_start.mp3",
+        "start_voice":"assets/sound/breath/breath_start.mp3",
         "blow_voice":"assets/sound/breath/butterfly.mp3",
         "lottie_animation":"assets/animation/breath/butterfly.json",
         "background_image":"assets/backround/breath/butterfly_background.jpg",
@@ -54,7 +52,7 @@ final List<LevelState> kDefaultLevels = [
     id: 3,
     stars: 0,
     locked: true,
-    skin: skinGold,
+    skin: skinSilver,
     mode: 'exercise',
     exercise: ExerciseInfo(
       modelPath: 'assets/models/ogiz_lab_tish.tflite',
@@ -65,39 +63,11 @@ final List<LevelState> kDefaultLevels = [
           text: "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
           action: "about",
         ),
-
         ExerciseStep(text: 'Iltimos tishni ko‘rsating', action: "tish"),
         ExerciseStep(text: 'Iltimos labni ko‘rsating', action: "lab"),
-
       ],
     ),
   ),
-
-  // LevelState(
-  //   id: 4,
-  //   stars: 0,
-  //   locked: true,
-  //   skin: skinSilver,
-  //   mode: 'exercise',
-  //   exercise: ExerciseInfo(
-  //     modelPath: 'assets/models/ogiz_lab_tish.tflite',
-  //     labelsPath: 'assets/models/labels_olt.txt',
-  //     mediaPath: 'assets/media/tish_lab.MP4',
-  //     steps: [
-  //
-  //       ExerciseStep(
-  //         text: 'Og‘zingizni ochib tishlarni ko\'rsating',
-  //         action: 'tish',
-  //       ),
-  //       ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-  //       ExerciseStep(
-  //         text: 'Og‘zingizni ochib tishlarni ko\'rsating',
-  //         action: 'tish',
-  //       ),
-  //       ExerciseStep(text: 'Lab harakatini bajaring', action: 'lab'),
-  //     ],
-  //   ),
-  // ),
   for (int i = 4; i <= 18; i++)
     LevelState(
       id: i,
@@ -114,20 +84,41 @@ typedef OpenLevelCallback = void Function(LevelState level);
 class LevelProvider extends ChangeNotifier {
   LevelProvider({bool autoBootstrap = true}) {
     if (autoBootstrap) {
-      // async chaqiruvni kechiktiramiz
       Future.microtask(bootstrap);
     }
   }
 
+  int _ball = 0;
+  int get ball => _ball;
+
+  // Joriy o'ynalayotgan/ochilgan bosqichning ID si
+  int? _currentPlayingLevelId;
+  int? get currentPlayingLevelId => _currentPlayingLevelId;
+
   late Box<LevelState> _box;
-
   List<LevelState> _levels = [];
-
   List<LevelState> get levels => _levels;
 
   OpenLevelCallback? onOpenLevel;
 
-  /// Hive box'ni ochadi va defaultlarni (id → LevelState) bo'yicha joylaydi.
+  void addBall(int value) {
+    _ball += value;
+    notifyListeners();
+    _syncScoreToBackend(value); // TO-DO: Backend funksiyasini chaqirish
+  }
+
+  // Joriy oynalayotgan bosqichni belgilash (Sahifaga o'tayotganda chaqiriladi)
+  void setCurrentLevel(int id) {
+    _currentPlayingLevelId = id;
+    notifyListeners();
+  }
+
+  // Joriy bosqichning to'liq ob'ektini olish
+  LevelState? get currentLevelData {
+    if (_currentPlayingLevelId == null) return null;
+    return byId(_currentPlayingLevelId!);
+  }
+
   Future<void> bootstrap() async {
     if (!Hive.isBoxOpen(kLevelsBox)) {
       _box = await Hive.openBox<LevelState>(kLevelsBox);
@@ -136,10 +127,8 @@ class LevelProvider extends ChangeNotifier {
     }
 
     if (_box.isEmpty) {
-      // id'ni key sifatida ishlatamiz (barqaror va putAt muammosiz)
       await _box.putAll({for (final lv in kDefaultLevels) lv.id: lv});
     } else {
-      // Agar mavjud box dagi elementlar soni yoki id set'i mos kelmasa, sinxronlash:
       final existingIds = _box.keys.cast<int>().toSet();
       final defaultIds = kDefaultLevels.map((e) => e.id).toSet();
       if (existingIds.length != defaultIds.length ||
@@ -150,10 +139,10 @@ class LevelProvider extends ChangeNotifier {
     }
 
     _levels = _readAllSorted();
+    _fetchScoreFromBackend(); // TO-DO: Serverdan boshlang'ich ballni olish
     notifyListeners();
   }
 
-  /// Box dagi barcha qiymatlarni id bo‘yicha sortlab qaytaradi.
   List<LevelState> _readAllSorted() {
     final list = _box.values.toList();
     list.sort((a, b) => a.id.compareTo(b.id));
@@ -172,114 +161,82 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // unlock funksiyasi endi parametr sifatida joriy levelni yoki kelgusi levelni qabul qilishi ham mumkin
   Future<bool> unlock({int stars = 0}) async {
-    final locked = levels.firstWhere(
-      (e) => e.locked,
+    // Eng birinchi bloklangan levelni topish va shuni ochish
+    final lockedLevel = levels.firstWhere(
+          (e) => e.locked,
       orElse: () => levels.last,
     );
-    var id = locked.id;
-    final lv = _box.get(id);
-    if (lv == null) false;
-    if (id < 4) {
-      print("Locked id $id");
-      print("List id ${kDefaultLevels.length}");
 
-      final updated = lv!.copyWith(locked: false, skin: skinGold, stars: stars);
+    var id = lockedLevel.id;
+    final lv = _box.get(id);
+    if (lv == null) return false;
+
+    // Faraz qilamizki 18 tagacha bosqich bor
+    if (id <= 18) {
+      final updated = lv.copyWith(locked: false, skin: skinGold, stars: 0);
+      final update2= lv.copyWith(locked: false, skin: skinGold, stars: stars);
+      await _box.put(id-1>=0?id-1:0, update2);
       await _box.put(id, updated);
       _levels = _readAllSorted();
       notifyListeners();
+
+      // TO-DO: Ochilgan yangi levelni serverga yuborish
+      _syncLevelUnlockToBackend(id, stars);
       return true;
     }
     return false;
   }
 
-  Future<void> lock(int id) async {
-    final lv = _box.get(id);
-    if (lv == null) return;
-    final updated = lv.copyWith(locked: true, skin: skinSilver);
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
+  // --- TO-DO: BACKEND INTEGRATSIYASI UCHUN SHABLON FUNKSIYALAR ---
+
+  /// Backendga qo'shilgan ballni yuborish (Sinxronizatsiya)
+  Future<void> _syncScoreToBackend(int addedScore) async {
+    // TODO: REST API yuborish. Masalan:
+    // try {
+    //   await http.post(Uri.parse('https://api.yoursite.com/update_score'), body: {'score': addedScore});
+    // } catch (e) {
+    //   print(e);
+    // }
   }
 
-  Future<void> setSkin(int id, String skinPath) async {
-    final lv = _box.get(id);
-    if (lv == null) return;
-    final updated = lv.copyWith(skin: skinPath);
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
+  /// Ilova yonganda backenddan foydalanuvchining umumiy ballini olish
+  Future<void> _fetchScoreFromBackend() async {
+    // TODO: REST API dan ballni olish. Masalan:
+    // try {
+    //   final response = await http.get(Uri.parse('https://api.yoursite.com/get_score'));
+    //   // Parsing va assign
+    //   // _ball = parsedValue;
+    //   // notifyListeners();
+    // } catch (e) {
+    //   print(e);
+    // }
   }
 
-  /// -------------------- REJIM/MALUMOTLARNI YANGILASH --------------------
-
-  Future<void> setMode(int id, String mode) async {
-    assert(mode == 'game' || mode == 'exercise');
-    final lv = _box.get(id);
-    if (lv == null) return;
-
-    LevelState updated = lv.copyWith(mode: mode);
-    if (mode == 'game') {
-      updated = updated.copyWith(
-        game: lv.game ?? const GameInfo(type: 'comingSoon', jsonConfig: '{}'),
-        exercise: null,
-      );
-    } else {
-      updated = updated.copyWith(
-        game: null,
-        exercise:
-            lv.exercise ??
-            const ExerciseInfo(
-              modelPath: '',
-              labelsPath: '',
-              steps: [],
-              mediaPath: '',
-            ),
-      );
-    }
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
+  /// Qaysi level ochilganini va necha yulduz olinganini serverga aytib qo'yish
+  Future<void> _syncLevelUnlockToBackend(int levelId, int stars) async {
+    // TODO: Bosqich yutuqlarini serverga saqlash
+    // try {
+    //   await http.post(Uri.parse('https://api.yoursite.com/unlock_level'), body: {
+    //     'level_id': levelId.toString(),
+    //     'stars': stars.toString()
+    //   });
+    // } catch (e) {
+    //   print(e);
+    // }
   }
 
-  Future<void> setGameInfo(int id, GameInfo info) async {
-    final lv = _box.get(id);
-    if (lv == null) return;
-    final updated = lv.copyWith(mode: 'game', game: info, exercise: null);
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
-  }
+  // --------------------------------------------------------------
 
-  Future<void> setExerciseInfo(int id, ExerciseInfo info) async {
-    final lv = _box.get(id);
-    if (lv == null) return;
-    final updated = lv.copyWith(mode: 'exercise', exercise: info, game: null);
-    await _box.put(id, updated);
-    _levels = _readAllSorted();
-    notifyListeners();
-  }
-
-  Future<void> resetAll() async {
-    await _box.clear();
-    await _box.putAll({for (final lv in kDefaultLevels) lv.id: lv});
-    _levels = _readAllSorted();
-    notifyListeners();
-  }
-
-  /// Map sahifasidan bosilganda chaqiriladi.
-  /// Tashqaridan `onOpenLevel` ni bog'lab qo'ying yoki bu metodni bevosita
-  /// `Navigator` bilan to'ldiring.
   void openLevel(LevelState level) {
     if (level.locked) return;
+    setCurrentLevel(level.id); // Joriy level ni o'rnatamiz
     final cb = onOpenLevel;
     if (cb != null) {
       cb(level);
     } else {
       if (kDebugMode) {
-        // Hozircha faqat log — UI navigatsiyani tashqarida bering.
-        // Masalan: main.dart yoki MapRoadPage ochilganda:
-        // context.read<LevelProvider>().onOpenLevel = (lv) => Navigator.push(...);
         print('openLevel: ${level.id} - ${level.mode}');
       }
     }

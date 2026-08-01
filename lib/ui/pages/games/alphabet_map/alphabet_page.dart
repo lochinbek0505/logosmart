@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'map_route_page.dart';
 
@@ -45,7 +46,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                       onTap: () => Navigator.of(context).pop(),
                       child: Image.asset(
                         "assets/images/arow_back.png",
-                        width: 24,
+                        width: 24.w,
                         color: Colors.grey.shade800,
                       ),
                     ),

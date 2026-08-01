@@ -2,13 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/level_button.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/tiled_background.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
+import '../../../../models/decoration_item.dart';
 import '../../../../models/level_model.dart';
 import 'provider/level_provider.dart';
-import '../../main/soundpracrice/StartButtonPage.dart';
+import 'start_text_page.dart';
 
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
@@ -34,15 +39,11 @@ class MapRoadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_hasLevelProvider(context)) {
-      // Mavjud provider bilan hozirgi UI
       return const _MapRoadBody();
     }
-    // Lokal provider (faqat shu sahifa uchun), arxitekturani o'zgartirmaymiz
     return ChangeNotifierProvider<LevelProvider>(
       create: (_) {
         final p = LevelProvider();
-        // Sizdagi LevelProvider bootstrap()ni main.dart da chaqirilmagan bo‘lishi mumkin,
-        // shu yerda xavfsiz chaqirib olamiz:
         p.bootstrap();
         return p;
       },
@@ -54,6 +55,7 @@ class MapRoadPage extends StatelessWidget {
 class _MapRoadBody extends StatelessWidget {
   const _MapRoadBody();
 
+  // SIZNING ASL ZIK-ZAK JOYLASUVINGIZ
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
       return [const Offset(0.5, 0.1)];
@@ -70,6 +72,38 @@ class _MapRoadBody extends StatelessWidget {
       if (dx >= 0.9 || dx <= 0.1) dir *= -1;
       return point;
     });
+  }
+
+  // BO'SH JOYLAR UCHUN ANIMATSIYALAR
+  List<DecorationItem> generateDecorations(List<Offset> levelPositions) {
+    final List<DecorationItem> decorations = [];
+    final List<String> lottieAssets = [
+      'assets/animation/map/box.json',
+      'assets/animation/map/cute.json',
+      'assets/animation/map/brchest.json',
+      'assets/animation/map/rabbit.json',
+      'assets/animation/map/chest.json',
+    ];
+
+    for (int i = 0; i < levelPositions.length - 1; i += 2) {
+      final pos = levelPositions[i];
+      double decorDx = pos.dx < 0.5
+          ? 0.75 + (math.Random().nextDouble() * 0.1)
+          : 0.15 + (math.Random().nextDouble() * 0.1);
+
+      double decorDy = pos.dy + ((levelPositions[i + 1].dy - pos.dy) / 2);
+
+      if(i!=0) {
+        decorations.add(
+          DecorationItem(
+            dx: decorDx,
+            dy: decorDy,
+            assetPath: lottieAssets[i % lottieAssets.length],
+          ),
+        );
+      }
+    }
+    return decorations;
   }
 
   List<Level> _buildLevelsFromState(List<LevelState> states) {
@@ -95,6 +129,17 @@ class _MapRoadBody extends StatelessWidget {
     final levelStates = context.watch<LevelProvider>().levels;
     final levels = _buildLevelsFromState(levelStates);
 
+    final positions = generatePositions(levelStates.length);
+    final decorations = generateDecorations(positions);
+
+    // Qaysi level eng oxirgi ochiq level ekanligini topamiz (puls animatsiyasi uchun)
+    int currentLevelId = 1;
+    for (var l in levels) {
+      if (!l.locked) {
+        currentLevelId = l.id;
+      }
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
@@ -113,6 +158,21 @@ class _MapRoadBody extends StatelessWidget {
                     ),
                   ),
 
+                  // LOTTIE ANIMATSIYALARI
+                  ...decorations.map((decor) {
+                    final px = decor.dx * size.width;
+                    final py = decor.dy * size.height;
+                    return Positioned(
+                      left: px - 40,
+                      top: py - 40,
+                      child: InteractiveLottie(
+                        assetPath: decor.assetPath,
+                        size: 80,
+                      ),
+                    );
+                  }),
+
+                  // YUQORI QISM (Sizning asl dizayningiz)
                   Positioned(
                     top: 50,
                     child: SizedBox(
@@ -124,10 +184,15 @@ class _MapRoadBody extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 25.0),
                             child: Row(
                               children: [
-                                Image.asset("assets/icons/star.png", scale: 3),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Image.asset(
+                                    "assets/icons/star.png",
+                                    scale: 3,
+                                  ),
+                                ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  // Masalan: jami yulduzlar summasini ko‘rsatish
                                   levelStates
                                       .fold<int>(0, (p, e) => p + e.stars)
                                       .toString(),
@@ -162,32 +227,30 @@ class _MapRoadBody extends StatelessWidget {
                     ),
                   ),
 
+                  // ASOSIY LEVEL TUGMALARI (Sizning asl kordinatalaringiz bilan)
                   ...levels.map((l) {
                     final px = l.dx * size.width * 0.85;
                     final py = l.dy * size.height + 60;
+
+                    // Agar bu foydalanuvchi to'xtagan eng oxirgi bosqich bo'lsa
+                    final isCurrent = l.id == currentLevelId;
+
                     return Positioned(
                       left: px - 28,
                       top: py - 28,
                       child: LevelButton(
                         level: l,
+                        isCurrent: isCurrent, // Animatsiya holatini beramiz
                         onTap: () {
                           if (l.locked) return;
 
-                          // final prov = context.read<LevelProvider>();
-                          // final next = (l.stars + 1).clamp(0, 3);
-                          // prov.setStars(l.id, next);
-
                           var lv = levelStates[l.id - 1];
+                          var hasAbout = false;
+                          if (lv.exercise != null && lv.exercise!.steps.isNotEmpty) {
+                            hasAbout = lv.exercise!.steps[0].action == "about";
+                          }
 
-                          var aa = lv.exercise!.steps[0].action == "about";
-                          print(levelStates[0].exercise!.steps[0].text);
-                          print(lv.exercise!.steps.length);
-                          print(
-                            "AÀAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAAÀAAAAAAAAAAAAA",
-                          );
-                          print(lv.exercise!.steps[0].action);
-                          if (aa) {
-                            // lv.exercise!.steps.removeAt(0);
+                          if (hasAbout) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -196,12 +259,10 @@ class _MapRoadBody extends StatelessWidget {
                               ),
                             );
                           } else {
+                            context.read<LevelProvider>().setCurrentLevel(l.id - 1);
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (b) =>
-                                    CameraPage(data: levelStates[l.id - 1]),
-                              ),
+                              MaterialPageRoute(builder: (context) => const CameraPage()),
                             );
                           }
                         },
@@ -214,140 +275,10 @@ class _MapRoadBody extends StatelessWidget {
           ),
         ),
       ),
-      // Test uchun pastga quick-action tugmalar (ixtiyoriy)
-      // floatingActionButton: Column(
-      //   mainAxisSize: MainAxisSize.min,
-      //   children: [
-      //     FloatingActionButton.extended(
-      //       heroTag: 'unlockNext',
-      //       onPressed: () {
-      //         final prov = context.read<LevelProvider>();
-      //
-      //         prov.unlock();
-      //       },
-      //       label: const Text('Unlock next'),
-      //       icon: const Icon(Icons.lock_open),
-      //     ),
-      //     const SizedBox(height: 12),
-      //     FloatingActionButton.extended(
-      //       heroTag: 'resetAll',
-      //       onPressed: () => context.read<LevelProvider>().resetAll(),
-      //       label: const Text('Reset all'),
-      //       icon: const Icon(Icons.restart_alt),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }
 
 
-class TiledBackground extends StatelessWidget {
-  final String asset;
-  final double height;
 
-  const TiledBackground({super.key, required this.asset, required this.height});
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(asset),
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            repeat: ImageRepeat.repeatY,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class StarMeter extends StatelessWidget {
-  final int value;
-  final int max;
-  final Color filledColor;
-  final Color emptyColor;
-  final EdgeInsets spacing;
-
-  const StarMeter({
-    super.key,
-    required this.value,
-    this.max = 3,
-    this.filledColor = Colors.amber,
-    this.emptyColor = Colors.black26,
-    this.spacing = const EdgeInsets.symmetric(horizontal: 2),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final v = value.clamp(0, max);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(max, (i) {
-        final filled = i < v;
-        final size = i == 1 ? 30.0 : 20.0;
-        return Padding(
-          padding: spacing,
-          child: Image.asset(
-            filled ? "assets/icons/star.png" : "assets/icons/star_grey.png",
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class LevelButton extends StatelessWidget {
-  final Level level;
-  final VoidCallback? onTap;
-
-  const LevelButton({super.key, required this.level, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = level;
-    final starFilled = l.locked ? Colors.grey : Colors.amber;
-    final starEmpty = l.locked ? Colors.black26 : Colors.black26;
-
-    return GestureDetector(
-      onTap: l.locked ? null : onTap,
-      child: Column(
-        children: [
-          if (!l.locked)
-            SizedBox(
-              height: 35,
-              child: StarMeter(
-                value: l.stars,
-                max: 3,
-                filledColor: starFilled,
-                emptyColor: starEmpty,
-              ),
-            ),
-          const SizedBox(height: 5),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Image.asset(l.skin, width: 70, height: 70, fit: BoxFit.cover),
-              Text(
-                '${l.id}',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: !l.locked ? Colors.white : AppColors.grey_600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}

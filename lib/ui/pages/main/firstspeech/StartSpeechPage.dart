@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/StartButtonPage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/start_text_page.dart';
 
 class StartSpeechPage extends StatefulWidget {
   const StartSpeechPage({super.key});

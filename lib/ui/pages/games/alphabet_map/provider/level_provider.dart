@@ -89,14 +89,17 @@ class LevelProvider extends ChangeNotifier {
   }
 
   int _ball = 0;
+
   int get ball => _ball;
 
   // Joriy o'ynalayotgan/ochilgan bosqichning ID si
   int? _currentPlayingLevelId;
+
   int? get currentPlayingLevelId => _currentPlayingLevelId;
 
   late Box<LevelState> _box;
   List<LevelState> _levels = [];
+
   List<LevelState> get levels => _levels;
 
   OpenLevelCallback? onOpenLevel;
@@ -165,7 +168,7 @@ class LevelProvider extends ChangeNotifier {
   Future<bool> unlock({int stars = 0}) async {
     // Eng birinchi bloklangan levelni topish va shuni ochish
     final lockedLevel = levels.firstWhere(
-          (e) => e.locked,
+      (e) => e.locked,
       orElse: () => levels.last,
     );
 
@@ -173,11 +176,10 @@ class LevelProvider extends ChangeNotifier {
     final lv = _box.get(id);
     if (lv == null) return false;
 
-    // Faraz qilamizki 18 tagacha bosqich bor
-    if (id <= 18) {
+    if (id < _levels.length) {
       final updated = lv.copyWith(locked: false, skin: skinGold, stars: 0);
-      final update2= lv.copyWith(locked: false, skin: skinGold, stars: stars);
-      await _box.put(id-1>=0?id-1:0, update2);
+      final update2 = lv.copyWith(id:id - 1 >= 0 ? id - 1 : 0,locked: false, skin: skinGold, stars: stars);
+      await _box.put(id - 1 >= 0 ? id - 1 : 0, update2);
       await _box.put(id, updated);
       _levels = _readAllSorted();
       notifyListeners();
@@ -227,11 +229,9 @@ class LevelProvider extends ChangeNotifier {
     // }
   }
 
-  // --------------------------------------------------------------
-
   void openLevel(LevelState level) {
     if (level.locked) return;
-    setCurrentLevel(level.id); // Joriy level ni o'rnatamiz
+    setCurrentLevel(level.id);
     final cb = onOpenLevel;
     if (cb != null) {
       cb(level);

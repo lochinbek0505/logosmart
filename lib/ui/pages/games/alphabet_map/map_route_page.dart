@@ -11,6 +11,14 @@ import 'package:provider/provider.dart';
 import '../../../../core/storage/level_state.dart';
 import '../../../../models/decoration_item.dart';
 import '../../../../models/level_model.dart';
+import '../arrow_game/arrow_game_page.dart';
+import '../breath_game/breath_game.dart';
+import '../cloud_game/cloud_game_page.dart';
+import '../cooking/cooking_page.dart';
+import '../drag_drop/drag_drop_game_page.dart';
+import '../find_image_game/find_image_game_page.dart';
+import '../hand_game/hand_game_page.dart';
+import '../puzzle_game/puzzle_game_widget.dart';
 import 'provider/level_provider.dart';
 import 'start_text_page.dart';
 
@@ -51,9 +59,15 @@ class MapRoadPage extends StatelessWidget {
   }
 }
 
-class _MapRoadBody extends StatelessWidget {
+class _MapRoadBody extends StatefulWidget {
   const _MapRoadBody();
-// LEVEL TUGMALARI JOYLASHUVI
+
+  @override
+  State<_MapRoadBody> createState() => _MapRoadBodyState();
+}
+
+class _MapRoadBodyState extends State<_MapRoadBody> {
+  // LEVEL TUGMALARI JOYLASHUVI
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
       return [const Offset(0.5, 0.023)];
@@ -77,6 +91,7 @@ class _MapRoadBody extends StatelessWidget {
       return Offset(dx.clamp(0.15, 0.85), dy);
     });
   }
+
   // LOTTIE ANIMATSIYALARI (Tugmalarga umuman tegmaydigan qilib sozlandi)
   List<DecorationItem> generateDecorations(List<Offset> levelPositions) {
     final List<DecorationItem> decorations = [];
@@ -105,7 +120,7 @@ class _MapRoadBody extends StatelessWidget {
         decorDx = 0.75 + (math.Random().nextDouble() * 0.15); // O'ng tomon
       } else {
         // Agar levellar o'ngda bo'lsa, animatsiyani chekka chapga suramiz
-        decorDx = 0.1 + (math.Random().nextDouble() * 0.15);  // Chap tomon
+        decorDx = 0.1 + (math.Random().nextDouble() * 0.15); // Chap tomon
       }
 
       decorations.add(
@@ -262,7 +277,6 @@ class _MapRoadBody extends StatelessWidget {
                               lv.exercise!.steps.isNotEmpty) {
                             hasAbout = lv.exercise!.steps[0].action == "about";
                           }
-
                           if (hasAbout) {
                             Navigator.push(
                               context,
@@ -271,7 +285,9 @@ class _MapRoadBody extends StatelessWidget {
                                     StartTextPage(data: levelStates[l.id - 1]),
                               ),
                             );
-                          } else {
+                          } else if (lv.game != null) {
+                            navigationTo(lv.game!.type);
+                          } else if (lv.exercise != null) {
                             context.read<LevelProvider>().setCurrentLevel(
                               l.id - 1,
                             );
@@ -293,5 +309,54 @@ class _MapRoadBody extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void navigationTo(String type) {
+    switch (type) {
+      case "breath":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => BreathPage()));
+        break;
+      case "arrow":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => ArrowGamePage()));
+        break;
+      case "cloud":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => CloudGamePage()));
+        break;
+      case "cooking":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => CookingPage()));
+        break;
+      case "drag_drop":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => DragDropGamePage()));
+        break;
+      case "find_image_page":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => FindImageGamePage()));
+        break;
+      case "hand_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => HandGamePage()));
+        break;
+      case "path_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => MapRoadPage()));
+        break;
+      case "puzzle_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => PuzzleGameWidget()));
+    }
   }
 }

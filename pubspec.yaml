@@ -131,7 +131,6 @@ flutter:
     - assets/backround/breath/
     - assets/animation/breath/
     - assets/animation/map/
-
     - assets/sound/paint/
     - assets/game/paint/
     - assets/backround/paint/

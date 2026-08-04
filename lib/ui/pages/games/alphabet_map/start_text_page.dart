@@ -4,9 +4,17 @@ import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.da
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
-import '../../main/widgets/custom_text_widget.dart';
-import '../breath_game/breath_game.dart';
 import '../../cv_model/camera_page.dart';
+import '../../main/widgets/custom_text_widget.dart';
+import '../arrow_game/arrow_game_page.dart';
+import '../breath_game/breath_game.dart';
+import '../cloud_game/cloud_game_page.dart';
+import '../cooking/cooking_page.dart';
+import '../drag_drop/drag_drop_game_page.dart';
+import '../find_image_game/find_image_game_page.dart';
+import '../hand_game/hand_game_page.dart';
+import '../puzzle_game/puzzle_game_widget.dart';
+import 'map_route_page.dart';
 
 class StartTextPage extends StatefulWidget {
   final LevelState data;
@@ -33,15 +41,12 @@ class _StartTextPageState extends State<StartTextPage> {
     if (widget.data.mode == "exercise") {
       // Birinchi bosqichni bosganda:
       context.read<LevelProvider>().setCurrentLevel(widget.data.id);
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const CameraPage()),
       );
     } else if (widget.data.mode == "game") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const BreathPage()),
-      );
+      navigationTo(widget.data.game!.type);
     }
   }
 
@@ -54,7 +59,7 @@ class _StartTextPageState extends State<StartTextPage> {
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage(_bgImage),
-            fit: BoxFit.cover, // BoxFit.fill o'rniga cover ishlatish sifatni buzmaydi
+            fit: BoxFit.cover,
           ),
         ),
         child: SafeArea(
@@ -62,12 +67,7 @@ class _StartTextPageState extends State<StartTextPage> {
             alignment: Alignment.topCenter,
             children: [
               // 1. Yuqori qism: Header (Tepaga yopishtirilgan)
-              Positioned(
-                top: 15.h,
-                left: 0,
-                right: 0,
-                child: _buildHeader(),
-              ),
+              Positioned(top: 15.h, left: 0, right: 0, child: _buildHeader()),
 
               // 2. O'rta qism: Matnli bulutcha
               Positioned(
@@ -90,9 +90,7 @@ class _StartTextPageState extends State<StartTextPage> {
               // 4. Pastki qism: Tugma (Pastga yopishtirilgan)
               Positioned(
                 bottom: 30.h,
-                child: AnimatedStartButton(
-                  onTap: _onStartPressed,
-                ),
+                child: AnimatedStartButton(onTap: _onStartPressed),
               ),
             ],
           ),
@@ -127,6 +125,48 @@ class _StartTextPageState extends State<StartTextPage> {
       ),
     );
   }
+
+  void navigationTo(String type) {
+    Widget? page;
+
+    // Har bir case uchun shunchaki kerakli Widget ni aniqlab olamiz
+    switch (type) {
+      case "breath":
+        page = const BreathPage();
+        break;
+      case "arrow":
+        page = const ArrowGamePage();
+        break;
+      case "cloud":
+        page = const CloudGamePage();
+        break;
+      case "cooking":
+        page = const CookingPage();
+        break;
+      case "drag_drop":
+        page = const DragDropGamePage();
+        break;
+      case "find_image_page":
+        page = const FindImageGamePage();
+        break;
+      case "hand_game":
+        page = const HandGamePage();
+        break;
+      case "path_game":
+        page = MapRoadPage();
+        break;
+      case "puzzle_game":
+        page = const PuzzleGameWidget();
+        break;
+    }
+
+    if (page != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => page!),
+      );
+    }
+  }
 }
 
 // ==========================================
@@ -136,6 +176,7 @@ class _StartTextPageState extends State<StartTextPage> {
 /// Matnli Bulutcha widgeti
 class _CloudText extends StatelessWidget {
   final String text;
+
   const _CloudText({required this.text});
 
   @override
@@ -143,7 +184,12 @@ class _CloudText extends StatelessWidget {
     return Container(
       width: 280.w,
       height: 165.h,
-      padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 20.h, bottom: 11.5.h),
+      padding: EdgeInsets.only(
+        left: 20.w,
+        right: 20.w,
+        top: 20.h,
+        bottom: 11.5.h,
+      ),
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/icons/cloud.png"),
@@ -215,9 +261,7 @@ class _AnimatedStartButtonState extends State<AnimatedStartButton> {
         color: const Color(0xff20B9E8),
         borderRadius: BorderRadius.circular(30),
       ),
-      child: Center(
-        child: _buildText(),
-      ),
+      child: Center(child: _buildText()),
     );
   }
 
@@ -239,9 +283,7 @@ class _AnimatedStartButtonState extends State<AnimatedStartButton> {
             begin: Alignment.topCenter,
           ),
         ),
-        child: Center(
-          child: _buildText(),
-        ),
+        child: Center(child: _buildText()),
       ),
     );
   }

@@ -126,6 +126,7 @@ class LevelState {
   });
 
   LevelState copyWith({
+    int? id,
     int? stars,
     bool? locked,
     String? skin,
@@ -134,7 +135,7 @@ class LevelState {
     ExerciseInfo? exercise,
   }) {
     return LevelState(
-      id: id,
+      id: id??this.id,
       stars: stars ?? this.stars,
       locked: locked ?? this.locked,
       skin: skin ?? this.skin,

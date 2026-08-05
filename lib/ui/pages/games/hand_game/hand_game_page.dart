@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert'; // JSON o'qish uchun
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
+import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
 
 class HandGamePage extends StatefulWidget {
@@ -14,62 +17,65 @@ class HandGamePage extends StatefulWidget {
   State<HandGamePage> createState() => _HandGamePageState();
 }
 
-const String _backBtn = "assets/icons/arrow_right_button.png";
-const String _starIcon = "assets/icons/star.png";
-const String _startVoice = "sound/hand_game/hand_game_start.mp3";
-const String _succesSound = "sound/success.mp3";
-
 class _HandGamePageState extends State<HandGamePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  // JSON dan keladigan sozlamalar
+  late Map<String, dynamic> _config;
   late List<Map<String, dynamic>> _handGameItems;
 
   @override
   void initState() {
     super.initState();
-    _handGameItems = [
-      {
-        "box_image": "assets/game/hand_game/box_1.png",
-        "hand_game": "assets/game/hand_game/hand_1.png",
-        "isOpen": false,
-      },
-      {
-        "box_image": "assets/game/hand_game/box_2.png",
-        "hand_game": "assets/game/hand_game/hand_2.png",
-        "isOpen": false,
-      },
-      {
-        "box_image": "assets/game/hand_game/box_3.png",
-        "hand_game": "assets/game/hand_game/face_1.png",
-        "isOpen": false,
-      },
-      {
-        "box_image": "assets/game/hand_game/box_4.png",
-        "hand_game": "assets/game/hand_game/lib_3.png",
-        "isOpen": false,
-      },
-    ];
-    initPage();
+    _initLevelConfig();
+    _initPage();
   }
 
-  void _gameEnd() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return GameSuccessDialog(
-          earnedScore: 10,
-          onContinue: () {
-            Navigator.pop(context);
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
+  void _initLevelConfig() {
+    // 1. Joriy levelni Providerdan o'qib JSON ni parse qilamiz
+    final currentLevel = context.read<LevelProvider>().currentLevelData;
+
+    if (currentLevel != null && currentLevel.game != null) {
+      _config = jsonDecode(currentLevel.game!.jsonConfig);
+
+      // JSON ichidagi elementlarni listga olamiz va "isOpen" xususiyatini qo'shamiz
+      List dynamicItems = _config['items'] ?? [];
+      _handGameItems = dynamicItems.map((item) {
+        return {
+          "box_image": item["box_image"],
+          "hand_image": item["hand_image"],
+          "isOpen": false,
+        };
+      }).toList();
+    } else {
+      // Fallback
+      _config = {
+        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "background_image": "assets/backround/fon_q.png",
+        "icon_star": "assets/icons/star.png",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+      };
+      _handGameItems = [
+        {"box_image": "assets/game/hand_game/box_1.png", "hand_image": "assets/game/hand_game/hand_1.png", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_2.png", "hand_image": "assets/game/hand_game/hand_2.png", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_3.png", "hand_image": "assets/game/hand_game/face_1.png", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_4.png", "hand_image": "assets/game/hand_game/lib_3.png", "isOpen": false},
+      ];
+    }
   }
 
-  Future<void> initPage() async {
-    await _playAudioAndWait(_startVoice);
+  String _cleanAudioPath(String path) {
+    if (path.startsWith('assets/')) {
+      return path.replaceFirst('assets/', '');
+    }
+    return path;
+  }
+
+  Future<void> _initPage() async {
+    if (_config['start_voice'] != null) {
+      await _playAudioAndWait(_config['start_voice']);
+    }
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
@@ -77,7 +83,7 @@ class _HandGamePageState extends State<HandGamePage> {
     final completer = Completer<void>();
     StreamSubscription<void>? subscription;
 
-    String cleanPath = path.replaceFirst('assets/', '');
+    String cleanPath = _cleanAudioPath(path);
 
     subscription = _audioPlayer.onPlayerComplete.listen((_) {
       subscription?.cancel();
@@ -100,8 +106,7 @@ class _HandGamePageState extends State<HandGamePage> {
     });
 
     // Muvaffaqiyat ovozini chalish
-    String cleanSuccessPath = _succesSound.replaceFirst('assets/', '');
-    await _audioPlayer.play(AssetSource(cleanSuccessPath));
+    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
 
     // Hammasi ochildimi tekshiramiz
     bool isAllOpen = _handGameItems.every((e) => e["isOpen"] == true);
@@ -117,21 +122,46 @@ class _HandGamePageState extends State<HandGamePage> {
     }
   }
 
+  void _gameEnd() {
+    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+    final provider = context.read<LevelProvider>();
+    provider.addBall(10);
+    provider.unlock(stars: 3);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return GameSuccessDialog(
+          earnedScore: 10,
+          onContinue: () {
+            provider.clearCurrentLevel(); // Xotirani tozalaymiz
+            Navigator.pop(context);
+            Navigator.pop(context); // Xaritaga qaytish
+          },
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
-    _audioPlayer.dispose(); // Xotirani tozalash
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // UMUMIY BALLNI PROVIDERDAN OLAMIZ
+    final totalBall = context.watch<LevelProvider>().ball;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/backround/fon_q.png"),
+            image: AssetImage(_config['background_image']), // JSON
             fit: BoxFit.fill,
           ),
         ),
@@ -142,7 +172,7 @@ class _HandGamePageState extends State<HandGamePage> {
               Column(
                 children: [
                   SizedBox(height: 10.h),
-                  _buildHeader(),
+                  _buildHeader(totalBall),
                 ],
               ),
               Center(
@@ -151,7 +181,6 @@ class _HandGamePageState extends State<HandGamePage> {
                   height: 300.h,
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
-                    // O'z-o'zidan scroll bo'lib ketmasligi uchun
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10.w,
@@ -170,12 +199,9 @@ class _HandGamePageState extends State<HandGamePage> {
                             color: item["isOpen"] ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(25.r),
                           ),
-                          // Animatsiya uchun AnimatedSwitcher
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 500),
-                            transitionBuilder: (Widget child,
-                                Animation<double> animation) {
-                              // Chiroyli kattalashish va paydo bo'lish animatsiyasi
+                            transitionBuilder: (Widget child, Animation<double> animation) {
                               return ScaleTransition(
                                 scale: animation,
                                 child: FadeTransition(
@@ -186,9 +212,8 @@ class _HandGamePageState extends State<HandGamePage> {
                             },
                             child: Image.asset(
                               item["isOpen"]
-                                  ? item["hand_game"]!
-                                  : item["box_image"]!,
-                              // Key berish majburiy, aks holda Flutter rasm o'zgarganini sezmaydi
+                                  ? item["hand_image"]! // JSON (box ichidagi rasm)
+                                  : item["box_image"]!, // JSON (quti)
                               key: ValueKey<bool>(item["isOpen"]),
                               fit: BoxFit.contain,
                             ),
@@ -207,16 +232,19 @@ class _HandGamePageState extends State<HandGamePage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int currentBall) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () {
+              context.read<LevelProvider>().clearCurrentLevel();
+              Navigator.of(context).pop();
+            },
             child: Image.asset(
-              _backBtn,
+              _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
               fit: BoxFit.fill,
@@ -224,9 +252,9 @@ class _HandGamePageState extends State<HandGamePage> {
           ),
           Row(
             children: [
-              Image.asset(_starIcon, width: 32.w, height: 32.h),
+              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
-              CustomTextWidget(text: "10", sizeText: 32.sp),
+              CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],
           ),
         ],

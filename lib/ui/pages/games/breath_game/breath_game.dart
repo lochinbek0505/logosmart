@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert'; // JSON parse uchun
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -6,19 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
+// O'zingizdagi yo'llarni to'g'irlab olasiz
 import '../../main/widgets/custom_text_widget.dart';
+import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
-
-// {
-// "start_voice":"assets/sound/breath/breath_start.mp3",
-// "blow_voice":"assets/sound/breath/butterfly.mp3",
-// "lottie_animation":"assets/animation/breath/butterfly.json",
-// "background_image":"assets/backround/breath/butterfly_background.jpg",
-// "icon_star":"assets/icons/star.png",
-// "icon_arrow":"assets/icons/arrow_right_button.png",
-// "animation_position":-1.2
-// }
 
 class BreathPage extends StatefulWidget {
   const BreathPage({super.key});
@@ -28,7 +22,9 @@ class BreathPage extends StatefulWidget {
 }
 
 class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
-  //TODO UMUMIY BALL TIZIMINI ISHLAB CHIQISH KERAK VA HAR BIR INCREASE BO'LGAN BALL O'YINLAR VA CAMERA MASHQLARI BOYICHA O'SHA YAGONA PROVIDER BALL TIZIMIDAN FOYDALANISHI KERAK
+  // JSON dan keladigan sozlamalar
+  late Map<String, dynamic> _config;
+
   // Lottie va Audio
   late final AnimationController _lottieController;
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -42,7 +38,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   DateTime? _blowStartTime;
   NoiseMeter? _noiseMeter;
   StreamSubscription<NoiseReading>? _noiseSub;
-  StreamSubscription<void>? _audioCompleteSub; // Ovoz tugashini eshitish uchun
+  StreamSubscription<void>? _audioCompleteSub;
 
   // Ovoz va animatsiya holatlari
   bool _isMicReady = false;
@@ -55,9 +51,6 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   int activeBars = 0;
   int _breathCount = 0;
 
-  //TODO PROVIDER DAN OLINADIGAN QILINADI SHU JOYLARI
-  int _ball = 0;
-
   // Puflash sezgirligi (Detsibel)
   static const double _thresholdDb = 75.0;
 
@@ -65,11 +58,27 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // 1. Lottie Controller
+    // 1. Joriy level ob'ektini Providerdan olish va JSON ni parse qilish
+    final currentLevel = context.read<LevelProvider>().currentLevelData;
+    if (currentLevel != null && currentLevel.game != null) {
+      _config = jsonDecode(currentLevel.game!.jsonConfig);
+    } else {
+      // Xavfsizlik uchun default qiymatlar (kutilmagan xato bo'lsa)
+      _config = {
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/butterfly.mp3",
+        "lottie_animation": "assets/animation/breath/butterfly.json",
+        "background_image": "assets/backround/breath/butterfly_background.jpg",
+        "icon_star": "assets/icons/star.png",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+      };
+    }
+
+    // 2. Lottie Controller
     _lottieController = AnimationController(vsync: this);
     _lottieController.addStatusListener(_onAnimationStatus);
 
-    // 2. Mikrofon Animatsiyalari Controllerlari (Bu yerda repeat qilmaymiz, kutamiz)
+    // 3. Mikrofon Animatsiyalari Controllerlari
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -80,51 +89,48 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
     );
 
-    // Animatsiya qiymatlari (Tweens)
-    _scale = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(parent: _pulse, curve: Curves.easeInOut));
+    _scale = Tween<double>(begin: 1.0, end: 1.1).animate(
+        CurvedAnimation(parent: _pulse, curve: Curves.easeInOut));
 
-    _bounceAnim = Tween<double>(
-      begin: -5.0,
-      end: 5.0,
-    ).animate(CurvedAnimation(parent: _bounce, curve: Curves.easeInOut));
+    _bounceAnim = Tween<double>(begin: -5.0, end: 5.0).animate(
+        CurvedAnimation(parent: _bounce, curve: Curves.easeInOut));
 
-    _colorAnim = ColorTween(
-      begin: Colors.green,
-      end: Colors.lightGreenAccent,
-    ).animate(CurvedAnimation(parent: _pulse, curve: Curves.easeInOut));
+    _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
+        .animate(CurvedAnimation(parent: _pulse, curve: Curves.easeInOut));
 
     // Sahifani initsializatsiya qilish
     _initPage();
   }
 
+  // AudioPlayer AssetSource uchun "assets/" so'zini olib tashlash kerak bo'lishi mumkin
+  String _cleanAudioPath(String path) {
+    if (path.startsWith('assets/')) {
+      return path.replaceFirst('assets/', '');
+    }
+    return path;
+  }
+
   Future<void> _initPage() async {
-    // 1. Ovoz to'liq tugashini kuzatamiz
     _audioCompleteSub = _audioPlayer.onPlayerComplete.listen((_) async {
       _audioCompleteSub?.cancel();
 
       await Future.delayed(const Duration(seconds: 1));
 
-      // 3. Mikrofon ruxsatini so'raymiz
       final micOk = await _ensureMicPermission();
       if (micOk && mounted) {
         setState(() {
           _isMicReady = true;
         });
 
-        // 4. Mikrofon ruxsati olingach va 1 sekund o'tgach animatsiyalarni yoqamiz
         _pulse.repeat(reverse: true);
         _bounce.repeat(reverse: true);
 
-        // 5. Ovozni eshitishni boshlaymiz
         _startListening();
       }
     });
 
-    // Ovozni chalishni boshlaymiz (bu qator faqat play qilib beradi, kutish tepadagi tinglovchida bo'ladi)
-    await _audioPlayer.play(AssetSource('sound/breath/breath_start.mp3'));
+    // Boshlang'ich ovozni JSON dan olib ishga tushirish
+    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['start_voice'])));
   }
 
   void _startListening() {
@@ -134,12 +140,9 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
   void _onAnimationStatus(AnimationStatus status) async {
     if (status == AnimationStatus.completed) {
-      // Ovoz chalish buyrug'i bu yerdan olib tashlandi
-      // (chunki bu animatsiya tugagan holat).
       if (_breathCount == 3) {
         _gameEnd();
       }
-      // Yangi puflashni qabul qilish uchun holatni qaytarish (2 sekund kutib)
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           setState(() {
@@ -153,25 +156,26 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   void _gameEnd() async {
     print("Game end");
 
-    // TODO: OYIN TUGAGANINI PROVIDERGA YUBORISH KERAK VA BALL QO'SHISH KERAK
-    setState(() {
-      _ball += 10;
-    });
+    // ==========================================
+    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+    // ==========================================
+    final provider = context.read<LevelProvider>();
+    provider.addBall(10); // 10 ball qo'shish
+    provider.unlock(stars: 3); // 3 yulduz bilan keyingi levelni ochish
 
-    // 1. Muvaffaqiyatli ovozni chalish
+    // Muvaffaqiyatli ovozni chalish
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
-    // 2. Bolalarga mos, qiziqarli dialog ko'rsatish
     if (!mounted) return;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        // Yaratgan widgetimizni chaqiramiz
         return GameSuccessDialog(
           earnedScore: 10,
           onContinue: () {
+            provider.clearCurrentLevel(); // Level state'ni tozalash
             Navigator.pop(context); // Dialogni yopish
             Navigator.pop(context); // O'yin sahifasidan chiqish
           },
@@ -187,36 +191,26 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     int calculatedBars = ((db - 30) / 10).clamp(0, heights.length).toInt();
 
     if (db > _thresholdDb) {
-      // Ovoz balandlasha boshlaganda vaqtni qayd qilamiz
       _blowStartTime ??= DateTime.now();
-
-      // Ovoz qancha vaqtdan beri baland ekanligini hisoblaymiz
       final blowDuration = DateTime.now().difference(_blowStartTime!);
 
-      // Mikrofon vizualizatsiyasini darhol yashil qilib yoqamiz
       setState(() {
         activeBars = calculatedBars;
         _isRecording = true;
       });
 
-      // AGAR ovoz uzluksiz kamida 400 millisoniya (0.4 sekund) davom etgan bo'lsa:
       if (blowDuration.inMilliseconds > 400) {
         if (!_lottieController.isAnimating && !_hasBlown) {
           _hasBlown = true;
 
-          // Animatsiya va ovozni bir vaqtda ishga tushiramiz
-          _audioPlayer.play(AssetSource('sound/breath/butterfly.mp3'));
+          // JSON dan olingan puflash ovozini chalish
+          _audioPlayer.play(AssetSource(_cleanAudioPath(_config['blow_voice'])));
           _lottieController.forward(from: 0.0);
           _breathCount++;
         }
       }
-      print(
-        "Blow duration: ${blowDuration.inMilliseconds} ms, Blow count: $_breathCount",
-      );
     } else {
-      // Ovoz pasaysa (uzilib qolsa), taymerni nollaymiz (oraga qisqa shovqin tushgan bo'lsa bekor qilinadi)
       _blowStartTime = null;
-
       setState(() {
         activeBars = calculatedBars;
         _isRecording = false;
@@ -242,13 +236,14 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // PROVIDERDAN UMUMIY BALLNI KUZATISH
+    final totalBall = context.watch<LevelProvider>().ball;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(
-              "assets/backround/breath/butterfly_background.jpg",
-            ),
+            image: AssetImage(_config['background_image']), // JSON dan rasm
             fit: BoxFit.cover,
           ),
         ),
@@ -267,10 +262,11 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                     height: 50.h,
                     child: GestureDetector(
                       onTap: () {
+                        context.read<LevelProvider>().clearCurrentLevel();
                         Navigator.pop(context);
                       },
                       child: Image.asset(
-                        "assets/icons/arrow_right_button.png",
+                        _config['icon_arrow'], // JSON dan back knopka
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -278,12 +274,15 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                   Row(
                     children: [
                       Image.asset(
-                        "assets/icons/star.png",
+                        _config['icon_star'], // JSON dan yulduzcha
                         width: 40.w,
                         height: 40.h,
                       ),
                       SizedBox(width: 8.w),
-                      CustomTextWidget(text: _ball.toString(), sizeText: 32.sp),
+                      CustomTextWidget(
+                        text: totalBall.toString(), // Provider balli chiziladi
+                        sizeText: 32.sp,
+                      ),
                     ],
                   ),
                 ],
@@ -294,7 +293,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
             // Lottie animatsiyasi
             Lottie.asset(
-              'assets/animation/breath/butterfly.json',
+              _config['lottie_animation'], // JSON dan lottie animation
               controller: _lottieController,
               animate: _isMicReady,
               onLoaded: (composition) {

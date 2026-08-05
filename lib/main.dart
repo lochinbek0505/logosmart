@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
-import 'package:logosmart/ui/pages/home/home_page.dart';
-import 'package:logosmart/ui/pages/main/main_page.dart';
-import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -98,14 +95,19 @@ class AuthChecker extends StatelessWidget {
           ),
 
           ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
-          ExerciseStep(text: 'Tilni pastga chiqarib ko‘rsating', action: "past"),
+          ExerciseStep(
+            text: 'Tilni pastga chiqarib ko‘rsating',
+            action: "past",
+          ),
 
           ExerciseStep(
             text: 'Tilni chapga chiqarib ko‘rsating',
             action: "chap",
           ),
-          ExerciseStep(text: 'Tilni tepaga chiqarib ko‘rsating', action: "tepa"),
-
+          ExerciseStep(
+            text: 'Tilni tepaga chiqarib ko‘rsating',
+            action: "tepa",
+          ),
         ],
       ),
     );

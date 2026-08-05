@@ -1,17 +1,19 @@
 import 'dart:async';
+import 'dart:convert'; // JSON o'qish uchun
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/games/arrow_game/widgets/arrow_line_widget.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart'; // Provider importi
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../../../models/target_node_model.dart';
 import '../../main/widgets/custom_text_widget.dart';
+import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
 
 class ArrowGamePage extends StatefulWidget {
@@ -21,77 +23,22 @@ class ArrowGamePage extends StatefulWidget {
   State<ArrowGamePage> createState() => _ArrowGamePageState();
 }
 
-const String _micIcon = "assets/icons/micrafon.png";
-const String _startVoice = "sound/arrow/arrow_start.mp3";
-const String _backBtn = "assets/icons/arrow_right_button.png";
-
 class _ArrowGamePageState extends State<ArrowGamePage>
     with TickerProviderStateMixin {
+  // JSON dan keladigan sozlamalar
+  late Map<String, dynamic> _config;
+  late String _centerLetter;
+  late List<TargetNode> _outerNodes;
+
   final double innerRadius = 70.w;
   final double outerRadius = 150.w;
-  final String centerLetter = "R";
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioRecorder _audioRecorder = AudioRecorder();
   final UzbekVoiceSttService _sttService = UzbekVoiceSttService();
 
-  final List<TargetNode> outerNodes = [
-    // Izoh: Oxirgi parametr (masalan "AGGG") _checkVoiceMatch da solishtirish uchun ishlatiladi
-    TargetNode(
-      0,
-      "A",
-      AppColors.orange_400,
-      -180,
-      "assets/sound/arrow/ar.mp3",
-      "aarr",
-    ),
-    TargetNode(
-      1,
-      "O",
-      AppColors.green_600,
-      -90,
-      "assets/sound/arrow/or.mp3",
-      "oorr",
-    ),
-    TargetNode(
-      2,
-      "U",
-      AppColors.pink_400,
-      0,
-      "assets/sound/arrow/ur.mp3",
-      "uurr",
-    ),
-    // TargetNode(
-    //   3,
-    //   "I",
-    //   const Color(0xFFF2C860),
-    //   30,
-    //   "assets/sound/arrow/ir.mp3",
-    //   "iirr",
-    // ),
-    TargetNode(
-      4,
-      "E",
-      const Color(0xFF7FD8F7),
-      90,
-      "assets/sound/arrow/er.mp3",
-      "ERRR",
-    ),
-    // TargetNode(
-    //   5,
-    //   "O'",
-    //   AppColors.red_300,
-    //   150,
-    //   "assets/sound/arrow/o1r.mp3",
-    //   "o'r",
-    // ),
-  ];
-
-
-
   Map<int, int> connectedLines = {};
 
-  int _ball = 20;
   bool _isRecording = false;
   bool _isLoading = false;
   String? _recordedFilePath;
@@ -106,6 +53,37 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   @override
   void initState() {
     super.initState();
+
+    // 1. Level ma'lumotlarini Providerdan o'qish va parse qilish
+    final currentLevel = context.read<LevelProvider>().currentLevelData;
+    if (currentLevel != null && currentLevel.game != null) {
+      _config = jsonDecode(currentLevel.game!.jsonConfig);
+      _centerLetter = _config['center_letter'] ?? "R";
+
+      // Node larni JSON dan ob'ektga aylantirish
+      _outerNodes = (_config['outer_nodes'] as List).map<TargetNode>((node) {
+        return TargetNode(
+          node['id'],
+          node['letter'],
+          Color(int.parse(node['color'])), // Hex kodidan rang yaratamiz
+          (node['angle'] as num).toDouble(),
+          node['sound'],
+          node['target_text'],
+        );
+      }).toList();
+    } else {
+      // Fallback xavfsizlik (Kutilmagan xatolik uchun)
+      _config = {
+        "start_voice": "assets/sound/arrow/arrow_start.mp3",
+        "background_image": "assets/backround/arrow/arrow_back_1.jpg",
+        "icon_star": "assets/icons/star.png",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "icon_mic": "assets/icons/micrafon.png",
+      };
+      _centerLetter = "R";
+      _outerNodes = [];
+    }
+
     _initAnimations();
     _initPage();
   }
@@ -133,15 +111,24 @@ class _ArrowGamePageState extends State<ArrowGamePage>
         );
   }
 
+  String _cleanAudioPath(String path) {
+    if (path.startsWith('assets/')) {
+      return path.replaceFirst('assets/', '');
+    }
+    return path;
+  }
+
   Future<void> _initPage() async {
-    await _playAudioAndWait(_startVoice);
+    if (_config['start_voice'] != null) {
+      await _playAudioAndWait(_config['start_voice']);
+    }
   }
 
   Future<void> _playAudioAndWait(String path) async {
     final completer = Completer<void>();
     StreamSubscription<void>? subscription;
 
-    String cleanPath = path.replaceFirst('assets/', '');
+    String cleanPath = _cleanAudioPath(path);
 
     subscription = _audioPlayer.onPlayerComplete.listen((_) {
       subscription?.cancel();
@@ -184,7 +171,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           _isRecording = false;
           _pulseController.stop();
           _bounceController.stop();
-          _isLoading = true; // STT API javobini kutishni boshlaymiz
+          _isLoading = true;
         });
       }
     }
@@ -202,9 +189,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
       debugPrint("Tizim eshitgan matn: $recognizedText");
 
-      // Node ning 'matchText' qiymati TargetNode dagi oxirgi parametr,
-      // sizning kodingizda uning nomi qanday bo'lsa (masalan: targetText), shuni bering.
-      // Hozirgi faraz: node.matchText yoki node.targetText
       bool isMatched = _checkVoiceMatch(recognizedText, node.text);
 
       if (isMatched) {
@@ -232,38 +216,33 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   }
 
   bool _checkVoiceMatch(String recognizedText, String targetText) {
-    // 1. Probel va ortiqcha belgilarni olib tashlaymiz.
-    // O'zbek tilidagi O' va G' uchun tutuq belgisi (') ni ham qoldiramiz.
-    String cleanRecognized = recognizedText.toLowerCase().replaceAll(RegExp(r"[^a-z']"), "");
-    String cleanTarget = targetText.toLowerCase().replaceAll(RegExp(r"[^a-z']"), "");
-    print("Clean Recognized: $cleanRecognized, Clean Target: $cleanTarget");
+    String cleanRecognized = recognizedText.toLowerCase().replaceAll(
+      RegExp(r"[^a-z']"),
+      "",
+    );
+    String cleanTarget = targetText.toLowerCase().replaceAll(
+      RegExp(r"[^a-z']"),
+      "",
+    );
+
     if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
 
-    // 2. Target matndan qolib (pattern) yasaymiz
-    // Masalan: Target "arrr" bo'lsa, u "a+r+" qolipiga aylanadi.
     String patternString = "";
     for (int i = 0; i < cleanTarget.length; i++) {
-      // Faqat yonma-yon takrorlanmagan harflarni olamiz
       if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
-        // Har bir harf orqasiga "+" qo'shamiz (ma'nosi: shu harfdan 1 ta yoki undan ko'p bo'lsin)
         patternString += "${cleanTarget[i]}+";
       }
     }
 
-    // 3. Tizim eshitgan matnni shu qolibga solib tekshiramiz
     RegExp regExp = RegExp(patternString);
-
-    // .hasMatch() agar matn ichida biz yasagan qolib (masalan "a+r+") topilsa true qaytaradi.
     return regExp.hasMatch(cleanRecognized);
   }
+
   void _handleWrongAnswer() async {
     _showSnackbar("Xato eshitildi, qayta urinib ko'ring!", Colors.red);
-    // Agar xato javob uchun alohida audio bo'lsa:
-    // await _playAudioAndWait('sound/error.mp3');
   }
 
   Future<void> _onNodeTapped(TargetNode node) async {
-    // Agar chiziq tortilgan bo'lsa, mikrofon yozayotgan yoki yuklanayotgan bo'lsa bloklaymiz
     if (_isRecording ||
         _isLoading ||
         connectedLines.containsKey(node.id) ||
@@ -275,17 +254,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       _activeVoiceItemId = node.id;
     });
 
-    // 1. Harf ovozini chalish
     await _audioPlayer.stop();
     await _playAudioAndWait(node.sound);
-
-    // 2. Yozib olishni boshlash
     await _startRecording();
-
-    // 3. Bolaga gapirish uchun 3 soniya vaqt berish
     await Future.delayed(const Duration(seconds: 3));
-
-    // 4. To'xtatish va tekshirish
     await _stopAndCheckRecording(node);
 
     if (mounted) {
@@ -296,15 +268,16 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   }
 
   void _checkGameEnd() {
-    if (connectedLines.length == outerNodes.length) {
+    if (connectedLines.length == _outerNodes.length) {
       _gameEnd();
     }
   }
 
   void _gameEnd() async {
-    setState(() {
-      _ball += 10;
-    });
+    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+    final provider = context.read<LevelProvider>();
+    provider.addBall(10);
+    provider.unlock(stars: 3);
 
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
@@ -317,8 +290,9 @@ class _ArrowGamePageState extends State<ArrowGamePage>
         return GameSuccessDialog(
           earnedScore: 10,
           onContinue: () {
+            provider.clearCurrentLevel(); // Xotirani tozalaymiz
             Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.pop(context); // Xaritaga qaytish
           },
         );
       },
@@ -336,11 +310,14 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
   @override
   Widget build(BuildContext context) {
+    // UMUMIY BALLNI PROVIDERDAN OLAMIZ
+    final totalBall = context.watch<LevelProvider>().ball;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/backround/arrow/arrow_back_1.jpg"),
+            image: AssetImage(_config['background_image']), // JSON
             fit: BoxFit.fill,
           ),
         ),
@@ -351,14 +328,13 @@ class _ArrowGamePageState extends State<ArrowGamePage>
               // Header
               Padding(
                 padding: EdgeInsets.only(top: 10.h),
-                child: _buildHeader(),
+                child: _buildHeader(totalBall),
               ),
 
               // Game Area
               Expanded(
                 child: Center(
                   child: SizedBox(
-                    // Maydonni kattalashtiramiz, harflar bemalol sig'ishi uchun
                     width: 360.w,
                     height: 380.h,
                     child: LayoutBuilder(
@@ -369,7 +345,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                         );
 
                         return Stack(
-                          // Tashqariga chiqqan elementlar kesilib qolmasligi uchun qo'shiladi:
                           clipBehavior: Clip.none,
                           children: [
                             // Lines Painter
@@ -382,8 +357,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 centerPoint: centerPoint,
                                 innerRadius: innerRadius,
                                 outerRadius: outerRadius,
-                                // Agar baribir chetga chiqsa, yuqorida buni 120.w yoki 130.w qilib kamaytiring
-                                outerNodes: outerNodes,
+                                outerNodes: _outerNodes,
+                                // JSON
                                 connectedLines: connectedLines,
                                 activeInnerNode: null,
                                 currentDragPosition: null,
@@ -403,7 +378,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 ),
                                 child: Center(
                                   child: CustomTextWidget(
-                                    text: centerLetter,
+                                    text: _centerLetter, // JSON
                                     sizeText: 96.sp,
                                     textColor: const Color(0xFF4A90E2),
                                     strokeWidth: 8.w,
@@ -413,20 +388,17 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                             ),
 
                             // Inner Circles
-                            ...List.generate(outerNodes.length, (index) {
+                            ...List.generate(_outerNodes.length, (index) {
                               final pos = _calculatePosition(
                                 centerPoint,
                                 innerRadius,
-                                outerNodes[index].angle,
+                                _outerNodes[index].angle,
                               );
                               return Positioned(
                                 left: pos.dx - 12.w,
-                                // 36 / 2
                                 top: pos.dy - 15.w,
                                 width: 30.w,
-                                // Aniq o'lcham
                                 height: 30.w,
-                                // Aniq o'lcham
                                 child: Container(
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
@@ -444,7 +416,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                             }),
 
                             // Outer Letters
-                            ...outerNodes.map((node) {
+                            ..._outerNodes.map((node) {
                               final pos = _calculatePosition(
                                 centerPoint,
                                 outerRadius,
@@ -454,20 +426,15 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                   .containsKey(node.id);
 
                               return Positioned(
-                                // 80.w lik konteynerning roppa-rosa yarmini ayiramiz
                                 left: pos.dx - 40.w,
                                 top: pos.dy - 40.h,
                                 width: 80.w,
-                                // Aniq o'lcham beramiz
                                 height: 80.h,
-                                // Aniq o'lcham beramiz
                                 child: GestureDetector(
                                   onTap: () => _onNodeTapped(node),
                                   child: Container(
                                     color: Colors.transparent,
-                                    // Tap zonani butun quti bo'ylab ishlatish uchun
                                     alignment: Alignment.center,
-                                    // Harfni markazga aniq tushiradi
                                     child: CustomTextWidget(
                                       text: node.letter,
                                       sizeText: 64.sp,
@@ -533,7 +500,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                         "assets/icons/circle.png",
                                       ),
                                       child: Image.asset(
-                                        _micIcon,
+                                        _config['icon_mic'], // JSON
                                         width: 24.w,
                                         height: 32.h,
                                         color: _isRecording
@@ -556,16 +523,19 @@ class _ArrowGamePageState extends State<ArrowGamePage>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int currentBall) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () {
+              context.read<LevelProvider>().clearCurrentLevel();
+              Navigator.of(context).pop();
+            },
             child: Image.asset(
-              _backBtn,
+              _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
               fit: BoxFit.fill,
@@ -573,9 +543,13 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           ),
           Row(
             children: [
-              Image.asset("assets/icons/star.png", width: 40.w, height: 40.h),
+              Image.asset(
+                _config['icon_star'], // JSON
+                width: 40.w,
+                height: 40.h,
+              ),
               SizedBox(width: 8.w),
-              CustomTextWidget(text: _ball.toString(), sizeText: 32.sp),
+              CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],
           ),
         ],

@@ -83,6 +83,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
           onPressed: () {

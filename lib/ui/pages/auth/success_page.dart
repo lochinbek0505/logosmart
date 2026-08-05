@@ -11,13 +11,14 @@ class SuccessPage extends StatefulWidget {
 
   @override
   State<SuccessPage> createState() => _SuccessPageState();
+
 }
 
 class _SuccessPageState extends State<SuccessPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.light_blue_400, // Yoki havorang fon
+      backgroundColor: AppColors.light_blue_400,
       body: Column(
         children: [
           Container(

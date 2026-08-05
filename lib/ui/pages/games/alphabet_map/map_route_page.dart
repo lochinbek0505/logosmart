@@ -5,6 +5,7 @@ import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/level_button.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/tiled_background.dart';
+import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -186,7 +187,6 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                     ),
                   ),
 
-                  // LOTTIE ANIMATSIYALARI (Eng tagda turishi uchun LevelButtonlardan oldin yoziladi)
                   ...decorations.map((decor) {
                     final px = decor.dx * size.width;
                     final py = decor.dy * size.height;
@@ -256,6 +256,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                   ),
 
                   // ASOSIY LEVEL TUGMALARI
+                  // ASOSIY LEVEL TUGMALARI
                   ...levels.map((l) {
                     final px = l.dx * size.width;
                     final py = l.dy * size.height;
@@ -269,28 +270,36 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                         level: l,
                         isCurrent: isCurrent,
                         onTap: () {
+                          // Agar level qulf bo'lsa, hech nima qilmaymiz
                           if (l.locked) return;
 
-                          var lv = levelStates[l.id - 1];
-                          var hasAbout = false;
+                          // 1. To'liq LevelState ob'ektini xavfsiz qilib topib olamiz
+                          final lv = levelStates.firstWhere(
+                            (e) => e.id == l.id,
+                          );
+
+                          // 2. Navigatsiyadan oldin Provider'ga ushbu level ochilayotganini bildiramiz.
+                          // Bu orqali Provider hozir qaysi level o'ynalayotganini eslab qoladi.
+                          context.read<LevelProvider>().openLevel(lv);
+
+                          // 3. Endi qayerga o'tishni aniqlaymiz
+                          bool hasAbout = false;
                           if (lv.exercise != null &&
                               lv.exercise!.steps.isNotEmpty) {
-                            hasAbout = lv.exercise!.steps[0].action == "about";
+                            hasAbout =
+                                lv.exercise!.steps.first.action == "about";
                           }
+
                           if (hasAbout) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (b) =>
-                                    StartTextPage(data: levelStates[l.id - 1]),
+                                builder: (b) => StartTextPage(data: lv),
                               ),
                             );
                           } else if (lv.game != null) {
                             navigationTo(lv.game!.type);
                           } else if (lv.exercise != null) {
-                            context.read<LevelProvider>().setCurrentLevel(
-                              l.id - 1,
-                            );
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -351,7 +360,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
       case "path_game":
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => MapRoadPage()));
+        ).push(MaterialPageRoute(builder: (_) => ItemAndFinishPathGamePage()));
         break;
       case "puzzle_game":
         Navigator.of(

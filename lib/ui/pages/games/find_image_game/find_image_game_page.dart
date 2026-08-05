@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert'; // JSON o'qish uchun
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -6,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
+import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
 
 class FindImageGamePage extends StatefulWidget {
@@ -19,53 +22,22 @@ class FindImageGamePage extends StatefulWidget {
   State<FindImageGamePage> createState() => _FindImageGamePageState();
 }
 
-const String _backBtn = "assets/icons/arrow_right_button.png";
-const String _starIcon = "assets/icons/star.png";
-const String _micIcon = "assets/icons/micrafon.png";
-const String _startVoice = "sound/find_image/game_1_start.mp3";
-const String _successSound = "sound/success.mp3";
-const String _incorrectSound = "sound/diagnostic_error.mp3";
-
-const List<Map<String, dynamic>> _gameList = [
-  {
-    "image": "assets/game/find_image/ari.png",
-    "sound": "assets/sound/find_image/ari.mp3",
-    "text": "ari",
-    "isCorrect": true,
-  },
-  {
-    "image": "assets/game/find_image/pasha.png",
-    "sound": "assets/sound/find_image/pashsha.mp3",
-    "text": "pashsha",
-    "isCorrect": false,
-  },
-  {
-    "image": "assets/game/find_image/ninachi.png",
-    "sound": "assets/sound/find_image/ninachi.mp3",
-    "text": "ninachi",
-    "isCorrect": false,
-  },
-  {
-    "image": "assets/game/find_image/qongiz.png",
-    "sound": "assets/sound/find_image/qongiz.mp3",
-    "text": "qo'ng'iz",
-    "isCorrect": false,
-  },
-];
-
 class _FindImageGamePageState extends State<FindImageGamePage>
     with TickerProviderStateMixin {
+
+  // JSON dan keladigan sozlamalar
+  late Map<String, dynamic> _config;
+  late List<Map<String, dynamic>> _gameList;
+
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioRecorder _audioRecorder = AudioRecorder();
   final UzbekVoiceSttService _sttService = UzbekVoiceSttService();
 
   bool _isRecording = false;
-  bool _isLoading = false; // STT javobini kutayotganda true bo'ladi
-  bool _isPlayingAudio = false; // Ovoz aytilayotganda true bo'ladi
+  bool _isLoading = false;
+  bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
   String? _recordedFilePath;
-
-  int _ball = 10;
 
   // 3 soniyalik intervalni boshqarish uchun taymer
   Timer? _recordingTimer;
@@ -83,8 +55,39 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   @override
   void initState() {
     super.initState();
+    _initLevelConfig();
     _initAnimations();
     _initPage();
+  }
+
+  void _initLevelConfig() {
+    // 1. Joriy levelni Providerdan o'qib JSON ni parse qilamiz
+    final currentLevel = context.read<LevelProvider>().currentLevelData;
+
+    if (currentLevel != null && currentLevel.game != null) {
+      _config = jsonDecode(currentLevel.game!.jsonConfig);
+
+      // JSON ichidagi elementlarni listga olamiz
+      List dynamicItems = _config['items'] ?? [];
+      _gameList = List<Map<String, dynamic>>.from(dynamicItems);
+    } else {
+      // Fallback
+      _config = {
+        "start_voice": "assets/sound/find_image/game_1_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
+        "background_image": "assets/backround/fon_q.png",
+        "icon_star": "assets/icons/star.png",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "icon_mic": "assets/icons/micrafon.png",
+      };
+      _gameList = [
+        {"image": "assets/game/find_image/ari.png", "sound": "assets/sound/find_image/ari.mp3", "text": "ari", "isCorrect": true},
+        {"image": "assets/game/find_image/pasha.png", "sound": "assets/sound/find_image/pashsha.mp3", "text": "pashsha", "isCorrect": false},
+        {"image": "assets/game/find_image/ninachi.png", "sound": "assets/sound/find_image/ninachi.mp3", "text": "ninachi", "isCorrect": false},
+        {"image": "assets/game/find_image/qongiz.png", "sound": "assets/sound/find_image/qongiz.mp3", "text": "qo'ng'iz", "isCorrect": false},
+      ];
+    }
   }
 
   void _initAnimations() {
@@ -115,6 +118,14 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     )..repeat(reverse: true);
   }
 
+  // AudioPathdagi assets/ so'zini tozalash funksiyasi
+  String _cleanAudioPath(String path) {
+    if (path.startsWith('assets/')) {
+      return path.replaceFirst('assets/', '');
+    }
+    return path;
+  }
+
   Future<void> _initPage() async {
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -123,8 +134,9 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       _isPlayingAudio = true;
     });
 
-    // Faqat o'yin sharti aytiladi, mikrofon yoqilmaydi
-    await _playAudioAndWait(_startVoice);
+    if (_config['start_voice'] != null) {
+      await _playAudioAndWait(_config['start_voice']);
+    }
 
     if (!mounted) return;
     setState(() {
@@ -133,17 +145,15 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   }
 
   Future<void> _onItemTap(int index) async {
-    // Agar STT (API) kutayotgan yoki yangi audio play bo'layotgan bo'lsa indamaymiz
     if (_isLoading || _isPlayingAudio) return;
 
-    // MARK: Agar 3 sekund tugamay boshqasini bossa, avvalgi yozishni bekor qilamiz!
     if (_isRecording) {
       _recordingTimer?.cancel();
       if (await _audioRecorder.isRecording()) {
         await _audioRecorder.stop();
       }
       setState(() {
-        _isRecording = false; // Mikrofon shu joyning o'zida nofaol bo'ladi
+        _isRecording = false;
         _pulseController.stop();
         _bounceController.stop();
       });
@@ -155,19 +165,15 @@ class _FindImageGamePageState extends State<FindImageGamePage>
 
     final item = _gameList[index];
 
-    // 1. Rasm ovozini eshittirish va tugashini kutish
     await _playAudioAndWait(item["sound"]);
 
-    // 2. Ovoz tugagach, mikrofon yozishga o'tish uchun holatni yangilaymiz
     if (!mounted) return;
     setState(() {
       _isPlayingAudio = false;
     });
 
-    // 3. Mikrofonni ishga tushirish
     await _startRecording();
 
-    // 4. Timer orqali roppa-rosa 3 soniya berish (Future.delayed o'rniga ishlatiladi)
     _recordingTimer = Timer(const Duration(seconds: 3), () {
       _stopAndCheckRecording();
     });
@@ -206,11 +212,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
           _isRecording = false;
           _pulseController.stop();
           _bounceController.stop();
-          _isLoading = true; // STT API ga zapros ketyapti, endi loading chiqaramiz
+          _isLoading = true;
         });
       }
     } else {
-      return; // Agar yozib olish avvalroq bekor qilingan bo'lsa (boshqa rasm bosilganda)
+      return;
     }
 
     if (_recordedFilePath == null) {
@@ -229,7 +235,6 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       if (recognizedText.isNotEmpty) {
         _evaluateRecognizedText(recognizedText);
       } else {
-        // Hech narsa eshitilmasa
         _handleWrongAnswer();
       }
     } catch (e) {
@@ -238,7 +243,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false; // Tekshiruv tugadi
+          _isLoading = false;
         });
       }
     }
@@ -260,7 +265,6 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       }
     }
 
-    // Aytilgan matn hech biriga o'xshamasa
     if (!isMatchedAtAll) {
       _handleWrongAnswer();
     }
@@ -287,11 +291,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     if (mounted) {
       setState(() {
         _showErrorAnim = true;
-        _isPlayingAudio = true; // Xato ovozi chiqayotganda bloklash
+        _isPlayingAudio = true;
       });
     }
 
-    await _playAudioAndWait(_incorrectSound);
+    await _playAudioAndWait(_config['incorrect_sound']);
 
     if (mounted) {
       setState(() {
@@ -302,13 +306,18 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   }
 
   void _gameEnd() async {
+    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+    final provider = context.read<LevelProvider>();
+    provider.addBall(10);
+    provider.unlock(stars: 3);
+
     if (mounted) {
       setState(() {
-        _ball += 10;
-        _isPlayingAudio = true; // Success ovozida bloklash
+        _isPlayingAudio = true;
       });
     }
-    await _audioPlayer.play(AssetSource(_successSound.replaceFirst('assets/', '')));
+
+    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
 
     if (!mounted) return;
     showDialog(
@@ -318,8 +327,9 @@ class _FindImageGamePageState extends State<FindImageGamePage>
         return GameSuccessDialog(
           earnedScore: 10,
           onContinue: () {
+            provider.clearCurrentLevel(); // Xotirani tozalash
             Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.pop(context); // Xaritaga qaytish
           },
         );
       },
@@ -330,7 +340,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     final completer = Completer<void>();
     StreamSubscription<void>? subscription;
 
-    String cleanPath = path.replaceFirst('assets/', '');
+    String cleanPath = _cleanAudioPath(path);
 
     subscription = _audioPlayer.onPlayerComplete.listen((_) {
       subscription?.cancel();
@@ -357,15 +367,18 @@ class _FindImageGamePageState extends State<FindImageGamePage>
 
   @override
   Widget build(BuildContext context) {
+    // UMUMIY BALLNI PROVIDERDAN OLAMIZ
+    final totalBall = context.watch<LevelProvider>().ball;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.png"),
+                image: AssetImage(_config['background_image']), // JSON
                 fit: BoxFit.fill,
               ),
             ),
@@ -376,7 +389,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
                   Column(
                     children: [
                       SizedBox(height: 10.h),
-                      _buildHeader(),
+                      _buildHeader(totalBall),
                     ],
                   ),
                   Center(
@@ -440,7 +453,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
             alignment: Alignment.center,
             children: [
               Image.asset(
-                item["image"]!,
+                item["image"]!, // JSON
                 width: 120.w,
                 height: 120.h,
               ),
@@ -456,7 +469,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       padding: EdgeInsets.only(bottom: 20.h),
       child: SizedBox(
         height: 110.h,
-        child: _isLoading // Faqatgina STT ga yuborilganda true bo'ladi
+        child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : AnimatedBuilder(
           animation: Listenable.merge([
@@ -497,7 +510,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
                         "assets/icons/circle.png",
                       ),
                       child: Image.asset(
-                        _micIcon,
+                        _config['icon_mic'], // JSON
                         width: 24.w,
                         height: 32.h,
                         color: _isRecording
@@ -515,16 +528,19 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int currentBall) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () {
+              context.read<LevelProvider>().clearCurrentLevel();
+              Navigator.of(context).pop();
+            },
             child: Image.asset(
-              _backBtn,
+              _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
               fit: BoxFit.fill,
@@ -532,9 +548,9 @@ class _FindImageGamePageState extends State<FindImageGamePage>
           ),
           Row(
             children: [
-              Image.asset(_starIcon, width: 32.w, height: 32.h),
+              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
-              CustomTextWidget(text: _ball.toString(), sizeText: 32.sp),
+              CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],
           ),
         ],

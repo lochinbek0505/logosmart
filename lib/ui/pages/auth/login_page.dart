@@ -44,7 +44,13 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: AppColors.white),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        scrolledUnderElevation: 0,
+        // Scroll bo'lganda elevation qo'shilmasligi uchun
+        surfaceTintColor:
+            Colors.transparent, // Material 3 tint rangini olib tashlash uchun
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(

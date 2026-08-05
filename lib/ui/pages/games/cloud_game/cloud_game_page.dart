@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert'; // JSON o'qish uchun
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -6,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart'; // Provider importi
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
+import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
 
 class CloudGamePage extends StatefulWidget {
@@ -19,18 +22,12 @@ class CloudGamePage extends StatefulWidget {
   State<CloudGamePage> createState() => _CloudGamePageState();
 }
 
-// Kerakli asset yo'llari
-const String _backBtn = "assets/icons/arrow_right_button.png";
-const String _starIcon = "assets/icons/star.png";
-const String _micIcon = "assets/icons/micrafon.png";
-const String _startVoice = "sound/find_image/game_1_start.mp3";
-const String _successSound = "sound/success.mp3";
-const String _incorrectSound = "sound/diagnostic_error.mp3";
-const String _helicopterImage = "assets/game/cloud_game/helicopter.png";
-const String _cloudImage = "assets/game/cloud_game/cloud.png";
-
 class _CloudGamePageState extends State<CloudGamePage>
     with TickerProviderStateMixin {
+
+  // JSON dan keladigan sozlamalar
+  late Map<String, dynamic> _config;
+
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioRecorder _audioRecorder = AudioRecorder();
   final UzbekVoiceSttService _sttService = UzbekVoiceSttService();
@@ -40,9 +37,7 @@ class _CloudGamePageState extends State<CloudGamePage>
   bool _showErrorAnim = false;
   String? _recordedFilePath;
 
-  int _ball = 10;
-
-  // Bulutlar ro'yxati (har biriga holat qo'shildi)
+  // Bulutlar ro'yxati (har biriga isMatched holati qo'shiladi)
   late List<Map<String, dynamic>> _cloudList;
   Map<String, dynamic>? _activeCloud; // Vertolyotga tashlangan joriy bulut
 
@@ -62,25 +57,44 @@ class _CloudGamePageState extends State<CloudGamePage>
   @override
   void initState() {
     super.initState();
-    _initClouds();
+    _initLevelConfig();
     _initAnimations();
     _initPage();
   }
 
-  void _initClouds() {
-    // isMatched: true bo'lsa ekrandan g'oyib bo'ladi
-    _cloudList = [
-      {"id": 1, "text": "ar", "music": "assets/sound/cloud_game/ar.mp3", "isMatched": false},
-      {"id": 2, "text": "ir", "music": "assets/sound/cloud_game/ir.mp3", "isMatched": false},
-      {"id": 3, "text": "ur", "music": "assets/sound/cloud_game/ur.mp3", "isMatched": false},
-      {"id": 4, "text": "er", "music": "assets/sound/cloud_game/er.mp3", "isMatched": false},
-      {"id": 5, "text": "re", "music": "assets/sound/cloud_game/re.mp3", "isMatched": false},
-      {"id": 6, "text": "or", "music": "assets/sound/cloud_game/or.mp3", "isMatched": false},
-      {"id": 7, "text": "ru", "music": "assets/sound/cloud_game/ru.mp3", "isMatched": false},
-      {"id": 8, "text": "ro", "music": "assets/sound/cloud_game/ro.mp3", "isMatched": false},
-      {"id": 9, "text": "ri", "music": "assets/sound/cloud_game/ri.mp3", "isMatched": false},
-      {"id": 10, "text": "ra", "music": "assets/sound/cloud_game/ra.mp3", "isMatched": false},
-    ];
+  void _initLevelConfig() {
+    // 1. Level ma'lumotlarini Providerdan o'qish va parse qilish
+    final currentLevel = context.read<LevelProvider>().currentLevelData;
+
+    if (currentLevel != null && currentLevel.game != null) {
+      _config = jsonDecode(currentLevel.game!.jsonConfig);
+
+      // JSON'dagi bulutlarga `isMatched: false` xususiyatini qo'shamiz
+      List dynamicClouds = _config['clouds'] ?? [];
+      _cloudList = dynamicClouds.map((cloud) {
+        return {
+          "id": cloud["id"],
+          "text": cloud["text"],
+          "music": cloud["music"],
+          "isMatched": false,
+        };
+      }).toList();
+
+    } else {
+      // Fallback (Xavfsizlik uchun qoldirildi, agar Provider orqali ochilmasa ishlayveradi)
+      _config = {
+        "start_voice": "assets/sound/find_image/game_1_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
+        "background_image": "assets/backround/fon_q.png",
+        "icon_star": "assets/icons/star.png",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "icon_mic": "assets/icons/micrafon.png",
+        "helicopter_image": "assets/game/cloud_game/helicopter.png",
+        "cloud_image": "assets/game/cloud_game/cloud.png",
+      };
+      _cloudList = []; // Xatolik bo'lsa bo'sh ro'yxat
+    }
   }
 
   void _initAnimations() {
@@ -111,17 +125,27 @@ class _CloudGamePageState extends State<CloudGamePage>
     )..repeat(reverse: true);
   }
 
+  // AudioPathdagi assets/ so'zini tozalash funksiyasi
+  String _cleanAudioPath(String path) {
+    if (path.startsWith('assets/')) {
+      return path.replaceFirst('assets/', '');
+    }
+    return path;
+  }
+
   Future<void> _initPage() async {
     // Faqat o'yin qoidasini aytadi, mikrofon yoqilmaydi
     await Future.delayed(const Duration(milliseconds: 500));
-    await _playAudioAndWait(_startVoice);
+    if (_config['start_voice'] != null) {
+      await _playAudioAndWait(_config['start_voice']);
+    }
   }
 
   Future<void> _playAudioAndWait(String path) async {
     final completer = Completer<void>();
     StreamSubscription<void>? subscription;
 
-    String cleanPath = path.replaceFirst('assets/', '');
+    String cleanPath = _cleanAudioPath(path);
 
     subscription = _audioPlayer.onPlayerComplete.listen((_) {
       subscription?.cancel();
@@ -134,7 +158,6 @@ class _CloudGamePageState extends State<CloudGamePage>
 
   // MARK: - O'yin jarayoni mantiqlari
   Future<void> _onDragStarted(Map<String, dynamic> cloud) async {
-    // Sudrash boshlanganda ovoz qo'yamiz va ovoz tugashini kuzatamiz
     await _audioPlayer.stop();
     _audioCompleter = Completer<void>();
     _audioSub?.cancel();
@@ -145,7 +168,7 @@ class _CloudGamePageState extends State<CloudGamePage>
       }
     });
 
-    String cleanPath = cloud["music"].replaceFirst('assets/', '');
+    String cleanPath = _cleanAudioPath(cloud["music"]);
     await _audioPlayer.play(AssetSource(cleanPath));
   }
 
@@ -156,12 +179,10 @@ class _CloudGamePageState extends State<CloudGamePage>
       _activeCloud = cloud;
     });
 
-    // Musiqa aytilib bo'lishini kutamiz
     if (_audioCompleter != null && !_audioCompleter!.isCompleted) {
       await _audioCompleter!.future;
     }
 
-    // Ovoz tugagach, mikrofonni yoqib 3 soniya kutamiz
     await _startRecording();
     await Future.delayed(const Duration(seconds: 3));
     await _stopAndCheckRecording(cloud);
@@ -200,7 +221,7 @@ class _CloudGamePageState extends State<CloudGamePage>
           _isRecording = false;
           _pulseController.stop();
           _bounceController.stop();
-          _isLoading = true; // STT API javobini kutamiz
+          _isLoading = true;
         });
       }
     }
@@ -221,16 +242,13 @@ class _CloudGamePageState extends State<CloudGamePage>
       bool isMatched = _checkVoiceMatch(recognizedText, cloud["text"]);
 
       if (isMatched) {
-        // Barakalla! To'g'ri topildi
-        await _audioPlayer.play(AssetSource(_successSound.replaceFirst('assets/', '')));
+        await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
         setState(() {
           cloud["isMatched"] = true;
           _activeCloud = null;
-          _ball += 10;
         });
         _checkGameEnd();
       } else {
-        // Noto'g'ri topildi
         _handleWrongAnswer();
       }
     } catch (e) {
@@ -246,43 +264,32 @@ class _CloudGamePageState extends State<CloudGamePage>
   }
 
   bool _checkVoiceMatch(String recognizedText, String targetText) {
-    // 1. Probel va ortiqcha belgilarni olib tashlaymiz.
-    // Masalan, STT "u u u r r r" deb eshitsa, buni birlashtirib "uuurrr" qiladi.
     String cleanRecognized = recognizedText.toLowerCase().replaceAll(RegExp(r"[^a-z'ʻ]"), "");
     String cleanTarget = targetText.toLowerCase().replaceAll(RegExp(r"[^a-z'ʻ]"), "");
-    print("Clean Recognized: $cleanRecognized, Clean Target: $cleanTarget");
+
     if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
 
-    // 2. Target matndan "qolip" (Regex) yasaymiz
     String patternString = "";
     for (int i = 0; i < cleanTarget.length; i++) {
       if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
-        // Har bir harfning oxiriga "+" belgisini qo'shamiz
-        // Regex'da "+" belgisi "shu harf kamida 1 marta yoki undan ko'p marta kelishi mumkin" degani
         patternString += "${cleanTarget[i]}+";
       }
     }
 
-    // Masalan: "ur" kelsa -> patternString "u+r+" ga aylanadi.
-    // "ru" kelsa -> patternString "r+u+" ga aylanadi.
-
     RegExp regExp = RegExp(patternString);
-
-    // .hasMatch() orqali tekshiramiz.
-    // "u+r+" qolipi "uuurrrr", "urrr", "uuuur" kabilarni HAMMASINI to'g'ri (true) deb qabul qiladi.
     return regExp.hasMatch(cleanRecognized);
   }
+
   Future<void> _handleWrongAnswer() async {
     setState(() {
       _showErrorAnim = true;
     });
 
-    await _playAudioAndWait(_incorrectSound);
+    await _playAudioAndWait(_config['incorrect_sound']);
 
     if (mounted) {
       setState(() {
         _showErrorAnim = false;
-        // _activeCloud null qilinganda u yana pastdagi o'z joyiga (Wrap) qaytadi
         _activeCloud = null;
       });
     }
@@ -296,6 +303,11 @@ class _CloudGamePageState extends State<CloudGamePage>
   }
 
   void _gameEnd() {
+    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+    final provider = context.read<LevelProvider>();
+    provider.addBall(10);
+    provider.unlock(stars: 3);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -303,8 +315,9 @@ class _CloudGamePageState extends State<CloudGamePage>
         return GameSuccessDialog(
           earnedScore: 10,
           onContinue: () {
+            provider.clearCurrentLevel(); // Xotirani tozalash
             Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.pop(context); // Xaritaga qaytish
           },
         );
       },
@@ -324,6 +337,9 @@ class _CloudGamePageState extends State<CloudGamePage>
 
   @override
   Widget build(BuildContext context) {
+    // UMUMIY BALLNI PROVIDERDAN OLAMIZ
+    final totalBall = context.watch<LevelProvider>().ball;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0F3F5),
       body: Stack(
@@ -331,9 +347,9 @@ class _CloudGamePageState extends State<CloudGamePage>
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.png"),
+                image: AssetImage(_config['background_image']), // JSON
                 fit: BoxFit.fill,
               ),
             ),
@@ -341,7 +357,7 @@ class _CloudGamePageState extends State<CloudGamePage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(totalBall),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -371,12 +387,11 @@ class _CloudGamePageState extends State<CloudGamePage>
                                       );
                                     },
                                     child: Image.asset(
-                                      _helicopterImage,
+                                      _config['helicopter_image'], // JSON
                                       height: 140.h,
                                       fit: BoxFit.contain,
                                     ),
                                   ),
-                                  // Agar bulut tashlangan bo'lsa, vertolyot tepasida ko'rsatib turamiz
                                   if (_activeCloud != null)
                                     Positioned(
                                       bottom: 20.h,
@@ -398,7 +413,6 @@ class _CloudGamePageState extends State<CloudGamePage>
                             spacing: 12.w,
                             runSpacing: 10.h,
                             children: _cloudList.where((cloud) {
-                              // topilmagan va hozir vertolyotda emas bo'lganlarini ko'rsatadi
                               return cloud["isMatched"] == false && cloud != _activeCloud;
                             }).map((cloud) {
                               int index = _cloudList.indexOf(cloud);
@@ -406,9 +420,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                               return Draggable<Map<String, dynamic>>(
                                 data: cloud,
                                 onDragStarted: () => _onDragStarted(cloud),
-                                // Asl ko'rinishi
                                 child: _buildCloudItem(cloud, index),
-                                // Sudrayotgandagi ko'rinishi (bir oz shaffof)
                                 feedback: Material(
                                   color: Colors.transparent,
                                   child: Opacity(
@@ -416,7 +428,6 @@ class _CloudGamePageState extends State<CloudGamePage>
                                     child: _buildCloudItem(cloud, index),
                                   ),
                                 ),
-                                // Sudrayotganda joyida nima qolishi
                                 childWhenDragging: SizedBox(width: 100.w, height: 60.h),
                               );
                             }).toList(),
@@ -456,9 +467,9 @@ class _CloudGamePageState extends State<CloudGamePage>
       margin: EdgeInsets.only(top: topMargin),
       width: 100.w,
       height: 60.h,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(_cloudImage),
+          image: AssetImage(_config['cloud_image']), // JSON
           fit: BoxFit.contain,
         ),
       ),
@@ -469,7 +480,7 @@ class _CloudGamePageState extends State<CloudGamePage>
           fontSize: 26.sp,
           fontWeight: FontWeight.bold,
           color: const Color(0xFF004466),
-          decoration: TextDecoration.none, // Draggable feedback'da xunuk chiziq tushmasligi uchun
+          decoration: TextDecoration.none,
         ),
       ),
     );
@@ -521,7 +532,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                         "assets/icons/circle.png",
                       ),
                       child: Image.asset(
-                        _micIcon,
+                        _config['icon_mic'], // JSON
                         width: 24.w,
                         height: 32.h,
                         color: _isRecording ? _colorAnim.value : null,
@@ -537,16 +548,19 @@ class _CloudGamePageState extends State<CloudGamePage>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int currentBall) {
     return Padding(
       padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () {
+              context.read<LevelProvider>().clearCurrentLevel();
+              Navigator.of(context).pop();
+            },
             child: Image.asset(
-              _backBtn,
+              _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
               fit: BoxFit.fill,
@@ -554,9 +568,9 @@ class _CloudGamePageState extends State<CloudGamePage>
           ),
           Row(
             children: [
-              Image.asset(_starIcon, width: 32.w, height: 32.h),
+              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
-              CustomTextWidget(text: _ball.toString(), sizeText: 32.sp),
+              CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],
           ),
         ],

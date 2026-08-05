@@ -40,22 +40,20 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
-        ),
+        scrolledUnderElevation: 0, // Scroll bo'lganda elevation qo'shilmasligi uchun
+        surfaceTintColor: Colors.transparent, // Material 3 tint rangini olib tashlash uchun
+        automaticallyImplyLeading: false, // Mana shu qator iconni yo'qotadi
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            // Ekran balandligidan kam bo'lmagan joy egallashi uchun
+
             constraints: BoxConstraints(
               minHeight:
                   MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top,
             ),
+
             child: Form(
               key: _formKey,
               child: IntrinsicHeight(

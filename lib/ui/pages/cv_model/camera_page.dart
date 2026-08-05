@@ -376,6 +376,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                       height: 50.h,
                       child: GestureDetector(
                         onTap: () {
+                          context.read<LevelProvider>().clearCurrentLevel();
                           Navigator.pop(context);
                         },
                         child: Image.asset(

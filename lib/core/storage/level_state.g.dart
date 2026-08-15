@@ -19,17 +19,20 @@ class ExerciseStepAdapter extends TypeAdapter<ExerciseStep> {
     return ExerciseStep(
       text: fields[0] as String,
       action: fields[1] as String,
+      sound: fields[2] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExerciseStep obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.text)
       ..writeByte(1)
-      ..write(obj.action);
+      ..write(obj.action)
+      ..writeByte(2)
+      ..write(obj.sound);
   }
 
   @override
@@ -55,7 +58,7 @@ class ExerciseInfoAdapter extends TypeAdapter<ExerciseInfo> {
     };
     return ExerciseInfo(
       modelPath: fields[0] as String,
-      labelsPath: fields[1] as String,
+      sound: fields[1] as String,
       steps: (fields[2] as List).cast<ExerciseStep>(),
       mediaPath: fields[3] as String,
     );
@@ -68,7 +71,7 @@ class ExerciseInfoAdapter extends TypeAdapter<ExerciseInfo> {
       ..writeByte(0)
       ..write(obj.modelPath)
       ..writeByte(1)
-      ..write(obj.labelsPath)
+      ..write(obj.sound)
       ..writeByte(2)
       ..write(obj.steps)
       ..writeByte(3)

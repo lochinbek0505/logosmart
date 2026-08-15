@@ -153,6 +153,9 @@ flutter:
     - assets/backround/cloud_game/
     - assets/sound/cloud_game/
     - assets/videos/models/
+    - assets/exsep.json
+    - assets/sound/map/
+    - assets/sound/cv/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -133,7 +133,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                             ),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.only(top: 5.0.h, left: 3.w),
+                            padding: EdgeInsets.only(top: 5.0.h, left: 20.w),
                             child: Text(
                               widget.sound,
                               style: TextStyle(
@@ -146,7 +146,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                         ),
                       ),
                     Image.asset(
-                      "assets/game/tiger.png",
+                      widget.image,
                       width: 110.w,
                       fit: BoxFit.contain,
                     ),

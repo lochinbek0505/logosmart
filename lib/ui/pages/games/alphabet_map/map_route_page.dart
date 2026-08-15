@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie.dart';
@@ -68,6 +70,8 @@ class _MapRoadBody extends StatefulWidget {
 }
 
 class _MapRoadBodyState extends State<_MapRoadBody> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   // LEVEL TUGMALARI JOYLASHUVI
   List<Offset> generatePositions(int count) {
     if (count <= 1) {
@@ -91,6 +95,13 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
       return Offset(dx.clamp(0.15, 0.85), dy);
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initPage();
   }
 
   // LOTTIE ANIMATSIYALARI (Tugmalarga umuman tegmaydigan qilib sozlandi)
@@ -289,6 +300,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                             hasAbout =
                                 lv.exercise!.steps.first.action == "about";
                           }
+                          _audioPlayer.dispose();
 
                           if (hasAbout) {
                             Navigator.push(
@@ -367,5 +379,23 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
           context,
         ).push(MaterialPageRoute(builder: (_) => PuzzleGameWidget()));
     }
+  }
+
+  Future<void> initPage() async {
+    await _playLoopingAudio("sound/map/map_music.mp3");
+  }
+
+  Future<void> _playLoopingAudio(String path) async {
+    // Ovozni loop rejimiga o'tkazish
+    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+
+    // Ovozni ijro etish
+    await _audioPlayer.play(AssetSource(path));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _audioPlayer.dispose();
   }
 }

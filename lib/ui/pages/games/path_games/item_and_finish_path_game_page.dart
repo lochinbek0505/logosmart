@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/games/path_games/widgets/iafp_widget.dart';
 import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widget.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
@@ -26,7 +25,6 @@ class ItemAndFinishPathGamePage extends StatefulWidget {
 
 class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
     with TickerProviderStateMixin {
-
   // JSON dan keladigan sozlamalar
   late Map<String, dynamic> _config;
 
@@ -78,10 +76,10 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
             {
               "cp1": {"x": 1.5, "y": 0.7},
               "cp2": {"x": -0.5, "y": 0.3},
-              "endPoint": {"x": 0.8, "y": 0}
-            }
-          ]
-        }
+              "endPoint": {"x": 0.8, "y": 0},
+            },
+          ],
+        },
       };
     }
   }
@@ -105,8 +103,8 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
   }
 
   @override
@@ -160,7 +158,8 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
     try {
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
-        _recordedFilePath = '${tempDir.path}/speech_input_${DateTime.now().millisecondsSinceEpoch}.wav';
+        _recordedFilePath =
+            '${tempDir.path}/speech_input_${DateTime.now().millisecondsSinceEpoch}.wav';
 
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav),
@@ -239,7 +238,9 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
       bool isMatched = _checkVoiceMatch(recognizedText, _config['target_text']);
 
       if (isMatched) {
-        await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+        await _audioPlayer.play(
+          AssetSource(_cleanAudioPath(_config['success_sound'])),
+        );
         _gameEnd();
       } else {
         _handleWrongAnswer();
@@ -307,7 +308,14 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
           Container(
             width: size.width,
             height: size.height,
-            color: AppColors.grey_50,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  "assets/backround/paint/paint_background.jpg",
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
             child: SafeArea(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 17.w),
@@ -324,7 +332,9 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                             height: 48.h,
                             child: GestureDetector(
                               onTap: () {
-                                context.read<LevelProvider>().clearCurrentLevel();
+                                context
+                                    .read<LevelProvider>()
+                                    .clearCurrentLevel();
                                 Navigator.of(context).pop();
                               },
                               child: Image.asset(
@@ -367,13 +377,18 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                         child: _isLoading
                             ? const Center(child: CircularProgressIndicator())
                             : IafpWidget(
-                          key: _iafpKey,
-                          pathConfig: PathConfig.fromJson(_config['path_config']), // JSON'dan yuboriladi
-                          image: _config['image'], // JSON
-                          sound: _config['target_text'], // JSON
-                          isLocked: _startPainting,
-                          onFinished: _onPathFinished,
-                        ),
+                                key: _iafpKey,
+                                pathConfig: PathConfig.fromJson(
+                                  _config['path_config'],
+                                ),
+                                // JSON'dan yuboriladi
+                                image: _config['image'],
+                                // JSON
+                                sound: _config['target_text'],
+                                // JSON
+                                isLocked: _startPainting,
+                                onFinished: _onPathFinished,
+                              ),
                       ),
 
                       SizedBox(height: 30.h),

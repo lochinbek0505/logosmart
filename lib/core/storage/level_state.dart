@@ -8,17 +8,42 @@ part 'level_state.g.dart';
 class ExerciseStep {
   @HiveField(0)
   final String text;   // ko'rsatma matni
+
   @HiveField(1)
   final String action; // harakat identifikatori
 
-  const ExerciseStep({required this.text, required this.action});
+  @HiveField(2)
+  final String? sound; // ovoz yo'li, bo'sh yoki null bo'lishi mumkin
 
-  ExerciseStep copyWith({String? text, String? action}) =>
-      ExerciseStep(text: text ?? this.text, action: action ?? this.action);
+  const ExerciseStep({
+    required this.text,
+    required this.action,
+    this.sound,
+  });
 
-  Map<String, dynamic> toMap() => {'text': text, 'action': action};
+  ExerciseStep copyWith({
+    String? text,
+    String? action,
+    String? sound,
+  }) =>
+      ExerciseStep(
+        text: text ?? this.text,
+        action: action ?? this.action,
+        sound: sound ?? this.sound,
+      );
+
+  Map<String, dynamic> toMap() => {
+    'text': text,
+    'action': action,
+    'sound': sound,
+  };
+
   factory ExerciseStep.fromMap(Map<String, dynamic> map) =>
-      ExerciseStep(text: map['text'] ?? '', action: map['action'] ?? '');
+      ExerciseStep(
+        text: map['text'] ?? '',
+        action: map['action'] ?? '',
+        sound: map['sound'], // null bo'lsa null qaytadi
+      );
 }
 
 // -------------------- ExerciseInfo (codegen adapter) --------------------
@@ -26,28 +51,32 @@ class ExerciseStep {
 class ExerciseInfo {
   @HiveField(0)
   final String modelPath;   // .tflite yo'li
+
   @HiveField(1)
-  final String labelsPath;  // labels.txt yo'li
+  final String sound;       // labelsPath o'rniga sound bo'ldi
+
   @HiveField(2)
-  final List<ExerciseStep> steps; // text + action ketma-ketligi
+  final List<ExerciseStep> steps; // text + action + sound ketma-ketligi
+
   @HiveField(3)
   final String mediaPath;
+
   const ExerciseInfo({
     required this.modelPath,
-    required this.labelsPath,
+    required this.sound,
     required this.steps,
     required this.mediaPath,
   });
 
   ExerciseInfo copyWith({
     String? modelPath,
-    String? labelsPath,
+    String? sound,
     List<ExerciseStep>? steps,
     String? mediaPath,
   }) =>
       ExerciseInfo(
         modelPath: modelPath ?? this.modelPath,
-        labelsPath: labelsPath ?? this.labelsPath,
+        sound: sound ?? this.sound,
         steps: steps ?? this.steps,
         mediaPath: mediaPath ?? this.mediaPath,
       );
@@ -58,8 +87,10 @@ class ExerciseInfo {
 class GameInfo {
   @HiveField(0)
   final String type; // o'yin turi (mas: "tapRunner", "balloonPop")
+
   @HiveField(1)
   final String jsonConfig; // arbitrary JSON (string)
+
   @HiveField(2)
   final String? objective; // ixtiyoriy maqsad/ta'rif
 
@@ -135,7 +166,7 @@ class LevelState {
     ExerciseInfo? exercise,
   }) {
     return LevelState(
-      id: id??this.id,
+      id: id ?? this.id,
       stars: stars ?? this.stars,
       locked: locked ?? this.locked,
       skin: skin ?? this.skin,

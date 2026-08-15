@@ -57,10 +57,10 @@ class _LevelButtonState extends State<LevelButton> with SingleTickerProviderStat
     // Asl rang va uslublaringiz
     final starFilled = l.locked ? Colors.grey : Colors.amber;
     final starEmpty = l.locked ? Colors.black26 : Colors.black26;
-
+    // TODO OXIRDA CHIQAR COMMENT BLAA l.locked ? null :
     // Asl vizual UI ni bitta o'zgaruvchiga yig'amiz
     Widget buttonContent = GestureDetector(
-      onTap: l.locked ? null : widget.onTap,
+      onTap:  widget.onTap,
       child: Column(
         children: [
           if (!l.locked)

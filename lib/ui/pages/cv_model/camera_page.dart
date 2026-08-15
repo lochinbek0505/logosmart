@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart'; // <-- Ovoz uchun qo'shildi
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/cv_model/widgets/detection_overlay.dart';
 import 'package:logosmart/ui/pages/cv_model/widgets/instruction_text.dart';
-// Yo'llarni o'z loyihangiz papkalariga moslaysiz:
-// import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
-import 'package:provider/provider.dart'; // <-- Provider ishlatish uchun
+import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/storage/level_state.dart';
@@ -18,12 +17,7 @@ import '../main/widgets/custom_text_widget.dart';
 import 'widgets/camera_box.dart';
 import 'widgets/video_box.dart';
 
-// Yo'lni proyektga moslab o'zgartirasiz.
-// Yuqorida yozilgan LevelProvider'ni import qilish kerak
-// import 'path/to/level_provider.dart';
-
 class CameraPage extends StatefulWidget {
-  // Konstruktor endi HECH NARSA qabul qilmaydi!
   const CameraPage({super.key});
 
   @override
@@ -33,31 +27,28 @@ class CameraPage extends StatefulWidget {
 const String _starIcon = "assets/icons/star.png";
 
 class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
-  // =========================================================================
-  // ⚙️ ASOSIY SOZLAMALAR (KONFIGURATSIYA)
-  // =========================================================================
-  final int _totalCycles = 3;
+  final int _totalCycles = 5;
   final int _holdDurationMs = 450;
   final int _processIntervalMs = 50;
   final double _minConfidence = 0.60;
   final double _requiredAvgConfidence = 0.50;
   final int _aboutStepDurationMs = 4000;
 
-  // =========================================================================
-
   Key _camKey = UniqueKey();
-  bool _cameraActive = true;
+
+  // O'ZGARTIRISH: Boshlanishida kamera o'chiq turadi (kutish jarayoni uchun)
+  bool _cameraActive = false;
 
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
 
-  final AudioPlayer _audioPlayer = AudioPlayer(); // <-- Ovoz pleyeri
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   List<ExerciseStep> _steps = [];
   String? _videoPath;
   String? _modelPath;
-  String? _labelsPath;
+  String? sound;
 
   int _currentStepIndex = 0;
   int _completedCycles = 0;
@@ -80,13 +71,24 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   DateTime? _lastGoodFrameTime;
   final int _toleranceMs = 600;
 
+  Future<void> _playAudioAndWait(String path) async {
+    final completer = Completer<void>();
+    StreamSubscription<void>? subscription;
+
+    subscription = _audioPlayer.onPlayerComplete.listen((_) {
+      subscription?.cancel();
+      if (!completer.isCompleted) completer.complete();
+    });
+
+    await _audioPlayer.play(AssetSource(path));
+    return completer.future;
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Barcha kerakli ma'lumotlarni Provider'dan darhol olib olamiz
-    // read() yordamida olamiz, chunki initState da build qilinmayapti.
     final provider = context.read<LevelProvider>();
     final currentLevelData = provider.currentLevelData;
 
@@ -94,14 +96,35 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       _steps = currentLevelData.exercise!.steps;
       _videoPath = currentLevelData.exercise!.mediaPath;
       _modelPath = currentLevelData.exercise!.modelPath;
-      _labelsPath = currentLevelData.exercise!.labelsPath;
+      sound = currentLevelData.exercise!.sound;
     }
 
-    if (_steps.isEmpty)
-      return; // Agar bosh bo'lsa, xato bo'ladi. Hozircha oddiy qaytadi.
+    if (_steps.isEmpty) return;
 
-    _initializeVideo();
-    _handleCurrentStep();
+    // O'ZGARTIRISH: Barcha jarayonlarni tartib bilan ishga tushiruvchi funksiyani chaqiramiz
+    _startSequence();
+  }
+
+  // YANGLIK: Tartibli ishga tushirish funksiyasi
+  Future<void> _startSequence() async {
+    // 1. Dastlabki ovozni kutish (video va kamera bloklangan turibdi)
+    if (sound != null && sound!.isNotEmpty) {
+      await _playAudioAndWait(sound!);
+    }
+
+    // 2. Ovoz tugagach, 500 millisoniya pauza
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // 3. Endi video va kamerani ishga tushiramiz
+    if (mounted) {
+      await _initializeVideo(); // Video yuklanadi va play bo'ladi
+
+      setState(() {
+        _cameraActive = true; // Kamera stream endi ishga tushadi
+      });
+
+      _handleCurrentStep(); // Mashq mantiqlari boshlanadi
+    }
   }
 
   void _handleCurrentStep() {
@@ -177,7 +200,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _isProcessingVote = false;
   }
 
-  // BOLALAR UCHUN MOSLASHTIRILGAN SUCCESS
   void _onStepSuccess() {
     setState(() {
       _cameraBoxBorderColor = Colors.greenAccent;
@@ -187,7 +209,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _moveToNextStep();
   }
 
-  // BOLALAR UCHUN MOSLASHTIRILGAN FAILURE
   void _onStepFailure() {
     setState(() {
       _cameraBoxBorderColor = Colors.orangeAccent;
@@ -232,7 +253,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
   }
 
-  // BAROAR TUGAGANDA DIALOG VA OVOZ (Provider Bilan)
   void _onAllCyclesCompleted() async {
     final provider = context.read<LevelProvider>();
 
@@ -242,19 +262,16 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
     _videoController?.pause();
 
-    // 1. Muvaffaqiyatli ovozni chalish
     try {
       await _audioPlayer.play(AssetSource('sound/success.mp3'));
     } catch (e) {
       print("Ovoz chalishda xatolik: $e");
     }
 
-    // 2. Ball qo'shish va Backend sinxron funksiyasini qo'zg'atish
     provider.addBall(10);
 
     if (!mounted) return;
 
-    // 3. Dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -262,11 +279,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         return GameSuccessDialog(
           earnedScore: 10,
           onContinue: () async {
-            // Yulduz berib (masalan: 3 ta) keyingi levelni ochamiz
             await provider.unlock(stars: 3);
-
-            Navigator.pop(context); // Dialogni yopish
-            Navigator.pop(context); // O'yin sahifasidan chiqish
+            Navigator.pop(context);
+            Navigator.pop(context);
           },
         );
       },
@@ -295,7 +310,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     try {
       _videoController = VideoPlayerController.asset(_videoPath!)
         ..setLooping(true)
-        ..setVolume(0.0);
+        // O'ZGARTIRISH: Videoning ovozi chiqishi uchun 0.0 o'rniga 1.0 qildim
+        ..setVolume(1.0);
+
       await _videoController!.initialize();
       if (mounted) {
         setState(() {
@@ -341,7 +358,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    // Cycle'ni ko'rsatish uchun hisob
     int displayCycle = _completedCycles + 1;
     if (displayCycle > _totalCycles) {
       displayCycle = _totalCycles;
@@ -356,21 +372,18 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       child: Scaffold(
         body: Stack(
           children: [
-            // Fon
             Positioned.fill(
               child: Image.asset(
                 'assets/backround/fon_q.png',
                 fit: BoxFit.fill,
               ),
             ),
-
             SafeArea(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Orqaga qaytish
                     SizedBox(
                       width: 50.w,
                       height: 50.h,
@@ -389,7 +402,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                       children: [
                         Image.asset(_starIcon, width: 32.w, height: 32.h),
                         SizedBox(width: 8.w),
-                        // Umumiy ball uchun Consumer (yoki watch)
                         Consumer<LevelProvider>(
                           builder: (context, provider, child) {
                             return CustomTextWidget(
@@ -405,7 +417,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
               ),
             ),
 
-            // Xatolik oldini olish: agar steps bo'lmasa xato beradi (masalan noto'g'ri id yuborilsa)
             if (_steps.isEmpty)
               const Center(
                 child: Text(
@@ -455,7 +466,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                 onExtractConfidence: _extractConfidence,
               ),
 
-            // O'YIN MATNLARI (Feedback) CHIQISH QISMI
             if (_feedbackMessage.isNotEmpty)
               Center(
                 child: Container(
@@ -499,12 +509,12 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22.r),
         border: Border.all(
-          color: _isExerciseCompleted ? Colors.green : _cameraBoxBorderColor,
+          color: _isExerciseCompleted ? AppColors.green_900 : _cameraBoxBorderColor,
           width: 4.w,
         ),
         boxShadow: [
           BoxShadow(
-            color: (_isExerciseCompleted ? Colors.green : _cameraBoxBorderColor)
+            color: (_isExerciseCompleted ? AppColors.green_900 : _cameraBoxBorderColor)
                 .withOpacity(0.6),
             blurRadius: 15.r,
             spreadRadius: 2.r,
@@ -521,21 +531,26 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     Icons.star_rounded,
                     color: Colors.yellow,
                     size: 80.sp,
-                  ), // <-- Kichkintoylar uchun yulduzcha
+                  ),
                 ),
               )
-            : (_cameraActive && _modelPath != null && _labelsPath != null
+            : (_cameraActive && _modelPath != null && sound != null
                   ? CameraBox(
                       size: Size(size.width * 0.6, size.width * 0.6),
                       cameraActive: true,
                       camKey: _camKey,
                       modelPath: _modelPath!,
-                      labelsPath: _labelsPath!,
+                      labelsPath: sound!,
                       onDetections: _onDetections,
+                      borderColor: _isExerciseCompleted
+                          ? AppColors.green_900
+                          : _cameraBoxBorderColor,
                     )
                   : Container(
                       color: Colors.black,
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
                     )),
       ),
     );

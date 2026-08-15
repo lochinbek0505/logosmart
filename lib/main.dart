@@ -16,21 +16,21 @@ import 'core/storage/level_state.dart';
 Future<void> main() async {
   await ScreenUtil.ensureScreenSize();
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-
-  if (!Hive.isAdapterRegistered(71))
-    Hive.registerAdapter(ExerciseStepAdapter()); // codegen
-  if (!Hive.isAdapterRegistered(72))
-    Hive.registerAdapter(ExerciseInfoAdapter()); // codegen
-
-  if (!Hive.isAdapterRegistered(73))
-    Hive.registerAdapter(GameInfoAdapter()); // codegen
-
-  if (!Hive.isAdapterRegistered(7))
-    Hive.registerAdapter(LevelStateAdapter()); // MANUAL
-
-  await Hive.openBox<LevelState>(kLevelsBox);
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Hive.initFlutter();
+  //
+  // if (!Hive.isAdapterRegistered(71))
+  //   Hive.registerAdapter(ExerciseStepAdapter()); // codegen
+  // if (!Hive.isAdapterRegistered(72))
+  //   Hive.registerAdapter(ExerciseInfoAdapter()); // codegen
+  //
+  // if (!Hive.isAdapterRegistered(73))
+  //   Hive.registerAdapter(GameInfoAdapter()); // codegen
+  //
+  // if (!Hive.isAdapterRegistered(7))
+  //   Hive.registerAdapter(LevelStateAdapter()); // MANUAL
+  //
+  // // await Hive.openBox<LevelState>(kLevelsBox);
 
   runApp(MyApp());
 }
@@ -78,39 +78,6 @@ class AuthChecker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    LevelState lv = LevelState(
-      id: 1,
-      stars: 0,
-      locked: false,
-      skin: skinGold,
-      mode: 'exercise',
-      exercise: ExerciseInfo(
-        modelPath: 'assets/models/ochtp.tflite',
-        labelsPath: 'assets/models/labels.txt',
-        mediaPath: 'assets/videos/models/ong_chap.mp4',
-        steps: [
-          ExerciseStep(
-            text: "Iltimos berilgan mashqlarni 4 martadan qayta bajaring",
-            action: "about",
-          ),
-
-          ExerciseStep(text: 'Tilni o\'nga chiqarib ko‘rsating', action: "ong"),
-          ExerciseStep(
-            text: 'Tilni pastga chiqarib ko‘rsating',
-            action: "past",
-          ),
-
-          ExerciseStep(
-            text: 'Tilni chapga chiqarib ko‘rsating',
-            action: "chap",
-          ),
-          ExerciseStep(
-            text: 'Tilni tepaga chiqarib ko‘rsating',
-            action: "tepa",
-          ),
-        ],
-      ),
-    );
 
     return FutureBuilder<bool>(
       future: Provider.of<AuthProvider>(

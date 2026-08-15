@@ -1,26 +1,23 @@
 [
   {
     "id": 1,
-    "stars": 0,
+    "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ochtp.tflite",
-      "labelsPath": "assets/models/labels.txt",
-      "mediaPath": "assets/videos/models/ong_chap.mp4",
+      "sound": "sound/cv/past.mp3",
+      "mediaPath": "assets/videos/models/tilni_chiqarish.mp4",
       "steps": [
         {
-          "text": "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
+          "text": "Artikulatsion mashqlarni mening ortimdan 5 martadan bajar, har bir harakat aniq bo'lsin.",
+          "sound": "sound/cv/about.mp3",
           "action": "about"
         },
         {
-          "text": "Tilni o'nga chiqarib ko‘rsating",
-          "action": "ong"
-        },
-        {
-          "text": "Tilni chapga chiqarib ko‘rsating",
-          "action": "chap"
+          "text": "Tilni pastga chiqarib ko‘rsating",
+          "action": "past"
         }
       ]
     },
@@ -28,8 +25,8 @@
   },
   {
     "id": 2,
-    "stars": 0,
-    "locked": true,
+    "stars": 2,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -37,9 +34,9 @@
       "type": "breath",
       "jsonConfig": {
         "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/butterfly.mp3",
-        "lottie_animation": "assets/animation/breath/butterfly.json",
-        "background_image": "assets/backround/breath/butterfly_background.jpg",
+        "blow_voice": "assets/sound/breath/rocket.mp3",
+        "lottie_animation": "assets/animation/breath/rocket.json",
+        "background_image": "assets/backround/breath/rocket_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
         "animation_position": -1.2
@@ -48,17 +45,18 @@
   },
   {
     "id": 3,
-    "stars": 0,
-    "locked": true,
+    "stars": 3,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ogiz_lab_tish.tflite",
-      "labelsPath": "assets/models/labels.txt",
+      "sound": "sound/cv/tish_lab.mp3",
       "mediaPath": "assets/videos/models/tish_lab.mp4",
       "steps": [
         {
-          "text": "Iltimos berilgan mashqlarni 3 martadan qayta bajaring",
+          "text": "Artikulatsion mashqlarni mening ortimdan 5 martadan bajar, har bir harakat aniq bo'lsin.",
+          "sound": "sound/cv/about.mp3",
           "action": "about"
         },
         {
@@ -75,8 +73,8 @@
   },
   {
     "id": 4,
-    "stars": 0,
-    "locked": true,
+    "stars": 1,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -116,11 +114,11 @@
           },
           {
             "id": 4,
-            "letter": "E",
+            "letter": "O'",
             "color": "0xFF7FD8F7",
             "angle": 90.0,
-            "sound": "assets/sound/arrow/er.mp3",
-            "target_text": "ERRR"
+            "sound": "assets/sound/arrow/o1r.mp3",
+            "target_text": "oorr"
           }
         ]
       }
@@ -128,42 +126,28 @@
   },
   {
     "id": 5,
-    "stars": 0,
-    "locked": true,
+    "stars": 3,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "cloud",
+      "type": "breath",
       "jsonConfig": {
-        "start_voice": "assets/sound/find_image/game_1_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/fon_q.png",
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/flower1.mp3",
+        "lottie_animation": "assets/animation/breath/flower2.json",
+        "background_image": "assets/backround/breath/flower_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_mic": "assets/icons/micrafon.png",
-        "helicopter_image": "assets/game/cloud_game/helicopter.png",
-        "cloud_image": "assets/game/cloud_game/cloud.png",
-        "clouds": [
-          {"id": 1, "text": "ar", "music": "assets/sound/cloud_game/ar.mp3"},
-          {"id": 2, "text": "ir", "music": "assets/sound/cloud_game/ir.mp3"},
-          {"id": 3, "text": "ur", "music": "assets/sound/cloud_game/ur.mp3"},
-          {"id": 4, "text": "er", "music": "assets/sound/cloud_game/er.mp3"},
-          {"id": 5, "text": "re", "music": "assets/sound/cloud_game/re.mp3"},
-          {"id": 6, "text": "or", "music": "assets/sound/cloud_game/or.mp3"},
-          {"id": 7, "text": "ru", "music": "assets/sound/cloud_game/ru.mp3"},
-          {"id": 8, "text": "ro", "music": "assets/sound/cloud_game/ro.mp3"},
-          {"id": 9, "text": "ri", "music": "assets/sound/cloud_game/ri.mp3"},
-          {"id": 10, "text": "ra", "music": "assets/sound/cloud_game/ra.mp3"}
-        ]
+        "animation_position": -1.2
       }
     }
   },
   {
     "id": 6,
-    "stars": 0,
-    "locked": true,
+    "stars": 2,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -178,19 +162,54 @@
         "icon_mic": "assets/icons/micrafon.png",
         "chef_image": "assets/game/cooking/chef_girl.png",
         "products": [
-          {"id": "soup", "asset": "assets/game/cooking/shorva.png", "text": "sho'rva", "sound": "assets/sound/cooking/shorva.mp3", "x": 220, "y": 550},
-          {"id": "tomato", "asset": "assets/game/cooking/pamidor.png", "text": "pamidor", "sound": "assets/sound/cooking/pamidor.mp3", "x": 40, "y": 520},
-          {"id": "cucumber", "asset": "assets/game/cooking/bodring.png", "text": "bodring", "sound": "assets/sound/cooking/bodring.mp3", "x": 130, "y": 420},
-          {"id": "radish", "asset": "assets/game/cooking/rediska.png", "text": "rediska", "sound": "assets/sound/cooking/rediska.mp3", "x": 230, "y": 320},
-          {"id": "pomegranate", "asset": "assets/game/cooking/anor.png", "text": "anor", "sound": "assets/sound/cooking/anor.mp3", "x": 220, "y": 200}
+          {
+            "id": "soup",
+            "asset": "assets/game/cooking/shorva.png",
+            "text": "sho'rva",
+            "sound": "assets/sound/cooking/shorva.mp3",
+            "x": 220,
+            "y": 550
+          },
+          {
+            "id": "tomato",
+            "asset": "assets/game/cooking/pamidor.png",
+            "text": "pamidor",
+            "sound": "assets/sound/cooking/pamidor.mp3",
+            "x": 40,
+            "y": 520
+          },
+          {
+            "id": "cucumber",
+            "asset": "assets/game/cooking/bodring.png",
+            "text": "bodring",
+            "sound": "assets/sound/cooking/bodring.mp3",
+            "x": 130,
+            "y": 420
+          },
+          {
+            "id": "radish",
+            "asset": "assets/game/cooking/rediska.png",
+            "text": "rediska",
+            "sound": "assets/sound/cooking/rediska.mp3",
+            "x": 230,
+            "y": 320
+          },
+          {
+            "id": "pomegranate",
+            "asset": "assets/game/cooking/anor.png",
+            "text": "anor",
+            "sound": "assets/sound/cooking/anor.mp3",
+            "x": 220,
+            "y": 200
+          }
         ]
       }
     }
   },
   {
     "id": 7,
-    "stars": 0,
-    "locked": true,
+    "stars": 3,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -203,18 +222,30 @@
         "avatar_bg": "assets/icons/circle.png",
         "avatar_image": "assets/icons/circle_bad.png",
         "items": [
-          {"id": "pepper", "image": "assets/game/yellow_pepper.png"},
-          {"id": "tomato", "image": "assets/game/tomato.png"},
-          {"id": "eggplant", "image": "assets/game/eggplant.png"},
-          {"id": "cucumber", "image": "assets/game/cucumber.png"}
+          {
+            "id": "pepper",
+            "image": "assets/game/yellow_pepper.png"
+          },
+          {
+            "id": "tomato",
+            "image": "assets/game/tomato.png"
+          },
+          {
+            "id": "eggplant",
+            "image": "assets/game/eggplant.png"
+          },
+          {
+            "id": "cucumber",
+            "image": "assets/game/cucumber.png"
+          }
         ]
       }
     }
   },
   {
     "id": 8,
-    "stars": 0,
-    "locked": true,
+    "stars": 1,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -259,8 +290,8 @@
   },
   {
     "id": 9,
-    "stars": 0,
-    "locked": true,
+    "stars": 2,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -283,11 +314,11 @@
           },
           {
             "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/face_1.png"
+            "hand_image": "assets/game/hand_game/hand_3.png"
           },
           {
             "box_image": "assets/game/hand_game/box_4.png",
-            "hand_image": "assets/game/hand_game/lib_3.png"
+            "hand_image": "assets/game/hand_game/hand_4.png"
           }
         ]
       }
@@ -295,8 +326,8 @@
   },
   {
     "id": 10,
-    "stars": 0,
-    "locked": true,
+    "stars": 3,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -308,7 +339,7 @@
         "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
         "image": "assets/game/paint/tiger.png",
-        "target_text": "rrrra",
+        "target_text": "Rrra",
         "icon_arrow": "assets/icons/arrow_right_button.png",
         "icon_star": "assets/icons/star.png",
         "icon_mic": "assets/icons/micrafon.png",
@@ -339,8 +370,8 @@
   },
   {
     "id": 11,
-    "stars": 0,
-    "locked": true,
+    "stars": 1,
+    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,

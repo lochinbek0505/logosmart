@@ -266,7 +266,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                         Navigator.pop(context);
                       },
                       child: Image.asset(
-                        _config['icon_arrow'], // JSON dan back knopka
+                        _config['icon_arrow'],
                         fit: BoxFit.fill,
                       ),
                     ),

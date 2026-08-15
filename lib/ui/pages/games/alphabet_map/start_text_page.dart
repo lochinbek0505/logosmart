@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
@@ -31,6 +36,14 @@ class _StartTextPageState extends State<StartTextPage> {
   static const String _starIcon = "assets/icons/star.png";
   static const String _bgImage = "assets/backround/fon_q.png";
   static const String _womenImage = "assets/images/women.png";
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _playAudioAndWait(widget.data.exercise!.steps.first.sound!);
+  }
 
   void _onStartPressed() {
     // Xatolik oldini olish uchun avval ro'yxat bo'sh emasligini tekshiramiz
@@ -48,6 +61,19 @@ class _StartTextPageState extends State<StartTextPage> {
     } else if (widget.data.mode == "game") {
       navigationTo(widget.data.game!.type);
     }
+  }
+
+  Future<void> _playAudioAndWait(String path) async {
+    final completer = Completer<void>();
+    StreamSubscription<void>? subscription;
+
+    subscription = _audioPlayer.onPlayerComplete.listen((_) {
+      subscription?.cancel();
+      if (!completer.isCompleted) completer.complete();
+    });
+
+    await _audioPlayer.play(AssetSource(path));
+    return completer.future;
   }
 
   @override
@@ -182,8 +208,8 @@ class _CloudText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280.w,
-      height: 165.h,
+      width: 320.w,
+      height: 190.h,
       padding: EdgeInsets.only(
         left: 20.w,
         right: 20.w,
@@ -197,14 +223,14 @@ class _CloudText extends StatelessWidget {
         ),
       ),
       child: Transform.translate(
-        offset: Offset(0, 10.h),
+        offset: Offset(0, 25.h),
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.blueGrey.shade700,
+          style: GoogleFonts.nunito(
+            color: AppColors.main_blue_900,
             fontWeight: FontWeight.w600,
-            fontSize: 19.sp,
+            fontSize: 18.sp,
           ),
         ),
       ),
@@ -291,7 +317,7 @@ class _AnimatedStartButtonState extends State<AnimatedStartButton> {
   Widget _buildText() {
     return Text(
       "BOSHLADIK!",
-      style: TextStyle(
+      style: GoogleFonts.nunito(
         color: Colors.white,
         fontWeight: FontWeight.bold,
         fontSize: 22.sp,

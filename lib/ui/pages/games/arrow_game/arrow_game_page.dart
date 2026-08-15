@@ -31,7 +31,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   late List<TargetNode> _outerNodes;
 
   final double innerRadius = 70.w;
-  final double outerRadius = 150.w;
+  // O'ZGARTIRILDI: Radius biroz qisqartirildi, node'lar ekrandan toshib ketmasligi uchun
+  final double outerRadius = 135.w;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioRecorder _audioRecorder = AudioRecorder();
@@ -107,8 +108,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-        );
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   String _cleanAudioPath(String path) {
@@ -336,7 +337,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                 child: Center(
                   child: SizedBox(
                     width: 360.w,
-                    height: 380.h,
+                    // O'ZGARTIRILDI: O'yin maydoni balandligi 380.h dan 440.h ga oshirildi
+                    height: 440.h,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final Offset centerPoint = Offset(
@@ -396,9 +398,9 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               );
                               return Positioned(
                                 left: pos.dx - 12.w,
-                                top: pos.dy - 15.w,
-                                width: 30.w,
-                                height: 30.w,
+                                top: pos.dy - 12.w, // O'ZGARTIRILDI: 15.w o'rniga 12.w qilib kvadrat (aylana) markazlashtirildi
+                                width: 24.w, // O'ZGARTIRILDI: 30.w emas, radius 12 bo'lgani uchun 24 berildi (aniq markaz bo'lishi uchun)
+                                height: 24.w,
                                 child: Container(
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
@@ -427,9 +429,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
                               return Positioned(
                                 left: pos.dx - 40.w,
-                                top: pos.dy - 40.h,
+                                // O'ZGARTIRILDI: shaklning `height` va `width` bir xil .w ga bog'landi va marginlar to'g'rilandi
+                                top: pos.dy - 40.w,
                                 width: 80.w,
-                                height: 80.h,
+                                height: 80.w,
                                 child: GestureDetector(
                                   onTap: () => _onNodeTapped(node),
                                   child: Container(
@@ -462,58 +465,58 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : AnimatedBuilder(
-                          animation: Listenable.merge([
-                            _pulseController,
-                            _bounceController,
-                          ]),
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(0, _bounceAnim.value),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 110.w,
-                                    height: 110.h,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _isRecording
-                                          ? _colorAnim.value?.withOpacity(0.25)
-                                          : Colors.transparent,
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 90.w,
-                                    height: 90.h,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _isRecording
-                                          ? _colorAnim.value?.withOpacity(0.35)
-                                          : Colors.transparent,
-                                    ),
-                                  ),
-                                  ScaleTransition(
-                                    scale: _scaleAnim,
-                                    child: CircleAvatar(
-                                      radius: 40.r,
-                                      backgroundImage: const AssetImage(
-                                        "assets/icons/circle.png",
-                                      ),
-                                      child: Image.asset(
-                                        _config['icon_mic'], // JSON
-                                        width: 24.w,
-                                        height: 32.h,
-                                        color: _isRecording
-                                            ? _colorAnim.value
-                                            : null,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                    animation: Listenable.merge([
+                      _pulseController,
+                      _bounceController,
+                    ]),
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(0, _bounceAnim.value),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 110.w,
+                              height: 110.h,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _isRecording
+                                    ? _colorAnim.value?.withOpacity(0.25)
+                                    : Colors.transparent,
                               ),
-                            );
-                          },
+                            ),
+                            Container(
+                              width: 90.w,
+                              height: 90.h,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _isRecording
+                                    ? _colorAnim.value?.withOpacity(0.35)
+                                    : Colors.transparent,
+                              ),
+                            ),
+                            ScaleTransition(
+                              scale: _scaleAnim,
+                              child: CircleAvatar(
+                                radius: 40.r,
+                                backgroundImage: const AssetImage(
+                                  "assets/icons/circle.png",
+                                ),
+                                child: Image.asset(
+                                  _config['icon_mic'], // JSON
+                                  width: 24.w,
+                                  height: 32.h,
+                                  color: _isRecording
+                                      ? _colorAnim.value
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

@@ -14,7 +14,7 @@ class AICameraTestPage extends StatefulWidget {
 
 class _AICameraTestPageState extends State<AICameraTestPage> {
   var sq = ["ichki_tepa", "ichki_past"];
-  final String _modelPath = 'assets/models/argumchoq_int8.tflite';
+  final String _modelPath = 'assets/models/tepa_past_ichki.tflite';
 
   List<Detection> _detections = [];
   ui.Size _imageSize = ui.Size.zero;

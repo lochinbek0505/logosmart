@@ -118,7 +118,6 @@ flutter:
     - assets/icons/
     - assets/icon/icon.png
     - assets/alphabet/
-    - assets/media/
     - assets/backround/
     - assets/models/
     - assets/sound/
@@ -156,6 +155,7 @@ flutter:
     - assets/exsep.json
     - assets/sound/map/
     - assets/sound/cv/
+    - assets/videos/map_video/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

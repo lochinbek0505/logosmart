@@ -72,8 +72,8 @@ class _CameraBoxState extends State<CameraBox> {
     print(widget.borderColor);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      width: widget.size.width * 0.6,
-      height: widget.size.width * 0.6,
+      width: widget.size.width * 0.9,
+      height: widget.size.width * 0.9,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: widget.borderColor, width: 3),

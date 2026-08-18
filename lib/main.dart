@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
+import 'package:logosmart/ui/pages/games/cloud_game/cloud_game_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
+import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
 import 'package:provider/provider.dart';
-
-import 'core/storage/level_state.dart';
 
 Future<void> main() async {
   await ScreenUtil.ensureScreenSize();
@@ -78,7 +77,6 @@ class AuthChecker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder<bool>(
       future: Provider.of<AuthProvider>(
         context,
@@ -87,13 +85,17 @@ class AuthChecker extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
+
             backgroundColor: Colors.white,
             body: Center(child: CircularProgressIndicator()),
           );
+
         }
 
         if (snapshot.hasData && snapshot.data == true) {
+
           return MapRoadPage();
+
         }
 
         return LoginPage();

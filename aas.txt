@@ -1,4 +1,4 @@
-final level1 = {
+final oddiy = {
     "startPoint": {"x": 0.15, "y": 0.9},
     "segments": [
       {
@@ -9,7 +9,7 @@ final level1 = {
     ],
   };
 
-final level2 = {
+final zik zak = {
     "startPoint": {"x": 0.40, "y": 0.05},
     "segments": [
       {
@@ -46,7 +46,7 @@ final level2 = {
       },
     ],
   };
-  final level3 = {
+  final tortburchak = {
     "startPoint": {"x": 0.10, "y": 0.05},
     "segments": [
       {
@@ -87,7 +87,7 @@ final level2 = {
       },
     ],
   };
-  final level4 = {
+  final tolqin = {
     "startPoint": {"x": 0.60, "y": 0.05},
     "segments": [
       {
@@ -116,7 +116,7 @@ final level2 = {
       },
     ],
   };
-  final level5 = {
+  final spral = {
     "startPoint": {"x": 0.60, "y": 0.05},
     "segments": [
       {

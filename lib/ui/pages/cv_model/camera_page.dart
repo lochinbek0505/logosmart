@@ -427,7 +427,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
             else
               Column(
                 children: [
-                  SizedBox(height: 160.h, width: size.width),
+                  SizedBox(height: 130.h, width: size.width),
 
                   VideoBox(
                     size: size,
@@ -439,9 +439,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     onRetry: _initializeVideo,
                   ),
 
-                  SizedBox(height: 30.h),
+                  SizedBox(height: 20.h),
                   _buildCameraBox(size),
-                  SizedBox(height: 30.h),
+                  SizedBox(height: 20.h),
 
                   if (!_isExerciseCompleted && _steps.isNotEmpty)
                     InstructionText(
@@ -504,18 +504,23 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   Widget _buildCameraBox(Size size) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      width: size.width * 0.6,
-      height: size.width * 0.6,
+      width: size.width * 0.70,
+      height: size.width * 0.70,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22.r),
         border: Border.all(
-          color: _isExerciseCompleted ? AppColors.green_900 : _cameraBoxBorderColor,
+          color: _isExerciseCompleted
+              ? AppColors.green_900
+              : _cameraBoxBorderColor,
           width: 4.w,
         ),
         boxShadow: [
           BoxShadow(
-            color: (_isExerciseCompleted ? AppColors.green_900 : _cameraBoxBorderColor)
-                .withOpacity(0.6),
+            color:
+                (_isExerciseCompleted
+                        ? AppColors.green_900
+                        : _cameraBoxBorderColor)
+                    .withOpacity(0.6),
             blurRadius: 15.r,
             spreadRadius: 2.r,
           ),
@@ -536,7 +541,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
               )
             : (_cameraActive && _modelPath != null && sound != null
                   ? CameraBox(
-                      size: Size(size.width * 0.6, size.width * 0.6),
+                      size: Size(size.width * 0.8, size.width * 0.8),
                       cameraActive: true,
                       camKey: _camKey,
                       modelPath: _modelPath!,

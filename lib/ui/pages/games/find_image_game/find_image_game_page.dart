@@ -446,7 +446,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
             child: child,
           );
         },
-        child: SizedBox(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r)
+          ),
           width: 150.h,
           height: 150.h,
           child: Stack(

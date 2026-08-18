@@ -16,14 +16,14 @@ class VideoBox extends StatelessWidget {
     required this.isVideoError,
     required this.currentVideoPath,
     required this.videoController,
-    required this. onRetry,
+    required this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width:  size.width * 0.6,
-      height: size.width * 0.6,
+      width: size.width * 0.7,
+      height: size.width * 0.7,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xff20B9E8), width: 3),
@@ -50,11 +50,11 @@ class VideoBox extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red. shade400),
+            Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
             const SizedBox(height: 16),
             Text(
               'Video yuklashda xatolik',
-              style:  TextStyle(
+              style: TextStyle(
                 color: Colors.red.shade700,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -68,19 +68,19 @@ class VideoBox extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton. icon(
+            ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 20),
-              label:  const Text('Qayta yuklash'),
+              label: const Text('Qayta yuklash'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff20B9E8),
-                foregroundColor:  Colors.white,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
                 ),
-                shape:  RoundedRectangleBorder(
-                  borderRadius:  BorderRadius.circular(12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
@@ -90,9 +90,9 @@ class VideoBox extends StatelessWidget {
     }
 
     // 2. YUKLANMOQDA holati
-    if (! isVideoInitialized || videoController == null) {
+    if (!isVideoInitialized || videoController == null) {
       return Container(
-        color: Colors. black12,
+        color: Colors.black12,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -106,14 +106,10 @@ class VideoBox extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black54,
                 fontSize: 14,
-                fontWeight: FontWeight. w500,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 8),
-            // Text(
-            //   currentVideoPath?. split('/').last ?? '',
-            //   style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-            // ),
           ],
         ),
       );
@@ -126,10 +122,9 @@ class VideoBox extends StatelessWidget {
         Center(
           child: AspectRatio(
             aspectRatio: videoController!.value.aspectRatio,
-            child: VideoPlayer(videoController! ),
+            child: VideoPlayer(videoController!),
           ),
         ),
-
       ],
     );
   }

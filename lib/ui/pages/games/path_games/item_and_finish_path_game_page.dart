@@ -311,7 +311,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                  "assets/backround/paint/paint_background.jpg",
+                  _config['background'],
                 ),
                 fit: BoxFit.cover,
               ),

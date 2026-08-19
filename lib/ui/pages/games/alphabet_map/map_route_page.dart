@@ -8,11 +8,10 @@ import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/level_button.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/tiled_background.dart';
 import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
-import 'package:provider/provider.dart';
-
 // Video page importi qo'shildi
 import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
 import '../../../../models/decoration_item.dart';
@@ -77,8 +76,10 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
   // Tugma o'lchami (LevelButton va decor uchun offset -40 ishlatilgani uchun 80px deb olamiz)
   static const double _buttonHalfHeight = 40.0;
-  static const double _headerContentHeight = 150.0; // header balandligi (top:50 + ichki row balandligi)
-  static const double _headerGap = 20.0; // header va birinchi level orasidagi bo'shliq
+  static const double _headerContentHeight =
+      150.0; // header balandligi (top:50 + ichki row balandligi)
+  static const double _headerGap =
+      20.0; // header va birinchi level orasidagi bo'shliq
   // Eng pastki tugmaning PASTKI CHEKKASIDAN keyin qoladigan bo'shliq — aniq 20px.
   // Muhim: SizedBox(height: mapHeight) ichidagi LayoutBuilder'ning constraints.maxHeight
   // har doim mapHeight ga TENG (chunki SizedBox uni majburlaydi), shuning uchun
@@ -92,10 +93,15 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   List<Offset>? _cachedPositions;
   List<DecorationItem>? _cachedDecorations;
   double? _cachedMapHeight;
-  int? _cachedLevelsSignature; // levelStates ro'yxatining "imzosi" (id+locked+stars kombinatsiyasi)
+  int?
+  _cachedLevelsSignature; // levelStates ro'yxatining "imzosi" (id+locked+stars kombinatsiyasi)
 
   // LEVEL TUGMALARI JOYLASHUVI
-  List<Offset> generatePositions(int count, {required double startY, required double endY}) {
+  List<Offset> generatePositions(
+    int count, {
+    required double startY,
+    required double endY,
+  }) {
     if (count <= 1) {
       return [Offset(0.5, startY)];
     }
@@ -113,7 +119,10 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
     });
   }
 
-  List<Level> _buildLevelsFromState(List<LevelState> states, List<Offset> positions) {
+  List<Level> _buildLevelsFromState(
+    List<LevelState> states,
+    List<Offset> positions,
+  ) {
     return List.generate(states.length, (i) {
       final s = states[i];
       final pos = positions[i];
@@ -135,7 +144,10 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   }
 
   // LOTTIE ANIMATSIYALARI
-  List<DecorationItem> generateDecorations(List<Offset> levelPositions, math.Random rnd) {
+  List<DecorationItem> generateDecorations(
+    List<Offset> levelPositions,
+    math.Random rnd,
+  ) {
     final List<DecorationItem> decorations = [];
     final List<String> lottieAssets = [
       'assets/animation/map/box.json',
@@ -174,12 +186,19 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
     // Oddiy "imzo": ro'yxat uzunligi + har bir elementning id/locked/stars kombinatsiyasi
     int sig = states.length;
     for (final s in states) {
-      sig = sig ^ (s.id.hashCode) ^ (s.locked.hashCode << 1) ^ (s.stars.hashCode << 2);
+      sig =
+          sig ^
+          (s.id.hashCode) ^
+          (s.locked.hashCode << 1) ^
+          (s.stars.hashCode << 2);
     }
     return sig;
   }
 
-  void _rebuildCacheIfNeeded(List<LevelState> levelStates, double screenHeight) {
+  void _rebuildCacheIfNeeded(
+    List<LevelState> levelStates,
+    double screenHeight,
+  ) {
     final signature = _signatureOf(levelStates);
     if (_cachedLevelsSignature == signature && _cachedMapHeight != null) {
       // Hech narsa o'zgarmagan — random qayta chaqirilmaydi, Lottie qayta yuklanmaydi
@@ -197,7 +216,11 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
     final double startY = (startYPx / mapHeight).clamp(0.0, 1.0);
     final double endY = (endYPx / mapHeight).clamp(startY, 1.0);
 
-    final positions = generatePositions(levelStates.length, startY: startY, endY: endY);
+    final positions = generatePositions(
+      levelStates.length,
+      startY: startY,
+      endY: endY,
+    );
     final levels = _buildLevelsFromState(levelStates, positions);
     // Bitta doimiy seed bilan random — shu tufayli decor joylashuvi har build da o'zgarmaydi
     final decorations = generateDecorations(positions, math.Random(42));
@@ -237,7 +260,8 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
               final size = Size(constraints.maxWidth, constraints.maxHeight);
 
               return Stack(
-                clipBehavior: Clip.none, // pastki tugma tasodifan kesilmasligi uchun qo'shimcha kafolat
+                clipBehavior: Clip.none,
+                // pastki tugma tasodifan kesilmasligi uchun qo'shimcha kafolat
                 children: [
                   Positioned.fill(
                     child: TiledBackground(
@@ -250,7 +274,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                     final px = decor.dx * size.width;
                     final py = decor.dy * size.height;
                     return Positioned(
-                      key: ValueKey('decor_${decor.assetPath}_${decor.dx}_${decor.dy}'),
+                      key: ValueKey(
+                        'decor_${decor.assetPath}_${decor.dx}_${decor.dy}',
+                      ),
                       left: px - 40,
                       top: py - 40,
                       child: RepaintBoundary(
@@ -280,7 +306,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                           if (l.locked) return;
 
                           final lv = levelStates.firstWhere(
-                                (e) => e.id == l.id,
+                            (e) => e.id == l.id,
                           );
 
                           context.read<LevelProvider>().openLevel(lv);
@@ -297,7 +323,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                           await _audioPlayer.pause();
 
                           // YANGILIK: mode = "video" tekshiruvini qo'shdik
-                          if (hasAbout ) {
+                          if (hasAbout) {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -450,7 +476,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
     super.dispose();
+    _audioPlayer.dispose();
   }
 }

@@ -233,11 +233,15 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     _audioPlayer.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     // PROVIDERDAN UMUMIY BALLNI KUZATISH
     final totalBall = context.watch<LevelProvider>().ball;
+
+    // JSON dan pozitsiyani olish (agar mavjud bo'lmasa 0.0 qilib olinadi)
+    // Eslatma: JSON dagi 1 qiymati 1 pikselni bildiradi. Katta masofaga surish uchun
+    // JSON da 50, -30 kabi kattaroq sonlarni berasiz yoki koddagi joyda ko'paytirasiz.
+    final double animPosition = (_config['animation_position'] ?? 0).toDouble();
 
     return Scaffold(
       body: Container(
@@ -251,7 +255,6 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
           children: [
             SizedBox(height: 50.h),
 
-            // Yuqori qism
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Row(
@@ -291,17 +294,22 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
             const Spacer(),
 
-            // Lottie animatsiyasi
-            Lottie.asset(
-              _config['lottie_animation'], // JSON dan lottie animation
-              controller: _lottieController,
-              animate: _isMicReady,
-              onLoaded: (composition) {
-                _lottieController.duration = composition.duration;
-              },
-              width: 300.w,
-              height: 300.h,
-              fit: BoxFit.contain,
+            // Lottie animatsiyasi (Transform orqali tepa/pastga suriladi)
+            Transform.translate(
+              // Y o'qi bo'yicha surish (X o'qi 0 da qoladi).
+              // Agar ekran hajmiga moslashuvchan bo'lishini xohlasangiz animPosition.h qilib ishlatsangiz bo'ladi.
+              offset: Offset(0, animPosition),
+              child: Lottie.asset(
+                _config['lottie_animation'], // JSON dan lottie animation
+                controller: _lottieController,
+                animate: _isMicReady,
+                onLoaded: (composition) {
+                  _lottieController.duration = composition.duration;
+                },
+                width: 300.w,
+                height: 300.h,
+                fit: BoxFit.contain,
+              ),
             ),
 
             const Spacer(),

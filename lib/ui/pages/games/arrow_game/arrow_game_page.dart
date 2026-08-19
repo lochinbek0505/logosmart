@@ -31,7 +31,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   late List<TargetNode> _outerNodes;
 
   final double innerRadius = 70.w;
-  // O'ZGARTIRILDI: Radius biroz qisqartirildi, node'lar ekrandan toshib ketmasligi uchun
   final double outerRadius = 135.w;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -42,6 +41,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
   bool _isRecording = false;
   bool _isLoading = false;
+  // O'yin tugab, dialog ochilish jarayonida yangi tap/record boshlanmasligi uchun
+  bool _isGameEnding = false;
   String? _recordedFilePath;
   int? _activeVoiceItemId;
 
@@ -198,9 +199,29 @@ class _ArrowGamePageState extends State<ArrowGamePage>
             connectedLines[node.id] = node.id;
           });
         }
-        await _audioPlayer.play(AssetSource('sound/success.mp3'));
-        _showSnackbar("Barakalla! To'g'ri topildi.", Colors.green);
-        _checkGameEnd();
+
+        // Level tugadimi yoki yo'qmi - shu yerda, bitta joyda hal qilamiz
+        final bool isLastNode = connectedLines.length == _outerNodes.length;
+
+        if (isLastNode) {
+          // O'yin tugadi: loadingni yopamiz, keyin YAGONA marta
+          // success ovozini chalib, dialogni ko'rsatamiz.
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _isGameEnding = true;
+            });
+          }
+          await _gameEnd();
+          // _gameEnd() dialog ko'rsatib bo'lgach qaytadi (Navigator.pop
+          // qilinganda sahifa allaqachon yopilgan bo'ladi), shuning uchun
+          // pastdagi finally blokidagi setState'lar mounted tekshiruvi bilan
+          // xavfsiz.
+          return;
+        } else {
+          _showSnackbar("Barakalla! To'g'ri topildi.", Colors.green);
+          await _audioPlayer.play(AssetSource('sound/success.mp3'));
+        }
       } else {
         _handleWrongAnswer();
       }
@@ -208,7 +229,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       debugPrint("STT Xatolik: $e");
       _handleWrongAnswer();
     } finally {
-      if (mounted) {
+      if (mounted && !_isGameEnding) {
         setState(() {
           _isLoading = false;
         });
@@ -239,13 +260,14 @@ class _ArrowGamePageState extends State<ArrowGamePage>
     return regExp.hasMatch(cleanRecognized);
   }
 
-  void _handleWrongAnswer() async {
+  void _handleWrongAnswer() {
     _showSnackbar("Xato eshitildi, qayta urinib ko'ring!", Colors.red);
   }
 
   Future<void> _onNodeTapped(TargetNode node) async {
     if (_isRecording ||
         _isLoading ||
+        _isGameEnding ||
         connectedLines.containsKey(node.id) ||
         _activeVoiceItemId != null) {
       return;
@@ -268,36 +290,43 @@ class _ArrowGamePageState extends State<ArrowGamePage>
     }
   }
 
-  void _checkGameEnd() {
-    if (connectedLines.length == _outerNodes.length) {
-      _gameEnd();
-    }
-  }
-
-  void _gameEnd() async {
-    // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
+  Future<void> _gameEnd() async {
     final provider = context.read<LevelProvider>();
-    provider.addBall(10);
-    provider.unlock(stars: 3);
 
+    // Success ovozi FAQAT shu yerda, bir marta chalinadi.
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
     if (!mounted) return;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return GameSuccessDialog(
-          earnedScore: 10,
-          onContinue: () {
-            provider.clearCurrentLevel(); // Xotirani tozalaymiz
-            Navigator.pop(context);
-            Navigator.pop(context); // Xaritaga qaytish
-          },
-        );
-      },
+    // MUHIM: avval dialogni ko'rsatamiz, natijada u ekranni to'liq
+    // qoplab turadi. Ball/level holatini o'zgartiruvchi provider
+    // metodlari (notifyListeners) esa dialog ALLAQACHON ustida
+    // turgan paytda chaqiriladi — shu bilan asosiy sahifaning oraliq
+    // (hali qayta chizilmagan/asset xatoligiga uchragan) holati
+    // foydalanuvchiga hech qachon ko'rinmaydi.
+    unawaited(
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return GameSuccessDialog(
+            earnedScore: 10,
+            onContinue: () {
+              provider.clearCurrentLevel(); // Xotirani tozalaymiz
+              Navigator.pop(context);
+              Navigator.pop(context); // Xaritaga qaytish
+            },
+          );
+        },
+      ),
     );
+
+    // Dialog animatsiyasi ekranni to'liq qoplashi uchun bir freym kutamiz,
+    // so'ng orqa fonda ball/level holatini yangilaymiz.
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+    provider.addBall(10);
+    provider.unlock(stars: 3);
   }
 
   @override
@@ -311,16 +340,22 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
   @override
   Widget build(BuildContext context) {
-    // UMUMIY BALLNI PROVIDERDAN OLAMIZ
+
     final totalBall = context.watch<LevelProvider>().ball;
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(_config['background_image']), // JSON
+          color: const Color(0xFF8FD8F0), // fallback fon rangi
+          image: (_config['background_image'] is String)
+              ? DecorationImage(
+            image: AssetImage(_config['background_image'] as String),
             fit: BoxFit.fill,
-          ),
+            onError: (error, stackTrace) {
+              debugPrint("Background image yuklanmadi: $error");
+            },
+          )
+              : null,
         ),
         child: SafeArea(
           child: Column(
@@ -337,7 +372,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                 child: Center(
                   child: SizedBox(
                     width: 360.w,
-                    // O'ZGARTIRILDI: O'yin maydoni balandligi 380.h dan 440.h ga oshirildi
                     height: 440.h,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
@@ -360,7 +394,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 innerRadius: innerRadius,
                                 outerRadius: outerRadius,
                                 outerNodes: _outerNodes,
-                                // JSON
                                 connectedLines: connectedLines,
                                 activeInnerNode: null,
                                 currentDragPosition: null,
@@ -398,8 +431,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               );
                               return Positioned(
                                 left: pos.dx - 12.w,
-                                top: pos.dy - 12.w, // O'ZGARTIRILDI: 15.w o'rniga 12.w qilib kvadrat (aylana) markazlashtirildi
-                                width: 24.w, // O'ZGARTIRILDI: 30.w emas, radius 12 bo'lgani uchun 24 berildi (aniq markaz bo'lishi uchun)
+                                top: pos.dy - 12.w,
+                                width: 24.w,
                                 height: 24.w,
                                 child: Container(
                                   decoration: const BoxDecoration(
@@ -429,7 +462,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
                               return Positioned(
                                 left: pos.dx - 40.w,
-                                // O'ZGARTIRILDI: shaklning `height` va `width` bir xil .w ga bog'landi va marginlar to'g'rilandi
                                 top: pos.dy - 40.w,
                                 width: 80.w,
                                 height: 80.w,
@@ -499,16 +531,41 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               scale: _scaleAnim,
                               child: CircleAvatar(
                                 radius: 40.r,
+                                backgroundColor: Colors.white,
                                 backgroundImage: const AssetImage(
                                   "assets/icons/circle.png",
                                 ),
-                                child: Image.asset(
-                                  _config['icon_mic'], // JSON
+                                onBackgroundImageError: (_, __) {},
+                                child: (_config['icon_mic'] is String)
+                                    ? Image.asset(
+                                  _config['icon_mic'] as String,
                                   width: 24.w,
                                   height: 32.h,
                                   color: _isRecording
                                       ? _colorAnim.value
                                       : null,
+                                  // Asset topilmasa ham, xuddi shu
+                                  // o'lchamdagi zaxira ikonka
+                                  // ko'rsatiladi — layout hech qachon
+                                  // "qulab tushmaydi".
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.mic,
+                                      size: 28.sp,
+                                      color: _isRecording
+                                          ? (_colorAnim.value ??
+                                          Colors.green)
+                                          : const Color(0xFF4A90E2),
+                                    );
+                                  },
+                                )
+                                    : Icon(
+                                  Icons.mic,
+                                  size: 28.sp,
+                                  color: _isRecording
+                                      ? (_colorAnim.value ??
+                                      Colors.green)
+                                      : const Color(0xFF4A90E2),
                                 ),
                               ),
                             ),
@@ -537,19 +594,33 @@ class _ArrowGamePageState extends State<ArrowGamePage>
               context.read<LevelProvider>().clearCurrentLevel();
               Navigator.of(context).pop();
             },
-            child: Image.asset(
-              _config['icon_arrow'], // JSON
+            child: SizedBox(
               width: 48.w,
               height: 48.h,
-              fit: BoxFit.fill,
+              child: (_config['icon_arrow'] is String)
+                  ? Image.asset(
+                _config['icon_arrow'] as String,
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.arrow_back_ios_new,
+                    color: Colors.white),
+              )
+                  : const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.white),
             ),
           ),
           Row(
             children: [
-              Image.asset(
-                _config['icon_star'], // JSON
+              SizedBox(
                 width: 40.w,
                 height: 40.h,
+                child: (_config['icon_star'] is String)
+                    ? Image.asset(
+                  _config['icon_star'] as String,
+                  errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.star, color: Colors.orange),
+                )
+                    : const Icon(Icons.star, color: Colors.orange),
               ),
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),

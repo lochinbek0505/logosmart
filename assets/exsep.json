@@ -39,7 +39,7 @@
         "background_image": "assets/backround/breath/rocket_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": 1
+        "animation_position": 100
       }
     }
   },
@@ -108,7 +108,7 @@
             "target_text": "uurr"
           },
           {
-            "id": 4,
+            "id": 3,
             "letter": "O'",
             "color": "0xFF7FD8F7",
             "angle": 90.0,
@@ -337,7 +337,7 @@
         "background_image": "assets/backround/breath/coins_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.0
+        "animation_position": 30
       }
     }
   },
@@ -639,7 +639,7 @@
         "background_image": "assets/backround/breath/drone_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.0
+        "animation_position": 30
       }
     }
   },
@@ -1147,7 +1147,7 @@
         "background_image": "assets/backround/breath/ball_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.0
+        "animation_position": 50
       }
     }
   },
@@ -1390,7 +1390,7 @@
         "background_image": "assets/backround/breath/candle_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.0
+        "animation_position": 40
       }
     }
   },
@@ -1561,7 +1561,7 @@
         "background_image": "assets/backround/breath/flower_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.2
+        "animation_position": 40
       }
     }
   },
@@ -1576,7 +1576,7 @@
       "type": "path_game",
       "jsonConfig": {
         "start_voice": "assets/sound/paint/paint_start.mp3",
-        "item_sound": "assets/sound/paint/RRRRRO.mp3",
+        "item_sound": "assets/sound/paint/Rrrro.mp3",
         "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
         "image": "assets/game/paint/ajdar.png",
@@ -1584,7 +1584,7 @@
         "icon_arrow": "assets/icons/arrow_right_button.png",
         "icon_star": "assets/icons/star.png",
         "icon_mic": "assets/icons/micrafon.png",
-        "background": "assets/backround/fon_q.png",
+        "background": "assets/backround/paint/dragon.jpg",
         "path_config": {
           "startPoint": {
             "x": 0.40,
@@ -1704,7 +1704,7 @@
         "background_image": "assets/backround/breath/butterfly_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.0
+        "animation_position":30
       }
     }
   },
@@ -1735,26 +1735,6 @@
     "id": 47,
     "stars": 3,
     "locked": false,
-    "skin": "assets/icons/gold.png",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "breath",
-      "jsonConfig": {
-        "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/ship.mp3",
-        "lottie_animation": "assets/animation/breath/ship.json",
-        "background_image": "assets/backround/breath/ship_bg.jpg",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.2
-      }
-    }
-  },
-  {
-    "id": 48,
-    "stars": 3,
-    "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -1766,7 +1746,7 @@
     "game": null
   },
   {
-    "id": 49,
+    "id": 48,
     "stars": 2,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1800,7 +1780,7 @@
     }
   },
   {
-    "id": 50,
+    "id": 49,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1820,7 +1800,7 @@
     }
   },
   {
-    "id": 51,
+    "id": 50,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1851,7 +1831,7 @@
     "game": null
   },
   {
-    "id": 52,
+    "id": 51,
     "stars": 1,
     "locked": false,
     "skin": "assets/icons/silver.png",
@@ -1886,7 +1866,6 @@
             "text": "raketa",
             "isCorrect": false
           },
-
           {
             "image": "assets/game/find_image/vertalyot.jpg",
             "sound": "assets/sound/find_image/vertalyot.mp3",
@@ -1898,7 +1877,7 @@
     }
   },
   {
-    "id": 53,
+    "id": 52,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/silver.png",

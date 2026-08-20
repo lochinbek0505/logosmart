@@ -162,6 +162,9 @@ flutter:
     - assets/game/sound_game/
     - assets/backround/sound_game/
     - assets/sound/sound_game/
+    - assets/sound/wolf_game/
+    - assets/backround/wolf_game/
+    - assets/game/wolf_game/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

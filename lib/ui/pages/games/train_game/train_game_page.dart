@@ -34,14 +34,13 @@ class _TrainGamePageState extends State<TrainGamePage> {
     "assets/game/train_game/dog.png",
     "assets/game/train_game/gul.png",
     "assets/game/train_game/cock.png",
-    "assets/game/train_game/helicopter.png",
   ];
 
   @override
   void initState() {
     super.initState();
     // 0.0 dan 1.0 gacha bo'lgan ixtiyoriy (random) pozitsiyalarni yaratish
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
       _randomPositions.add(Offset(_random.nextDouble(), _random.nextDouble()));
     }
   }
@@ -67,9 +66,9 @@ class _TrainGamePageState extends State<TrainGamePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     // Rasmlar orasida bir xil joy tashlash
-                    children: List.generate(4, (index) {
+                    children: List.generate(3, (index) {
                       return Container(
-                        width: 75.w,
+                        width: 100.w,
                         // Kartochka kengligi
                         height: 140.h,
                         // Kartochka balandligi

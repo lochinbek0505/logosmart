@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/animated_start_button.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/cloud_text.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -99,7 +100,7 @@ class _StartTextPageState extends State<StartTextPage> {
               // 2. O'rta qism: Matnli bulutcha
               Positioned(
                 top: 100.h,
-                child: _CloudText(
+                child: CloudText(
                   text: widget.data.exercise?.steps.first.text ?? "",
                 ),
               ),
@@ -200,48 +201,5 @@ class _StartTextPageState extends State<StartTextPage> {
     super.dispose();
 
     _audioPlayer.dispose();
-  }
-}
-
-// ==========================================
-// KICHIK WIDGETLAR UCHUN ALOHIDA KLASSLAR
-// ==========================================
-
-/// Matnli Bulutcha widgeti
-class _CloudText extends StatelessWidget {
-  final String text;
-
-  const _CloudText({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 320.w,
-      height: 190.h,
-      padding: EdgeInsets.only(
-        left: 20.w,
-        right: 20.w,
-        top: 20.h,
-        bottom: 11.5.h,
-      ),
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/icons/cloud.png"),
-          fit: BoxFit.fill,
-        ),
-      ),
-      child: Transform.translate(
-        offset: Offset(0, 25.h),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.nunito(
-            color: AppColors.main_blue_900,
-            fontWeight: FontWeight.w600,
-            fontSize: 18.sp,
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -275,43 +275,15 @@
         "items": [
           {
             "box_image": "assets/game/hand_game/box_1.png",
-            "hand_image": "assets/game/hand_game/lib_1.png"
+            "hand_image": "assets/game/hand_game/face_5.png"
           },
           {
             "box_image": "assets/game/hand_game/box_2.png",
-            "hand_image": "assets/game/hand_game/lib_2.png"
+            "hand_image": "assets/game/hand_game/face_6.png"
           },
           {
             "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/lib_3.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.png",
-            "hand_image": "assets/game/hand_game/lib_4.png"
-          }
-        ]
-      }
-    },
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.png",
-            "hand_image": "assets/game/hand_game/face_1.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.png",
-            "hand_image": "assets/game/hand_game/face_2.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/face_3.png"
+            "hand_image": "assets/game/hand_game/face_7.png"
           },
           {
             "box_image": "assets/game/hand_game/box_4.png",
@@ -1280,19 +1252,19 @@
         "items": [
           {
             "box_image": "assets/game/hand_game/box_1.png",
-            "hand_image": "assets/game/hand_game/lib_1.png"
+            "hand_image": "assets/game/hand_game/hand_9.png"
           },
           {
             "box_image": "assets/game/hand_game/box_2.png",
-            "hand_image": "assets/game/hand_game/lib_2.png"
+            "hand_image": "assets/game/hand_game/hand_10.png"
           },
           {
             "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/lib_3.png"
+            "hand_image": "assets/game/hand_game/hand_11.png"
           },
           {
             "box_image": "assets/game/hand_game/box_4.png",
-            "hand_image": "assets/game/hand_game/lib_4.png"
+            "hand_image": "assets/game/hand_game/hand_12.png"
           }
         ]
       }
@@ -1511,42 +1483,6 @@
   },
   {
     "id": 41,
-    "stars": 2,
-    "locked": false,
-    "skin": "assets/icons/silver.png",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.png",
-            "hand_image": "assets/game/hand_game/lib_1.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.png",
-            "hand_image": "assets/game/hand_game/lib_2.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/lib_3.png"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.png",
-            "hand_image": "assets/game/hand_game/lib_4.png"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 42,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1566,7 +1502,7 @@
     }
   },
   {
-    "id": 43,
+    "id": 42,
     "stars": 2,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1653,7 +1589,7 @@
     }
   },
   {
-    "id": 44,
+    "id": 43,
     "stars": 2,
     "locked": false,
     "skin": "assets/icons/silver.png",
@@ -1670,26 +1606,26 @@
         "items": [
           {
             "box_image": "assets/game/hand_game/box_1.png",
-            "hand_image": "assets/game/hand_game/lib_1.png"
+            "hand_image": "assets/game/hand_game/lib_5.png"
           },
           {
             "box_image": "assets/game/hand_game/box_2.png",
-            "hand_image": "assets/game/hand_game/lib_2.png"
+            "hand_image": "assets/game/hand_game/lib_6.png"
           },
           {
             "box_image": "assets/game/hand_game/box_3.png",
-            "hand_image": "assets/game/hand_game/lib_3.png"
+            "hand_image": "assets/game/hand_game/lib_7.png"
           },
           {
             "box_image": "assets/game/hand_game/box_4.png",
-            "hand_image": "assets/game/hand_game/lib_4.png"
+            "hand_image": "assets/game/hand_game/lib_8.png"
           }
         ]
       }
     }
   },
   {
-    "id": 45,
+    "id": 44,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/silver.png",
@@ -1709,7 +1645,7 @@
     }
   },
   {
-    "id": 46,
+    "id": 45,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1732,7 +1668,7 @@
     "game": null
   },
   {
-    "id": 47,
+    "id": 46,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/silver.png",
@@ -1746,7 +1682,7 @@
     "game": null
   },
   {
-    "id": 48,
+    "id": 47,
     "stars": 2,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1780,7 +1716,7 @@
     }
   },
   {
-    "id": 49,
+    "id": 48,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1800,7 +1736,7 @@
     }
   },
   {
-    "id": 50,
+    "id": 49,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/gold.png",
@@ -1831,7 +1767,7 @@
     "game": null
   },
   {
-    "id": 51,
+    "id": 50,
     "stars": 1,
     "locked": false,
     "skin": "assets/icons/silver.png",
@@ -1877,7 +1813,7 @@
     }
   },
   {
-    "id": 52,
+    "id": 51,
     "stars": 3,
     "locked": false,
     "skin": "assets/icons/silver.png",

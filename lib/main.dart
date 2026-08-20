@@ -4,6 +4,7 @@ import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/games/sound_game/sound_game_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
@@ -89,7 +90,7 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return SoundGamePage();
+          return MapRoadPage();
         }
 
         return LoginPage();

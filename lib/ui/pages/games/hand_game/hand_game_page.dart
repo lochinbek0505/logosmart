@@ -215,7 +215,7 @@ class _HandGamePageState extends State<HandGamePage> {
                                   ? item["hand_image"]! // JSON (box ichidagi rasm)
                                   : item["box_image"]!, // JSON (quti)
                               key: ValueKey<bool>(item["isOpen"]),
-                              fit: BoxFit.contain,
+                              fit: BoxFit.fitWidth,
                             ),
                           ),
                         ),

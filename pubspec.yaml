@@ -156,6 +156,12 @@ flutter:
     - assets/sound/map/
     - assets/sound/cv/
     - assets/videos/map_video/
+    - assets/sound/train_game/
+    - assets/backround/train_game/
+    - assets/game/train_game/
+    - assets/game/sound_game/
+    - assets/backround/sound_game/
+    - assets/sound/sound_game/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

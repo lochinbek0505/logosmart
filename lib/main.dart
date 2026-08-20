@@ -4,12 +4,10 @@ import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
-import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
-import 'package:logosmart/ui/pages/games/cloud_game/cloud_game_page.dart';
+import 'package:logosmart/ui/pages/games/sound_game/sound_game_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
-import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -85,17 +83,13 @@ class AuthChecker extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-
             backgroundColor: Colors.white,
             body: Center(child: CircularProgressIndicator()),
           );
-
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-
-          return MapRoadPage();
-
+          return SoundGamePage();
         }
 
         return LoginPage();

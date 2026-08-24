@@ -92,7 +92,7 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return WolfGamePage();
+          return TrainGamePage();
         }
 
         return LoginPage();

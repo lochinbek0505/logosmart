@@ -1092,7 +1092,7 @@
             "target_text": "uurr"
           },
           {
-            "id": 4,
+            "id": 3,
             "letter": "O'",
             "color": "0xFF7FD8F7",
             "angle": 90.0,
@@ -1133,7 +1133,7 @@
     "game": {
       "type": "cloud",
       "jsonConfig": {
-        "start_voice": "assets/sound/find_image/game_1_start.mp3",
+        "start_voice": "assets/sound/cloud_game/bulut.mp3",
         "success_sound": "assets/sound/success.mp3",
         "incorrect_sound": "assets/sound/diagnostic_error.mp3",
         "background_image": "assets/backround/breath/drone_background.jpg",

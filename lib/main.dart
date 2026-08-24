@@ -92,7 +92,7 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data == true) {
-          return TrainGamePage();
+          return SoundGamePage();
         }
 
         return LoginPage();

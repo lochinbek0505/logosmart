@@ -24,6 +24,9 @@ import '../drag_drop/drag_drop_game_page.dart';
 import '../find_image_game/find_image_game_page.dart';
 import '../hand_game/hand_game_page.dart';
 import '../puzzle_game/puzzle_game_widget.dart';
+import '../sound_game/sound_game_page.dart';
+import '../train_game/train_game_page.dart';
+import '../wolf_game/wolf_game_page.dart';
 import 'provider/level_provider.dart';
 import 'start_text_page.dart';
 
@@ -462,6 +465,22 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
         Navigator.of(
           context,
         ).push(MaterialPageRoute(builder: (_) => PuzzleGameWidget()));
+        break;
+      case "train_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const TrainGamePage()));
+        break;
+      case "sound_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const SoundGamePage()));
+        break;
+      case "wolf_game":
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const WolfGamePage()));
+        break;
     }
   }
 

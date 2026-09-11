@@ -216,7 +216,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
                     }),
                   ),
 
-                  SizedBox(height: 100.h),
+                  SizedBox(height: 150.h),
 
                   // Pastdagi tanlov bo'g'inlari (Draggable options)
                   if (!_isGameFinished)

@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/animated_start_button.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/cloud_text.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/storage/level_state.dart';
@@ -21,6 +19,9 @@ import '../drag_drop/drag_drop_game_page.dart';
 import '../find_image_game/find_image_game_page.dart';
 import '../hand_game/hand_game_page.dart';
 import '../puzzle_game/puzzle_game_widget.dart';
+import '../sound_game/sound_game_page.dart';
+import '../train_game/train_game_page.dart';
+import '../wolf_game/wolf_game_page.dart';
 import 'map_route_page.dart';
 
 class StartTextPage extends StatefulWidget {
@@ -185,6 +186,15 @@ class _StartTextPageState extends State<StartTextPage> {
         break;
       case "puzzle_game":
         page = const PuzzleGameWidget();
+        break;
+      case "train_game":
+        page = const TrainGamePage();
+        break;
+      case "sound_game":
+        page = const SoundGamePage();
+        break;
+      case "wolf_game":
+        page = const WolfGamePage();
         break;
     }
 

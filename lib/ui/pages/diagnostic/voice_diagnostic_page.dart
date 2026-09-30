@@ -21,9 +21,9 @@ import '../../../../models/diagnostic_group_model.dart';
 import '../../theme/app_colors.dart';
 
 class VoiceDiagnosticPage extends StatefulWidget {
-  List<Template>? templatesList;
+  final List<Template>? templatesList;
 
-  VoiceDiagnosticPage({super.key, this.templatesList});
+  const VoiceDiagnosticPage({super.key, this.templatesList});
 
   @override
   State<VoiceDiagnosticPage> createState() => _VoiceDiagnosticPageState();
@@ -51,7 +51,6 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
   bool _isRecording = false;
 
-  String? _lastText;
 
   bool _isImageReady = false;
 
@@ -307,7 +306,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
       if (path != null && File(path).existsSync()) {
         final text = await _stt.transcribe(audioPath: path);
 
-        setState(() => _lastText = text);
+        if (!mounted) return;
 
         final provider = context.read<VoiceDiagnosticProvider>();
 
@@ -324,6 +323,8 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         }
 
         await _player.onPlayerComplete.first;
+
+        if (!mounted) return;
 
         final hasNext = provider.next();
 
@@ -435,7 +436,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
               filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
 
               child: Container(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
 
                 child: SafeArea(
                   child: Padding(
@@ -644,7 +645,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                         BoxShadow(
                                           color: const Color(
                                             0xff00D3FF,
-                                          ).withOpacity(0.4),
+                                          ).withValues(alpha: 0.4),
 
                                           blurRadius: 15,
 
@@ -656,7 +657,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                         BoxShadow(
                                           color: const Color(
                                             0xff0066FF,
-                                          ).withOpacity(0.3),
+                                          ).withValues(alpha: 0.3),
 
                                           blurRadius: 18,
 
@@ -750,9 +751,9 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                                 color: _isRecording
                                                     ? _colorAnim.value
-                                                          ?.withOpacity(0.25)
-                                                    : Colors.white.withOpacity(
-                                                        0.15,
+                                                          ?.withValues(alpha: 0.25)
+                                                    : Colors.white.withValues(
+                                                        alpha: 0.15,
                                                       ),
                                               ),
                                             ),
@@ -767,9 +768,9 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                                 color: _isRecording
                                                     ? _colorAnim.value
-                                                          ?.withOpacity(0.35)
-                                                    : Colors.white.withOpacity(
-                                                        0.2,
+                                                          ?.withValues(alpha: 0.35)
+                                                    : Colors.white.withValues(
+                                                        alpha: 0.2,
                                                       ),
                                               ),
                                             ),
@@ -894,7 +895,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
 
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
 
                             child: Image.asset(

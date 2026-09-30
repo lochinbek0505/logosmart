@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON parse uchun
 
@@ -154,7 +155,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   }
 
   void _gameEnd() async {
-    print("Game end");
+    debugPrint("Game end");
 
     // ==========================================
     // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
@@ -164,6 +165,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     provider.unlock(stars: 3); // 3 yulduz bilan keyingi levelni ochish
 
     // Muvaffaqiyatli ovozni chalish
+    AppSettings().vibrateSuccess();
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
     if (!mounted) return;
@@ -340,8 +342,8 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: _isRecording
-                                      ? _colorAnim.value?.withOpacity(0.25)
-                                      : Colors.white.withOpacity(0.15),
+                                      ? _colorAnim.value?.withValues(alpha: 0.25)
+                                      : Colors.white.withValues(alpha: 0.15),
                                 ),
                               ),
                               Container(
@@ -350,8 +352,8 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: _isRecording
-                                      ? _colorAnim.value?.withOpacity(0.35)
-                                      : Colors.white.withOpacity(0.2),
+                                      ? _colorAnim.value?.withValues(alpha: 0.35)
+                                      : Colors.white.withValues(alpha: 0.2),
                                 ),
                               ),
                               ScaleTransition(

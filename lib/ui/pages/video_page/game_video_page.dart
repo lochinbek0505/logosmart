@@ -37,7 +37,7 @@ class _GameVideoPageState extends State<GameVideoPage>
 
     if (currentLevelData != null &&
         currentLevelData.exercise?.mediaPath != null) {
-      _videoUrl = currentLevelData.exercise!.mediaPath!;
+      _videoUrl = currentLevelData.exercise!.mediaPath;
     }
 
     if (_videoUrl.isNotEmpty) {
@@ -91,7 +91,7 @@ class _GameVideoPageState extends State<GameVideoPage>
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         _videoController?.pause();
       },
       child: Scaffold(

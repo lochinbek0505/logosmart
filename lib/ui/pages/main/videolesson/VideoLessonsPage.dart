@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideosPape.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class VideoLessonsPage extends StatefulWidget {
   const VideoLessonsPage({super.key});
@@ -98,7 +99,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                   style: TextStyle(
                                     color: itemCount == 1 ? Colors.white : Colors.black,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ),
@@ -121,7 +122,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                   style: TextStyle(
                                     color: itemCount == 2 ? Colors.white : Colors.black,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ),
@@ -201,7 +202,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                         vedioLesson[index]["text"],
                                         style: TextStyle(
                                           color: Colors.grey.shade900,
-                                          fontSize: 18,
+                                          fontSize: 18.sp,
                                           fontWeight: FontWeight.w600,
                                           height: 1.2,
                                         ),
@@ -220,7 +221,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                           child: Text(
                                             "${vedioLesson[index]["number"]} ta dars",
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 12.sp,
                                               fontWeight: FontWeight.w600,
                                               color: Color(0xff093e5e),
                                             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../specialist/SpecialistPage.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class PageViewOne extends StatefulWidget {
@@ -110,7 +111,7 @@ class _PageViewOneState extends State<PageViewOne> {
                         societyinfo[index]["name"],
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           color: Colors.blueGrey.shade800,
                         ),
                       ),
@@ -118,7 +119,7 @@ class _PageViewOneState extends State<PageViewOne> {
                         societyinfo[index]["text"],
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           color: Colors.grey.shade600,
                           fontWeight: FontWeight.w500,
                         ),
@@ -137,7 +138,7 @@ class _PageViewOneState extends State<PageViewOne> {
                               child: Text(
                                 "${societyinfo[index]["year"]} yil tajriba",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight:
                                   FontWeight.w600,
                                   color: Color(0xff093e5e),
@@ -158,7 +159,7 @@ class _PageViewOneState extends State<PageViewOne> {
                               child: Text(
                                 "+${societyinfo[index]["number"]} miozlar",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight:
                                   FontWeight.w600,
                                   color: Colors

@@ -42,7 +42,7 @@ class _Onboard2PageState extends State<Onboard2Page> {
             child: Text(
               "The app is designed for children and their caregivers to learn about autism, find resources and connect with others in the community. Let's get started!",
               style: GoogleFonts.nunito(
-                  fontSize: 14),
+                  fontSize: 14.sp),
             ),
           ),
           SizedBox(height: 34,)

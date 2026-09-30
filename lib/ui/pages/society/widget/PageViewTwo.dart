@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PageViewTwo extends StatefulWidget {
   const PageViewTwo({super.key});
@@ -74,7 +75,7 @@ class _PageViewTwoState extends State<PageViewTwo> {
 
                   Text(farmlist[index]["name"],style: TextStyle(
                     color: Colors.grey.shade900,
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w600,
                   ),),
                   SizedBox(height: 12,),
@@ -108,7 +109,7 @@ class _PageViewTwoState extends State<PageViewTwo> {
                   SizedBox(height: 12,),
 
                   Text(farmlist[index]["manzil"],style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       color: Colors.grey.shade500,
                       fontWeight: FontWeight.w500
                   ),)

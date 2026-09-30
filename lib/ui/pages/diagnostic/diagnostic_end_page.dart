@@ -6,8 +6,6 @@ import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/utils/game_bounce_page_route.dart';
-import 'advise_alphabet_page.dart';
 
 class DiagnosticEndPage extends StatefulWidget {
   DiagnosticEndPage({super.key});
@@ -39,8 +37,8 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
     var provider = Provider.of<VoiceDiagnosticProvider>(context);
     provider.scoreInit();
     var sounds = provider.scores;
-    print("SOUND TEST");
-    print(sounds.toString());
+    debugPrint("SOUND TEST");
+    debugPrint(sounds.toString());
 
     return Scaffold(
       backgroundColor: Colors.green.shade300,
@@ -201,16 +199,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                       ),
                     ),
 
-                    true
-                        ? const SizedBox()
-                        : Transform.translate(
-                            offset: Offset(0, -15.h),
-                            child: Image.asset(
-                              "assets/persons/girl_3.png",
-                              width: 220.w,
-                              height: 400.h,
-                            ),
-                          ),
+                    const SizedBox(),
                   ],
                 ),
               ),

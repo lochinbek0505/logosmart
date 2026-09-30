@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Custom3DButton extends StatefulWidget {
   const Custom3DButton({Key? key}) : super(key: key);
@@ -33,6 +34,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
           });
           var provider = Provider.of<LevelProvider>(context, listen: false);
           var ch = await provider.unlock();
+          if (!mounted) return;
           if (!ch) {
             // 1. Avval klaviaturani tushiramiz (muhim!)
             // FocusManager.instance.primaryFocus?.unfocus();
@@ -54,7 +56,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xff1E88E5).withOpacity(0.3),
+                        color: const Color(0xff1E88E5).withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 8),
                         spreadRadius: 2,
@@ -63,13 +65,13 @@ class _Custom3DButtonState extends State<Custom3DButton> {
                   ),
                   child: Row(
                     // MainAxisSize.min ni OLIB TASHLADIK, shunda u to'liq kenglikka yoyiladi
-                    children: const [
-                      Icon(
+                    children: [
+                      const Icon(
                         Icons.access_time_filled_rounded,
                         color: Colors.white,
                         size: 28,
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -79,7 +81,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
                               "Tez orada...",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -87,7 +89,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
                               "Keyingi qismlar ustida ishlayapmiz",
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 12,
+                                fontSize: 12.sp,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -128,7 +130,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
             boxShadow: [
               // Ozgina soya qo'shdik (ixtiyoriy)
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
@@ -195,7 +197,7 @@ class _Custom3DButtonState extends State<Custom3DButton> {
           'Davom etish',
           style: GoogleFonts.nunito(
             color: Colors.white,
-            fontSize: 20, // Dizaynga moslab sal kattalashtirdim
+            fontSize: 20.sp, // Dizaynga moslab sal kattalashtirdim
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
           ),

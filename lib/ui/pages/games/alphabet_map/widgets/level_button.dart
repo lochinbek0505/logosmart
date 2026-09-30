@@ -4,6 +4,7 @@ import 'package:logosmart/ui/pages/games/alphabet_map/widgets/star_meter.dart';
 
 import '../../../../../models/level_model.dart';
 import '../../../../theme/app_colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LevelButton extends StatefulWidget {
   final Level level;
@@ -81,7 +82,7 @@ class _LevelButtonState extends State<LevelButton> with SingleTickerProviderStat
               Text(
                 '${l.id}',
                 style: TextStyle(
-                  fontSize: 25,
+                  fontSize: 25.sp,
                   fontWeight: FontWeight.bold,
                   color: !l.locked ? Colors.white : AppColors.grey_600,
                 ),
@@ -94,18 +95,20 @@ class _LevelButtonState extends State<LevelButton> with SingleTickerProviderStat
 
     // Animatsiya bor/yo'qligini tekshirib qaytaramiz
     if (widget.isCurrent) {
-      return AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
-        child: buttonContent,
+      return RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: child,
+            );
+          },
+          child: buttonContent,
+        ),
       );
     }
 
-    return buttonContent;
+    return RepaintBoundary(child: buttonContent);
   }
 }

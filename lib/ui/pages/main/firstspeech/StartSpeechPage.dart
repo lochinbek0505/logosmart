@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/ui/pages/games/alphabet_map/start_text_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StartSpeechPage extends StatefulWidget {
   const StartSpeechPage({super.key});
@@ -72,7 +72,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                             style: TextStyle(
                               color: Colors.blueGrey.shade700,
                               fontWeight: FontWeight.w600,
-                              fontSize: 20,
+                              fontSize: 20.sp,
                             ),
                           ),
                         ),
@@ -119,7 +119,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 22,
+                                  fontSize: 22.sp,
                                 ),
                               ),
                             ),
@@ -153,7 +153,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 22,
+                                    fontSize: 22.sp,
                                   ),
                                 ),
                               ),

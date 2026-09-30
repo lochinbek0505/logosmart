@@ -56,7 +56,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         // Tanlash mumkin bo‘lgan reja (durationDays katta)
         final eligibleIndex = plans.indexWhere((p) {
           if (currentDuration == null) return true;
-          return (p.durationDays ?? 0) > currentDuration!;
+          return (p.durationDays ?? 0) > currentDuration;
         });
 
         if (eligibleIndex != -1) {
@@ -69,7 +69,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             oldPrice =
             (firstPlan.promoTextsList != null &&
                 firstPlan.promoTextsList!.isNotEmpty)
-                ? (firstPlan.promoTextsList!.first ?? "")
+                ? firstPlan.promoTextsList!.first
                 : "";
             code = firstPlan.code ?? "";
             canSubscribe = true;
@@ -154,13 +154,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     final isSelectable = currentPlanDurationDays == null ||
                         planName =="DEFAULT"
                         ? true
-                        : (plan.durationDays ?? 0) > currentPlanDurationDays!;
+                        : (plan.durationDays ?? 0) > currentPlanDurationDays;
 
                     return CustomSubscriptionCard(
                       isSelected: selectedIndex == index,
                       title: plan.name ?? "Nomsiz",
                       bonusText: promoTexts.length > 1
-                          ? (promoTexts[1] ?? "")
+                          ? promoTexts[1]
                           : "",
                       onTap: isSelectable
                           ? () {
@@ -168,7 +168,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                                 features = plan.featuresList ?? [];
                                 currentPrice = (plan.price ?? "").toString();
                                 oldPrice = promoTexts.isNotEmpty
-                                    ? (promoTexts.first ?? "")
+                                    ? promoTexts.first
                                     : "";
                                 selectedIndex = index;
                                 code = plan.code ?? "";
@@ -205,6 +205,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                           );
 
                           if (promo != null) {
+                            if (!mounted) return;
                             final promoResult = await provider.checkPromoCode(
                               context,
                               promo,
@@ -281,7 +282,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       ),
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       disabledBackgroundColor: AppColors.main_blue_600
-                          .withOpacity(0.7),
+                          .withValues(alpha: 0.7),
                     ),
                     onPressed:provider.isLoading || !canSubscribe
                         ? null
@@ -295,6 +296,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                                 code,
                                 promoCode ?? "",
                               );
+                              if (!mounted) return;
                               if (a) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

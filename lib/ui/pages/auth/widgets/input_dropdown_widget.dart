@@ -142,7 +142,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
               return Text(
                 hint,
                 style: GoogleFonts.nunito(
-                  color: AppColors.grey_700.withOpacity(0.5),
+                  color: AppColors.grey_700.withValues(alpha: 0.5),
                   fontSize: 16.sp,
                 ),
               );

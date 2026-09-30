@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logosmart/ui/pages/games/arrow_game/arrow_game_page.dart';
-import 'package:logosmart/ui/pages/games/breath_game/breath_game.dart';
-import 'package:logosmart/ui/pages/games/cloud_game/cloud_game_page.dart';
-import 'package:logosmart/ui/pages/games/cooking/cooking_page.dart';
-import 'package:logosmart/ui/pages/games/drag_drop/drag_drop_game_page.dart';
-import 'package:logosmart/ui/pages/games/find_image_game/find_image_game_page.dart';
-import 'package:logosmart/ui/pages/games/hand_game/hand_game_page.dart';
-import 'package:logosmart/ui/pages/games/puzzle_game/puzzle_game_widget.dart';
 
 import 'map_route_page.dart';
 
@@ -28,7 +20,6 @@ class _AlphabetPageState extends State<AlphabetPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -63,7 +54,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                         "Tovush mashqlari",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           color: Colors.blueGrey.shade800,
                           fontWeight: FontWeight.w600,
                         ),
@@ -96,12 +87,12 @@ class _AlphabetPageState extends State<AlphabetPage> {
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        padding: EdgeInsets.symmetric(vertical: 7.h),
                         child: Container(
-                          height: 115,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 14,
+                          constraints: BoxConstraints(minHeight: 115.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 18.w,
+                            vertical: 14.h,
                           ),
                           decoration: BoxDecoration(
                             image: const DecorationImage(
@@ -110,11 +101,11 @@ class _AlphabetPageState extends State<AlphabetPage> {
                               ),
                               fit: BoxFit.fill,
                             ),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.blueGrey.shade200.withOpacity(
-                                  0.5,
+                                color: Colors.blueGrey.shade200.withValues(
+                                  alpha: 0.5,
                                 ),
                                 spreadRadius: 4,
                                 blurRadius: 4,
@@ -125,14 +116,15 @@ class _AlphabetPageState extends State<AlphabetPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               /// Left side
-                              Row(
+                              Expanded(
+                                child: Row(
                                 children: [
                                   Container(
-                                    width: 60,
-                                    height: 60,
-                                    padding: const EdgeInsets.all(2),
+                                    width: 60.w,
+                                    height: 60.w,
+                                    padding: EdgeInsets.all(2.w),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40),
+                                      borderRadius: BorderRadius.circular(40.r),
                                       gradient: const LinearGradient(
                                         colors: [
                                           Color(0xffb5e9f7),
@@ -144,82 +136,83 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                     ),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(35),
+                                        borderRadius: BorderRadius.circular(35.r),
                                         color: Colors.cyan.shade50,
                                       ),
                                       child: Center(
                                         child: Image.asset(
                                           alphabet[index]["alphabet"],
-                                          height: 35,
-                                          width: 35,
+                                          height: 35.w,
+                                          width: 35.w,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
-                                  Column(
+                                  SizedBox(width: 16.w),
+                                  Expanded(
+                                    child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         "${alphabet[index]["text"]} tovushini\nrivojlantirish",
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Color(0xff093e5e),
                                           fontWeight: FontWeight.w600,
-                                          fontSize: 17,
+                                          fontSize: 17.sp,
                                         ),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6.h),
                                       Row(
                                         children: [
                                           CircleAvatar(
                                             backgroundImage: const AssetImage(
                                               "assets/icons/circle.png",
                                             ),
-                                            radius: 15,
+                                            radius: 15.r,
                                             child: Transform.translate(
                                               offset: const Offset(1, -1),
                                               child: Image.asset(
                                                 "assets/icons/play.png",
-                                                width: 13,
+                                                width: 13.w,
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 5),
-                                          const Text(
+                                          SizedBox(width: 5.w),
+                                          Text(
                                             "Boshlash",
                                             style: TextStyle(
                                               color: Color(0xff20B9E8),
-                                              fontSize: 15,
+                                              fontSize: 15.sp,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ],
+                                    ),
                                   ),
                                 ],
+                                ),
                               ),
 
                               /// Right side
                               Align(
                                 alignment: Alignment.topRight,
                                 child: Container(
-                                  width: 100,
-                                  height: 25,
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(20.r),
                                     color: const Color(0xffd9F6FB),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      "${alphabet[index]["number"]} ta mashg'ulot",
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xff093e5e),
-                                      ),
+                                  child: Text(
+                                    "${alphabet[index]["number"]} ta mashg'ulot",
+                                    style: TextStyle(
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xff093e5e),
                                     ),
                                   ),
                                 ),

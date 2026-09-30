@@ -83,7 +83,7 @@ class _BillingsPageState extends State<BillingsPage> {
             if (provider.isLoading)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppColors.main_blue_600,
@@ -183,7 +183,7 @@ class _BillingsPageState extends State<BillingsPage> {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      formatDateTime(item.createdAt!) ?? "",
+                      formatDateTime(item.createdAt!),
                       style: GoogleFonts.nunito(
                         fontSize: 11.sp,
                         color: Colors.grey,

@@ -34,6 +34,14 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordInitController.dispose();
+    _passwordVerifyController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
@@ -108,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: "Parol",
                       isPassword: true,
                       validator: (v) {
-                        if (v!.isEmpty || v == null)
+                        if (v == null || v.isEmpty)
                           return "Parol kiritilishi shart";
                         if (v.length < 8)
                           return "Parol kamida 8 ta belgidan iborat bo'lishi kerak";
@@ -121,7 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: "Parolni tasdiqlang",
                       isPassword: true,
                       validator: (v) {
-                        if (v!.isEmpty || v == null)
+                        if (v == null || v.isEmpty)
                           return "Parol kiritilishi shart";
 
                         if (v != _passwordInitController.text)

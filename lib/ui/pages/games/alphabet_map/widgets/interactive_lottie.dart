@@ -40,6 +40,7 @@ class _InteractiveLottieState extends State<InteractiveLottie> {
           child: Lottie.asset(
             widget.assetPath,
             fit: BoxFit.contain,
+            repeat: false,
             errorBuilder: (context, error, stackTrace) => const SizedBox(),
           ),
         ),

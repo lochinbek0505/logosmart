@@ -381,14 +381,14 @@ class ApiService {
   Future<PlansModel?> getPlans(context) async {
     try {
       var response = await _dio.get("subscriptions/plans");
-      print("RESPONSE: ${response.data}");
+      debugPrint("RESPONSE: ${response.data}");
       if (response.statusCode == 200) {
         return PlansModel.fromJson(response.data);
       } else {
         return null;
       }
     } on DioException catch (e) {
-      print("RESPONSE: ${e}");
+      debugPrint("RESPONSE: ${e}");
 
       String errorMessage = "Xatolik yuz berdi";
 
@@ -412,7 +412,7 @@ class ApiService {
       showSnakBar(context, errorMessage);
       return null;
     } catch (e) {
-      print("RESPONSE: ${e}");
+      debugPrint("RESPONSE: ${e}");
 
       showSnakBar(context, "Kutilmagan xato: $e");
       return null;
@@ -422,14 +422,14 @@ class ApiService {
   Future<AvatarsModel?> getAvatars(context) async {
     try {
       var response = await _dio.get("avatars");
-      print("RESPONSE: ${response.data}");
+      debugPrint("RESPONSE: ${response.data}");
       if (response.statusCode == 200) {
         return AvatarsModel.fromJson(response.data);
       } else {
         return null;
       }
     } on DioException catch (e) {
-      print("RESPONSE: ${e}");
+      debugPrint("RESPONSE: ${e}");
 
       String errorMessage = "Xatolik yuz berdi";
 
@@ -453,7 +453,7 @@ class ApiService {
       showSnakBar(context, errorMessage);
       return null;
     } catch (e) {
-      print("RESPONSE: ${e}");
+      debugPrint("RESPONSE: ${e}");
 
       showSnakBar(context, "Kutilmagan xato: $e");
       return null;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SpecialistPage extends StatefulWidget {
   const SpecialistPage({super.key});
@@ -70,7 +71,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                     Text(
                       "Abdullayev Muattar",
                       style: TextStyle(
-                        fontSize: 21,
+                        fontSize: 21.sp,
                         color: Colors.blueGrey.shade800,
             
                         fontWeight: FontWeight.w600,
@@ -96,7 +97,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                     Text(
                       "Abdullayeva Muattar",
                       style: TextStyle(
-                        fontSize: 19,
+                        fontSize: 19.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey.shade800,
                       ),
@@ -117,7 +118,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                         child: Text(
                           "Online",
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             color: Colors.green.shade600,
                             fontWeight: FontWeight.w500,
                           ),
@@ -131,7 +132,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Shoxmen klinikasi",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                   ),
@@ -160,7 +161,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Mutaxassisligi:",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                   ),
@@ -170,7 +171,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Logoped, Phd",
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.blueGrey.shade800,
                   ),
@@ -181,7 +182,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Ish taribasi:",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                   ),
@@ -191,7 +192,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "15 yil",
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.blueGrey.shade800,
                   ),
@@ -202,7 +203,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Yashash manzili:",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                   ),
@@ -212,7 +213,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Farg'ona shahri, Farg'ona viloyati",
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.blueGrey.shade800,
                   ),
@@ -223,7 +224,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                 Text(
                   "Mutaxassis haqida:",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade600,
                   ),
@@ -251,7 +252,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                   maxLines: 12,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 15.5,
+                    fontSize: 15.5.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.blueGrey.shade700,
                   ),
@@ -263,7 +264,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                     Text(
                       "Darslar",
                       style: TextStyle(
-                        fontSize: 19,
+                        fontSize: 19.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey.shade800,
                       ),
@@ -271,7 +272,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                     Text(
                       "Barchasini ko'rish",
                       style: TextStyle(
-                        fontSize: 15.5,
+                        fontSize: 15.5.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.cyan.shade600,
                       ),
@@ -313,18 +314,18 @@ class _SpecialistPageState extends State<SpecialistPage> {
                   "Dars nomi",
                   style: TextStyle(
                     color: Color(0xff3c6385),
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(height: 8,),
-                Text("24ta dars 6 soat",style: TextStyle(fontSize: 13.5,color: Colors.grey.shade800,fontWeight: FontWeight.w500),),
+                Text("24ta dars 6 soat",style: TextStyle(fontSize: 13.5.sp,color: Colors.grey.shade800,fontWeight: FontWeight.w500),),
                 SizedBox(height: 30,),
                 Text(
                   "Mutaxassis haqidagi fikrlar",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.blueGrey.shade800,
                   ),
@@ -347,7 +348,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                               backgroundImage: AssetImage(camentlist[index]["image"]),
                             ),
                             SizedBox(width: 10,),
-                            Text(camentlist[index]["name"],style: TextStyle(color: Colors.grey.shade900,fontWeight: FontWeight.w500,fontSize: 16),),
+                            Text(camentlist[index]["name"],style: TextStyle(color: Colors.grey.shade900,fontWeight: FontWeight.w500,fontSize: 16.sp),),
                             Spacer(),
                             Container(
                               width: 55,
@@ -371,7 +372,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                                       color: Colors.orange,
                                     ),
                                     SizedBox(width: 5,),
-                                    Text("4",style: TextStyle(fontSize: 12,color: Colors.orange,fontWeight: FontWeight.bold),)
+                                    Text("4",style: TextStyle(fontSize: 12.sp,color: Colors.orange,fontWeight: FontWeight.bold),)
                                   ],
                                 ),
                               ),
@@ -383,7 +384,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                             maxLines: 12,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.blueGrey.shade400,
                             ),
@@ -393,7 +394,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                             children: [
                               Text(camentlist[index]["date"],style: TextStyle(
 
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w500
                               ),),
@@ -403,7 +404,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                               Text(camentlist[index]["number"].toString(),style: TextStyle(
                                 color: Colors.grey.shade900,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 15
+                                fontSize: 15.sp
                               ),),
 
                             ],
@@ -431,7 +432,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                           )
                       ),
                       child: Text("Xabar jo'natish",
-                        style: TextStyle(color: Colors.grey.shade800,fontSize: 14),
+                        style: TextStyle(color: Colors.grey.shade800,fontSize: 14.sp),
                       )),
                 ),
                 SizedBox(height: 16,),
@@ -448,7 +449,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                           )
                       ),
                       child: Text("Konsultatsiyaga yozdirish",
-                        style: TextStyle(color: Colors.white,fontSize: 14),
+                        style: TextStyle(color: Colors.white,fontSize: 14.sp),
                       )),
                 ),
                 SizedBox(height: 30,)

@@ -25,7 +25,7 @@
   },
   {
     "id": 2,
-    "stars": 2,
+    "stars": 3,
     "locked": false,
     "skin": "assets/icons/silver.png",
     "mode": "game",
@@ -34,12 +34,12 @@
       "type": "breath",
       "jsonConfig": {
         "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/rocket.mp3",
-        "lottie_animation": "assets/animation/breath/rocket.json",
-        "background_image": "assets/backround/breath/rocket_background.jpg",
+        "blow_voice": "assets/sound/breath/coins.mp3",
+        "lottie_animation": "assets/animation/breath/coins.json",
+        "background_image": "assets/backround/breath/coins_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": 100
+        "animation_position": 30
       }
     }
   },
@@ -50,17 +50,17 @@
     "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
-      "modelPath": "assets/models/ogiz_lab_tish.tflite",
-      "sound": "sound/cv/tish_lab.mp3",
-      "mediaPath": "assets/videos/models/tish_lab.mp4",
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/ong_chap.mp3",
+      "mediaPath": "assets/videos/models/ong_chap.mp4",
       "steps": [
         {
-          "text": "Iltimos tishni ko‘rsating",
-          "action": "tish"
+          "text": "Tilni ongga chiqarib ko‘rsating",
+          "action": "ong"
         },
         {
-          "text": "Iltimos labni ko‘rsating",
-          "action": "lab"
+          "text": "Tilni chapga chiqarib ko‘rsating",
+          "action": "chap"
         }
       ]
     },
@@ -130,12 +130,12 @@
       "type": "breath",
       "jsonConfig": {
         "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/flower.mp3",
-        "lottie_animation": "assets/animation/breath/flower.json",
-        "background_image": "assets/backround/breath/flower_background.jpg",
+        "blow_voice": "assets/sound/breath/rocket.mp3",
+        "lottie_animation": "assets/animation/breath/rocket.json",
+        "background_image": "assets/backround/breath/rocket_background.jpg",
         "icon_star": "assets/icons/star.png",
         "icon_arrow": "assets/icons/arrow_right_button.png",
-        "animation_position": -1.2
+        "animation_position": 10
       }
     }
   },
@@ -1448,6 +1448,7 @@
       }
     }
   },
+
   {
     "id": 37,
     "stars": 1,
@@ -1983,5 +1984,67 @@
       "steps": []
     },
     "game": null
+  },
+  {
+    "id": 55,
+    "stars": 2,
+    "locked": false,
+    "skin": "assets/icons/silver.png",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "cooking",
+      "jsonConfig": {
+        "start_voice": "assets/sound/cooking/school_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "bg_image": "assets/backround/cooking/classroom1.jpg",
+        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "icon_star": "assets/icons/star.png",
+        "icon_mic": "assets/icons/micrafon.png",
+        "chef_image": "assets/game/cooking/maktab_qiz.jpeg",
+        "products": [
+          {
+            "id": "daftar",
+            "asset": "assets/game/cooking/daftar.jpg",
+            "text": "daftar",
+            "sound": "assets/sound/cooking/daftar.mp3",
+            "x": 220,
+            "y": 550
+          },
+          {
+            "id": "karmon",
+            "asset": "assets/game/cooking/kamron.jpg",
+            "text": "karmon",
+            "sound": "assets/sound/cooking/karmon.mp3",
+            "x": 40,
+            "y": 520
+          },
+          {
+            "id": "ochirgich",
+            "asset": "assets/game/cooking/ochirgich.jpg",
+            "text": "o'chirgich",
+            "sound": "assets/sound/cooking/ochirgich.mp3",
+            "x": 130,
+            "y": 420
+          },
+          {
+            "id": "ruchka",
+            "asset": "assets/game/cooking/ruchka.jpg",
+            "text": "ruchka",
+            "sound": "assets/sound/cooking/ruchka.mp3",
+            "x": 230,
+            "y": 320
+          },
+          {
+            "id": "sirkul",
+            "asset": "assets/game/cooking/sirkul.jpg",
+            "text": "sirkul",
+            "sound": "assets/sound/cooking/sirkul.mp3",
+            "x": 220,
+            "y": 200
+          }
+        ]
+      }
+    }
   }
 ]

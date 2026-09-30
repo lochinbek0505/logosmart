@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class WolfHosePage extends StatefulWidget {
   const WolfHosePage({super.key});
@@ -241,7 +242,7 @@ class _WolfHosePageState extends State<WolfHosePage> {
                           style: TextStyle(
                           color: Color(0xff093e5e),
                           fontWeight: FontWeight.w600,
-                          fontSize: 18
+                          fontSize: 18.sp
 
                         ),),
                       ),

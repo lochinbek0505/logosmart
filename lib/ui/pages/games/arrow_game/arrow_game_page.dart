@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON o'qish uchun
 import 'dart:math';
@@ -220,6 +221,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           return;
         } else {
           _showSnackbar("Barakalla! To'g'ri topildi.", Colors.green);
+          AppSettings().vibrateSuccess();
           await _audioPlayer.play(AssetSource('sound/success.mp3'));
         }
       } else {
@@ -294,6 +296,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
     final provider = context.read<LevelProvider>();
 
     // Success ovozi FAQAT shu yerda, bir marta chalinadi.
+    AppSettings().vibrateSuccess();
     await _audioPlayer.play(AssetSource('sound/success.mp3'));
 
     if (!mounted) return;
@@ -408,7 +411,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               height: innerRadius * 2,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.blueGrey.withOpacity(0.1),
+                                  color: Colors.blueGrey.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -513,7 +516,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: _isRecording
-                                    ? _colorAnim.value?.withOpacity(0.25)
+                                    ? _colorAnim.value?.withValues(alpha: 0.25)
                                     : Colors.transparent,
                               ),
                             ),
@@ -523,7 +526,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: _isRecording
-                                    ? _colorAnim.value?.withOpacity(0.35)
+                                    ? _colorAnim.value?.withValues(alpha: 0.35)
                                     : Colors.transparent,
                               ),
                             ),

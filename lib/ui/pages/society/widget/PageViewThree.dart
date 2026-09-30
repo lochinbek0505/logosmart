@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PageViewThree extends StatefulWidget {
   const PageViewThree({super.key});
@@ -85,7 +86,7 @@ class _PageViewThreeState extends State<PageViewThree> {
                           style: TextStyle(
                             color: Colors.grey.shade900,
                             fontWeight: FontWeight.w500,
-                            fontSize: 16,
+                            fontSize: 16.sp,
                           ),
                         ),
                         SizedBox(height: 5),
@@ -122,7 +123,7 @@ class _PageViewThreeState extends State<PageViewThree> {
                           maxLines: 12,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.blueGrey.shade400,
                           ),
@@ -165,7 +166,7 @@ class _PageViewThreeState extends State<PageViewThree> {
 
                               style: TextStyle(
                                 color: Colors.grey.shade600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                             Icon(Icons.circle,size: 8,color: Colors.grey.shade400,),
@@ -174,7 +175,7 @@ class _PageViewThreeState extends State<PageViewThree> {
 
                               style: TextStyle(
                                 color: Colors.grey.shade600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
 

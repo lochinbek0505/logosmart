@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON o'qish uchun
 
@@ -193,6 +194,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
       // To'g'ri topilgani uchun qo'shimcha ball beramiz (ixtiyoriy)
       context.read<LevelProvider>().addBall(5);
 
+      AppSettings().vibrateSuccess();
       await Future.wait([
         _playAudioAndWait(_config['success_sound']),
         Future.delayed(const Duration(milliseconds: 1100)),
@@ -232,6 +234,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
         _showIncorrectAnim = true;
       });
 
+      AppSettings().vibrateError();
       await Future.wait([
         _playAudioAndWait(_config['error_sound']),
         Future.delayed(const Duration(milliseconds: 1100)),
@@ -262,6 +265,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     provider.addBall(10);
     provider.unlock(stars: 3);
 
+    AppSettings().vibrateSuccess();
     await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
 
     if (!mounted) return;

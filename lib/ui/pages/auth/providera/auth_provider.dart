@@ -78,7 +78,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       if (response != null) {
         await tokenStorage.saveLoginData(response);
-        print("TOKEN ${response.accessToken}");
+        debugPrint("TOKEN ${response.accessToken}");
         return true;
       } else {
         return false;

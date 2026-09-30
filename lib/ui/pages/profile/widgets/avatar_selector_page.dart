@@ -71,7 +71,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                 border: Border.all(color: Colors.blue.shade200, width: 3.w),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.15),
+                    color: Colors.blue.withValues(alpha: 0.15),
                     blurRadius: 20.r,
                     offset: Offset(0, 10.h),
                   ),
@@ -114,7 +114,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10.r,
                     offset: Offset(0, -4.h),
                   ),
@@ -160,7 +160,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                   "region": provider.profileResponse.region,
                   "district": provider.profileResponse.district,
                 };
-                print(map);
+                debugPrint(map.toString());
                 provider.updateProfile(context, map);
               }
 

@@ -25,7 +25,10 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProfileProvider>(context, listen: false).init(context);
+      Provider.of<ProfileProvider>(
+        context,
+        listen: false,
+      ).init(context, silent: true);
     });
   }
 
@@ -60,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         radius: 39.r,
                         backgroundColor: Colors.blueGrey.shade200,
                         backgroundImage: NetworkImage(
-                          provider.profileResponse?.profileImage ??
+                          provider.profileResponse.profileImage ??
                               "https://www.pngall.com/wp-content/uploads/5/Profile-PNG-High-Quality-Image.png",
                         ),
                       ),
@@ -301,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage> {
             if (provider.isLoading)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppColors.main_blue_600,

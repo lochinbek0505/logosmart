@@ -54,7 +54,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   int _completedCycles = 0;
 
   Map<String, dynamic>? _currentBest;
-  List<Map<String, dynamic>> _lastDetections = [];
 
   DateTime? _actionStartTime;
   DateTime _lastProcessTime = DateTime.now();
@@ -150,7 +149,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       return;
     _lastProcessTime = now;
 
-    _lastDetections = results;
     final expectedAction = _steps[_currentStepIndex].action;
 
     if (expectedAction == "about") return;
@@ -265,7 +263,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     try {
       await _audioPlayer.play(AssetSource('sound/success.mp3'));
     } catch (e) {
-      print("Ovoz chalishda xatolik: $e");
+      debugPrint("Ovoz chalishda xatolik: $e");
     }
 
     provider.addBall(10);
@@ -280,6 +278,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           earnedScore: 10,
           onContinue: () async {
             await provider.unlock(stars: 3);
+            if (!context.mounted) return;
             Navigator.pop(context);
             Navigator.pop(context);
           },
@@ -365,7 +364,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         _cameraActive = false;
         _videoController?.pause();
       },
@@ -474,11 +473,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     vertical: 12.h,
                   ),
                   decoration: BoxDecoration(
-                    color: _cameraBoxBorderColor.withOpacity(0.95),
+                    color: _cameraBoxBorderColor.withValues(alpha: 0.95),
                     borderRadius: BorderRadius.circular(16.r),
                     boxShadow: [
                       BoxShadow(
-                        color: _cameraBoxBorderColor.withOpacity(0.5),
+                        color: _cameraBoxBorderColor.withValues(alpha: 0.5),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -520,7 +519,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                 (_isExerciseCompleted
                         ? AppColors.green_900
                         : _cameraBoxBorderColor)
-                    .withOpacity(0.6),
+                    .withValues(alpha: 0.6),
             blurRadius: 15.r,
             spreadRadius: 2.r,
           ),

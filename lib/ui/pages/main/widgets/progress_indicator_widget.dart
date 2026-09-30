@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProgressIndicatorWidget extends StatelessWidget {
   final int currentStep;
@@ -37,7 +38,7 @@ class ProgressIndicatorWidget extends StatelessWidget {
                     boxShadow: index == currentStep
                         ? [
                       BoxShadow(
-                        color: color.withOpacity(0.5),
+                        color: color.withValues(alpha: 0.5),
                         blurRadius:  8,
                         spreadRadius: 1,
                       ),
@@ -51,8 +52,8 @@ class ProgressIndicatorWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '${currentStep + 1} / $totalSteps bosqich',
-            style: const TextStyle(
-              fontSize: 12,
+            style: TextStyle(
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xff20B9E8),
             ),

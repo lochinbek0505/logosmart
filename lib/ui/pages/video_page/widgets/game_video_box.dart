@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GameVideoBox extends StatelessWidget {
   final Size size;
@@ -56,7 +57,7 @@ class GameVideoBox extends StatelessWidget {
               'Video yuklashda xatolik',
               style: TextStyle(
                 color: Colors.red.shade700,
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -64,7 +65,7 @@ class GameVideoBox extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               currentVideoPath ?? 'Video yo\'li topilmadi',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 11.sp),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -93,7 +94,7 @@ class GameVideoBox extends StatelessWidget {
     if (!isVideoInitialized || videoController == null) {
       return Container(
         color: Colors.black12,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(
@@ -105,7 +106,7 @@ class GameVideoBox extends StatelessWidget {
               'Video yuklanmoqda...',
               style: TextStyle(
                 color: Colors.black54,
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),

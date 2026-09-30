@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON o'qish uchun
 
@@ -162,6 +163,7 @@ class _CookingPageState extends State<CookingPage>
     });
 
     await _audioPlayer.stop();
+    AppSettings().vibrateSuccess();
     await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
 
     setState(() {
@@ -394,8 +396,8 @@ class _CookingPageState extends State<CookingPage>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _isRecording
-                                  ? _colorAnim.value?.withOpacity(0.25)
-                                  : Colors.grey.withOpacity(0.15),
+                                  ? _colorAnim.value?.withValues(alpha: 0.25)
+                                  : Colors.grey.withValues(alpha: 0.15),
                             ),
                           ),
                           Container(
@@ -404,8 +406,8 @@ class _CookingPageState extends State<CookingPage>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _isRecording
-                                  ? _colorAnim.value?.withOpacity(0.35)
-                                  : Colors.grey.withOpacity(0.2),
+                                  ? _colorAnim.value?.withValues(alpha: 0.35)
+                                  : Colors.grey.withValues(alpha: 0.2),
                             ),
                           ),
                           ScaleTransition(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/society/widget/PageViewOne.dart';
 import 'package:logosmart/ui/pages/society/widget/PageViewThree.dart';
 import 'package:logosmart/ui/pages/society/widget/PageViewTwo.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SocietyPage extends StatefulWidget {
   const SocietyPage({super.key});
@@ -54,7 +55,7 @@ class _SocietyPageState extends State<SocietyPage> {
 
                       "Jamiyat",style: TextStyle(
                         color: Colors.blueGrey.shade800,
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -135,7 +136,7 @@ class _SocietyPageState extends State<SocietyPage> {
                                         ? Colors.white
                                         : Colors.black,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ),
@@ -161,7 +162,7 @@ class _SocietyPageState extends State<SocietyPage> {
                                         ? Colors.white
                                         : Colors.black,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ),
@@ -188,7 +189,7 @@ class _SocietyPageState extends State<SocietyPage> {
                                         ? Colors.white
                                         : Colors.black,
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ),

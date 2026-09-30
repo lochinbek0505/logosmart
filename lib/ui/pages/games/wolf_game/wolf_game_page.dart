@@ -282,7 +282,7 @@ class _WolfGamePageState extends State<WolfGamePage>
           boxShadow: isUnlocked
               ? [
                   BoxShadow(
-                    color: Colors.amber.withOpacity(0.6),
+                    color: Colors.amber.withValues(alpha: 0.6),
                     blurRadius: 15,
                     spreadRadius: 2,
                   )

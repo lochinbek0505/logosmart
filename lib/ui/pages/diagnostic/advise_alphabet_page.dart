@@ -3,6 +3,7 @@ import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider
 import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AdviseAlphabetPage extends StatefulWidget {
   const AdviseAlphabetPage({super.key});
@@ -58,7 +59,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                         "Tovush mashqlari",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           color: Colors.blueGrey.shade800,
                           fontWeight: FontWeight.w600,
                         ),
@@ -157,18 +158,18 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(
+            children: [
+              const Icon(
                 Icons.psychology_alt_rounded,
                 color: Color(0xff20B9E8),
                 size: 36,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 "Kichik xatolar",
                 style: TextStyle(
                   color: Color(0xff093e5e),
-                  fontSize: 22,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -180,7 +181,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.blueGrey.shade700,
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               height: 1.3,
             ),
@@ -209,13 +210,13 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text("🔄 ", style: TextStyle(fontSize: 14)),
+                          Text("🔄 ", style: TextStyle(fontSize: 14.sp)),
                           Text(
                             word.matchedWord.toString().split(",")[0],
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Color(0xff093e5e),
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 14.sp,
                             ),
                           ),
                         ],
@@ -256,7 +257,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.blueGrey.shade200.withOpacity(0.5),
+                color: Colors.blueGrey.shade200.withValues(alpha: 0.5),
                 spreadRadius: 4,
                 blurRadius: 4,
               ),
@@ -300,10 +301,10 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                     children: [
                       Text(
                         "${alphabet[index]["text"]} tovushini\nrivojlantirish",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xff093e5e),
                           fontWeight: FontWeight.w600,
-                          fontSize: 17,
+                          fontSize: 17.sp,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -323,11 +324,11 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                             ),
                           ),
                           const SizedBox(width: 5),
-                          const Text(
+                          Text(
                             "Boshlash",
                             style: TextStyle(
                               color: Color(0xff20B9E8),
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -349,8 +350,8 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                   child: Center(
                     child: Text(
                       "${alphabet[index]["number"]} ta mashg'ulot",
-                      style: const TextStyle(
-                        fontSize: 10,
+                      style: TextStyle(
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                         color: Color(0xff093e5e),
                       ),
@@ -405,13 +406,13 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                     ),
                   ],
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               "DAVOM ETISH",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: 18.sp,
               ),
             ),
           ),

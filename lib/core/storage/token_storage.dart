@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../models/login_model.dart';
+import '../../models/profile_response.dart';
 
 class TokenStorage {
   static final TokenStorage _instance = TokenStorage._internal();
@@ -17,6 +19,30 @@ class TokenStorage {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _userKey = 'user_data';
+  static const _profileKey = 'profile_data';
+
+  /// ProfileResponse'ni saqlash
+  Future<void> saveProfileData(ProfileResponse profile) async {
+    try {
+      String profileJson = jsonEncode(profile.toJson());
+      await _storage.write(key: _profileKey, value: profileJson);
+    } catch (e) {
+      debugPrint("Profile saqlashda xatolik: $e");
+    }
+  }
+
+  /// ProfileResponse'ni o'qish
+  Future<ProfileResponse?> getProfileData() async {
+    try {
+      final profileString = await _storage.read(key: _profileKey);
+      if (profileString != null) {
+        return ProfileResponse.fromJson(jsonDecode(profileString));
+      }
+    } catch (e) {
+      debugPrint("Profile o'qishda xatolik: $e");
+    }
+    return null;
+  }
 
   /// LoginModel'ni to'liq saqlash (Tokenlar va User ma'lumotlari)
   Future<void> saveLoginData(LoginModel model) async {
@@ -33,7 +59,7 @@ class TokenStorage {
         await _storage.write(key: _userKey, value: userJson);
       }
     } catch (e) {
-      print("Ma'lumot saqlashda xatolik: $e");
+      debugPrint("Ma'lumot saqlashda xatolik: $e");
     }
   }
 
@@ -57,7 +83,7 @@ class TokenStorage {
         user: user,
       );
     } catch (e) {
-      print("Ma'lumotni o'qishda xatolik: $e");
+      debugPrint("Ma'lumotni o'qishda xatolik: $e");
       return null;
     }
   }
@@ -77,6 +103,7 @@ class TokenStorage {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _userKey);
+    await _storage.delete(key: _profileKey);
   }
 
   /// Hamma narsani tozalash

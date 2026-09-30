@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             // Disabled holatida tugma rangi o'zgarib qolmasligi uchun (ixtiyoriy)
                             disabledBackgroundColor: AppColors.main_blue_600
-                                .withOpacity(0.7),
+                                .withValues(alpha: 0.7),
                           ),
                           // DIQQAT: provider.isLoading true bo'lsa, tugma bosilmaydi (null)
                           onPressed: provider.isLoading

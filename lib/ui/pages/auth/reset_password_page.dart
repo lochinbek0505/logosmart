@@ -8,9 +8,9 @@ import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  String phone;
+  final String phone;
 
-  ResetPasswordPage({super.key, required this.phone});
+  const ResetPasswordPage({super.key, required this.phone});
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -31,6 +31,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     _passwordInitController = TextEditingController();
     _passwordVerifyController = TextEditingController();
     _phoneController.text = "+998";
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _passwordInitController.dispose();
+    _passwordVerifyController.dispose();
+    super.dispose();
   }
 
   @override
@@ -84,7 +92,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       label: "Parol",
                       isPassword: true,
                       validator: (v) {
-                        if (v!.isEmpty || v == null)
+                        if (v == null || v.isEmpty)
                           return "Parol kiritilishi shart";
                         if (v.length < 8)
                           return "Parol kamida 8 ta belgidan iborat bo'lishi kerak";
@@ -97,7 +105,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       label: "Parolni tasdiqlang",
                       isPassword: true,
                       validator: (v) {
-                        if (v!.isEmpty || v == null)
+                        if (v == null || v.isEmpty)
                           return "Parol kiritilishi shart";
 
                         if (v != _passwordInitController.text)
@@ -125,7 +133,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16.h),
                             // Loading vaqtida rang xiralashadi
-                            disabledBackgroundColor: AppColors.main_blue_600.withOpacity(0.7),
+                            disabledBackgroundColor: AppColors.main_blue_600.withValues(alpha: 0.7),
                           ),
                           onPressed: provider.isLoading
                               ? null

@@ -13,6 +13,7 @@ import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/service/app_settings.dart';
 import '../../../../core/storage/level_state.dart';
 import '../../../../models/decoration_item.dart';
 import '../../../../models/level_model.dart';
@@ -29,6 +30,7 @@ import '../train_game/train_game_page.dart';
 import '../wolf_game/wolf_game_page.dart';
 import 'provider/level_provider.dart';
 import 'start_text_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
@@ -93,7 +95,6 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
   // ===== KESH: faqat levelStates o'zgarsa qayta hisoblanadi =====
   List<Level>? _cachedLevels;
-  List<Offset>? _cachedPositions;
   List<DecorationItem>? _cachedDecorations;
   double? _cachedMapHeight;
   int?
@@ -230,7 +231,6 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
     _cachedLevelsSignature = signature;
     _cachedMapHeight = mapHeight;
-    _cachedPositions = positions;
     _cachedLevels = levels;
     _cachedDecorations = decorations;
   }
@@ -325,6 +325,8 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                           // Orqaga qaytishda kresh bo'lishini oldini oladi.
                           await _audioPlayer.pause();
 
+                          if (!context.mounted) return;
+
                           // YANGILIK: mode = "video" tekshiruvini qo'shdik
                           if (hasAbout) {
                             await Navigator.push(
@@ -381,7 +383,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                                       .fold<int>(0, (p, e) => p + e.stars)
                                       .toString(),
                                   style: TextStyle(
-                                    fontSize: 35,
+                                    fontSize: 35.sp,
                                     color: AppColors.orange_300,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -485,7 +487,14 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   }
 
   Future<void> initPage() async {
+    AppSettings().addListener(_onSettingsChanged);
+    if (!AppSettings().gameMusic) return;
     await _playLoopingAudio("sound/map/map_music.mp3");
+  }
+
+  // Sozlamalarda fon ovozi o'chirilsa darhol to'xtatamiz
+  void _onSettingsChanged() {
+    if (!AppSettings().gameMusic) _audioPlayer.stop();
   }
 
   Future<void> _playLoopingAudio(String path) async {
@@ -495,6 +504,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
   @override
   void dispose() {
+    AppSettings().removeListener(_onSettingsChanged);
     super.dispose();
     _audioPlayer.dispose();
   }

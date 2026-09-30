@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MyExpertPage extends StatefulWidget {
   const MyExpertPage({super.key});
@@ -34,7 +35,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                   Text(
                     "Diqqat",
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
@@ -46,7 +47,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                     "Mutaxassis qo‘shish uchun uning ID raqamini kiriting!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       color: Colors.grey.shade800,
                       fontWeight: FontWeight.w400,
                     ),
@@ -59,7 +60,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                     child: Text(
                       "Mutaxassis ID raqami",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: Colors.grey.shade900,
                         fontWeight: FontWeight.w400,
                       ),
@@ -67,7 +68,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                   ),
                   SizedBox(height: 6),
                   TextFormField(
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade800),
                     cursorColor: Colors.grey.shade700,
                     cursorHeight: 16,
                     cursorWidth: 1.5,
@@ -114,7 +115,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                         ),
                       ),
                       errorStyle: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         height: 0.8,
                         color: Colors.red.shade400,
                       ),
@@ -142,7 +143,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                               "Ortga",
                               style: TextStyle(
                                 color: Colors.grey.shade800,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ),
@@ -166,7 +167,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                               "Tasdiqlash",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ),
@@ -210,7 +211,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                   Text(
                     "Mening mutaxassislarim",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.blueGrey.shade800,
                     ),
@@ -226,13 +227,13 @@ class _MyExpertPageState extends State<MyExpertPage> {
               SizedBox(height: 20),
               Text(
                 "Ma'lumot yo'q",
-                style: TextStyle(fontSize: 20, color: Colors.grey.shade900),
+                style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade900),
               ),
               SizedBox(height: 4),
               Text(
                 "Hozircha sizning aktiv konsultatsiyangiz yo'q",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade600),
               ),
               SizedBox(height: 35),
               SizedBox(
@@ -250,7 +251,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                   ),
                   child: Text(
                     "Mutaxassis qo'shish",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: Colors.white, fontSize: 14.sp),
                   ),
                 ),
               ),

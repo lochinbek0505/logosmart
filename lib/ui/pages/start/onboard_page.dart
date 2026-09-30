@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/pages/home/home_page.dart';
 import 'package:logosmart/ui/pages/main/main_page.dart';
 import 'package:logosmart/ui/pages/start/onboard_2_page.dart';
 import 'package:logosmart/ui/pages/start/onboard_3_page.dart';

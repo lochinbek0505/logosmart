@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -10,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
-import '../../../theme/app_colors.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
@@ -350,6 +350,7 @@ class _TrainGamePageState extends State<TrainGamePage>
       });
     }
 
+    AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
     if (mounted) {
@@ -366,6 +367,7 @@ class _TrainGamePageState extends State<TrainGamePage>
     });
 
     setState(() => _isPlayingAudio = true);
+    AppSettings().vibrateSuccess();
     await _playAudioAndWait(_config['success_sound']);
     if (mounted) setState(() => _isPlayingAudio = false);
 
@@ -544,7 +546,7 @@ class _TrainGamePageState extends State<TrainGamePage>
         boxShadow: isUnlocked
             ? [
           BoxShadow(
-            color: Colors.green.withOpacity(0.4),
+            color: Colors.green.withValues(alpha: 0.4),
             blurRadius: 15,
             spreadRadius: 2,
           )
@@ -583,7 +585,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.green.withOpacity(0.5),
+                            color: Colors.green.withValues(alpha: 0.5),
                             blurRadius: 8,
                             spreadRadius: 1,
                           )
@@ -655,7 +657,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isRecording
-                          ? _colorAnim.value?.withOpacity(0.25)
+                          ? _colorAnim.value?.withValues(alpha: 0.25)
                           : Colors.transparent,
                     ),
                   ),
@@ -665,7 +667,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isRecording
-                          ? _colorAnim.value?.withOpacity(0.35)
+                          ? _colorAnim.value?.withValues(alpha: 0.35)
                           : Colors.transparent,
                     ),
                   ),

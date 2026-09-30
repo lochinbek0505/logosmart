@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/profile/profile_edit_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MyChildrenPage extends StatefulWidget {
   const MyChildrenPage({super.key});
@@ -55,7 +56,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                     Text(
                       "Farzandlarim",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey.shade800,
                       ),
@@ -114,7 +115,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
 
                                           style: TextStyle(
                                             color: Colors.blueGrey.shade800,
-                                            fontSize: 16,
+                                            fontSize: 16.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -126,7 +127,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
-                                            fontSize: 14,
+                                            fontSize: 14.sp,
                                           ),
                                         ),
                                         SizedBox(height: 2,),
@@ -141,7 +142,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                                             child: Text("${children[index]["age"]} yosh",style: TextStyle(
                                                 color: Colors.orange.shade600,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 13
+                                                fontSize: 13.sp
                                             ),),
                                           ),
                                         )
@@ -167,7 +168,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                                       )
                                   ),
                                   child: Text("To'liq ma'lumot",
-                                    style: TextStyle(color: Colors.white,fontSize: 14),
+                                    style: TextStyle(color: Colors.white,fontSize: 14.sp),
                                   )),
                             ),
 

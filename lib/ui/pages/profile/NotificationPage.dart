@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -20,8 +21,6 @@ class _NotificationPageState extends State<NotificationPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: SafeArea(
@@ -48,7 +47,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     Text(
                       "Bildirishnoma",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.blueGrey.shade800,
                       ),
@@ -104,13 +103,13 @@ class _NotificationPageState extends State<NotificationPage> {
                                           overflow: TextOverflow.ellipsis ,
                                           style: TextStyle(
                                               color: Color(0xff276275),
-                                            fontSize: 15.5,
+                                            fontSize: 15.5.sp,
                                             fontWeight: FontWeight.w500
                                           ),
                                         ),
                                         SizedBox(height: 10,),
                                         Text(notification[index]["date"],style: TextStyle(
-                                          color: Colors.grey.shade600,fontSize: 14
+                                          color: Colors.grey.shade600,fontSize: 14.sp
                                         ),)
                                       ],
                                     ),
@@ -132,7 +131,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                       )
                                   ),
                                   child: Text("Qabul qilish",
-                                    style: TextStyle(color: Colors.white,fontSize: 14),
+                                    style: TextStyle(color: Colors.white,fontSize: 14.sp),
                                   )),
                             ),
                             SizedBox(height: 10,),
@@ -150,7 +149,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                       )
                                   ),
                                   child: Text("Rad etish",
-                                    style: TextStyle(color: Colors.grey.shade800,fontSize: 14),
+                                    style: TextStyle(color: Colors.grey.shade800,fontSize: 14.sp),
                                   )),
                             ),                          ],
                         ),

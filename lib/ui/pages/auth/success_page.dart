@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 
-import '../home/home_page.dart';
 import '../main/main_page.dart';
 
 class SuccessPage extends StatefulWidget {

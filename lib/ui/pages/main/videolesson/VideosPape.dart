@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class VideosPage extends StatefulWidget {
   final String title;
@@ -37,7 +38,7 @@ class _VideosPageState extends State<VideosPage> {
                 Text(
                   widget.title,
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 19.sp,
                     color: Color(0xff093e5e),
 
                     fontWeight: FontWeight.w600,
@@ -92,7 +93,7 @@ class _VideosPageState extends State<VideosPage> {
                           "${index+1}. Dars nomi",
                           style: TextStyle(
                               color: Color(0xff3c6385),
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
                               height: 1.2
                           ),

@@ -37,7 +37,7 @@ class CustomSubscriptionCard extends StatelessWidget {
             // Mana shu yerda Containerga soya (elevation) va rang berildi
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2), // Soyaning rangi va tiniqligi
+                color: Colors.grey.withValues(alpha: 0.2), // Soyaning rangi va tiniqligi
                 spreadRadius: 1, // Soya qanchalik kengayishi
                 blurRadius: 8, // Soya qanchalik xira (yumshoq) bo'lishi (elevation vazifasini bajaradi)
                 offset: const Offset(0, 3), // Soyaning tushish burchagi (X, Y) pastga qarab

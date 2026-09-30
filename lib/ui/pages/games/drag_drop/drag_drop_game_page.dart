@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:convert'; // JSON o'qish uchun
 
 import 'package:audioplayers/audioplayers.dart';
@@ -162,7 +163,10 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                             onAcceptWithDetails: (details) async {
                               if (details.data['id'] == shadowItem['id']) {
                                 // To'g'ri topildi
+                                AppSettings().vibrateSuccess();
                                 await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+
+                                if (!mounted) return;
 
                                 context.read<LevelProvider>().addBall(10); // Har bir to'g'ri element uchun ball
 
@@ -209,7 +213,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                   color: const Color(0xFF00B0FF),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.25),
+                      color: Colors.blue.withValues(alpha: 0.25),
                       spreadRadius: 2.w,
                       blurRadius: 6.r,
                       offset: Offset(0, 3.h),

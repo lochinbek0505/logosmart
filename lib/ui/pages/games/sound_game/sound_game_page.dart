@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -125,6 +126,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
       });
     }
 
+    AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
     if (mounted) {
@@ -142,6 +144,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
       _isGameFinished = true;
     });
 
+    AppSettings().vibrateSuccess();
     await _playAudioAndWait(_config['success_sound']);
     _gameEnd();
   }
@@ -265,7 +268,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
             border: Border.all(color: AppColors.main_blue_600, width: 3.h),
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -301,7 +304,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
             width: 90.w,
             height: 75.h,
             decoration: BoxDecoration(
-              color: isHovered ? Colors.green.withOpacity(0.3) : Colors.black.withOpacity(0.2),
+              color: isHovered ? Colors.green.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
                 color: isHovered ? Colors.green : Colors.white70,
@@ -333,7 +336,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.main_blue_600.withOpacity(0.5),
+            color: AppColors.main_blue_600.withValues(alpha: 0.5),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

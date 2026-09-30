@@ -39,7 +39,7 @@ class _YoloCameraWidgetState extends State<YoloCameraWidget> {
         throttleInterval: Duration(milliseconds: widget.intervalMs),
       ),
       onResult: (results) {
-        if (results == null || results.isEmpty) return;
+        if (results.isEmpty) return;
 
         final mappedResults = results.map((r) {
           final rect = r.boundingBox;

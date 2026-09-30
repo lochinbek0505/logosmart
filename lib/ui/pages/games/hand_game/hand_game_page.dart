@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON o'qish uchun
 
@@ -106,6 +107,7 @@ class _HandGamePageState extends State<HandGamePage> {
     });
 
     // Muvaffaqiyat ovozini chalish
+    AppSettings().vibrateSuccess();
     await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
 
     // Hammasi ochildimi tekshiramiz

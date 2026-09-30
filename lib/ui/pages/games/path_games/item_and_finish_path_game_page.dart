@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON uchun
 
@@ -238,6 +239,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
       bool isMatched = _checkVoiceMatch(recognizedText, _config['target_text']);
 
       if (isMatched) {
+        AppSettings().vibrateSuccess();
         await _audioPlayer.play(
           AssetSource(_cleanAudioPath(_config['success_sound'])),
         );
@@ -261,6 +263,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
       _startPainting = true;
     });
 
+    AppSettings().vibrateError();
     await _playAudioAndWait(_config['error_sound']);
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -410,8 +413,8 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: _isRecording
-                                        ? _colorAnim.value?.withOpacity(0.25)
-                                        : Colors.grey.withOpacity(0.15),
+                                        ? _colorAnim.value?.withValues(alpha: 0.25)
+                                        : Colors.grey.withValues(alpha: 0.15),
                                   ),
                                 ),
                                 Container(
@@ -420,8 +423,8 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: _isRecording
-                                        ? _colorAnim.value?.withOpacity(0.35)
-                                        : Colors.grey.withOpacity(0.2),
+                                        ? _colorAnim.value?.withValues(alpha: 0.35)
+                                        : Colors.grey.withValues(alpha: 0.2),
                                   ),
                                 ),
                                 ScaleTransition(

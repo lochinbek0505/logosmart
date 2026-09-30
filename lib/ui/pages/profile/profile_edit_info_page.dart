@@ -36,10 +36,17 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
   void _load() async {
     final provider = Provider.of<ProfileProvider>(context, listen: false);
     final provider2 = Provider.of<AuthProvider>(context, listen: false);
     await provider2.initRegions();
+    if (!mounted) return;
     await provider.init(context);
 
     // Profile data bilan default qiymatlar
@@ -196,7 +203,7 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
                               ),
                               padding: EdgeInsets.symmetric(vertical: 16.h),
                               disabledBackgroundColor: AppColors.main_blue_600
-                                  .withOpacity(0.7),
+                                  .withValues(alpha: 0.7),
                             ),
                             onPressed: provider.isLoading
                                 ? null

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InstructionText extends StatelessWidget {
   final int stepNumber;
@@ -19,12 +20,12 @@ class InstructionText extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withOpacity(0.95)],
+          colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -38,13 +39,13 @@ class InstructionText extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   const Color(0xff20B9E8),
-                  const Color(0xff20B9E8).withOpacity(0.7),
+                  const Color(0xff20B9E8).withValues(alpha: 0.7),
                 ],
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xff20B9E8).withOpacity(0.3),
+                  color: const Color(0xff20B9E8).withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -64,7 +65,7 @@ class InstructionText extends StatelessWidget {
                 Text(
                   "Bosqich $stepNumber/$totalSteps",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors. grey.shade600,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -73,8 +74,8 @@ class InstructionText extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   instructionText,
-                  style: const TextStyle(
-                    fontSize:  16,
+                  style: TextStyle(
+                    fontSize:  16.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors. black87,
                     height: 1.3,

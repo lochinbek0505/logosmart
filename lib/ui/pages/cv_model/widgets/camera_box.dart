@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/widgets/yolo_camera_widget.dart';
 
@@ -68,8 +67,8 @@ class _CameraBoxState extends State<CameraBox> {
   @override
   Widget build(BuildContext context) {
     // ✅ RANG SILLIQ O'ZGARISHI UCHUN AnimatedContainer ISHLATAMIZ
-    print("asamknalf");
-    print(widget.borderColor);
+    debugPrint("asamknalf");
+    debugPrint(widget.borderColor.toString());
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: widget.size.width * 0.9,
@@ -79,7 +78,7 @@ class _CameraBoxState extends State<CameraBox> {
         border: Border.all(color: widget.borderColor, width: 3),
         boxShadow: [
           BoxShadow(
-            color: widget.borderColor.withOpacity(0.5),
+            color: widget.borderColor.withValues(alpha: 0.5),
             blurRadius: 10,
           ),
         ],

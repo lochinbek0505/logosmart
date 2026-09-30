@@ -1,3 +1,4 @@
+import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:async';
 import 'dart:convert'; // JSON o'qish uchun
 import 'dart:math';
@@ -242,6 +243,7 @@ class _CloudGamePageState extends State<CloudGamePage>
       bool isMatched = _checkVoiceMatch(recognizedText, cloud["text"]);
 
       if (isMatched) {
+        AppSettings().vibrateSuccess();
         await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
         setState(() {
           cloud["isMatched"] = true;
@@ -285,6 +287,7 @@ class _CloudGamePageState extends State<CloudGamePage>
       _showErrorAnim = true;
     });
 
+    AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
     if (mounted) {
@@ -510,7 +513,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isRecording
-                          ? _colorAnim.value?.withOpacity(0.25)
+                          ? _colorAnim.value?.withValues(alpha: 0.25)
                           : Colors.transparent,
                     ),
                   ),
@@ -520,7 +523,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isRecording
-                          ? _colorAnim.value?.withOpacity(0.35)
+                          ? _colorAnim.value?.withValues(alpha: 0.35)
                           : Colors.transparent,
                     ),
                   ),

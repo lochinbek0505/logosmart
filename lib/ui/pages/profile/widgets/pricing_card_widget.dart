@@ -26,13 +26,13 @@ class PricingCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15.r,
             spreadRadius: 2,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -60,7 +60,7 @@ class PricingCardWidget extends StatelessWidget {
                     height: 24.h,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.green.withOpacity(0.15),
+                      color: Colors.green.withValues(alpha: 0.15),
                     ),
                     child: SvgPicture.asset("assets/icons/green_sub.svg"),
                     // child: Image.asset("assets/icons/green_sub.svg"),

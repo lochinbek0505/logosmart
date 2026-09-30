@@ -1,6 +1,8 @@
 class User {
   String? id;
+  String? fullName;
   String? phoneNumber;
+  String? profileImage;
   String? status;
   List<String>? rolesList;
   String? subscriptionCode;
@@ -8,28 +10,48 @@ class User {
   dynamic subscriptionExpiresAt;
 
   User({
-    this.id, this.phoneNumber, this.status, this.rolesList, this.subscriptionCode, this.subscriptionStartedAt, this.subscriptionExpiresAt
+    this.id,
+    this.fullName,
+    this.phoneNumber,
+    this.profileImage,
+    this.status,
+    this.rolesList,
+    this.subscriptionCode,
+    this.subscriptionStartedAt,
+    this.subscriptionExpiresAt,
   });
 
   User copyWith({
-    String? id, String? phoneNumber, String? status, List<
-        String>? rolesList, String? subscriptionCode, String? subscriptionStartedAt, dynamic subscriptionExpiresAt
+    String? id,
+    String? fullName,
+    String? phoneNumber,
+    String? profileImage,
+    String? status,
+    List<String>? rolesList,
+    String? subscriptionCode,
+    String? subscriptionStartedAt,
+    dynamic subscriptionExpiresAt,
   }) =>
-      User(id: id ?? this.id,
-          phoneNumber: phoneNumber ?? this.phoneNumber,
-          status: status ?? this.status,
-          rolesList: rolesList ?? this.rolesList,
-          subscriptionCode: subscriptionCode ?? this.subscriptionCode,
-          subscriptionStartedAt: subscriptionStartedAt ??
-              this.subscriptionStartedAt,
-          subscriptionExpiresAt: subscriptionExpiresAt ??
-              this.subscriptionExpiresAt);
+      User(
+        id: id ?? this.id,
+        fullName: fullName ?? this.fullName,
+        phoneNumber: phoneNumber ?? this.phoneNumber,
+        profileImage: profileImage ?? this.profileImage,
+        status: status ?? this.status,
+        rolesList: rolesList ?? this.rolesList,
+        subscriptionCode: subscriptionCode ?? this.subscriptionCode,
+        subscriptionStartedAt:
+            subscriptionStartedAt ?? this.subscriptionStartedAt,
+        subscriptionExpiresAt:
+            subscriptionExpiresAt ?? this.subscriptionExpiresAt,
+      );
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-    };
+    final map = <String, dynamic>{};
     map["id"] = id;
+    map["fullName"] = fullName;
     map["phoneNumber"] = phoneNumber;
+    map["profileImage"] = profileImage;
     map["status"] = status;
     map["roles"] = rolesList;
     map["subscriptionCode"] = subscriptionCode;
@@ -40,7 +62,9 @@ class User {
 
   User.fromJson(dynamic json) {
     id = json["id"];
+    fullName = json["fullName"];
     phoneNumber = json["phoneNumber"];
+    profileImage = json["profileImage"];
     status = json["status"];
     rolesList = json["roles"] != null ? json["roles"].cast<String>() : [];
     subscriptionCode = json["subscriptionCode"];
@@ -54,20 +78,21 @@ class LoginModel {
   String? refreshToken;
   User? user;
 
-  LoginModel({
-    this.accessToken, this.refreshToken, this.user
-  });
+  LoginModel({this.accessToken, this.refreshToken, this.user});
 
   LoginModel copyWith({
-    String? accessToken, String? refreshToken, User? user
+    String? accessToken,
+    String? refreshToken,
+    User? user,
   }) =>
-      LoginModel(accessToken: accessToken ?? this.accessToken,
-          refreshToken: refreshToken ?? this.refreshToken,
-          user: user ?? this.user);
+      LoginModel(
+        accessToken: accessToken ?? this.accessToken,
+        refreshToken: refreshToken ?? this.refreshToken,
+        user: user ?? this.user,
+      );
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-    };
+    final map = <String, dynamic>{};
     map["accessToken"] = accessToken;
     map["refreshToken"] = refreshToken;
     if (user != null) {

@@ -38,6 +38,12 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
     load();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
   void load() async {
     var provider = Provider.of<AuthProvider>(context, listen: false);
     await provider.initRegions();
@@ -317,7 +323,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           // Loading vaqtida tugma rangi biroz xiralashib, chiroyli turadi
                           disabledBackgroundColor: AppColors.main_blue_600
-                              .withOpacity(0.7),
+                              .withValues(alpha: 0.7),
                         ),
                         // Agar yuklanayotgan bo'lsa (true), tugmani bosib bo'lmaydi (null)
                         onPressed: provider.isLoading
@@ -407,7 +413,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
               border: Border.all(
                 color: isSelected
                     ? const Color(0xFF00C2E8)
-                    : AppColors.light_grey_500.withOpacity(0.5),
+                    : AppColors.light_grey_500.withValues(alpha: 0.5),
                 width: isSelected ? 2.5 : 1.0,
               ),
             ),

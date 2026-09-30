@@ -75,7 +75,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         "Profil rasmi",
                         style: TextStyle(
                           color: Colors.blueGrey.shade800,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -89,7 +89,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             color: Colors.grey.shade700,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                           ),
                         ),
                         CircleAvatar(
@@ -125,7 +125,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                               "O'chirish",
                               style: TextStyle(
                                 color: Colors.grey.shade800,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ),
@@ -157,7 +157,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                               "Yangilash",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ),
@@ -218,7 +218,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           ),
                         ),
                         Text(
-                          profile.age.toString() ?? "Noma'lum",
+                          profile.age?.toString() ?? "Noma'lum",
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
@@ -309,7 +309,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     disabledBackgroundColor: AppColors.main_blue_600
-                        .withOpacity(0.7),
+                        .withValues(alpha: 0.7),
                   ),
                   onPressed: () {
                     Navigator.push(

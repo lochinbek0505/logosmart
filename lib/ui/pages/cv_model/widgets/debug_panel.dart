@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DebugPanel extends StatelessWidget {
   final bool isVideoInitialized;
@@ -25,9 +26,9 @@ class DebugPanel extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.green.withOpacity(0.5), width: 1),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.5), width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -59,15 +60,15 @@ class DebugPanel extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
                 color: lastDetections.isEmpty
-                    ? Colors.grey.withOpacity(0.3)
-                    : Colors.cyan.withOpacity(0.3),
+                    ? Colors.grey.withValues(alpha: 0.3)
+                    : Colors.cyan.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: Text(
                 "${lastDetections.length}",
                 style: TextStyle(
                   color: lastDetections.isEmpty ? Colors.grey : Colors.cyan,
-                  fontSize: 9,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -83,11 +84,11 @@ class DebugPanel extends StatelessWidget {
       width: 20,
       height: 20,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         shape: BoxShape.circle,
         border: Border.all(color: color, width: 1),
       ),
-      child: Center(child: Text(emoji, style: TextStyle(fontSize: 10))),
+      child: Center(child: Text(emoji, style: TextStyle(fontSize: 10.sp))),
     );
   }
 }

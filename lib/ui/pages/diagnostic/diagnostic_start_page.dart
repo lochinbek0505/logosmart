@@ -10,9 +10,9 @@ import '../../../../models/diagnostic_group_model.dart';
 import 'diagnostic_group_page.dart';
 
 class DiagnosticStartPage extends StatefulWidget {
-  List<Template>? templatesList;
+  final List<Template>? templatesList;
 
-  DiagnosticStartPage({super.key, this.templatesList});
+  const DiagnosticStartPage({super.key, this.templatesList});
 
   @override
   State<DiagnosticStartPage> createState() => _DiagnosticPage();
@@ -160,7 +160,7 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                     // Biroz kutamiz (animatsiya ko'rinishi uchun)
                     await Future.delayed(const Duration(milliseconds: 160));
 
-                    if (mounted) {
+                    if (context.mounted) {
                       setState(() {
                         _isPressed = false;
                       });

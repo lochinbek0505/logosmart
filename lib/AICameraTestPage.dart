@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/widgets/yolo_camera_widget.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AICameraTestPage extends StatefulWidget {
   const AICameraTestPage({super.key});
@@ -82,7 +83,7 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(20),
                 ),
@@ -92,9 +93,9 @@ class _AICameraTestPageState extends State<AICameraTestPage> {
                 children: [
                   Text(
                     'Topildi:  ${_detections.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -305,7 +306,7 @@ class BoundingBoxPainter extends CustomPainter {
       canvas.drawRect(rect, paint);
 
       final fillPaint = Paint()
-        ..color = det.color.withOpacity(0.2)
+        ..color = det.color.withValues(alpha: 0.2)
         ..style = PaintingStyle.fill;
 
       canvas.drawRect(rect, fillPaint);
@@ -314,9 +315,9 @@ class BoundingBoxPainter extends CustomPainter {
       final textPainter = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 14,
+            fontSize: 14.sp,
             fontWeight: FontWeight.bold,
           ),
         ),

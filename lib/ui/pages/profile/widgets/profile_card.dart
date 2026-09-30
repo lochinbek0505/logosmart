@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logosmart/models/avatars_model.dart';
 
 class ProfileCard extends StatelessWidget {
   final String? currentAvatarUrl;
@@ -16,7 +15,7 @@ class ProfileCard extends StatelessWidget {
         shape: BoxShape.circle, // To'rtburchak emas, doira shaklida ixchamlashtirildi
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12.r,
             offset: Offset(0, 4.h),
           ),

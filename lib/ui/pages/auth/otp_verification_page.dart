@@ -7,15 +7,14 @@ import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/auth/reset_password_page.dart';
 import 'package:logosmart/ui/pages/auth/success_page.dart' show SuccessPage;
 import 'package:logosmart/ui/pages/auth/widgets/otp_input_field.dart';
-import 'package:logosmart/ui/pages/home/home_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class OtpVerificationPage extends StatefulWidget {
-  String phone;
-  String check;
+  final String phone;
+  final String check;
 
-  OtpVerificationPage({super.key, required this.check, required this.phone});
+  const OtpVerificationPage({super.key, required this.check, required this.phone});
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -71,7 +70,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   }
 
   void _handleResend() {
-    print("Yangi SMS yuborildi!");
+    debugPrint("Yangi SMS yuborildi!");
 
     _startTimer();
   }
@@ -92,10 +91,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
             // switch (widgets.check) {
             //   case "register":
-            //     print("Ro'yxatdan o'tish jarayonidan chiqish");
+            //     debugPrint("Ro'yxatdan o'tish jarayonidan chiqish");
             //     break;
             //   case "forgot_password":
-            //     print("Parolni tiklash jarayonidan chiqish");
+            //     debugPrint("Parolni tiklash jarayonidan chiqish");
             //     break;
             //   case "login":
             //     Navigator.pop(context);
@@ -137,10 +136,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 onResendTap: _handleResend,
                 onChanged: (value) {
                   _enteredOtp = value;
-                  print("Hozirgi yozilgan kod: $_enteredOtp");
+                  debugPrint("Hozirgi yozilgan kod: $_enteredOtp");
                 },
                 onCompleted: (value) {
-                  print("Kod to'liq yozildi: $value");
+                  debugPrint("Kod to'liq yozildi: $value");
                 },
                 controller: _otpController,
               ),
@@ -159,7 +158,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       horizontal: 20.w,
                     ),
                     disabledBackgroundColor: AppColors.main_blue_600
-                        .withOpacity(0.7),
+                        .withValues(alpha: 0.7),
                   ),
                   // DIQQAT: loading vaqtida qayta bosib yubormaslik uchun
                   onPressed: provider.isLoading

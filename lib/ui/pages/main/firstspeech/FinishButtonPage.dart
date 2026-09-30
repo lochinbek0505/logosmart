@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FinishButtonPage extends StatefulWidget {
   const FinishButtonPage({super.key});
@@ -121,8 +122,8 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                           ],
                         ),
                       ),
-                      Text("BOSQICH",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.white),),
-                      Text("1",style: GoogleFonts.itim(fontSize: 120,fontWeight: FontWeight.bold,color: Colors.white,        height: 0.9,
+                      Text("BOSQICH",style: TextStyle(fontSize: 30.sp,fontWeight: FontWeight.bold,color: Colors.white),),
+                      Text("1",style: GoogleFonts.itim(fontSize: 120.sp,fontWeight: FontWeight.bold,color: Colors.white,        height: 0.9,
                       ),),
 
                       SizedBox(height: 130),

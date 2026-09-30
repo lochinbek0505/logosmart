@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logosmart/core/service/app_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -8,30 +10,44 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late List<bool> chekeSelected;
+  final AppSettings _settings = AppSettings();
 
-
-
-  List<Map<String, dynamic>> settings=[
+  late final List<Map<String, dynamic>> settings = [
     {
-      "text":"Bildirishnoma ovozi",
+      "text": "Bildirishnoma ovozi",
+      "value": () => _settings.notificationSound,
+      "onChanged": _settings.setNotificationSound,
     },
     {
-      "text":"O'yinlar ovozi",
-
+      "text": "O'yinlar fon ovozi",
+      "value": () => _settings.gameMusic,
+      "onChanged": _settings.setGameMusic,
     },
     {
-      "text":"Vibratsiya",
-
-    }
+      "text": "Vibratsiya",
+      "value": () => _settings.vibration,
+      "onChanged": (bool value) async {
+        await _settings.setVibration(value);
+        // Yoqilganini his qilish uchun
+        _settings.vibrateSuccess();
+      },
+    },
   ];
-
 
   @override
   void initState() {
     super.initState();
-    chekeSelected = List.filled(settings.length, false);
+    _settings.addListener(_onChanged);
+  }
 
+  @override
+  void dispose() {
+    _settings.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -62,7 +78,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   "Sozlamalar",
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.blueGrey.shade800,
                   ),
@@ -76,6 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 itemCount: settings.length,
 
                 itemBuilder: (context, index) {
+                  final bool isOn = settings[index]["value"]();
 
                   return Padding(
                     padding: const EdgeInsets.only(left: 6,right: 6,bottom: 10),
@@ -104,14 +121,12 @@ class _SettingsPageState extends State<SettingsPage> {
                             Text(settings[index]["text"],style: TextStyle(
                               color: Colors.blueGrey.shade800,
                               fontWeight: FontWeight.w400,
-                              fontSize: 17
+                              fontSize: 17.sp
                             ),),
 
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              chekeSelected[index]=!chekeSelected[index];
-                            });
+                            settings[index]["onChanged"](!isOn);
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 400),
@@ -120,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             height: 26,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
-                              color: chekeSelected[index] ? Color(0xff20B9E8) : Colors.grey.shade400,
+                              color: isOn ? Color(0xff20B9E8) : Colors.grey.shade400,
                             ),
                             child: Stack(
                               children: [
@@ -128,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   duration: const Duration(milliseconds: 400),
                                   curve: Curves.easeInOut,
                                   alignment:
-                                  chekeSelected[index] ? Alignment.centerRight : Alignment.centerLeft,
+                                  isOn ? Alignment.centerRight : Alignment.centerLeft,
                                   child: Padding(
                                     padding: const EdgeInsets.all(3),
                                     child: AnimatedContainer(
@@ -137,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       height: 20,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: chekeSelected[index] ? Colors.white : Colors.grey.shade600,
+                                        color: isOn ? Colors.white : Colors.grey.shade600,
                                       ),
                                     ),
                                   ),

@@ -39,6 +39,8 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
     final provider = context.read<ProfileProvider>();
     final PromoCheckModel result = await provider.checkPromoCode(context, code);
 
+    if (!mounted) return;
+
     final valid = result.valid == true &&
         result.expired != true &&
         result.limitReached != true;
@@ -50,7 +52,7 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
           (valid ? "Promo kod muvaffaqiyatli!" : "Promo kod yaroqsiz");
     });
 
-    if (valid && mounted) {
+    if (valid) {
       Navigator.pop(context, code); // promo kodni qaytaradi
     }
   }
@@ -89,7 +91,7 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
                   ),
                   padding: EdgeInsets.symmetric(vertical: 16.h),
                   disabledBackgroundColor: AppColors.main_blue_600
-                      .withOpacity(0.7),
+                      .withValues(alpha: 0.7),
                 ),
                 onPressed: _isLoading ? null : () => _checkPromo(context),
                 child: _isLoading

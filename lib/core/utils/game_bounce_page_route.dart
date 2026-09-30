@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/service/app_settings.dart';
 
 class GameBouncePageRoute extends PageRouteBuilder {
   final Widget page;
@@ -53,6 +54,7 @@ class GameBouncePageRoute extends PageRouteBuilder {
 
   // Mustaqil I/O operatsiyasi
   Future<void> _playTransitionSound() async {
+    if (!AppSettings().gameMusic) return;
     final player = AudioPlayer();
 
     // Ovoz chalishni boshlash (Asinxron)

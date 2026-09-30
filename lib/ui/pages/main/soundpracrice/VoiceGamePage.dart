@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class VoiceGamePage extends StatefulWidget {
   const VoiceGamePage({super.key});
@@ -84,7 +85,7 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                     style: TextStyle(
                       color: Colors.blueGrey.shade700,
                       fontWeight: FontWeight.w600,
-                      fontSize: 20,
+                      fontSize: 20.sp,
                     ),
                   ),
                 ),

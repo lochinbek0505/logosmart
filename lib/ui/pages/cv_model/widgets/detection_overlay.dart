@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DetectionOverlay extends StatelessWidget {
   final Map<String, dynamic>? currentBest;
@@ -23,8 +24,8 @@ class DetectionOverlay extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.black.withOpacity(0.8),
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.8),
+              Colors.black.withValues(alpha: 0.7),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
@@ -56,8 +57,8 @@ class DetectionOverlay extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: Colors. white.withOpacity(0.7),
-              fontSize: 12,
+              color: Colors. white.withValues(alpha: 0.7),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -67,7 +68,7 @@ class DetectionOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: value,
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
             ),

@@ -28,6 +28,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
@@ -109,7 +115,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         // Loading vaqtida rang xiralashadi
                         disabledBackgroundColor: AppColors.main_blue_600
-                            .withOpacity(0.7),
+                            .withValues(alpha: 0.7),
                       ),
                       onPressed: provider.isLoading
                           ? null

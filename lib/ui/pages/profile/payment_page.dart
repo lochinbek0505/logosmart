@@ -41,7 +41,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
       });
 
 
-      print("Foydalanuvchi to'lov ilovasidan qaytib keldi!");
+      debugPrint("Foydalanuvchi to'lov ilovasidan qaytib keldi!");
     }
   }
 
@@ -161,7 +161,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                           ),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           disabledBackgroundColor: AppColors.main_blue_600
-                              .withOpacity(0.7),
+                              .withValues(alpha: 0.7),
                         ),
                         // isLoading true bo'lsa, tugma bosilmaydi
                         onPressed: provider.isLoading

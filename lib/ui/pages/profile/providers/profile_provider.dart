@@ -29,20 +29,46 @@ class ProfileProvider with ChangeNotifier {
 
   AvatarsModel get avatarsModel => _avatarsModel;
 
-  Future<void> init(context) async {
-    isLoading = true;
-    notifyListeners();
-    var response = await ApiService().getProfile(context);
-    var avatarsResponse = await ApiService().getAvatars(context);
-    if (avatarsResponse != null) {
-      _avatarsModel = avatarsResponse;
+  /// [silent] = true bo'lsa loading ko'rsatilmaydi, ma'lumot orqa fonda yangilanadi.
+  Future<void> init(context, {bool silent = false}) async {
+    await _loadCachedProfile();
+    if (!silent) {
+      isLoading = true;
+      notifyListeners();
     }
-    if (response != null) {
-      _profileResponse = response;
+    try {
+      final results = await Future.wait([
+        ApiService().getProfile(context),
+        ApiService().getAvatars(context),
+      ]);
+      final response = results[0] as ProfileResponse?;
+      final avatarsResponse = results[1] as AvatarsModel?;
+      if (avatarsResponse != null) {
+        _avatarsModel = avatarsResponse;
+      }
+      if (response != null) {
+        _profileResponse = response;
+        await _tokenStorage.saveProfileData(response);
+      }
+    } catch (e) {
+      debugPrint("Profilni yuklashda xato: $e");
+    } finally {
+      if (!silent) isLoading = false;
+      notifyListeners();
     }
+  }
 
-    isLoading = false;
-    notifyListeners();
+  bool _cacheLoaded = false;
+
+  /// Storage'dagi oxirgi profilni bir marta o'qib, API javobi kelguncha ko'rsatadi.
+  Future<void> _loadCachedProfile() async {
+    if (_cacheLoaded) return;
+    _cacheLoaded = true;
+    final cached = await _tokenStorage.getProfileData();
+    if (cached != null) {
+      _profileResponse = cached;
+      notifyListeners();
+    }
   }
 
   Future<void> initPlans(BuildContext context) async {
@@ -101,6 +127,7 @@ class ProfileProvider with ChangeNotifier {
       var req = {"planCode": planCode, "promoCode": promoCode};
       var response = await ApiService().activatePlan(context, req);
       if (response != null && response.activePaid!) {
+        if (!context.mounted) return true;
         await init(context);
         return true;
       }
@@ -142,7 +169,9 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
       var response = await ApiService().updateProfile(context, data);
       if (response != null) {
-        init(context);
+        if (context.mounted) {
+          init(context);
+        }
         return response;
       }
     } catch (e) {
@@ -163,6 +192,8 @@ class ProfileProvider with ChangeNotifier {
 
       if (response) {
         await _tokenStorage.clearAll();
+        _profileResponse = ProfileResponse();
+        _cacheLoaded = false;
 
         if (!context.mounted) return; // Context mavjudligini tekshirish
 
@@ -188,6 +219,8 @@ class ProfileProvider with ChangeNotifier {
 
       if (response) {
         await _tokenStorage.clearAll();
+        _profileResponse = ProfileResponse();
+        _cacheLoaded = false;
 
         if (!context.mounted) return; // Context mavjudligini tekshirish
 

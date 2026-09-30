@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "594711556348",
+    "project_id": "logosmart-413e2",
+    "storage_bucket": "logosmart-413e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594711556348:android:729a0e8c7ae4ff3612e779",
+        "android_client_info": {
+          "package_name": "com.logosmart.logosmart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5f4vxUgz5bVBFAJwodUMIZHM3Nq-4DrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

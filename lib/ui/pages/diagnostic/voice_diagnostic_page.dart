@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/diagnostic/advise_alphabet_page.dart';
 import 'package:logosmart/ui/pages/diagnostic/diagnostic_end_page.dart';
@@ -696,6 +697,10 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                           child: Image.network(
                                             template?.itemsList?.first.url ??
                                                 "https://via.placeholder.com/130x150.png?text=No+Image",
+                                            headers: authImageHeaders(
+                                              template?.itemsList?.first.url ??
+                                                  "",
+                                            ),
 
                                             fit: BoxFit.contain,
                                           ),

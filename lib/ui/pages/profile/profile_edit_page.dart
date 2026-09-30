@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/models/profile_response.dart';
@@ -94,10 +95,13 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         ),
                         CircleAvatar(
                           radius: 30,
-                          backgroundImage: NetworkImage(
-                            profile.profileImage ??
-                                "assets/icons/circle_avatar.png",
-                          ),
+                          backgroundImage: profile.profileImage != null
+                              ? authNetworkImage(profile.profileImage!)
+                              : const AssetImage(
+                                      "assets/icons/circle_avatar.png",
+                                    )
+                                    as ImageProvider,
+                          onBackgroundImageError: (_, __) {},
                         ),
                       ],
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -24,7 +25,8 @@ class ProfileCard extends StatelessWidget {
       child: CircleAvatar(
         radius: 36.r,
         backgroundColor: Colors.grey.shade100,
-        backgroundImage: currentAvatarUrl != null ? NetworkImage(currentAvatarUrl!) : null,
+        backgroundImage: currentAvatarUrl != null ? authNetworkImage(currentAvatarUrl!) : null,
+        onBackgroundImageError: currentAvatarUrl != null ? (_, __) {} : null,
         child: currentAvatarUrl == null
             ? Icon(Icons.person, size: 36.sp, color: Colors.grey.shade400)
             : null,

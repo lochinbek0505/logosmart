@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/alphabet_page.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideoLessonsPage.dart';
+import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
+import 'package:logosmart/ui/pages/profile/providers/notifications_provider.dart';
+import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import '../diagnostic/diagnostic_group_page.dart';
@@ -42,8 +47,23 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileProvider>(
+        context,
+        listen: false,
+      ).init(context, silent: true);
+      context.read<NotificationsProvider>().refreshUnreadCount();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final profile = context.watch<ProfileProvider>().profileResponse;
+    final profileImage = profile.profileImage;
+    final unreadCount = context.watch<NotificationsProvider>().unreadCount;
 
     return Scaffold(
       backgroundColor: AppColors.main_blue_50,
@@ -63,31 +83,63 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Assalomu alaykum",
-                            style: GoogleFonts.nunito(
-                              fontSize: 19.sp,
-                              color: AppColors.main_blue_900,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Assalomu alaykum",
+                                    style: GoogleFonts.nunito(
+                                      fontSize: 19.sp,
+                                      color: AppColors.main_blue_900,
+                                    ),
+                                  ),
+                                  Text(
+                                    (profile.fullName ?? "").isEmpty
+                                        ? ""
+                                        : "${profile.fullName} !",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.nunito(
+                                      fontSize: 23.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.main_blue_900,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Text(
-                            "Lobarxon !",
-                            style: GoogleFonts.nunito(
-                              fontSize: 23.sp,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.main_blue_900,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      ImageIcon(
-                        const AssetImage("assets/icons/notification.png"),
-                        size: 24.w,
-                        color: AppColors.main_blue_900,
+                      GestureDetector(
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationPage(),
+                            ),
+                          );
+                          if (!context.mounted) return;
+                          context
+                              .read<NotificationsProvider>()
+                              .refreshUnreadCount();
+                        },
+                        child: Badge(
+                          isLabelVisible: unreadCount > 0,
+                          label: Text(
+                            unreadCount > 99 ? "99+" : "$unreadCount",
+                          ),
+                          backgroundColor: AppColors.red_400,
+                          child: ImageIcon(
+                            const AssetImage("assets/icons/notification.png"),
+                            size: 24.w,
+                            color: AppColors.main_blue_900,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -148,9 +200,14 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   CircleAvatar(
                                     radius: 25.r,
-                                    backgroundImage: AssetImage(
-                                      "assets/icons/circle_avatar.png",
-                                    ),
+                                    backgroundColor: Colors.blueGrey.shade200,
+                                    backgroundImage: profileImage != null
+                                        ? authNetworkImage(profileImage)
+                                        : const AssetImage(
+                                                "assets/icons/circle_avatar.png",
+                                              )
+                                              as ImageProvider,
+                                    onBackgroundImageError: (_, __) {},
                                   ),
                                   SizedBox(width: 5.w),
                                   Column(
@@ -206,7 +263,7 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (builder) =>  DiagnosticGroupPage(),
+                        builder: (builder) => DiagnosticGroupPage(),
                       ),
                     );
                   },

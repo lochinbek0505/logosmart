@@ -21,6 +21,9 @@ class TokenStorage {
   static const _userKey = 'user_data';
   static const _profileKey = 'profile_data';
 
+  /// Rasmlarni (NetworkImage) sinxron yuklash uchun xotiradagi token nusxasi.
+  String? cachedAccessToken;
+
   /// ProfileResponse'ni saqlash
   Future<void> saveProfileData(ProfileResponse profile) async {
     try {
@@ -48,6 +51,7 @@ class TokenStorage {
   Future<void> saveLoginData(LoginModel model) async {
     try {
       if (model.accessToken != null) {
+        cachedAccessToken = model.accessToken;
         await _storage.write(key: _accessTokenKey, value: model.accessToken);
       }
       if (model.refreshToken != null) {
@@ -90,7 +94,8 @@ class TokenStorage {
 
   /// Faqat Access Tokenni olish
   Future<String?> getAccessToken() async {
-    return await _storage.read(key: _accessTokenKey);
+    cachedAccessToken = await _storage.read(key: _accessTokenKey);
+    return cachedAccessToken;
   }
 
   /// Faqat Refresh Tokenni olish
@@ -100,6 +105,7 @@ class TokenStorage {
 
   /// Ma'lumotlarni o'chirish (Logout uchun)
   Future<void> deleteAuthData() async {
+    cachedAccessToken = null;
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _userKey);
@@ -108,6 +114,7 @@ class TokenStorage {
 
   /// Hamma narsani tozalash
   Future<void> clearAll() async {
+    cachedAccessToken = null;
     await _storage.deleteAll();
   }
 }

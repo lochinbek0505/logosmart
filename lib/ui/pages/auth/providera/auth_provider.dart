@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logosmart/core/network/api_service.dart';
+import 'package:logosmart/core/service/notification_service.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -79,6 +80,8 @@ class AuthProvider with ChangeNotifier {
       if (response != null) {
         await tokenStorage.saveLoginData(response);
         debugPrint("TOKEN ${response.accessToken}");
+        // FCM tokenni yangi userga bog'lash (kutmaymiz)
+        NotificationService().registerToken();
         return true;
       } else {
         return false;
@@ -125,6 +128,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       if (response != null) {
         await tokenStorage.saveLoginData(response);
+        NotificationService().registerToken();
         return true;
       } else {
         return false;

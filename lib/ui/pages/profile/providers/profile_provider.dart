@@ -5,6 +5,7 @@ import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 import 'package:logosmart/models/promo_check_model.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
+import 'package:logosmart/ui/pages/profile/providers/notifications_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/network/api_service.dart';
@@ -194,6 +195,7 @@ class ProfileProvider with ChangeNotifier {
         await _tokenStorage.clearAll();
         _profileResponse = ProfileResponse();
         _cacheLoaded = false;
+        NotificationsProvider().clear();
 
         if (!context.mounted) return; // Context mavjudligini tekshirish
 
@@ -221,6 +223,7 @@ class ProfileProvider with ChangeNotifier {
         await _tokenStorage.clearAll();
         _profileResponse = ProfileResponse();
         _cacheLoaded = false;
+        NotificationsProvider().clear();
 
         if (!context.mounted) return; // Context mavjudligini tekshirish
 

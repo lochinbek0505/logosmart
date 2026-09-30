@@ -13,14 +13,17 @@ class AppSettings extends ChangeNotifier {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
+  static const _pushEnabledKey = 'settings_push_enabled';
   static const _notificationSoundKey = 'settings_notification_sound';
   static const _gameMusicKey = 'settings_game_music';
   static const _vibrationKey = 'settings_vibration';
 
+  bool _pushEnabled = true;
   bool _notificationSound = true;
   bool _gameMusic = true;
   bool _vibration = true;
 
+  bool get pushEnabled => _pushEnabled;
   bool get notificationSound => _notificationSound;
   bool get gameMusic => _gameMusic;
   bool get vibration => _vibration;
@@ -28,6 +31,7 @@ class AppSettings extends ChangeNotifier {
   /// Ilova ishga tushganda bir marta chaqiriladi.
   Future<void> load() async {
     try {
+      _pushEnabled = await _read(_pushEnabledKey);
       _notificationSound = await _read(_notificationSoundKey);
       _gameMusic = await _read(_gameMusicKey);
       _vibration = await _read(_vibrationKey);
@@ -35,6 +39,13 @@ class AppSettings extends ChangeNotifier {
     } catch (e) {
       debugPrint("Sozlamalarni o'qishda xato: $e");
     }
+  }
+
+  /// Backend bilan bog'lash NotificationService.setPushEnabled() da.
+  Future<void> setPushEnabled(bool value) async {
+    _pushEnabled = value;
+    notifyListeners();
+    await _write(_pushEnabledKey, value);
   }
 
   Future<void> setNotificationSound(bool value) async {

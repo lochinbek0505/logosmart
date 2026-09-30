@@ -1,6 +1,4 @@
-
 class VoiceDiagnosticService {
-
   ScoreResult evaluate({
     required String recognizedText,
     required String promptText,
@@ -10,7 +8,9 @@ class VoiceDiagnosticService {
     // Recognized so'zlarni asliga ziyon yetkazmasdan massivga ajratamiz
     final recWords = recNorm.split(' ').where((e) => e.isNotEmpty).toList();
 
-    final promptWords = _normalize(promptText).split(' ').where((e) => e.isNotEmpty).toList();
+    final promptWords = _normalize(
+      promptText,
+    ).split(' ').where((e) => e.isNotEmpty).toList();
     final soundNorm = _normalize(sound);
 
     // 1) promptText dagi so‘zlardan bittasi 100% TO'LIQ mos kelsa
@@ -76,6 +76,4 @@ class ScoreResult {
   String toString() {
     return 'ScoreResult{score: $score, matchedWord: $matchedWord, sound: $sound, matchedSound: $matchedSound}';
   }
-
-
 }

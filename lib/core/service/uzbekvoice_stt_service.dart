@@ -16,7 +16,8 @@ class UzbekVoiceSttService {
     bool runDiarization = false,
     bool blocking = true,
   }) async {
-    final String apiKey="9a27fcc9-4dd0-45f3-89ab-6655d9e4aee8:5644d06b-6026-44c5-a7d0-e93db71b328f";
+    final String apiKey =
+        "9a27fcc9-4dd0-45f3-89ab-6655d9e4aee8:5644d06b-6026-44c5-a7d0-e93db71b328f";
 
     final file = File(audioPath);
     if (!await file.exists()) {

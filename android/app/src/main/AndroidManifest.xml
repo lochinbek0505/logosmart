@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Android 13+ bildirishnomalar uchun -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Eski versiyalar uchun (Android 12 va undan past) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -38,6 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Firebase: ilova yopiq bo'lganda keladigan bildirishnomalar kanali va ikonkasi -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="logosmart_default" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/launcher_icon" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

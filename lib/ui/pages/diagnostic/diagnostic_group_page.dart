@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
@@ -166,6 +167,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                             children: [
                               Image.network(
                                 group.iconUrl!,
+                                headers: authImageHeaders(group.iconUrl!),
                                 height: 80.h,
                                 width: 80.w,
                                 fit: BoxFit.contain,

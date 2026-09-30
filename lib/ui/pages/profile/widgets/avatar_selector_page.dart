@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/models/avatars_model.dart';
@@ -88,6 +89,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                   child: _currentAvatarUrl != null
                       ? Image.network(
                           _currentAvatarUrl!,
+                          headers: authImageHeaders(_currentAvatarUrl!),
                           fit: BoxFit
                               .cover, // Rasmni bo'sh joysiz to'liq sig'diradi
                           width: 120.r,
@@ -232,6 +234,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                     child: item.url != null
                         ? Image.network(
                             item.url!,
+                            headers: authImageHeaders(item.url!),
                             fit: BoxFit.fitWidth,
                             // Ro'yxatdagi rasmni ham to'liq yoyish
                             width: double.infinity,

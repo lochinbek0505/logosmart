@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/core/service/app_settings.dart';
+import 'package:logosmart/core/service/notification_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,6 +14,12 @@ class _SettingsPageState extends State<SettingsPage> {
   final AppSettings _settings = AppSettings();
 
   late final List<Map<String, dynamic>> settings = [
+    {
+      "text": "Bildirishnomalar",
+      "value": () => _settings.pushEnabled,
+      // Backendda qurilma tokenini o'chiradi / qayta ro'yxatdan o'tkazadi
+      "onChanged": NotificationService().setPushEnabled,
+    },
     {
       "text": "Bildirishnoma ovozi",
       "value": () => _settings.notificationSound,

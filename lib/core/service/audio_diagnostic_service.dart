@@ -15,7 +15,10 @@ class AudioDiagnosticService {
 
   StreamSubscription<Amplitude>? _ampSub;
 
-  Future<void> playObjectSound(String soundPath, VoidCallback onComplete) async {
+  Future<void> playObjectSound(
+    String soundPath,
+    VoidCallback onComplete,
+  ) async {
     final sub = _mainPlayer.onPlayerComplete.listen((_) {});
     sub.onData((_) {
       onComplete();
@@ -35,21 +38,26 @@ class AudioDiagnosticService {
   }
 
   /// Mikrofonni avtomatik yoqish va ovoz balandligini (amplitude) uzatish
-  Future<bool> startRecording({required Function(double) onAmplitudeChanged}) async {
+  Future<bool> startRecording({
+    required Function(double) onAmplitudeChanged,
+  }) async {
     final mic = await Permission.microphone.request();
     if (!mic.isGranted) return false;
 
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/record_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final path =
+        '${dir.path}/record_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _recorder.start(
       const RecordConfig(encoder: AudioEncoder.aacLc),
       path: path,
     );
 
-    _ampSub = _recorder.onAmplitudeChanged(const Duration(milliseconds: 120)).listen((amp) {
-      onAmplitudeChanged(amp.current);
-    });
+    _ampSub = _recorder
+        .onAmplitudeChanged(const Duration(milliseconds: 120))
+        .listen((amp) {
+          onAmplitudeChanged(amp.current);
+        });
 
     return true;
   }

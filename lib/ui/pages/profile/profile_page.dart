@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
@@ -62,10 +63,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: CircleAvatar(
                         radius: 39.r,
                         backgroundColor: Colors.blueGrey.shade200,
-                        backgroundImage: NetworkImage(
+                        backgroundImage: authNetworkImage(
                           provider.profileResponse.profileImage ??
                               "https://www.pngall.com/wp-content/uploads/5/Profile-PNG-High-Quality-Image.png",
                         ),
+                        // Rasm yuklanmasa kulrang fon qoladi, konsolga xato otilmaydi
+                        onBackgroundImageError: (_, __) {},
                       ),
                     ),
                     SizedBox(height: 8.h),

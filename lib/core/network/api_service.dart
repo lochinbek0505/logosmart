@@ -6,6 +6,7 @@ import 'package:logosmart/models/billings_model.dart';
 import 'package:logosmart/models/diagnostic_group_model.dart';
 import 'package:logosmart/models/diagnostic_submit_model.dart';
 import 'package:logosmart/models/login_model.dart';
+import 'package:logosmart/models/notification_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plan_activate_response.dart';
 import 'package:logosmart/models/plans_model.dart';
@@ -371,9 +372,12 @@ class ApiService {
   }
 
   void showSnakBar(context, message) {
+    // Backend bo'sh "message" qaytarsa matnsiz qora chiziq chiqib qolmasin
+    final text = message?.toString().trim() ?? "";
+    if (text.isEmpty || context == null || !context.mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(text)));
   }
 
   // subscriptions/plans
@@ -641,6 +645,88 @@ class ApiService {
     } catch (e) {
       showSnakBar(context, "Kutilmagan xato: $e");
       return null;
+    }
+  }
+
+  // ---------------- Bildirishnomalar (NOTIFICATIONS.md) ----------------
+  // Bular fonda chaqiriladi, shuning uchun snackbar ko'rsatmaydi.
+
+  /// Qurilma FCM tokenini joriy userga bog'lash. platform: ANDROID | IOS
+  Future<bool> registerDeviceToken(String fcmToken, String platform) async {
+    try {
+      var response = await _dio.post(
+        "notifications/device-token",
+        data: {"fcmToken": fcmToken, "platform": platform},
+      );
+      debugPrint("Device token yuborildi: ${response.statusCode} ${response.data}");
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint("Device token yuborishda xato: $e");
+      return false;
+    }
+  }
+
+  /// Push'ni o'chirish (Sozlamalar → Bildirishnomalar: o'chiq).
+  Future<bool> deleteDeviceToken(String fcmToken) async {
+    try {
+      var response = await _dio.delete(
+        "notifications/device-token",
+        queryParameters: {"fcmToken": fcmToken},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint("Device token o'chirishda xato: $e");
+      return false;
+    }
+  }
+
+  Future<NotificationsPageModel?> getNotifications({
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      var response = await _dio.get(
+        "notifications",
+        queryParameters: {"page": page, "size": size},
+      );
+      if (response.statusCode == 200) {
+        return NotificationsPageModel.fromJson(response.data);
+      }
+    } catch (e) {
+      debugPrint("Bildirishnomalarni olishda xato: $e");
+    }
+    return null;
+  }
+
+  Future<int?> getUnreadNotificationsCount() async {
+    try {
+      var response = await _dio.get("notifications/unread-count");
+      if (response.statusCode == 200) {
+        return response.data["count"];
+      }
+    } catch (e) {
+      debugPrint("O'qilmaganlar sonini olishda xato: $e");
+    }
+    return null;
+  }
+
+  Future<bool> markNotificationRead(String id) async {
+    try {
+      var response = await _dio.patch("notifications/$id/read");
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint("Bildirishnomani o'qildi qilishda xato: $e");
+      return false;
+    }
+  }
+
+  Future<bool> markAllNotificationsRead() async {
+    try {
+      var response = await _dio.patch("notifications/read-all");
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint("Hammasini o'qildi qilishda xato: $e");
+      return false;
     }
   }
 }

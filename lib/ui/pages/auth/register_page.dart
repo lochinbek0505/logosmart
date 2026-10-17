@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,9 +46,9 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: context.palette.background,
         scrolledUnderElevation: 0, // Scroll bo'lganda elevation qo'shilmasligi uchun
         surfaceTintColor: Colors.transparent, // Material 3 tint rangini olib tashlash uchun
         automaticallyImplyLeading: false, // Mana shu qator iconni yo'qotadi
@@ -74,7 +75,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Text(
                         "Yangi hisob yaratish",
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_900,
+                          color: context.palette.textStrong,
                           fontSize: 32.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -85,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Text(
                         "Logosmart ilovasiga Xush kelibsiz!",
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_700,
+                          color: context.palette.textSecondary,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -192,7 +193,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_400,
+                            color: context.palette.textMuted,
                             fontSize: 12.sp,
                           ),
                           children: [
@@ -203,7 +204,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             TextSpan(
                               text: "Foydalanish qoidalari",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -211,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             TextSpan(
                               text: "Maxfiylik shartlariga",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

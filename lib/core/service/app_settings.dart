@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,16 +18,21 @@ class AppSettings extends ChangeNotifier {
   static const _notificationSoundKey = 'settings_notification_sound';
   static const _gameMusicKey = 'settings_game_music';
   static const _vibrationKey = 'settings_vibration';
+  static const _themeModeKey = 'settings_theme_mode';
 
   bool _pushEnabled = true;
   bool _notificationSound = true;
   bool _gameMusic = true;
   bool _vibration = true;
+  ThemeMode _themeMode = ThemeMode.system;
 
   bool get pushEnabled => _pushEnabled;
   bool get notificationSound => _notificationSound;
   bool get gameMusic => _gameMusic;
   bool get vibration => _vibration;
+
+  /// Ilova mavzusi: tizimga mos, yorug' yoki qorong'i.
+  ThemeMode get themeMode => _themeMode;
 
   /// Ilova ishga tushganda bir marta chaqiriladi.
   Future<void> load() async {
@@ -35,6 +41,11 @@ class AppSettings extends ChangeNotifier {
       _notificationSound = await _read(_notificationSoundKey);
       _gameMusic = await _read(_gameMusicKey);
       _vibration = await _read(_vibrationKey);
+      final mode = await _storage.read(key: _themeModeKey);
+      _themeMode = ThemeMode.values.firstWhere(
+        (m) => m.name == mode,
+        orElse: () => ThemeMode.system,
+      );
       notifyListeners();
     } catch (e) {
       debugPrint("Sozlamalarni o'qishda xato: $e");
@@ -64,6 +75,17 @@ class AppSettings extends ChangeNotifier {
     _vibration = value;
     notifyListeners();
     await _write(_vibrationKey, value);
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    if (_themeMode == mode) return;
+    _themeMode = mode;
+    notifyListeners();
+    try {
+      await _storage.write(key: _themeModeKey, value: mode.name);
+    } catch (e) {
+      debugPrint("Mavzuni saqlashda xato: $e");
+    }
   }
 
   /// To'g'ri javobda qisqa vibratsiya.

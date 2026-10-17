@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logosmart/core/utils/auth_image.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/alphabet_page.dart';
@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import '../diagnostic/diagnostic_group_page.dart';
+import '../games/alphabet_map/map_route_page.dart';
+import '../games/alphabet_map/provider/level_provider.dart';
 import '../main/firstspeech/StartSpeechPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -62,11 +64,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final profile = context.watch<ProfileProvider>().profileResponse;
-    final profileImage = profile.profileImage;
     final unreadCount = context.watch<NotificationsProvider>().unreadCount;
 
     return Scaffold(
-      backgroundColor: AppColors.main_blue_50,
+      backgroundColor: context.palette.backgroundTinted,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -74,7 +75,7 @@ class _HomePageState extends State<HomePage> {
             SliverAppBar(
               automaticallyImplyLeading: false,
               collapsedHeight: 70.h,
-              backgroundColor: AppColors.main_blue_50,
+              backgroundColor: context.palette.backgroundTinted,
               title: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: SizedBox(
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                                     "Assalomu alaykum",
                                     style: GoogleFonts.nunito(
                                       fontSize: 19.sp,
-                                      color: AppColors.main_blue_900,
+                                      color: context.palette.textPrimary,
                                     ),
                                   ),
                                   Text(
@@ -107,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                                     style: GoogleFonts.nunito(
                                       fontSize: 23.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.main_blue_900,
+                                      color: context.palette.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -137,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                           child: ImageIcon(
                             const AssetImage("assets/icons/notification.png"),
                             size: 24.w,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ),
@@ -152,101 +153,7 @@ class _HomePageState extends State<HomePage> {
               delegate: _LastActionHeaderDelegate(
                 minHeight: 110.h,
                 maxHeight: 110.h,
-                child: Container(
-                  color: AppColors.main_blue_50,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            right: 0,
-                            top: 26,
-                            child: CircleAvatar(
-                              backgroundColor: const Color(0xff20B9E8),
-                              radius: 13.r,
-                              child: Transform.translate(
-                                offset: const Offset(0.9, 0),
-                                child: ImageIcon(
-                                  AssetImage("assets/icons/right_back.png"),
-                                  size: 10.w,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "So'ngi harakat",
-                                style: GoogleFonts.nunito(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey.shade900,
-                                ),
-                              ),
-                              SizedBox(height: 12.h),
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 25.r,
-                                    backgroundColor: Colors.blueGrey.shade200,
-                                    backgroundImage: profileImage != null
-                                        ? authNetworkImage(profileImage)
-                                        : const AssetImage(
-                                                "assets/icons/circle_avatar.png",
-                                              )
-                                              as ImageProvider,
-                                    onBackgroundImageError: (_, __) {},
-                                  ),
-                                  SizedBox(width: 5.w),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "01. Nutqni rivojlantirish va...",
-                                        style: GoogleFonts.nunito(
-                                          color: Colors.grey.shade900,
-                                          fontSize: 16.sp,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8.h),
-                                      SizedBox(
-                                        width: size.width - 143,
-                                        height: 9.h,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
-                                          ),
-                                          child: ShinyStripedProgressBar(
-                                            progressColor: AppColors.orange_200,
-                                            stripeColor: AppColors.orange_500,
-                                            targetProgress: .5,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                child: _buildLastActionCard(context, size),
               ),
             ),
 
@@ -370,7 +277,24 @@ class _HomePageState extends State<HomePage> {
                       image: DecorationImage(
                         image: AssetImage(cards[index]["image"]),
                         fit: BoxFit.fill,
+                        // Karta rasmi oq fonli — qorong'i mavzuda ko'zni
+                        // qamashtirmasligi uchun biroz xiralashtiramiz
+                        colorFilter: context.isDarkMode
+                            ? const ColorFilter.mode(
+                                Color(0x26000000),
+                                BlendMode.srcATop,
+                              )
+                            : null,
                       ),
+                      boxShadow: context.isDarkMode
+                          ? [
+                              BoxShadow(
+                                color: context.palette.shadow,
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Row(
                       children: [
@@ -390,7 +314,9 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   cards[index]["title"],
                                   style: GoogleFonts.nunito(
-                                    color: Colors.blueGrey.shade800,
+                                    // Karta foni har doim och — matn mavzudan
+                                    // qat'i nazar to'q bo'lishi kerak
+                                    color: AppColors.grey_900,
                                     fontSize: 22.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -505,6 +431,142 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // "So'ngi harakat": oxirgi ochilgan tovush mashqi va undagi progress.
+  // Bosilganda xarita bola kelib qolgan levelga surilgan holda ochiladi.
+  Widget _buildLastActionCard(BuildContext context, Size size) {
+    final activity = context.watch<LevelProvider>().lastActivity;
+
+    final String title = activity == null
+        ? "Mashg'ulotni boshlang"
+        : "${activity.sound} tovushi: ${activity.levelNumber}-mashq";
+    final String letterAsset =
+        "assets/alphabet/${(activity?.sound ?? LevelProvider.defaultSound).toLowerCase()}.png";
+
+    return Container(
+      color: context.palette.backgroundTinted,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      alignment: Alignment.center,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => activity == null
+                  ? const AlphabetPage()
+                  : MapRoadPage(sound: activity.sound, scrollToCurrent: true),
+            ),
+          );
+        },
+        child: Container(
+          width: size.width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.r),
+            color: context.palette.surface,
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: 0,
+                  top: 26,
+                  child: CircleAvatar(
+                    backgroundColor: const Color(0xff20B9E8),
+                    radius: 13.r,
+                    child: Transform.translate(
+                      offset: const Offset(0.9, 0),
+                      child: ImageIcon(
+                        const AssetImage("assets/icons/right_back.png"),
+                        size: 10.w,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "So'ngi harakat",
+                      style: GoogleFonts.nunito(
+                        fontSize: 14.sp,
+                        color: context.palette.textStrong,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      children: [
+                        Container(
+                          width: 50.r,
+                          height: 50.r,
+                          padding: EdgeInsets.all(2.r),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [Color(0xffb5e9f7), Color(0xff5ad4f2)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.cyan.shade50,
+                            ),
+                            child: Center(
+                              child: Image.asset(
+                                letterAsset,
+                                width: 28.r,
+                                height: 28.r,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: size.width - 146,
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.nunito(
+                                  color: context.palette.textStrong,
+                                  fontSize: 16.sp,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            SizedBox(
+                              width: size.width - 146,
+                              height: 9.h,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.r),
+                                child: ShinyStripedProgressBar(
+                                  // Progress o'zgarsa bar qayta chiziladi
+                                  key: ValueKey(activity?.progress ?? 0),
+                                  progressColor: AppColors.orange_200,
+                                  stripeColor: AppColors.orange_500,
+                                  targetProgress: activity?.progress ?? 0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

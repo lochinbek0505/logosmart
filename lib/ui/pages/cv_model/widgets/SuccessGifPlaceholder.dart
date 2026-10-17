@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logosmart/ui/theme/app_colors.dart';
 
 class SuccessGifPlaceholder extends StatelessWidget {
   const SuccessGifPlaceholder();
@@ -10,8 +11,8 @@ class SuccessGifPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.green.shade50,
-            Colors.green.shade100,
+            AppColors.green_50,
+            AppColors.green_300,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -28,7 +29,7 @@ class SuccessGifPlaceholder extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withValues(alpha: 0.3),
+                  color: AppColors.green_700.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
@@ -37,16 +38,16 @@ class SuccessGifPlaceholder extends StatelessWidget {
             child: const Icon(
               Icons.check_circle,
               size: 80,
-              color: Colors.green,
+              color: AppColors.green_700,
             ),
           ),
           const SizedBox(height: 20),
           Text(
-            "✅ Yakunlandi",
+            "Yakunlandi",
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.green,
+              color: AppColors.green_700,
             ),
           ),
         ],

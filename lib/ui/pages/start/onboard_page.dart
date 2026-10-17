@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/main/main_page.dart';
@@ -131,7 +132,7 @@ class _OnboardPageState extends State<OnboardPage> {
                 onPressed: _skip,
                 child:  Text(
                   "O'tkazib yuborish",
-                  style: GoogleFonts.nunito(color:AppColors.grey_900, fontSize: 14.sp),
+                  style: GoogleFonts.nunito(color:context.palette.textStrong, fontSize: 14.sp),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -28,7 +29,7 @@ class CustomSubscriptionCard extends StatelessWidget {
           height: 56.h,
           padding: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(40.r),
             border: Border.all(
               color: isSelected ? AppColors.main_blue_600 : Colors.transparent,
@@ -53,7 +54,7 @@ class CustomSubscriptionCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? AppColors.main_blue_600 : Colors.grey.shade300,
+                    color: isSelected ? AppColors.main_blue_600 : context.palette.border,
                     width: 2,
                   ),
                 ),
@@ -78,7 +79,7 @@ class CustomSubscriptionCard extends StatelessWidget {
                 style: GoogleFonts.nunito(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.main_blue_900,
+                  color: context.palette.textPrimary,
                 ),
               ),
 

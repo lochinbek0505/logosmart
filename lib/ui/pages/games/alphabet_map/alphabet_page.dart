@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'map_route_page.dart';
+import 'provider/level_provider.dart';
 
 class AlphabetPage extends StatefulWidget {
   const AlphabetPage({super.key});
@@ -31,8 +33,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/backround_xira.png"),
-              fit: BoxFit.fill,
-            ),
+              fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
           ),
           child: Column(
             children: [
@@ -46,7 +47,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                       child: Image.asset(
                         "assets/images/arow_back.png",
                         width: 24.w,
-                        color: Colors.grey.shade800,
+                        color: context.palette.icon,
                       ),
                     ),
                     Expanded(
@@ -55,7 +56,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22.sp,
-                          color: Colors.blueGrey.shade800,
+                          color: context.palette.textStrong,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -72,9 +73,12 @@ class _AlphabetPageState extends State<AlphabetPage> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        if (index == 0) {
+                        final sound = alphabet[index]["text"] as String;
+                        if (LevelProvider.hasSound(sound)) {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => MapRoadPage()),
+                            MaterialPageRoute(
+                              builder: (_) => MapRoadPage(sound: sound),
+                            ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +163,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                       Text(
                                         "${alphabet[index]["text"]} tovushini\nrivojlantirish",
                                         style: TextStyle(
-                                          color: Color(0xff093e5e),
+                                          color: context.palette.textPrimary,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 17.sp,
                                         ),
@@ -205,14 +209,14 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20.r),
-                                    color: const Color(0xffd9F6FB),
+                                    color: context.palette.primarySoft,
                                   ),
                                   child: Text(
                                     "${alphabet[index]["number"]} ta mashg'ulot",
                                     style: TextStyle(
                                       fontSize: 10.sp,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xff093e5e),
+                                      color: context.palette.textPrimary,
                                     ),
                                   ),
                                 ),

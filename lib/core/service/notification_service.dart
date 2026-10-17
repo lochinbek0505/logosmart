@@ -36,15 +36,17 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  // Ovozli va ovozsiz kanallar: Android'da kanal ovozini keyin o'zgartirib bo'lmaydi
+  // Ovozli va ovozsiz kanallar: Android'da kanal ovozi/importance'ini keyin
+  // o'zgartirib bo'lmaydi — o'zgartirish kerak bo'lsa yangi ID bering (_v2),
+  // manifest'dagi default_notification_channel_id ni ham yangilang.
   static const _soundChannel = AndroidNotificationChannel(
-    'logosmart_default',
+    'logosmart_main_v1',
     'Bildirishnomalar',
     description: 'LogoSmart bildirishnomalari',
-    importance: Importance.high,
+    importance: Importance.max,
   );
   static const _silentChannel = AndroidNotificationChannel(
-    'logosmart_silent',
+    'logosmart_silent_v1',
     'Ovozsiz bildirishnomalar',
     description: 'LogoSmart bildirishnomalari (ovozsiz)',
     importance: Importance.high,
@@ -55,13 +57,26 @@ class NotificationService {
   final _messaging = FirebaseMessaging.instance;
   final _local = FlutterLocalNotificationsPlugin();
 
+  // Oldingi versiyada yaratilgan eski kanallar (importance past bo'lib qolgan)
+  static const _oldChannelIds = ['logosmart_default', 'logosmart_silent'];
+
+  static const _icon = '@drawable/ic_notification';
+  // Status bar ikonkasi Android talabiga ko'ra oq-shaffof bo'lishi shart;
+  // bildirishnoma ichida esa logoning o'zi (rangli, fonsiz) ko'rinadi
+  static const _largeIcon = DrawableResourceAndroidBitmap(
+    '@drawable/ic_notification_large',
+  );
+
   static String get _platform => Platform.isIOS ? 'IOS' : 'ANDROID';
 
   /// main() da runApp dan oldin chaqiriladi.
+  /// `FirebaseMessaging.onBackgroundMessage` main() ning o'zida ro'yxatdan o'tadi.
   Future<void> init() async {
     try {
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       await _initLocalNotifications();
+      // Ruxsat login'dan oldin ham so'raladi — aks holda Android 13+ da
+      // bildirishnoma umuman ko'rinmaydi
+      await _requestPermission();
 
       await _applyForegroundOptions();
       AppSettings().addListener(_applyForegroundOptions);
@@ -84,7 +99,7 @@ class NotificationService {
       if (await TokenStorage().getAccessToken() == null) return;
       if (!AppSettings().pushEnabled) return;
 
-      await _messaging.requestPermission(alert: true, badge: true, sound: true);
+      await _requestPermission();
       final token = await _messaging.getToken();
       debugPrint("FCM token: $token");
       if (token != null) await _sendToken(token);
@@ -92,6 +107,21 @@ class NotificationService {
     } catch (e) {
       debugPrint("FCM tokenni ro'yxatdan o'tkazishda xato: $e");
     }
+  }
+
+  Future<void> _requestPermission() async {
+    final settings = await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    debugPrint("Bildirishnoma ruxsati: ${settings.authorizationStatus}");
+    // Ba'zi Android qurilmalarda FCM so'rovi dialog chiqarmaydi — zaxira
+    await _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
   }
 
   Future<void> _sendToken(String token) async {
@@ -149,7 +179,7 @@ class NotificationService {
   Future<void> _initLocalNotifications() async {
     await _local.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
+        android: AndroidInitializationSettings(_icon),
         // Ruxsatni FirebaseMessaging so'raydi
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
@@ -163,6 +193,9 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
+    for (final id in _oldChannelIds) {
+      await android?.deleteNotificationChannel(channelId: id);
+    }
     await android?.createNotificationChannel(_soundChannel);
     await android?.createNotificationChannel(_silentChannel);
   }
@@ -217,8 +250,11 @@ class NotificationService {
           channel.id,
           channel.name,
           channelDescription: channel.description,
-          importance: Importance.high,
+          importance: withSound ? Importance.max : Importance.high,
           priority: Priority.high,
+          icon: _icon,
+          largeIcon: _largeIcon,
+          styleInformation: BigTextStyleInformation(body ?? ''),
           playSound: withSound,
           enableVibration: withSound,
         ),

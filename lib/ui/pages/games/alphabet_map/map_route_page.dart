@@ -42,7 +42,22 @@ List<Offset> generatePositionsSin(int count) {
 }
 
 class MapRoadPage extends StatelessWidget {
-  MapRoadPage({super.key});
+  MapRoadPage({
+    super.key,
+    this.sound = LevelProvider.defaultSound,
+    this.embedded = false,
+    this.scrollToCurrent = false,
+  });
+
+  /// Qaysi tovush xaritasi ochiladi ([LevelProvider.soundLevelFiles] kaliti)
+  final String sound;
+
+  /// Pastki menyu ichida (tab sifatida) ko'rsatilganda true:
+  /// yopish tugmasi yashiriladi, pastda menyu uchun joy qoldiriladi.
+  final bool embedded;
+
+  /// true bo'lsa xarita ochilganda bola kelib qolgan levelga avtomatik suriladi
+  final bool scrollToCurrent;
 
   bool _hasLevelProvider(BuildContext context) {
     try {
@@ -56,21 +71,33 @@ class MapRoadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_hasLevelProvider(context)) {
-      return const _MapRoadBody();
+      return _MapRoadBody(
+        sound: sound,
+        embedded: embedded,
+        scrollToCurrent: scrollToCurrent,
+      );
     }
     return ChangeNotifierProvider<LevelProvider>(
-      create: (_) {
-        final p = LevelProvider();
-        p.bootstrap();
-        return p;
-      },
-      child: const _MapRoadBody(),
+      create: (_) => LevelProvider(autoBootstrap: false),
+      child: _MapRoadBody(
+        sound: sound,
+        embedded: embedded,
+        scrollToCurrent: scrollToCurrent,
+      ),
     );
   }
 }
 
 class _MapRoadBody extends StatefulWidget {
-  const _MapRoadBody();
+  const _MapRoadBody({
+    required this.sound,
+    required this.embedded,
+    required this.scrollToCurrent,
+  });
+
+  final String sound;
+  final bool embedded;
+  final bool scrollToCurrent;
 
   @override
   State<_MapRoadBody> createState() => _MapRoadBodyState();
@@ -78,6 +105,8 @@ class _MapRoadBody extends StatefulWidget {
 
 class _MapRoadBodyState extends State<_MapRoadBody> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final ScrollController _scrollController = ScrollController();
+  bool _didAutoScroll = false;
 
   // Tugma o'lchami (LevelButton va decor uchun offset -40 ishlatilgani uchun 80px deb olamiz)
   static const double _buttonHalfHeight = 40.0;
@@ -92,6 +121,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   // ko'paytirilganda floating-point xatosiz, bit-aniq holda pikselQiymat ga qaytadi.
   // Ya'ni fraction orqali hisoblash ham piksel darajasida aniq natija beradi.
   static const double _bottomSafeMargin = 20.0;
+  // Tab ichida pastki menyu (84.h) xarita ustiga tushadi
+  double get _bottomMargin =>
+      widget.embedded ? _bottomSafeMargin + 100.0 : _bottomSafeMargin;
 
   // ===== KESH: faqat levelStates o'zgarsa qayta hisoblanadi =====
   List<Level>? _cachedLevels;
@@ -144,6 +176,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   @override
   void initState() {
     super.initState();
+    context.read<LevelProvider>().selectSound(widget.sound);
     initPage();
   }
 
@@ -211,11 +244,11 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
     final double mapHeight = math.max(
       screenHeight,
-      levelStates.length * 125.0 + _headerContentHeight + _bottomSafeMargin,
+      levelStates.length * 125.0 + _headerContentHeight + _bottomMargin,
     );
 
     final double startYPx = _headerContentHeight + _headerGap;
-    final double endYPx = mapHeight - _buttonHalfHeight - _bottomSafeMargin;
+    final double endYPx = mapHeight - _buttonHalfHeight - _bottomMargin;
 
     final double startY = (startYPx / mapHeight).clamp(0.0, 1.0);
     final double endY = (endYPx / mapHeight).clamp(startY, 1.0);
@@ -253,9 +286,12 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
       }
     }
 
+    _autoScrollToCurrentIfNeeded(levels, currentLevelId, mapHeight, screenHeight);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: SizedBox(
           height: mapHeight,
           child: LayoutBuilder(
@@ -401,12 +437,17 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                             padding: const EdgeInsets.symmetric(
                               horizontal: 25.0,
                             ),
-                            child: Image.asset(
-                              "assets/icons/close_red.png",
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
+                            child: widget.embedded
+                                ? const SizedBox(width: 50, height: 50)
+                                : GestureDetector(
+                                    onTap: () => Navigator.of(context).maybePop(),
+                                    child: Image.asset(
+                                      "assets/icons/close_red.png",
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -419,6 +460,39 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
         ),
       ),
     );
+  }
+
+  // Joriy level ekran o'rtasiga kelguncha xaritani suradi (faqat bir marta)
+  void _autoScrollToCurrentIfNeeded(
+    List<Level> levels,
+    int currentLevelId,
+    double mapHeight,
+    double screenHeight,
+  ) {
+    if (!widget.scrollToCurrent || _didAutoScroll || levels.isEmpty) return;
+    // Provider hali boshqa tovush levellarini ko'rsatayotgan bo'lishi mumkin
+    if (context.read<LevelProvider>().currentSound != widget.sound) return;
+    _didAutoScroll = true;
+
+    final current = levels.firstWhere(
+      (l) => l.id == currentLevelId,
+      orElse: () => levels.first,
+    );
+    final targetCenter = current.dy * mapHeight;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final position = _scrollController.position;
+      final offset = (targetCenter - screenHeight / 2).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      );
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeInOutCubic,
+      );
+    });
   }
 
   void navigationTo(String type) {
@@ -505,6 +579,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   @override
   void dispose() {
     AppSettings().removeListener(_onSettingsChanged);
+    _scrollController.dispose();
     super.dispose();
     _audioPlayer.dispose();
   }

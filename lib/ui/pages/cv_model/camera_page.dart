@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,9 @@ import '../games/widgets/game_success_dialog.dart';
 import '../main/widgets/Custom3dButton.dart';
 import '../main/widgets/custom_text_widget.dart';
 import 'widgets/camera_box.dart';
+import 'widgets/SuccessGifPlaceholder.dart';
+import 'widgets/celebration_overlay.dart';
+import 'widgets/cycle_success_badge.dart';
 import 'widgets/video_box.dart';
 
 class CameraPage extends StatefulWidget {
@@ -25,6 +29,7 @@ class CameraPage extends StatefulWidget {
 }
 
 const String _starIcon = "assets/icons/star.png";
+const String _clapSound = "sound/cv/clap.mp3";
 
 class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   final int _totalCycles = 5;
@@ -44,6 +49,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   bool _isVideoError = false;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+  bool _showCelebration = false;
+  bool _showCycleBadge = false;
+  int _badgeCycle = 0;
+  Timer? _cycleBadgeTimer;
 
   List<ExerciseStep> _steps = [];
   String? _videoPath;
@@ -201,7 +211,10 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   void _onStepSuccess() {
     setState(() {
       _cameraBoxBorderColor = Colors.greenAccent;
-      _feedbackMessage = '🌟 Barakalla! Juda yaxshi!';
+      // Cycle oxirgi bosqichida "Barakalla" badge chiqadi, oddiy xabar emas
+      _feedbackMessage = _currentStepIndex < _steps.length - 1
+          ? '👍 Zo\'r! Davom etamiz!'
+          : '';
     });
 
     _moveToNextStep();
@@ -227,7 +240,14 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _waitingForNextStep = true;
     _resetVoting();
 
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    final completesCycle = _currentStepIndex == _steps.length - 1;
+    final isFinalCycle =
+        completesCycle && _completedCycles + 1 >= _totalCycles;
+    if (completesCycle && !isFinalCycle) {
+      _showCycleSuccess();
+    }
+
+    Future.delayed(Duration(milliseconds: completesCycle ? 1800 : 1000), () {
       if (!mounted) return;
 
       if (_currentStepIndex < _steps.length - 1) {
@@ -251,24 +271,37 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     });
   }
 
+  void _showCycleSuccess() {
+    _cycleBadgeTimer?.cancel();
+    setState(() {
+      _badgeCycle = _completedCycles + 1;
+      _showCycleBadge = true;
+    });
+    _cycleBadgeTimer = Timer(const Duration(milliseconds: 2000), () {
+      if (mounted) setState(() => _showCycleBadge = false);
+    });
+  }
+
   void _onAllCyclesCompleted() async {
     final provider = context.read<LevelProvider>();
 
     setState(() {
       _cameraActive = false;
       _feedbackMessage = '';
+      _showCelebration = true;
     });
     _videoController?.pause();
 
-    try {
-      await _audioPlayer.play(AssetSource('sound/success.mp3'));
-    } catch (e) {
-      debugPrint("Ovoz chalishda xatolik: $e");
-    }
+    // Qarsak ovozi animatsiya bilan birga chalinadi
+    await Future.wait([
+      _playClapSound(),
+      Future.delayed(const Duration(milliseconds: 2800)),
+    ]);
 
     provider.addBall(10);
 
     if (!mounted) return;
+    setState(() => _showCelebration = false);
 
     showDialog(
       context: context,
@@ -285,6 +318,15 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         );
       },
     );
+  }
+
+  Future<void> _playClapSound() async {
+    try {
+      await _playAudioAndWait(_clapSound)
+          .timeout(const Duration(seconds: 4), onTimeout: () {});
+    } catch (e) {
+      debugPrint("Ovoz chalishda xatolik: $e");
+    }
   }
 
   double _extractConfidence(Map<String, dynamic> r) {
@@ -329,6 +371,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   void dispose() {
     _cameraActive = false;
     _aboutTimer?.cancel();
+    _cycleBadgeTimer?.cancel();
     _videoController?.dispose();
     _audioPlayer.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -355,7 +398,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final media = MediaQuery.of(context);
+    final size = media.size;
+    // Header (orqaga tugmasi + ball) tugaydigan joy
+    final double topOffset = media.padding.top + 20.h + 50.h + 12.h;
+    final double gap = 14.h;
 
     int displayCycle = _completedCycles + 1;
     if (displayCycle > _totalCycles) {
@@ -426,21 +473,37 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
             else
               Column(
                 children: [
-                  SizedBox(height: 130.h, width: size.width),
+                  SizedBox(height: topOffset, width: size.width),
 
-                  VideoBox(
-                    size: size,
-                    isVideoInitialized:
-                        !_isExerciseCompleted && _isVideoInitialized,
-                    isVideoError: _isVideoError,
-                    currentVideoPath: _videoPath,
-                    videoController: _videoController,
-                    onRetry: _initializeVideo,
+                  // Video va kamera bo'sh joyni to'liq egallaydi
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double boxSide = min(
+                          size.width * 0.88,
+                          (constraints.maxHeight - gap) / 2,
+                        );
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            VideoBox(
+                              size: size,
+                              dimension: boxSide,
+                              isVideoInitialized: _isVideoInitialized,
+                              isVideoError: _isVideoError,
+                              currentVideoPath: _videoPath,
+                              videoController: _videoController,
+                              onRetry: _initializeVideo,
+                            ),
+                            SizedBox(height: gap),
+                            _buildCameraBox(boxSide),
+                          ],
+                        );
+                      },
+                    ),
                   ),
 
-                  SizedBox(height: 20.h),
-                  _buildCameraBox(size),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: gap),
 
                   if (!_isExerciseCompleted && _steps.isNotEmpty)
                     InstructionText(
@@ -450,6 +513,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     ),
 
                   if (_isExerciseCompleted) const Custom3DButton(),
+
+                  SizedBox(height: media.padding.bottom + 12.h),
                 ],
               ),
 
@@ -494,22 +559,36 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                   ),
                 ),
               ),
+
+            if (_showCycleBadge)
+              Positioned.fill(
+                child: Center(
+                  child: CycleSuccessBadge(
+                    key: ValueKey(_badgeCycle),
+                    completedCycles: _badgeCycle,
+                    totalCycles: _totalCycles,
+                  ),
+                ),
+              ),
+
+            if (_showCelebration)
+              const Positioned.fill(child: CelebrationOverlay()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCameraBox(Size size) {
+  Widget _buildCameraBox(double side) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      width: size.width * 0.70,
-      height: size.width * 0.70,
+      width: side,
+      height: side,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22.r),
         border: Border.all(
           color: _isExerciseCompleted
-              ? AppColors.green_900
+              ? AppColors.green_700
               : _cameraBoxBorderColor,
           width: 4.w,
         ),
@@ -517,7 +596,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           BoxShadow(
             color:
                 (_isExerciseCompleted
-                        ? AppColors.green_900
+                        ? AppColors.green_700
                         : _cameraBoxBorderColor)
                     .withValues(alpha: 0.6),
             blurRadius: 15.r,
@@ -528,26 +607,17 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(19.r),
         child: _isExerciseCompleted
-            ? Container(
-                color: Colors.black,
-                child: Center(
-                  child: Icon(
-                    Icons.star_rounded,
-                    color: Colors.yellow,
-                    size: 80.sp,
-                  ),
-                ),
-              )
+            ? const SuccessGifPlaceholder()
             : (_cameraActive && _modelPath != null && sound != null
                   ? CameraBox(
-                      size: Size(size.width * 0.8, size.width * 0.8),
+                      size: Size(side, side),
                       cameraActive: true,
                       camKey: _camKey,
                       modelPath: _modelPath!,
                       labelsPath: sound!,
                       onDetections: _onDetections,
                       borderColor: _isExerciseCompleted
-                          ? AppColors.green_900
+                          ? AppColors.green_700
                           : _cameraBoxBorderColor,
                     )
                   : Container(

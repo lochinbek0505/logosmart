@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -17,7 +18,7 @@ class _SuccessPageState extends State<SuccessPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.light_blue_400,
+      backgroundColor: context.palette.backgroundTinted,
       body: Column(
         children: [
           Container(
@@ -25,7 +26,7 @@ class _SuccessPageState extends State<SuccessPage> {
             height: 400.h,
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: context.palette.surface,
               borderRadius: BorderRadius.vertical(
                 bottom: Radius.elliptical(
                   MediaQuery.of(context).size.width,
@@ -43,7 +44,7 @@ class _SuccessPageState extends State<SuccessPage> {
                     child: IconButton(
                       icon: Icon(
                         Icons.arrow_back,
-                        color: Colors.black,
+                        color: context.palette.icon,
                         size: 28.sp,
                       ),
                       onPressed: () {
@@ -75,7 +76,7 @@ class _SuccessPageState extends State<SuccessPage> {
             style: GoogleFonts.nunito(
               fontSize: 32.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.grey_900,
+              color: context.palette.textStrong,
               // To'q ko'k/kulrang tus
             ),
           ),
@@ -84,7 +85,7 @@ class _SuccessPageState extends State<SuccessPage> {
             "Muvaffaqiyatli bajarildi",
             style: GoogleFonts.nunito(
               fontSize: 16.sp,
-              color: AppColors.grey_700, // To'q ko'k/kulrang tus
+              color: context.palette.textSecondary, // To'q ko'k/kulrang tus
             ),
           ),
 

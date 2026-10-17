@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/widgets/input_form_widget.dart';
@@ -60,7 +61,7 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.palette.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding:  EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),

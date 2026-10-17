@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,14 +38,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black, size: 24.w),
-        backgroundColor: AppColors.white,
+        iconTheme: IconThemeData(color: context.palette.textStrong, size: 24.w),
+        backgroundColor: context.palette.background,
         title: Text(
           "Qayta tiklash",
           style: GoogleFonts.nunito(
-            color: AppColors.grey_900,
+            color: context.palette.textStrong,
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -70,7 +71,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   child: Text(
                     "Logosmart ilovasidagi login yoki parolingizni faqat nomeringiz orqali qayta tiklashingiz mumkin!",
                     style: GoogleFonts.nunito(
-                      color: AppColors.grey_700,
+                      color: context.palette.textSecondary,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -168,7 +169,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: GoogleFonts.nunito(
-                        color: AppColors.grey_400,
+                        color: context.palette.textMuted,
                         fontSize: 12.sp,
                       ),
                       children: [
@@ -178,7 +179,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         TextSpan(
                           text: "Foydalanish qoidalari",
                           style: TextStyle(
-                            color: AppColors.grey_900,
+                            color: context.palette.textStrong,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -186,7 +187,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         TextSpan(
                           text: "Maxfiylik shartlariga",
                           style: TextStyle(
-                            color: AppColors.grey_900,
+                            color: context.palette.textStrong,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

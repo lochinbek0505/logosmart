@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StartSpeechPage extends StatefulWidget {
@@ -16,15 +17,14 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
     var size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xfff0f0f0),
+      backgroundColor: context.isDarkMode ? context.palette.background : const Color(0xfff0f0f0),
       body: Container(
         width: size.width,
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/backround_xira.png"),
-            fit: BoxFit.fill,
-          ),
+            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -70,7 +70,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                             textAlign: TextAlign.center,
 
                             style: TextStyle(
-                              color: Colors.blueGrey.shade700,
+                              color: context.palette.textStrong,
                               fontWeight: FontWeight.w600,
                               fontSize: 20.sp,
                             ),
@@ -101,7 +101,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                           width: size.width * 0.7,
                           height: 65,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.palette.surface,
                             borderRadius: BorderRadius.circular(40),
                           ),
                           child: _isPressed

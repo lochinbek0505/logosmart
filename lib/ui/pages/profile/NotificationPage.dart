@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:logosmart/core/service/notification_service.dart';
@@ -45,7 +46,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final items = provider.items;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -63,7 +64,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       child: Image.asset(
                         "assets/images/arow_back.png",
                         width: 22,
-                        color: Colors.blueGrey.shade800,
+                        color: context.palette.icon,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -73,7 +74,7 @@ class _NotificationPageState extends State<NotificationPage> {
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w500,
-                          color: Colors.blueGrey.shade800,
+                          color: context.palette.textStrong,
                         ),
                       ),
                     ),
@@ -149,7 +150,7 @@ class _NotificationPageState extends State<NotificationPage> {
         Text(
           "Hozircha bildirishnomalar yo'q",
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
+          style: TextStyle(color: context.palette.textSecondary, fontSize: 15.sp),
         ),
       ],
     );
@@ -164,10 +165,10 @@ class _NotificationPageState extends State<NotificationPage> {
           padding: EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: item.read ? Colors.white : Color(0xffE9F8FD),
+            color: item.read ? context.palette.surface : context.palette.primarySoft,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.shade300,
+                color: context.palette.shadow,
                 spreadRadius: 3,
                 blurRadius: 4,
                 offset: Offset(0, 4),
@@ -190,7 +191,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     Text(
                       item.title ?? "",
                       style: TextStyle(
-                        color: Color(0xff276275),
+                        color: context.palette.textPrimary,
                         fontSize: 16.sp,
                         fontWeight: item.read
                             ? FontWeight.w600
@@ -203,7 +204,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       maxLines: 6,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Color(0xff276275),
+                        color: context.palette.textPrimary,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w400,
                       ),
@@ -212,7 +213,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     Text(
                       _formatDate(item.createdAt),
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: context.palette.textSecondary,
                         fontSize: 13.sp,
                       ),
                     ),

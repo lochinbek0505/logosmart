@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/home/home_page.dart';
-import 'package:logosmart/ui/pages/games/alphabet_map/alphabet_page.dart';
-import 'package:logosmart/ui/pages/main/soundpracrice/VoiceGamePage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
+import 'package:logosmart/ui/pages/main/coming_soon_page.dart';
 import 'package:logosmart/ui/pages/profile/profile_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
-
-import '../diagnostic/diagnostic_start_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,11 +21,36 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
 
   // List of pages corresponding to the tabs
-  final List<Widget> pages = [
+  List<Widget> get pages => [
     const HomePage(),
-    const AlphabetPage(),
-    DiagnosticStartPage(),
-    const VoiceGamePage(),
+    // O'yinlar: barcha o'yinlar bitta xaritada (assets/games.json), hammasi ochiq
+    MapRoadPage(sound: LevelProvider.gamesSound, embedded: true),
+    ComingSoonPage(
+      title: "Konsultatsiya",
+      image: "assets/images/women.png",
+      description:
+          "Tez orada farzandingiz nutqi bo'yicha logoped mutaxassislardan "
+          "to'g'ridan-to'g'ri maslahat olishingiz mumkin bo'ladi.",
+      features: const [
+        ComingSoonFeature(Icons.video_call_rounded, "Logoped bilan onlayn uchrashuv"),
+        ComingSoonFeature(Icons.chat_bubble_rounded, "Mutaxassisga savol yuborish"),
+        ComingSoonFeature(Icons.event_note_rounded, "Shaxsiy mashg'ulot rejasi"),
+      ],
+      onAction: () => _onItemTapped(0),
+    ),
+    ComingSoonPage(
+      title: "Jamiyat",
+      image: "assets/images/ask_girl.png",
+      description:
+          "Ota-onalar va mutaxassislar tajriba almashadigan, bir-birini "
+          "qo'llab-quvvatlaydigan hamjamiyat tayyorlanmoqda.",
+      features: const [
+        ComingSoonFeature(Icons.forum_rounded, "Ota-onalar bilan muhokamalar"),
+        ComingSoonFeature(Icons.lightbulb_rounded, "Mutaxassislardan foydali maslahatlar"),
+        ComingSoonFeature(Icons.emoji_events_rounded, "Farzandingiz yutuqlarini ulashish"),
+      ],
+      onAction: () => _onItemTapped(0),
+    ),
     const ProfilePage(),
   ];
 
@@ -76,7 +101,7 @@ class _MainPageState extends State<MainPage> {
           ),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
+            backgroundColor: context.palette.navBar,
             elevation: 0,
             // Container'da shadow borligi uchun default shadow olinadi
 

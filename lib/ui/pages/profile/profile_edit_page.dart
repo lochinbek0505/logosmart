@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +24,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
     var provider = Provider.of<ProfileProvider>(context);
     ProfileResponse profile = provider.profileResponse;
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -39,7 +40,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                     child: Image.asset(
                       "assets/images/arow_back.png",
                       width: 24.w,
-                      color: AppColors.main_blue_900,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   SizedBox(width: 20),
@@ -48,7 +49,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                     style: GoogleFonts.nunito(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.main_blue_900,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                 ],
@@ -58,10 +59,10 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                 padding: EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: Colors.white,
+                  color: context.palette.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.shade200,
+                      color: context.palette.shadow,
                       spreadRadius: 3,
                       blurRadius: 3,
                       offset: Offset(0, 3),
@@ -75,7 +76,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                       child: Text(
                         "Profil rasmi",
                         style: TextStyle(
-                          color: Colors.blueGrey.shade800,
+                          color: context.palette.textStrong,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -89,7 +90,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           "Rasm uchun tavsiya etilgan\navatarlardan birini tanlang",
                           textAlign: TextAlign.start,
                           style: TextStyle(
-                            color: Colors.grey.shade700,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                           ),
                         ),
@@ -128,7 +129,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                             child: Text(
                               "O'chirish",
                               style: TextStyle(
-                                color: Colors.grey.shade800,
+                                color: context.palette.textStrong,
                                 fontSize: 14.sp,
                               ),
                             ),
@@ -176,10 +177,10 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12.r),
-                  color: Colors.white,
+                  color: context.palette.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.shade200,
+                      color: context.palette.shadow,
                       spreadRadius: 3,
                       blurRadius: 3,
                       offset: Offset(0, 3),
@@ -194,7 +195,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         Text(
                           "Ism",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_600,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -204,7 +205,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ],
@@ -216,7 +217,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         Text(
                           "Yoshi",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_600,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -226,7 +227,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ],
@@ -238,7 +239,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         Text(
                           "Telefon raqam",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_600,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -248,7 +249,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ],
@@ -261,7 +262,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         Text(
                           "Viloyat",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_600,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -271,7 +272,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ],
@@ -283,7 +284,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                         Text(
                           "Tuman",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_600,
+                            color: context.palette.textSecondary,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
@@ -293,7 +294,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           style: GoogleFonts.nunito(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.main_blue_900,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                       ],

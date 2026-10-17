@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -12,7 +13,7 @@ class ProfileCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(6.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         shape: BoxShape.circle, // To'rtburchak emas, doira shaklida ixchamlashtirildi
         boxShadow: [
           BoxShadow(
@@ -24,11 +25,11 @@ class ProfileCard extends StatelessWidget {
       ),
       child: CircleAvatar(
         radius: 36.r,
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: context.palette.surfaceVariant,
         backgroundImage: currentAvatarUrl != null ? authNetworkImage(currentAvatarUrl!) : null,
         onBackgroundImageError: currentAvatarUrl != null ? (_, __) {} : null,
         child: currentAvatarUrl == null
-            ? Icon(Icons.person, size: 36.sp, color: Colors.grey.shade400)
+            ? Icon(Icons.person, size: 36.sp, color: context.palette.textMuted)
             : null,
       ),
     );

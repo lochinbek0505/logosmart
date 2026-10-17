@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logosmart/core/service/app_settings.dart';
 import 'package:logosmart/core/service/notification_service.dart';
 import 'package:logosmart/firebase_options.dart';
@@ -13,13 +15,18 @@ import 'package:logosmart/ui/pages/main/main_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/notifications_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
   await AppSettings().load();
+  await Hive.initFlutter();
+  await Hive.openBox(kLevelProgressBox);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Top-level handler runApp'dan oldin ro'yxatdan o'tishi shart
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // Ruxsat so'rovi ilova ochilishini to'xtatib qo'ymasligi uchun kutmaymiz
   NotificationService().init();
   WidgetsBinding.instance.addPostFrameCallback(
@@ -61,25 +68,24 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: NotificationsProvider()),
       ],
 
-      child: MaterialApp(
-        navigatorKey: navigatorKey,
-        builder: (ctx, child) {
-          ScreenUtil.init(ctx, designSize: const Size(375, 812));
-          return child!;
-        },
+      child: ListenableBuilder(
+        listenable: AppSettings(),
+        builder: (context, _) => MaterialApp(
+          navigatorKey: navigatorKey,
+          builder: (ctx, child) {
+            ScreenUtil.init(ctx, designSize: const Size(375, 812));
+            return child!;
+          },
 
-        debugShowMaterialGrid: false,
-        debugShowCheckedModeBanner: false,
-        title: 'LogoSmart',
-        theme: ThemeData(
-          fontFamily: "Nunito", // Nurito emas, ehtimol Nunito bo'lsa kerak
-          textSelectionTheme: const TextSelectionThemeData(
-            selectionHandleColor: Colors.transparent, // tomchi rangi
-          ),
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          debugShowMaterialGrid: false,
+          debugShowCheckedModeBanner: false,
+          title: 'LogoSmart',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: AppSettings().themeMode,
+
+          home: const AuthChecker(),
         ),
-
-        home: const AuthChecker(),
       ),
     );
   }
@@ -98,7 +104,6 @@ class AuthChecker extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            backgroundColor: Colors.white,
             body: Center(child: CircularProgressIndicator()),
           );
         }

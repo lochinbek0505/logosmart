@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'dart:io';
 import 'dart:ui';
 
@@ -425,12 +426,11 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
             height: size.height,
 
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/backround/fon_q.png"),
 
-                fit: BoxFit.fill,
-              ),
+                fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
             ),
 
             child: BackdropFilter(
@@ -673,7 +673,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                       padding: EdgeInsets.all(12.w),
 
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: context.palette.surface,
 
                                         borderRadius: BorderRadius.circular(
                                           28.r - 5.w,
@@ -682,7 +682,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF2F8FF),
+                                          color: context.isDarkMode ? context.palette.surfaceVariant : const Color(0xFFF2F8FF),
 
                                           borderRadius: BorderRadius.circular(
                                             18.r,

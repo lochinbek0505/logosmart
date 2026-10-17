@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/ui/pages/profile/profile_edit_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -31,7 +32,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -49,7 +50,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                       child: Image.asset(
                         "assets/images/arow_back.png",
                         width: 22,
-                        color: Colors.blueGrey.shade800,
+                        color: context.palette.icon,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -58,7 +59,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w500,
-                        color: Colors.blueGrey.shade800,
+                        color: context.palette.textStrong,
                       ),
                     ),
                   ],
@@ -75,10 +76,10 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
+                          color: context.palette.surface,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.shade200,
+                              color: context.palette.shadow,
                               spreadRadius: 3,
                               blurRadius: 3,
                               offset: Offset(0, 3),
@@ -114,7 +115,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                                           overflow: TextOverflow.ellipsis,
 
                                           style: TextStyle(
-                                            color: Colors.blueGrey.shade800,
+                                            color: context.palette.textStrong,
                                             fontSize: 16.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -126,7 +127,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
 
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            color: Colors.grey.shade700,
+                                            color: context.palette.textSecondary,
                                             fontSize: 14.sp,
                                           ),
                                         ),

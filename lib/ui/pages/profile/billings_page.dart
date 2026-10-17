@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -30,15 +31,15 @@ class _BillingsPageState extends State<BillingsPage> {
     var list = provider.billingsModel.dataListList ?? [];
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.background,
         surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: AppColors.main_blue_900, size: 24.w),
+        iconTheme: IconThemeData(color: context.palette.textPrimary, size: 24.w),
         title: Text(
           "To'lov tarixi",
           style: GoogleFonts.nunito(
-            color: AppColors.main_blue_900,
+            color: context.palette.textPrimary,
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -59,7 +60,7 @@ class _BillingsPageState extends State<BillingsPage> {
                             child: Text(
                               "To'lovlar mavjud emas",
                               style: GoogleFonts.nunito(
-                                color: AppColors.main_blue_900,
+                                color: context.palette.textPrimary,
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -101,11 +102,11 @@ class _BillingsPageState extends State<BillingsPage> {
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade200,
+            color: context.palette.shadow,
             spreadRadius: 2.r,
             blurRadius: 2.r,
             offset: const Offset(0, 2),
@@ -143,7 +144,7 @@ class _BillingsPageState extends State<BillingsPage> {
                         style: GoogleFonts.nunito(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
-                          color: AppColors.main_blue_900,
+                          color: context.palette.textPrimary,
                         ),
                       ),
                     ),
@@ -165,7 +166,7 @@ class _BillingsPageState extends State<BillingsPage> {
                   item.description ?? "",
                   style: GoogleFonts.nunito(
                     fontSize: 12.sp,
-                    color: AppColors.light_blue_800,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -186,7 +187,7 @@ class _BillingsPageState extends State<BillingsPage> {
                       formatDateTime(item.createdAt!),
                       style: GoogleFonts.nunito(
                         fontSize: 11.sp,
-                        color: Colors.grey,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],

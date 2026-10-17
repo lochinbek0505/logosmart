@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,11 @@ import '../alphabet_map/provider/level_provider.dart';
 import '../alphabet_map/widgets/cloud_text.dart';
 import '../widgets/game_success_dialog.dart';
 
+/// Mikrofonsiz "to'g'ri bo'g'inni topish" o'yini.
+///
+/// Bitta shablon bir nechta level uchun ishlatiladi (bo'ri-uy, olmaxon-yong'oq…):
+/// birinchi bosishda variant ovozi eshittiriladi, ikkinchi bosishda tanlanadi.
+/// Musiqa belgisini bosib ovozni qayta eshitish mumkin.
 class WolfGamePage extends StatefulWidget {
   const WolfGamePage({super.key});
 
@@ -24,15 +30,28 @@ class _WolfGamePageState extends State<WolfGamePage>
   late List<Map<String, dynamic>> _options;
 
   late AudioPlayer _audioPlayer;
+  // Natija ovozlari (to'g'ri/xato) asosiy ovozni kutmasdan chalinadi
+  late AudioPlayer _effectPlayer;
+  Completer<void>? _audioCompleter;
+
+  late AnimationController _shakeController;
+
   bool _showContent = false;
   bool _isPlayingAudio = false;
   final Set<int> _listenedOptions = {};
+  int? _wrongIndex;
+  int? _correctIndex;
   bool _isGameOver = false;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    _effectPlayer = AudioPlayer();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
     _initLevelConfig();
     _initGame();
   }
@@ -42,10 +61,12 @@ class _WolfGamePageState extends State<WolfGamePage>
 
     Map<String, dynamic> defaultConfig = {
       "start_voice": "assets/sound/wolf_game/wolf_start.mp3",
+      "success_sound": "assets/sound/success.mp3",
+      "incorrect_sound": "assets/sound/diagnostic_error.mp3",
       "background_image": "assets/backround/wolf_game/wolf.jpg",
       "icon_star": "assets/icons/star.png",
       "icon_arrow": "assets/icons/arrow_right_button.png",
-      "wolf_image": "assets/game/wolf_game/wolf.png",
+      "character_image": "assets/game/wolf_game/wolf.png",
       "music_icon": "assets/game/wolf_game/music.png",
       "cloud_text": "Uyni topishga yordam bering!",
       "options": [
@@ -83,7 +104,18 @@ class _WolfGamePageState extends State<WolfGamePage>
     }
 
     _options = List<Map<String, dynamic>>.from(_config['options'] ?? []);
+    // To'g'ri javob har doim bir joyda turmasligi uchun
+    if (_config['shuffle_options'] != false) {
+      _options.shuffle(Random());
+    }
   }
+
+  // Eski levellar "wolf_image" kalitidan foydalanadi
+  String get _characterImage =>
+      (_config['character_image'] ??
+              _config['wolf_image'] ??
+              "assets/game/wolf_game/wolf.png")
+          .toString();
 
   String _cleanAudioPath(String path) {
     if (path.startsWith('assets/')) {
@@ -98,23 +130,32 @@ class _WolfGamePageState extends State<WolfGamePage>
     setState(() => _isPlayingAudio = true);
 
     final completer = Completer<void>();
-    StreamSubscription<void>? subscription;
-
-    String cleanPath = _cleanAudioPath(path);
-
-    subscription = _audioPlayer.onPlayerComplete.listen((_) {
-      subscription?.cancel();
+    _audioCompleter = completer;
+    final subscription = _audioPlayer.onPlayerComplete.listen((_) {
       if (!completer.isCompleted) completer.complete();
     });
 
     try {
-      await _audioPlayer.play(AssetSource(cleanPath));
-      await completer.future;
+      await _audioPlayer.play(AssetSource(_cleanAudioPath(path)));
+      // Ovoz tugash hodisasi kelmasa ham o'yin qotib qolmasin
+      await completer.future.timeout(
+        const Duration(seconds: 20),
+        onTimeout: () {},
+      );
     } catch (e) {
       debugPrint("Audio xatosi: $e");
     } finally {
+      await subscription.cancel();
+      _audioCompleter = null;
       if (mounted) setState(() => _isPlayingAudio = false);
     }
+  }
+
+  void _playEffect(String? path) {
+    if (path == null || path.isEmpty) return;
+    _effectPlayer.play(AssetSource(_cleanAudioPath(path))).catchError((e) {
+      debugPrint("Effekt ovozi xatosi: $e");
+    });
   }
 
   Future<void> _initGame() async {
@@ -132,46 +173,56 @@ class _WolfGamePageState extends State<WolfGamePage>
 
   @override
   void dispose() {
+    final completer = _audioCompleter;
+    if (completer != null && !completer.isCompleted) completer.complete();
+    _shakeController.dispose();
     _audioPlayer.dispose();
+    _effectPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> _playOptionSound(int index) async {
+    final soundPath = (_options[index]['sound'] ?? '').toString();
+    if (soundPath.isNotEmpty) {
+      await _playAudioAndWait(soundPath);
+    }
+    if (mounted) {
+      setState(() => _listenedOptions.add(index));
+    }
   }
 
   void _handleOptionTap(int index) async {
     if (_isGameOver || !_showContent || _isPlayingAudio) return;
 
-    final option = _options[index];
-
     if (!_listenedOptions.contains(index)) {
       // BIRINCHI BOSISH: Ovozni chiqarish
-      final soundPath = option['sound'] ?? '';
-      if (soundPath.toString().isNotEmpty) {
-        await _playAudioAndWait(soundPath.toString());
-      }
-      if (mounted) {
-        setState(() {
-          _listenedOptions.add(index);
-        });
-      }
+      await _playOptionSound(index);
+      return;
+    }
+
+    // IKKINCHI BOSISH: Tanlash (Javobni tekshirish)
+    if (_options[index]['isCorrect'] == true) {
+      setState(() {
+        _isGameOver = true;
+        _correctIndex = index;
+        _wrongIndex = null;
+      });
+      _playEffect(_config['success_sound']?.toString());
+      await Future.delayed(const Duration(milliseconds: 900));
+      if (mounted) _gameEnd();
     } else {
-      // IKKINCHI BOSISH: Tanlash (Javobni tekshirish)
-      if (option['isCorrect'] == true) {
-        setState(() {
-          _isGameOver = true;
-        });
-        _gameEnd();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Bu emas, boshqasini sinab ko'ring!",
-              style: TextStyle(fontSize: 16.sp),
-            ),
-            duration: const Duration(seconds: 1),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
+      setState(() => _wrongIndex = index);
+      _playEffect(_config['incorrect_sound']?.toString());
+      await _shakeController.forward(from: 0);
+      if (mounted && _wrongIndex == index) {
+        setState(() => _wrongIndex = null);
       }
     }
+  }
+
+  void _handleMusicTap(int index) {
+    if (_isGameOver || !_showContent || _isPlayingAudio) return;
+    _playOptionSound(index);
   }
 
   void _gameEnd() {
@@ -198,6 +249,8 @@ class _WolfGamePageState extends State<WolfGamePage>
   @override
   Widget build(BuildContext context) {
     final totalBall = context.watch<LevelProvider>().ball;
+    final characterCacheHeight =
+        (170.h * MediaQuery.devicePixelRatioOf(context)).round();
 
     return Scaffold(
       body: Container(
@@ -227,8 +280,9 @@ class _WolfGamePageState extends State<WolfGamePage>
                         height: 170.h,
                       ),
                       Image.asset(
-                        _config['wolf_image'] ?? "assets/game/wolf_game/wolf.png",
+                        _characterImage,
                         height: 170.h,
+                        cacheHeight: characterCacheHeight,
                         fit: BoxFit.contain,
                       ),
                       SizedBox(height: 40.h),
@@ -245,7 +299,7 @@ class _WolfGamePageState extends State<WolfGamePage>
                           ),
                           itemCount: _options.length,
                           itemBuilder: (context, index) {
-                            return _buildPetScene(
+                            return _buildOption(
                               image: _options[index]["image"],
                               index: index,
                               isUnlocked: _listenedOptions.contains(index),
@@ -264,25 +318,36 @@ class _WolfGamePageState extends State<WolfGamePage>
     );
   }
 
-  Widget _buildPetScene({
+  Widget _buildOption({
     required String image,
     required int index,
     required bool isUnlocked,
   }) {
-    final double houseWidth = 90.w;
-    final double houseHeight = 90.h;
+    final double imageWidth = 90.w;
+    final double imageHeight = 90.h;
     final double speakerSize = 45.w;
+    final bool isWrong = _wrongIndex == index;
+    final bool isCorrect = _correctIndex == index;
 
-    return GestureDetector(
+    Color? glowColor;
+    if (isCorrect) {
+      glowColor = Colors.greenAccent;
+    } else if (isWrong) {
+      glowColor = Colors.redAccent;
+    } else if (isUnlocked) {
+      glowColor = Colors.amber;
+    }
+
+    Widget content = GestureDetector(
       onTap: () => _handleOptionTap(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
-          boxShadow: isUnlocked
+          boxShadow: glowColor != null
               ? [
                   BoxShadow(
-                    color: Colors.amber.withValues(alpha: 0.6),
+                    color: glowColor.withValues(alpha: 0.6),
                     blurRadius: 15,
                     spreadRadius: 2,
                   )
@@ -294,31 +359,48 @@ class _WolfGamePageState extends State<WolfGamePage>
           clipBehavior: Clip.none,
           children: [
             AnimatedScale(
-              scale: isUnlocked ? 1.1 : 1.0,
+              scale: isCorrect ? 1.25 : (isUnlocked ? 1.1 : 1.0),
               duration: const Duration(milliseconds: 300),
               child: Image.asset(
                 image,
-                width: houseWidth,
-                height: houseHeight,
+                width: imageWidth,
+                height: imageHeight,
+                cacheWidth:
+                    (imageWidth * MediaQuery.devicePixelRatioOf(context)).round(),
                 fit: BoxFit.contain,
               ),
             ),
             Positioned(
               bottom: -10.h,
               right: 10.w,
-              child: AnimatedOpacity(
-                opacity: isUnlocked ? 0.3 : 1.0,
-                duration: const Duration(milliseconds: 300),
-                child: Image.asset(
-                  _config['music_icon'] ?? "assets/game/wolf_game/music.png",
-                  width: speakerSize,
-                  height: speakerSize,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _handleMusicTap(index),
+                child: AnimatedOpacity(
+                  opacity: isUnlocked ? 0.5 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Image.asset(
+                    _config['music_icon'] ?? "assets/game/wolf_game/music.png",
+                    width: speakerSize,
+                    height: speakerSize,
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+
+    if (!isWrong) return content;
+
+    return AnimatedBuilder(
+      animation: _shakeController,
+      builder: (context, child) {
+        final offset = sin(_shakeController.value * pi * 6) * 10.w;
+        return Transform.translate(offset: Offset(offset, 0), child: child);
+      },
+      child: content,
     );
   }
 

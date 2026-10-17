@@ -22,7 +22,7 @@ import '../puzzle_game/puzzle_game_widget.dart';
 import '../sound_game/sound_game_page.dart';
 import '../train_game/train_game_page.dart';
 import '../wolf_game/wolf_game_page.dart';
-import 'map_route_page.dart';
+import '../path_games/item_and_finish_path_game_page.dart';
 
 class StartTextPage extends StatefulWidget {
   final LevelState data;
@@ -182,7 +182,7 @@ class _StartTextPageState extends State<StartTextPage> {
         page = const HandGamePage();
         break;
       case "path_game":
-        page = MapRoadPage();
+        page = const ItemAndFinishPathGamePage();
         break;
       case "puzzle_game":
         page = const PuzzleGameWidget();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 
 class ActionConfirmDialog extends StatelessWidget {
   final String title;
@@ -27,7 +28,7 @@ class ActionConfirmDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop(); // Dialogni yopish
           },
-          child: const Text("Bekor qilish", style: TextStyle(color: Colors.grey)),
+          child: Text("Bekor qilish", style: TextStyle(color: context.palette.textSecondary)),
         ),
         TextButton(
           onPressed: () {

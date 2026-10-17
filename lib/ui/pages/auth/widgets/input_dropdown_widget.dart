@@ -1,9 +1,9 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../theme/app_colors.dart';
 
 class InputDropdownWidget<T extends Object> extends StatelessWidget {
   final T? value;
@@ -52,7 +52,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
           child: Text(
             label,
             style: GoogleFonts.nunito(
-              color: AppColors.grey_700,
+              color: context.palette.textSecondary,
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -68,19 +68,19 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
             validator: validator,
 
             decoration: CustomDropdownDecoration(
-              closedFillColor: Colors.white,
-              expandedFillColor: Colors.white,
+              closedFillColor: context.palette.surface,
+              expandedFillColor: context.palette.surface,
 
               // 1. ODDIY HOLAT UCHUN DIZAYN
               closedBorder: Border.all(
-                color: AppColors.light_grey_500,
+                color: context.palette.border,
                 width: 1,
               ),
               closedBorderRadius: BorderRadius.circular(36.r),
 
               // 2. ERROR HOLATI UCHUN DIZAYN (Oddiy holat bilan mutlaqo bir xil qilindi)
               closedErrorBorder: Border.all(
-                color: AppColors.light_grey_500,
+                color: context.palette.border,
                 // Xohlasangiz buni qizilga (Colors.red) o'zgartirishingiz mumkin
                 width: 1, // Qalinlik o'zgarmaydi
               ),
@@ -100,7 +100,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
               ),
 
               prefixIcon: prefixIcon != null
-                  ? Icon(prefixIcon, color: AppColors.grey_700, size: 20.sp)
+                  ? Icon(prefixIcon, color: context.palette.textSecondary, size: 20.sp)
                   : null,
             ),
             listItemBuilder: (context, item, isSelected, onItemSelect) {
@@ -114,7 +114,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
                       child: Text(
                         _getDisplayText(item),
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_900,
+                          color: context.palette.textStrong,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.normal,
                         ),
@@ -131,7 +131,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
                 child: Text(
                   _getDisplayText(selectedItem),
                   style: GoogleFonts.nunito(
-                    color: AppColors.grey_900,
+                    color: context.palette.textStrong,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.normal,
                   ),
@@ -142,7 +142,7 @@ class InputDropdownWidget<T extends Object> extends StatelessWidget {
               return Text(
                 hint,
                 style: GoogleFonts.nunito(
-                  color: AppColors.grey_700.withValues(alpha: 0.5),
+                  color: context.palette.textMuted,
                   fontSize: 16.sp,
                 ),
               );

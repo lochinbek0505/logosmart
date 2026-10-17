@@ -156,6 +156,8 @@ flutter:
     - assets/sound/cloud_game/
     - assets/videos/models/
     - assets/exsep.json
+    - assets/exsepR.json
+    - assets/games.json
     - assets/sound/map/
     - assets/sound/cv/
     - assets/videos/map_video/

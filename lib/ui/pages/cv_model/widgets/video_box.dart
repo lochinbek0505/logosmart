@@ -9,6 +9,7 @@ class VideoBox extends StatelessWidget {
   final String? currentVideoPath;
   final VideoPlayerController? videoController;
   final VoidCallback onRetry;
+  final double? dimension;
 
   const VideoBox({
     super.key,
@@ -18,13 +19,14 @@ class VideoBox extends StatelessWidget {
     required this.currentVideoPath,
     required this.videoController,
     required this.onRetry,
+    this.dimension,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width * 0.7,
-      height: size.width * 0.7,
+      width: dimension ?? size.width * 0.7,
+      height: dimension ?? size.width * 0.7,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xff20B9E8), width: 3),

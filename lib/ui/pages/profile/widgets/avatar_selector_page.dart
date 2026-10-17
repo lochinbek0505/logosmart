@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,16 +46,16 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
     final females = widget.avatars.where((e) => e.gender == "FEMALE").toList();
     var provider = Provider.of<ProfileProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.palette.background,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: context.palette.textStrong),
         title: Text(
           "Profil rasmini tanlash",
           style: GoogleFonts.nunito(
-            color: AppColors.main_blue_900,
+            color: context.palette.textPrimary,
             fontSize: 22.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -81,9 +82,9 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
               child: Container(
                 width: 120.r, // 2 * 60.r radius
                 height: 120.r,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: context.palette.surface,
                 ),
                 child: ClipOval(
                   child: _currentAvatarUrl != null
@@ -98,7 +99,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                       : Icon(
                           Icons.person,
                           size: 60.sp,
-                          color: Colors.grey.shade400,
+                          color: context.palette.textMuted,
                         ),
                 ),
               ),
@@ -112,7 +113,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
               width: double.infinity,
               padding: EdgeInsets.only(top: 24.h, left: 16.w),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.palette.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
                 boxShadow: [
                   BoxShadow(
@@ -149,7 +150,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
 
       // Saqlash tugmasi
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: context.palette.surface,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: SafeArea(
           child: ElevatedButton(
@@ -196,7 +197,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
       style: GoogleFonts.nunito(
         fontSize: 16.sp,
         fontWeight: FontWeight.bold,
-        color: AppColors.main_blue_900,
+        color: context.palette.textPrimary,
       ),
     );
   }
@@ -230,7 +231,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                 ),
                 child: ClipOval(
                   child: Container(
-                    color: Colors.grey.shade100,
+                    color: context.palette.surfaceVariant,
                     child: item.url != null
                         ? Image.network(
                             item.url!,
@@ -243,7 +244,7 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
                         : Icon(
                             Icons.person,
                             size: 28.sp,
-                            color: Colors.grey.shade400,
+                            color: context.palette.textMuted,
                           ),
                   ),
                 ),

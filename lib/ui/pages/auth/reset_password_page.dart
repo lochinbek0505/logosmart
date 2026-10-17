@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
@@ -45,16 +46,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: context.palette.background,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
+          icon: Icon(Icons.arrow_back, color: context.palette.icon, size: 24.w),
         ),
       ),
       body: SafeArea(
@@ -79,7 +80,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Text(
                         "Hisobni qayta yaratish",
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_900,
+                          color: context.palette.textStrong,
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -184,7 +185,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_400,
+                            color: context.palette.textMuted,
                             fontSize: 12.sp,
                           ),
                           children: [
@@ -195,7 +196,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             TextSpan(
                               text: "Foydalanish qoidalari",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -203,7 +204,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             TextSpan(
                               text: "Maxfiylik shartlariga",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

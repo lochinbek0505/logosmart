@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/otp_verification_page.dart';
@@ -59,7 +60,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.r),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: context.palette.surface,
           elevation: 0,
           child: Stack(
             clipBehavior: Clip.none,
@@ -88,7 +89,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                     Text(
                       "Ro'yxatdan o'tish uchun muhim:",
                       style: GoogleFonts.nunito(
-                        color: const Color(0xFF144A68),
+                        color: context.palette.textPrimary,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                       ),
@@ -103,7 +104,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                         Text(
                           "• ",
                           style: GoogleFonts.nunito(
-                            color: const Color(0xFF144A68),
+                            color: context.palette.textPrimary,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -112,7 +113,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                           child: Text(
                             "Farzandingiz jinsini tanlashingiz shart",
                             style: GoogleFonts.nunito(
-                              color: const Color(0xFF144A68),
+                              color: context.palette.textPrimary,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -158,7 +159,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
     var districts = provider.districts;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       // SingleChildScrollView va AppBar o'rniga CustomScrollView ishlatamiz
       body: CustomScrollView(
         slivers: [
@@ -166,8 +167,8 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
           SliverAppBar(
             scrolledUnderElevation: 0.0,
             // Skroll bo'lganda rangi o'zgarmasligi uchun
-            backgroundColor: Colors.white,
-            iconTheme: IconThemeData(color: Colors.black, size: 24.w),
+            backgroundColor: context.palette.background,
+            iconTheme: IconThemeData(color: context.palette.textStrong, size: 24.w),
             floating: true,
             // Yoki doim tepada qotib turishini xohlasangiz `pinned: true` qiling
             snap: true,
@@ -188,7 +189,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                     child: Text(
                       "Siz bilan yaqindan tanishamiz!",
                       style: GoogleFonts.nunito(
-                        color: AppColors.grey_900,
+                        color: context.palette.textStrong,
                         fontWeight: FontWeight.bold,
                         fontSize: 24.sp,
                       ),
@@ -258,7 +259,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                     child: Text(
                       "Farzandingizni jinsini tanlang",
                       style: GoogleFonts.nunito(
-                        color: AppColors.grey_700,
+                        color: context.palette.textSecondary,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                       ),
@@ -409,7 +410,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
             height: 100.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white,
+              color: context.palette.surface,
               border: Border.all(
                 color: isSelected
                     ? const Color(0xFF00C2E8)

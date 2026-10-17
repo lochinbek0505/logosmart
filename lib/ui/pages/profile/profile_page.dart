@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var size = MediaQuery.of(context).size;
     var provider = Provider.of<ProfileProvider>(context);
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -52,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Text(
                       "Profil",
                       style: GoogleFonts.nunito(
-                        color: AppColors.main_blue_900,
+                        color: context.palette.textPrimary,
                         fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                       ),
@@ -79,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: GoogleFonts.nunito(
                           fontWeight: FontWeight.bold,
                           fontSize: 18.sp,
-                          color: AppColors.main_blue_900,
+                          color: context.palette.textPrimary,
                         ),
                       ),
                     ),
@@ -89,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Container(
                         width: size.width,
                         height: 1.h,
-                        color: Colors.grey.shade300,
+                        color: context.palette.border,
                       ),
                     ),
                     SizedBox(height: 32.h),
@@ -111,11 +112,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           height: 80.h,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.r),
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey.shade200),
+                            color: context.palette.surface,
+                            border: Border.all(color: context.palette.border),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.shade200,
+                                color: context.palette.shadow,
                                 spreadRadius: 2.r,
                                 blurRadius: 2.r,
                                 offset: Offset(0, 2),
@@ -142,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: GoogleFonts.nunito(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12.sp,
-                                    color: AppColors.light_blue_800,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ],
@@ -206,8 +207,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           height: 52.h,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.r),
-                            color: Colors.white,
-                            border: Border.all(color: AppColors.red_200),
+                            color: context.palette.surface,
+                            border: Border.all(color: context.palette.dangerBorder),
                           ),
                           child: Center(
                             child: Row(
@@ -265,8 +266,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           height: 52.h,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.r),
-                            color: Colors.white,
-                            border: Border.all(color: AppColors.red_200),
+                            color: context.palette.surface,
+                            border: Border.all(color: context.palette.dangerBorder),
                           ),
                           child: Center(
                             child: Row(
@@ -342,11 +343,11 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 52.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.r),
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade200),
+            color: context.palette.surface,
+            border: Border.all(color: context.palette.border),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.shade200,
+                color: context.palette.shadow,
                 spreadRadius: 2.r,
                 blurRadius: 2.r,
                 offset: Offset(0, 2),
@@ -370,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Text(
                       title,
                       style: GoogleFonts.nunito(
-                        color: AppColors.main_blue_900,
+                        color: context.palette.textPrimary,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                       ),
@@ -380,7 +381,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 20.w,
-                  color: AppColors.main_blue_900,
+                  color: context.palette.textPrimary,
                 ),
               ],
             ),

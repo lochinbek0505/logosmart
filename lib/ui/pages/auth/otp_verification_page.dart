@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:logosmart/ui/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -79,13 +80,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Widget build(BuildContext context) {
     var provider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: context.palette.background,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.w),
+          icon: Icon(Icons.arrow_back, color: context.palette.icon, size: 24.w),
           onPressed: () {
             Navigator.pop(context);
 
@@ -116,7 +117,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 style: GoogleFonts.nunito(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey_900,
+                  color: context.palette.textStrong,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -124,7 +125,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 '${maskPhoneNumber(widget.phone)} raqamli telefoningizga tasdiqlash\nkodi yuborildi',
                 style: GoogleFonts.nunito(
                   fontSize: 16.sp,
-                  color: AppColors.grey_700,
+                  color: context.palette.textSecondary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

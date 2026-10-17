@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/profile/payment_page.dart';
@@ -111,15 +112,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: AppColors.white,
+        backgroundColor: context.palette.background,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
             size: 24.w,
-            color: AppColors.main_blue_900,
+            color: context.palette.textPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -128,7 +129,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           style: GoogleFonts.nunito(
             fontSize: 24.sp,
             fontWeight: FontWeight.w700,
-            color: AppColors.main_blue_900,
+            color: context.palette.textPrimary,
           ),
         ),
       ),
@@ -238,10 +239,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                           horizontal: 20.w,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.palette.surface,
                           borderRadius: BorderRadius.circular(36.r),
                           border: Border.all(
-                            color: AppColors.light_grey_500,
+                            color: context.palette.border,
                             width: 1,
                           ),
                         ),
@@ -250,7 +251,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                               ? "Promokod bormi?"
                               : "Promokod: $promoCode",
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_900,
+                            color: context.palette.textStrong,
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -31,11 +33,10 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backround/fon_q.png"),
-            fit: BoxFit.fill,
-          ),
+            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
           child: Column(
@@ -51,7 +52,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                       child: Image.asset(
                         "assets/images/arow_back.png",
                         width: 24,
-                        color: Colors.grey.shade800,
+                        color: context.palette.icon,
                       ),
                     ),
                     Expanded(
@@ -60,7 +61,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22.sp,
-                          color: Colors.blueGrey.shade800,
+                          color: context.palette.textStrong,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -142,7 +143,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.sky_blue_300, width: 3),
         boxShadow: const [
@@ -168,7 +169,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
               Text(
                 "Kichik xatolar",
                 style: TextStyle(
-                  color: Color(0xff093e5e),
+                  color: context.palette.textPrimary,
                   fontSize: 22.sp,
                   fontWeight: FontWeight.w900,
                 ),
@@ -180,7 +181,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
             "Quyidagi so'zlarda biroz adashdingiz.\nKel, ularni birga to'g'rilaymiz!",
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.blueGrey.shade700,
+              color: context.palette.textStrong,
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               height: 1.3,
@@ -200,7 +201,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xffE1F8FD),
+                        color: context.palette.primarySoft,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: const Color(0xff8EDCF2),
@@ -214,7 +215,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                           Text(
                             word.matchedWord.toString().split(",")[0],
                             style: TextStyle(
-                              color: Color(0xff093e5e),
+                              color: context.palette.textPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 14.sp,
                             ),
@@ -232,10 +233,11 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
   Widget _buildAlphabetCard(int index) {
     return GestureDetector(
       onTap: () {
-        if (index == 0) {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => MapRoadPage()));
+        final sound = alphabet[index]["text"] as String;
+        if (LevelProvider.hasSound(sound)) {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => MapRoadPage(sound: sound)),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -250,10 +252,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
           height: 115,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            image: const DecorationImage(
+            image: DecorationImage(
               image: AssetImage("assets/backround/bacround_sound.png"),
-              fit: BoxFit.fill,
-            ),
+              fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -302,7 +303,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                       Text(
                         "${alphabet[index]["text"]} tovushini\nrivojlantirish",
                         style: TextStyle(
-                          color: Color(0xff093e5e),
+                          color: context.palette.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 17.sp,
                         ),
@@ -345,7 +346,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                   height: 25,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: const Color(0xffd9F6FB),
+                    color: context.palette.primarySoft,
                   ),
                   child: Center(
                     child: Text(
@@ -353,7 +354,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xff093e5e),
+                        color: context.palette.textPrimary,
                       ),
                     ),
                   ),
@@ -379,7 +380,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
         width: 250,
         height: 65,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.palette.surface,
           borderRadius: BorderRadius.circular(32),
         ),
         child: Container(

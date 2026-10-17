@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 
 class PricingCardWidget extends StatelessWidget {
   final List<String> features;
@@ -22,7 +22,7 @@ class PricingCardWidget extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
@@ -44,7 +44,7 @@ class PricingCardWidget extends StatelessWidget {
             style: GoogleFonts.nunito(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.grey_900,
+              color: context.palette.textStrong,
             ),
           ),
           SizedBox(height: 10.h),
@@ -72,7 +72,7 @@ class PricingCardWidget extends StatelessWidget {
                       feature,
                       style: GoogleFonts.nunito(
                         fontSize: 12.sp,
-                        color: AppColors.grey_600,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
@@ -93,7 +93,7 @@ class PricingCardWidget extends StatelessWidget {
                 style: GoogleFonts.nunito(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.main_blue_900,
+                  color: context.palette.textPrimary,
                 ),
               ),
               const SizedBox(width: 8),
@@ -102,7 +102,7 @@ class PricingCardWidget extends StatelessWidget {
                 style: GoogleFonts.nunito(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.main_blue_900,
+                  color: context.palette.textPrimary,
                 ),
               ),
             ],
@@ -112,7 +112,7 @@ class PricingCardWidget extends StatelessWidget {
             "$oldPrice uzs",
             style: GoogleFonts.nunito(
               fontSize: 12.sp,
-              color: AppColors.grey_600,
+              color: context.palette.textSecondary,
               decoration: TextDecoration.lineThrough,
               fontWeight: FontWeight.w500,
             ),

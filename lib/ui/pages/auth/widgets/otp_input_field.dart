@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
@@ -82,11 +83,11 @@ class OtpInputFieldState extends State<OtpInputField> with SingleTickerProviderS
       height: 56.h,
       textStyle: GoogleFonts.nunito(
         fontSize: 20.sp,
-        color: AppColors.grey_900,
+        color: context.palette.textStrong,
         fontWeight: FontWeight.bold,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.light_grey_500, width: 1.5),
+        border: Border.all(color: context.palette.border, width: 1.5),
         borderRadius: BorderRadius.circular(12.r),
       ),
     );
@@ -150,7 +151,7 @@ class OtpInputFieldState extends State<OtpInputField> with SingleTickerProviderS
             style: GoogleFonts.nunito(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey_900,
+              color: context.palette.textStrong,
             ),
           )
         else
@@ -159,14 +160,14 @@ class OtpInputFieldState extends State<OtpInputField> with SingleTickerProviderS
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.refresh, size: 20.sp, color: AppColors.grey_900),
+                Icon(Icons.refresh, size: 20.sp, color: context.palette.icon),
                 SizedBox(width: 8.w),
                 Text(
                   'Qayta yuborish',
                   style: GoogleFonts.nunito(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey_900,
+                    color: context.palette.textStrong,
                   ),
                 ),
               ],

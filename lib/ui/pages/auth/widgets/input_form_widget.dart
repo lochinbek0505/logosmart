@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart'; // Eye icon uchun
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -49,7 +50,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
           child: Text(
             widget.label,
             style: GoogleFonts.nunito(
-              color: AppColors.grey_700,
+              color: context.palette.textSecondary,
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -61,7 +62,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
             controller: widget.controller,
             obscureText: _obscureText,
             style: GoogleFonts.nunito(
-              color: AppColors.grey_900,
+              color: context.palette.textStrong,
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -75,7 +76,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
                 horizontal: 20.w,
               ),
               prefixIcon: widget.prefixIcon != null
-                  ? Icon(widget.prefixIcon, color: AppColors.grey_700)
+                  ? Icon(widget.prefixIcon, color: context.palette.textSecondary)
                   : null,
 
               suffixIcon: widget.isPassword
@@ -84,7 +85,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
                         _obscureText
                             ? CupertinoIcons.eye_slash
                             : CupertinoIcons.eye,
-                        color: AppColors.grey_700,
+                        color: context.palette.textSecondary,
                         size: 20.sp,
                       ),
                       onPressed: () {
@@ -97,8 +98,8 @@ class _InputFormWidgetState extends State<InputFormWidget> {
 
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(36.r),
-                borderSide: const BorderSide(
-                  color: AppColors.light_grey_500,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
@@ -111,16 +112,16 @@ class _InputFormWidgetState extends State<InputFormWidget> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(36.r),
-                borderSide: const BorderSide(
-                  color: AppColors.light_grey_500,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
 
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(36.r),
-                borderSide: const BorderSide(
-                  color: AppColors.light_grey_500,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1.5,
                 ),
               ),
@@ -131,7 +132,7 @@ class _InputFormWidgetState extends State<InputFormWidget> {
               ),
 
               filled: true,
-              fillColor: Colors.white,
+              fillColor: context.palette.surface,
             ),
             validator: widget.validator,
           ),

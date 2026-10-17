@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
@@ -77,14 +78,14 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
     final regions = authProvider.regionsList;
     final districts = authProvider.districts;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             scrolledUnderElevation: 0.0,
-            backgroundColor: Colors.white,
+            backgroundColor: context.palette.background,
             iconTheme: IconThemeData(
-              color: AppColors.main_blue_900,
+              color: context.palette.textPrimary,
               size: 24.w,
             ),
             floating: true,
@@ -93,7 +94,7 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
             title: Text(
               "Ma’lumotlarni o’zgartirish",
               style: GoogleFonts.nunito(
-                color: AppColors.main_blue_900,
+                color: context.palette.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 22.sp,
               ),

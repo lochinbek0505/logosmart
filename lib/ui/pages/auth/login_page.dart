@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,9 +44,9 @@ class _LoginPageState extends State<LoginPage> {
     var provider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.background,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: context.palette.background,
         scrolledUnderElevation: 0,
         // Scroll bo'lganda elevation qo'shilmasligi uchun
         surfaceTintColor:
@@ -71,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         "Ilovaga kirish",
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_900,
+                          color: context.palette.textStrong,
                           fontSize: 32.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -82,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         "Logosmart ilovasiga Xush kelibsiz!",
                         style: GoogleFonts.nunito(
-                          color: AppColors.grey_700,
+                          color: context.palette.textSecondary,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -227,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                         padding: EdgeInsets.symmetric(horizontal: 15.w),
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            backgroundColor: AppColors.white,
+                            backgroundColor: context.palette.surface,
                             elevation: 0,
                             side: BorderSide(color: AppColors.main_blue_600),
                             shape: RoundedRectangleBorder(
@@ -246,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             "Yangi hisob yaratish",
                             style: GoogleFonts.nunito(
-                              color: AppColors.grey_900,
+                              color: context.palette.textStrong,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -261,7 +262,7 @@ class _LoginPageState extends State<LoginPage> {
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: GoogleFonts.nunito(
-                            color: AppColors.grey_400,
+                            color: context.palette.textMuted,
                             fontSize: 12.sp,
                           ),
                           children: [
@@ -272,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: "Foydalanish qoidalari",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -280,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: "Maxfiylik shartlariga",
                               style: TextStyle(
-                                color: AppColors.grey_900,
+                                color: context.palette.textStrong,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

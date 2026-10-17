@@ -1,13 +1,45 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 
 import '../../../../../core/storage/level_state.dart';
 
 const String skinGold = 'assets/icons/gold.png';
 const String skinSilver = 'assets/icons/silver.png';
 
+/// Levellar progressi (ochilgan levellar va yulduzlar) saqlanadigan Hive box.
+/// main() da ochiladi.
+const String kLevelProgressBox = 'level_progress';
+
+/// Progress box ichida oxirgi ochilgan tovush xaritasi saqlanadigan kalit
+const String _kLastSoundKey = '_last_sound';
+
 typedef OpenLevelCallback = void Function(LevelState level);
+
+/// Bosh sahifadagi "So'ngi harakat" kartasi uchun ma'lumot
+class LastActivity {
+  const LastActivity({
+    required this.sound,
+    required this.currentLevelId,
+    required this.levelNumber,
+    required this.totalLevels,
+    required this.completedLevels,
+  });
+
+  final String sound;
+
+  /// Bola kelib qolgan (eng oxirgi ochilgan) level
+  final int currentLevelId;
+
+  /// Xaritadagi tartib raqami (1 dan boshlanadi)
+  final int levelNumber;
+  final int totalLevels;
+  final int completedLevels;
+
+  double get progress =>
+      totalLevels == 0 ? 0 : (completedLevels / totalLevels).clamp(0.0, 1.0);
+}
 
 class LevelProvider extends ChangeNotifier {
   LevelProvider({bool autoBootstrap = true}) {
@@ -22,9 +54,31 @@ class LevelProvider extends ChangeNotifier {
   int? _currentPlayingLevelId;
   int? get currentPlayingLevelId => _currentPlayingLevelId;
 
-  // Ma'lumotlarni vaqtincha faqat ro'yxatda (xotirada) saqlaymiz
+  /// O'yinlar bo'limi xaritasi (hamma o'yinlar bitta joyda, hammasi ochiq)
+  static const String gamesSound = 'GAMES';
+
+  // Har bir tovush o'z level fayliga ega
+  static const Map<String, String> soundLevelFiles = {
+    'R': 'assets/exsepR.json',
+    'L': 'assets/exsep.json',
+    gamesSound: 'assets/games.json',
+  };
+  static const String defaultSound = 'R';
+
+  static bool hasSound(String sound) => soundLevelFiles.containsKey(sound);
+
+  String _currentSound = defaultSound;
+  String get currentSound => _currentSound;
+
+  // Ma'lumotlarni vaqtincha faqat ro'yxatda (xotirada) saqlaymiz.
+  // Tovushlar orasida o'tganda progress yo'qolmasligi uchun har biri alohida keshlanadi.
+  final Map<String, List<LevelState>> _levelsBySound = {};
+  // Ro'yxatdagi o'zgarishlar (yulduz, unlock) keshdagi ro'yxatga ham tushadi,
+  // chunki ikkalasi bitta obyekt.
   List<LevelState> _levels = [];
   List<LevelState> get levels => _levels;
+  // Bir tovush bir vaqtda ikki marta yuklanmasligi uchun
+  final Map<String, Future<List<LevelState>>> _loadingBySound = {};
 
   OpenLevelCallback? onOpenLevel;
 
@@ -44,14 +98,108 @@ class LevelProvider extends ChangeNotifier {
     return byId(_currentPlayingLevelId!);
   }
 
-  // Hive o'rniga JSON fayldan ma'lumotlarni yuklash
+  String? _lastSound;
+
+  /// Oxirgi ochilgan tovush mashqi va unda bola kelib qolgan level.
+  /// Hali hech bir tovush xaritasi ochilmagan bo'lsa null.
+  LastActivity? get lastActivity {
+    final sound = _lastSound;
+    if (sound == null) return null;
+    final levels = _levelsBySound[sound];
+    if (levels == null || levels.isEmpty) return null;
+
+    final currentIndex = levels.lastIndexWhere((lv) => !lv.locked);
+    final index = currentIndex == -1 ? 0 : currentIndex;
+    return LastActivity(
+      sound: sound,
+      currentLevelId: levels[index].id,
+      levelNumber: index + 1,
+      totalLevels: levels.length,
+      completedLevels: levels.where((lv) => lv.stars > 0).length,
+    );
+  }
+
+  // Joriy tovush levellarini yuklash
   Future<void> bootstrap() async {
+    final saved = _progressBox?.get(_kLastSoundKey);
+    if (saved is String && hasSound(saved) && saved != gamesSound) {
+      _lastSound = saved;
+    }
+    await selectSound(_currentSound);
+    // "So'ngi harakat" kartasi uchun oxirgi tovush levellari ham kerak
+    final last = _lastSound;
+    if (last != null && last != _currentSound) {
+      await _loadSound(last);
+      notifyListeners();
+    }
+  }
+
+  void _rememberLastSound(String sound) {
+    // O'yinlar xaritasi alohida tab — u "so'ngi harakat" hisoblanmaydi
+    if (sound == gamesSound || sound == _lastSound) return;
+    _lastSound = sound;
+    _progressBox?.put(_kLastSoundKey, sound);
+  }
+
+  /// Tovush levellarini (saqlangan progress bilan) yuklab keshlaydi,
+  /// joriy xaritani almashtirmaydi.
+  Future<List<LevelState>> _loadSound(String sound) async {
+    final cached = _levelsBySound[sound];
+    if (cached != null) return cached;
+
+    final loaded = await (_loadingBySound[sound] ??=
+        _loadLevels(soundLevelFiles[sound]!)
+            .then((levels) => _applySavedProgress(sound, levels)));
+    _loadingBySound.remove(sound);
+    // Xato bo'lsa (bo'sh ro'yxat) keshlamaymiz — keyingi safar qayta urinib ko'riladi
+    if (loaded.isNotEmpty) _levelsBySound[sound] ??= loaded;
+    return _levelsBySound[sound] ?? loaded;
+  }
+
+  /// Xaritani tanlangan tovush ([soundLevelFiles] kaliti) levellariga almashtiradi.
+  Future<void> selectSound(String sound) async {
+    if (!hasSound(sound)) {
+      if (kDebugMode) print("❌ '$sound' tovushi uchun level fayli yo'q");
+      return;
+    }
+    _rememberLastSound(sound);
+
+    final cached = _levelsBySound[sound];
+    if (sound == _currentSound && cached != null) {
+      _levels = cached;
+      return;
+    }
+
+    _currentSound = sound;
+    _currentPlayingLevelId = null;
+
+    if (cached != null) {
+      _levels = cached;
+      notifyListeners();
+      return;
+    }
+
+    // Eski tovush levellari yangi yuklanguncha ko'rinmasin
+    _levels = [];
+    notifyListeners();
+
+    final loaded = await _loadSound(sound);
+    // Yuklash davomida boshqa tovush tanlangan bo'lsa, uning ro'yxatini buzmaymiz
+    if (_currentSound != sound) return;
+
+    _levels = loaded;
+    _fetchScoreFromBackend();
+    notifyListeners();
+  }
+
+  // Hive o'rniga JSON fayldan ma'lumotlarni yuklash
+  Future<List<LevelState>> _loadLevels(String assetPath) async {
     try {
       // JSON faylni o'qish
-      final String jsonString = await rootBundle.loadString('assets/exsep.json');
+      final String jsonString = await rootBundle.loadString(assetPath);
       final List<dynamic> jsonData = json.decode(jsonString);
 
-      _levels = jsonData.map((data) {
+      final levels = jsonData.map((data) {
         // Exercise ma'lumotlarini parse qilish
         ExerciseInfo? exerciseInfo;
         if (data['exercise'] != null) {
@@ -94,19 +242,49 @@ class LevelProvider extends ChangeNotifier {
       }).toList();
 
       // ID bo'yicha tartiblab qo'yamiz
-      _levels.sort((a, b) => a.id.compareTo(b.id));
+      levels.sort((a, b) => a.id.compareTo(b.id));
 
       if (kDebugMode) {
-        print("✅ JSON fayldan ${_levels.length} ta level muvaffaqiyatli yuklandi");
+        print("✅ $assetPath dan ${levels.length} ta level muvaffaqiyatli yuklandi");
       }
+      return levels;
     } catch (e) {
       if (kDebugMode) {
-        print("❌ JSON o'qishda xatolik: $e");
+        print("❌ $assetPath ni o'qishda xatolik: $e");
       }
+      return [];
     }
+  }
 
-    _fetchScoreFromBackend();
-    notifyListeners();
+  // --- PROGRESSNI SAQLASH ---
+  // Har bir tovush uchun: {'unlocked': [id, ...], 'stars': {'id': yulduz}}
+
+  Box? get _progressBox =>
+      Hive.isBoxOpen(kLevelProgressBox) ? Hive.box(kLevelProgressBox) : null;
+
+  List<LevelState> _applySavedProgress(String sound, List<LevelState> levels) {
+    final saved = _progressBox?.get(sound);
+    if (saved is! Map) return levels;
+
+    final unlocked = Set<int>.from((saved['unlocked'] as List?) ?? const []);
+    final stars = Map<String, dynamic>.from((saved['stars'] as Map?) ?? const {});
+
+    return levels.map((lv) {
+      final savedStars = (stars['${lv.id}'] as int?) ?? lv.stars;
+      if (unlocked.contains(lv.id) && lv.locked) {
+        return lv.copyWith(locked: false, skin: skinGold, stars: savedStars);
+      }
+      return savedStars != lv.stars ? lv.copyWith(stars: savedStars) : lv;
+    }).toList();
+  }
+
+  void _saveProgress() {
+    final box = _progressBox;
+    if (box == null) return;
+    box.put(_currentSound, {
+      'unlocked': [for (final lv in _levels) if (!lv.locked) lv.id],
+      'stars': {for (final lv in _levels) if (lv.stars > 0) '${lv.id}': lv.stars},
+    });
   }
 
   // Endi to'g'ridan to'g'ri List ichidan qidiramiz
@@ -128,6 +306,7 @@ class LevelProvider extends ChangeNotifier {
     if (clamped > lv.stars) {
       _levels[index] = lv.copyWith(stars: clamped);
       notifyListeners();
+      _saveProgress();
     }
   }
 
@@ -162,6 +341,7 @@ class LevelProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    _saveProgress();
     _syncLevelUnlockToBackend(currentId, bestStars);
     return true;
   }

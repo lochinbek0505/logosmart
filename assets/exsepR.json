@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "stars": 3,
+    "stars": 0,
     "locked": false,
     "skin": "assets/icons/gold.png",
     "mode": "exercise",
@@ -25,8 +25,8 @@
   },
   {
     "id": 2,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -45,8 +45,8 @@
   },
   {
     "id": 3,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
@@ -68,8 +68,8 @@
   },
   {
     "id": 4,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -121,8 +121,8 @@
   },
   {
     "id": 5,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -141,8 +141,8 @@
   },
   {
     "id": 6,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -177,8 +177,8 @@
   },
   {
     "id": 7,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -192,7 +192,7 @@
   {
     "id": 8,
     "stars": 0,
-    "locked": false,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -236,9 +236,9 @@
   },
   {
     "id": 9,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ochtp.tflite",
@@ -259,8 +259,8 @@
   },
   {
     "id": 10,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -295,8 +295,8 @@
   },
   {
     "id": 11,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -316,7 +316,7 @@
   {
     "id": 12,
     "stars": 0,
-    "locked": false,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -474,8 +474,8 @@
   },
   {
     "id": 14,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -510,8 +510,8 @@
   },
   {
     "id": 15,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -556,8 +556,8 @@
   },
   {
     "id": 16,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
@@ -575,8 +575,8 @@
   },
   {
     "id": 17,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -628,8 +628,8 @@
   },
   {
     "id": 18,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -648,8 +648,8 @@
   },
   {
     "id": 19,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -662,8 +662,8 @@
   },
   {
     "id": 20,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -683,7 +683,7 @@
   {
     "id": 21,
     "stars": 0,
-    "locked": false,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -742,9 +742,9 @@
   },
   {
     "id": 22,
-    "stars": 2,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
@@ -833,8 +833,8 @@
   },
   {
     "id": 23,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -847,9 +847,9 @@
   },
   {
     "id": 24,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ochtp.tflite",
@@ -870,8 +870,8 @@
   },
   {
     "id": 25,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -906,8 +906,8 @@
   },
   {
     "id": 26,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -920,8 +920,8 @@
   },
   {
     "id": 27,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1071,8 +1071,8 @@
   },
   {
     "id": 28,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1168,8 +1168,8 @@
   },
   {
     "id": 30,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1221,8 +1221,8 @@
   },
   {
     "id": 31,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1241,8 +1241,8 @@
   },
   {
     "id": 32,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1315,8 +1315,8 @@
   },
   {
     "id": 33,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -1329,9 +1329,9 @@
   },
   {
     "id": 34,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/tepa_past_ichki.tflite",
@@ -1352,8 +1352,8 @@
   },
   {
     "id": 35,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1388,8 +1388,8 @@
   },
   {
     "id": 36,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1451,8 +1451,8 @@
 
   {
     "id": 37,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -1465,8 +1465,8 @@
   },
   {
     "id": 38,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1485,8 +1485,8 @@
   },
   {
     "id": 39,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1531,8 +1531,8 @@
   },
   {
     "id": 40,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1567,9 +1567,9 @@
   },
   {
     "id": 41,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/tepa_past_ichki.tflite",
@@ -1586,9 +1586,9 @@
   },
   {
     "id": 42,
-    "stars": 1,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
       "modelPath": "",
@@ -1600,9 +1600,9 @@
   },
   {
     "id": 43,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
@@ -1620,9 +1620,9 @@
   },
   {
     "id": 44,
-    "stars": 2,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
@@ -1749,8 +1749,8 @@
   },
   {
     "id": 46,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1785,8 +1785,8 @@
   },
   {
     "id": 47,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1805,9 +1805,9 @@
   },
   {
     "id": 48,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ochtp.tflite",
@@ -1828,8 +1828,8 @@
   },
   {
     "id": 49,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -1842,9 +1842,9 @@
   },
   {
     "id": 50,
-    "stars": 2,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
@@ -1876,9 +1876,9 @@
   },
   {
     "id": 51,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
     "game": {
@@ -1896,9 +1896,9 @@
   },
   {
     "id": 52,
-    "stars": 3,
-    "locked": false,
-    "skin": "assets/icons/gold.png",
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.png",
     "mode": "exercise",
     "exercise": {
       "modelPath": "assets/models/ochtp.tflite",
@@ -1927,8 +1927,8 @@
   },
   {
     "id": 53,
-    "stars": 1,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,
@@ -1973,8 +1973,8 @@
   },
   {
     "id": 54,
-    "stars": 3,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "video",
     "exercise": {
@@ -1987,8 +1987,8 @@
   },
   {
     "id": 55,
-    "stars": 2,
-    "locked": false,
+    "stars": 0,
+    "locked": true,
     "skin": "assets/icons/silver.png",
     "mode": "game",
     "exercise": null,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class VideosPage extends StatefulWidget {
@@ -15,7 +16,7 @@ class _VideosPageState extends State<VideosPage> {
     Size size = MediaQuery.of(context).size;
 
     return  Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -31,7 +32,7 @@ class _VideosPageState extends State<VideosPage> {
                   child: Image.asset(
                     "assets/images/arow_back.png",
                     width: 20,
-                    color: Color(0xff093e5e),
+                    color: context.palette.textPrimary,
                   ),
                 ),
                 SizedBox(width: 24),
@@ -39,7 +40,7 @@ class _VideosPageState extends State<VideosPage> {
                   widget.title,
                   style: TextStyle(
                     fontSize: 19.sp,
-                    color: Color(0xff093e5e),
+                    color: context.palette.textPrimary,
 
                     fontWeight: FontWeight.w600,
                   ),
@@ -74,7 +75,7 @@ class _VideosPageState extends State<VideosPage> {
                             borderRadius: BorderRadius.circular(10),
                               boxShadow:[
                                 BoxShadow(
-                                  color: Colors.grey.shade300,
+                                  color: context.palette.shadow,
                                   blurRadius: 4,
                                   spreadRadius: 2,
                                   offset: Offset(0, 3),
@@ -92,7 +93,7 @@ class _VideosPageState extends State<VideosPage> {
                         Text(
                           "${index+1}. Dars nomi",
                           style: TextStyle(
-                              color: Color(0xff3c6385),
+                              color: context.palette.textPrimary,
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
                               height: 1.2

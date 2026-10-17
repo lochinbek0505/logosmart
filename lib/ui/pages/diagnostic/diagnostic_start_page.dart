@@ -1,9 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/diagnostic/voice_diagnostic_page.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 
 import '../../../../core/utils/game_bounce_page_route.dart';
 import '../../../../models/diagnostic_group_model.dart';
@@ -44,11 +44,10 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
       body: Container(
         width: size.width,
         height: size.height,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backround/fon_q.png"),
-            fit: BoxFit.fill,
-          ),
+            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -129,7 +128,7 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                       "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.nunito(
-                        color: AppColors.sky_blue_900,
+                        color: context.palette.textPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                       ),
@@ -181,7 +180,7 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                     width: 264.w,
                     height: 72.h,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.palette.surface,
                       borderRadius: BorderRadius.circular(40),
                     ),
                     child: _isPressed

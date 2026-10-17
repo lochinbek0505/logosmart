@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logosmart/ui/theme/app_colors.dart';
 
 class Onboard1Page extends StatefulWidget {
   const Onboard1Page({super.key});
@@ -32,7 +32,7 @@ class _Onboard1PageState extends State<Onboard1Page> {
               style: GoogleFonts.nunito(
                 fontSize: 32.sp,
                 fontWeight: FontWeight.bold,
-                color: AppColors.sky_blue_900,
+                color: context.palette.textPrimary,
               ),
             ),
           ),

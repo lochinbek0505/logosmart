@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/ui/pages/main/videolesson/VideosPape.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -45,7 +46,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(0xfff0f0f0),
+      backgroundColor: context.isDarkMode ? context.palette.background : const Color(0xfff0f0f0),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -60,9 +61,9 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                   height: 48,
                   padding: EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.palette.surface,
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(color: context.palette.border),
                   ),
                   child: Stack(
                     children: [
@@ -97,7 +98,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                 child: Text(
                                   "Darslarim",
                                   style: TextStyle(
-                                    color: itemCount == 1 ? Colors.white : Colors.black,
+                                    color: itemCount == 1 ? Colors.white : context.palette.textStrong,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14.sp,
                                   ),
@@ -120,7 +121,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                 child: Text(
                                   "Qoralamalar",
                                   style: TextStyle(
-                                    color: itemCount == 2 ? Colors.white : Colors.black,
+                                    color: itemCount == 2 ? Colors.white : context.palette.textStrong,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14.sp,
                                   ),
@@ -167,11 +168,11 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                     vertical: 12,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: context.palette.surface,
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.grey.shade300,
+                                        color: context.palette.shadow,
                                         blurRadius: 4,
                                         spreadRadius: 2,
                                         offset: Offset(0, 3),
@@ -201,7 +202,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                       Text(
                                         vedioLesson[index]["text"],
                                         style: TextStyle(
-                                          color: Colors.grey.shade900,
+                                          color: context.palette.textStrong,
                                           fontSize: 18.sp,
                                           fontWeight: FontWeight.w600,
                                           height: 1.2,
@@ -212,7 +213,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                         width: 82,
                                         height: 30,
                                         decoration: BoxDecoration(
-                                          color: Color(0xffd9F6FB),
+                                          color: context.palette.primarySoft,
                                           borderRadius: BorderRadius.circular(
                                             20,
                                           ),
@@ -223,7 +224,7 @@ class _VideoLessonsPageState extends State<VideoLessonsPage> {
                                             style: TextStyle(
                                               fontSize: 12.sp,
                                               fontWeight: FontWeight.w600,
-                                              color: Color(0xff093e5e),
+                                              color: context.palette.textPrimary,
                                             ),
                                           ),
                                         ),

@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,11 +49,10 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/backround/fon_q.png"),
-              fit: BoxFit.fill,
-            ),
+              fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
           ),
           child: Column(
             children: [
@@ -70,7 +70,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                         "assets/images/arow_back.png",
                         width: 24.w,
                         height: 24.h,
-                        color: AppColors.main_blue_900,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     Expanded(
@@ -79,7 +79,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.nunito(
                           fontSize: 24.sp,
-                          color: AppColors.main_blue_900,
+                          color: context.palette.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -177,7 +177,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                                 child: Text(
                                   group.name!,
                                   style: GoogleFonts.nunito(
-                                    color: AppColors.sky_blue_900,
+                                    color: context.palette.textPrimary,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 17.sp,
                                   ),

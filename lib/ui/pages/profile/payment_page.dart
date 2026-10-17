@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,7 +51,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
     var provider = Provider.of<ProfileProvider>(context);
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -74,7 +75,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                         style: GoogleFonts.nunito(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.main_blue_900,
+                          color: context.palette.textPrimary,
                         ),
                       ),
                     ],
@@ -88,11 +89,11 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                       height: 54.h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20.r),
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade200),
+                        color: context.palette.surface,
+                        border: Border.all(color: context.palette.border),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.shade200,
+                            color: context.palette.shadow,
                             spreadRadius: 2.r,
                             blurRadius: 2.r,
                             offset: Offset(0, 2),

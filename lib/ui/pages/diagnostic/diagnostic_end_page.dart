@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,11 +46,10 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
       body: Container(
         width: size.width,
         height: size.height,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backround/fon_4.png"),
-            fit: BoxFit.fill,
-          ),
+            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
           // ASOSIY O'ZGARISH SHU YERDA: CustomScrollView qo'shildi
@@ -114,7 +114,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                         vertical: 20.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.palette.surface,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
                           color: AppColors.sky_blue_300,
@@ -170,7 +170,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                             "Sen barcha topshiriqlarni\na'lo darajada bajarding!",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.nunito(
-                              color: AppColors.sky_blue_900,
+                              color: context.palette.textPrimary,
                               fontWeight: FontWeight.w700,
                               fontSize: 16.sp,
                               height: 1.3,
@@ -234,7 +234,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                         width: 211.w,
                         height: 57.5.h,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.palette.surface,
                           borderRadius: BorderRadius.circular(32),
                         ),
                         child: Container(
@@ -293,7 +293,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color:  Colors.green.shade400 ,

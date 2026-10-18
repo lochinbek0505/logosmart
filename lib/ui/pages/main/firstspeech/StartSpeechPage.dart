@@ -23,7 +23,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/backround_xira.png"),
+            image: AssetImage("assets/images/backround_xira.webp"),
             fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
@@ -38,7 +38,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                       SizedBox(
                         width: size.width*0.65,
                         height: size.width*1.265,
-                        child: Image.asset("assets/images/women.png",fit: BoxFit.fill,),
+                        child: Image.asset("assets/images/women.webp",fit: BoxFit.fill,),
                       ),
                     ],
                   ),
@@ -59,7 +59,7 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
                         ),
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: AssetImage("assets/icons/cloud.png"),
+                              image: AssetImage("assets/icons/cloud.webp"),
                               fit: BoxFit.fill
                           ),
                         ),

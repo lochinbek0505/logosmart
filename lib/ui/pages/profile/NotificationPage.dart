@@ -62,7 +62,7 @@ class _NotificationPageState extends State<NotificationPage> {
                         Navigator.of(context).pop();
                       },
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 22,
                         color: context.palette.icon,
                       ),

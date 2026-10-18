@@ -27,7 +27,7 @@ class StarMeter extends StatelessWidget {
         return Padding(
           padding: spacing,
           child: Image.asset(
-            filled ? "assets/icons/star.png" : "assets/icons/star_grey.png",
+            filled ? "assets/icons/star.webp" : "assets/icons/star_grey.webp",
             width: size,
             height: size,
             fit: BoxFit.contain,

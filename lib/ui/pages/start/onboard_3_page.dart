@@ -15,7 +15,7 @@ class Onboard3Page extends StatelessWidget {
         children: [
           Expanded(
             child: Image.asset(
-              "assets/images/onboard3.png",
+              "assets/images/onboard3.webp",
               fit: BoxFit.cover,
               height: 390.h,
               alignment: Alignment.center,

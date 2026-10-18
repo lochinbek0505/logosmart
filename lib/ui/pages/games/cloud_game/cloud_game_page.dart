@@ -87,12 +87,12 @@ class _CloudGamePageState extends State<CloudGamePage>
         "start_voice": "assets/sound/find_image/game_1_start.mp3",
         "success_sound": "assets/sound/success.mp3",
         "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/fon_q.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_mic": "assets/icons/micrafon.png",
-        "helicopter_image": "assets/game/cloud_game/helicopter.png",
-        "cloud_image": "assets/game/cloud_game/cloud.png",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "helicopter_image": "assets/game/cloud_game/helicopter.webp",
+        "cloud_image": "assets/game/cloud_game/cloud.webp",
       };
       _cloudList = []; // Xatolik bo'lsa bo'sh ro'yxat
     }
@@ -532,7 +532,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                     child: CircleAvatar(
                       radius: 40.r,
                       backgroundImage: const AssetImage(
-                        "assets/icons/circle.png",
+                        "assets/icons/circle.webp",
                       ),
                       child: Image.asset(
                         _config['icon_mic'], // JSON

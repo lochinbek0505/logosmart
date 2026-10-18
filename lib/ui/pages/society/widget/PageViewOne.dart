@@ -14,7 +14,7 @@ class PageViewOne extends StatefulWidget {
 class _PageViewOneState extends State<PageViewOne> {
   List<Map<dynamic, dynamic>> societyinfo = [
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Muattar",
       "text": "Oliy ma'lumotli logaped",
       "year": 15,
@@ -23,7 +23,7 @@ class _PageViewOneState extends State<PageViewOne> {
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Muattar",
       "text": "Oliy ma'lumotli logaped",
       "year": 15,
@@ -32,7 +32,7 @@ class _PageViewOneState extends State<PageViewOne> {
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Muattar",
       "text": "Oliy ma'lumotli logaped",
       "year": 15,
@@ -190,7 +190,7 @@ class _PageViewOneState extends State<PageViewOne> {
                             ),
                             child: ImageIcon(
                               AssetImage(
-                                "assets/icons/star_start.png",
+                                "assets/icons/star_start.webp",
                               ),
                               size: 13,
                               color: color,

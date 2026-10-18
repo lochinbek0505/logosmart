@@ -20,7 +20,7 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/backround/backround_mashgulotlar.png"),
+            image: AssetImage("assets/backround/backround_mashgulotlar.webp"),
             fit: BoxFit.fill,
           ),
         ),
@@ -42,12 +42,12 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                           Row(
                             children: [
                               Image.asset(
-                                "assets/icons/star.png",
+                                "assets/icons/star.webp",
                                 width: 40,
                                 height: 40,
                               ),
                               SizedBox(width: 12),
-                              Image.asset("assets/icons/namber_o.png", height: 35),
+                              Image.asset("assets/icons/namber_o.webp", height: 35),
                             ],
                           ),
                           Container(
@@ -61,14 +61,14 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                             height: 80,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage("assets/icons/circle.png"),
+                                image: AssetImage("assets/icons/circle.webp"),
                                 fit: BoxFit.fill,
                               ),
                             ),
                             child: CircleAvatar(
                               radius: 30,
                               backgroundImage: AssetImage(
-                                "assets/icons/circle_bad.png",
+                                "assets/icons/circle_bad.webp",
                               ),
                             ),
                           ),
@@ -84,7 +84,7 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
               height: size.height,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/backround/backround_mashgulotlar.png"),
+                  image: AssetImage("assets/backround/backround_mashgulotlar.webp"),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -107,15 +107,15 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                             Positioned(
                               top: 28,
                               child: Row(children: [
-                                Image.asset("assets/icons/star_orange.png",width: 75,height: 75,),
+                                Image.asset("assets/icons/star_orange.webp",width: 75,height: 75,),
                                 SizedBox(width: 80,),
-                                Image.asset("assets/icons/star_grey.png",width: 75,height: 75,)
+                                Image.asset("assets/icons/star_grey.webp",width: 75,height: 75,)
 
                               ],),
                             ),
                             Positioned(
                               left: 65,
-                                child: Image.asset("assets/icons/star_orange.png",width: 100,height: 100,))
+                                child: Image.asset("assets/icons/star_orange.webp",width: 100,height: 100,))
 
 
 
@@ -133,11 +133,11 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                         children: [
                           CircleAvatar(
                             radius: 30,
-                            backgroundImage: AssetImage("assets/images/circle_red.png"),
+                            backgroundImage: AssetImage("assets/images/circle_red.webp"),
                             child: Transform.translate(
                               offset: Offset(0, -1),
                               child: Image.asset(
-                                "assets/images/x.png",
+                                "assets/images/x.webp",
                                 width: 23,
                                 height: 25,
                               ),
@@ -147,11 +147,11 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                           SizedBox(width: 10),
                           CircleAvatar(
                             radius: 40,
-                            backgroundImage: AssetImage("assets/icons/circle.png"),
+                            backgroundImage: AssetImage("assets/icons/circle.webp"),
                             child: Transform.translate(
                               offset: Offset(1, -2),
                               child: Image.asset(
-                                "assets/icons/qayta_yuklash.png",
+                                "assets/icons/qayta_yuklash.webp",
                                 width: 40,
                                 height: 38,
                               ),
@@ -160,11 +160,11 @@ class _FinishButtonPageState extends State<FinishButtonPage> {
                           SizedBox(width: 10),
                           CircleAvatar(
                             radius: 30,
-                            backgroundImage: AssetImage("assets/icons/circle.png"),
+                            backgroundImage: AssetImage("assets/icons/circle.webp"),
                             child: Transform.translate(
                               offset: Offset(0, -1),
                               child: Image.asset(
-                                "assets/icons/right_icon.png",
+                                "assets/icons/right_icon.webp",
                                 width: 23,
                                 height: 25,
                               ),

@@ -30,12 +30,12 @@ class _WolfHosePageState extends State<WolfHosePage> {
                       Row(
                         children: [
                           Image.asset(
-                            "assets/icons/star.png",
+                            "assets/icons/star.webp",
                             width: 40,
                             height: 40,
                           ),
                           SizedBox(width: 12),
-                          Image.asset("assets/icons/namber_o.png", height: 35),
+                          Image.asset("assets/icons/namber_o.webp", height: 35),
                         ],
                       ),
                       Container(
@@ -49,14 +49,14 @@ class _WolfHosePageState extends State<WolfHosePage> {
                         height: 80,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage("assets/icons/circle.png"),
+                            image: AssetImage("assets/icons/circle.webp"),
                             fit: BoxFit.fill,
                           ),
                         ),
                         child: CircleAvatar(
                           radius: 30,
                           backgroundImage: AssetImage(
-                            "assets/icons/circle_bad.png",
+                            "assets/icons/circle_bad.webp",
                           ),
                         ),
                       ),
@@ -67,7 +67,7 @@ class _WolfHosePageState extends State<WolfHosePage> {
                 SizedBox(
                   width: size.width*0.391,
                   height: size.width*0.482,
-                  child: Image.asset("assets/images/wolf.png",width: 160,height: 200,),
+                  child: Image.asset("assets/images/wolf.webp",width: 160,height: 200,),
                 ),
                 SizedBox(height: 75,),
                 SizedBox(
@@ -90,14 +90,14 @@ class _WolfHosePageState extends State<WolfHosePage> {
                                     height: size.width*0.21,
                                     width: size.width*0.27,
                                     decoration: BoxDecoration(
-                                    image: DecorationImage(image: AssetImage("assets/images/dog_house.png",))
+                                    image: DecorationImage(image: AssetImage("assets/images/dog_house.webp",))
                                   ),),
                                 ),
                                 CircleAvatar(
                                   radius: 16,
-                                  backgroundImage: AssetImage("assets/icons/circle.png"),
+                                  backgroundImage: AssetImage("assets/icons/circle.webp"),
                                   child: SizedBox(
-                                    child: Image.asset("assets/icons/music.png",fit: BoxFit.fill,),
+                                    child: Image.asset("assets/icons/music.webp",fit: BoxFit.fill,),
                                   ),
                                 )
 
@@ -117,14 +117,14 @@ class _WolfHosePageState extends State<WolfHosePage> {
                                     height: size.width*0.21,
                                     width: size.width*0.27,
                                     decoration: BoxDecoration(
-                                        image: DecorationImage(image: AssetImage("assets/images/cave.png",))
+                                        image: DecorationImage(image: AssetImage("assets/images/cave.webp",))
                                     ),),
                                 ),
                                 CircleAvatar(
                                   radius: 16,
-                                  backgroundImage: AssetImage("assets/icons/circle.png"),
+                                  backgroundImage: AssetImage("assets/icons/circle.webp"),
                                   child: SizedBox(
-                                    child: Image.asset("assets/icons/music.png",fit: BoxFit.fill,),
+                                    child: Image.asset("assets/icons/music.webp",fit: BoxFit.fill,),
                                   ),
                                 )
 
@@ -152,14 +152,14 @@ class _WolfHosePageState extends State<WolfHosePage> {
                                     height: size.width*0.21,
                                     width: size.width*0.27,
                                     decoration: BoxDecoration(
-                                        image: DecorationImage(image: AssetImage("assets/images/bird_house.png",))
+                                        image: DecorationImage(image: AssetImage("assets/images/bird_house.webp",))
                                     ),),
                                 ),
                                 CircleAvatar(
                                   radius: 16,
-                                  backgroundImage: AssetImage("assets/icons/circle.png"),
+                                  backgroundImage: AssetImage("assets/icons/circle.webp"),
                                   child: SizedBox(
-                                    child: Image.asset("assets/icons/music.png",fit: BoxFit.fill,),
+                                    child: Image.asset("assets/icons/music.webp",fit: BoxFit.fill,),
                                   ),
                                 )
 
@@ -179,14 +179,14 @@ class _WolfHosePageState extends State<WolfHosePage> {
                                     height: size.width*0.21,
                                     width: size.width*0.27,
                                     decoration: BoxDecoration(
-                                        image: DecorationImage(image: AssetImage("assets/images/house.png",))
+                                        image: DecorationImage(image: AssetImage("assets/images/house.webp",))
                                     ),),
                                 ),
                                 CircleAvatar(
                                   radius: 16,
-                                  backgroundImage: AssetImage("assets/icons/circle.png"),
+                                  backgroundImage: AssetImage("assets/icons/circle.webp"),
                                   child: SizedBox(
-                                    child: Image.asset("assets/icons/music.png",fit: BoxFit.fill,),
+                                    child: Image.asset("assets/icons/music.webp",fit: BoxFit.fill,),
                                   ),
                                 )
 
@@ -218,9 +218,9 @@ class _WolfHosePageState extends State<WolfHosePage> {
                         alignment: Alignment.topRight,
                         child: CircleAvatar(
                           radius: 20,
-                          backgroundImage: AssetImage("assets/icons/circle.png"),
+                          backgroundImage: AssetImage("assets/icons/circle.webp"),
                           child: SizedBox(
-                            child: Image.asset("assets/icons/music.png",fit: BoxFit.fill,),
+                            child: Image.asset("assets/icons/music.webp",fit: BoxFit.fill,),
                           ),
                         ),
                       ),
@@ -233,7 +233,7 @@ class _WolfHosePageState extends State<WolfHosePage> {
                         height: 130,
                         width: size.width*0.78,
                         decoration: BoxDecoration(
-                            image: DecorationImage(image: AssetImage("assets/images/top_cloud.png",))
+                            image: DecorationImage(image: AssetImage("assets/images/top_cloud.webp",))
                         ),
                       child: Transform.translate(
                         offset: Offset(-15, 32),

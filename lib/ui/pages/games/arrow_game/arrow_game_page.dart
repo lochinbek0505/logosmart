@@ -78,10 +78,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       // Fallback xavfsizlik (Kutilmagan xatolik uchun)
       _config = {
         "start_voice": "assets/sound/arrow/arrow_start.mp3",
-        "background_image": "assets/backround/arrow/arrow_back_1.jpg",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_mic": "assets/icons/micrafon.png",
+        "background_image": "assets/backround/arrow/arrow_back_1.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
       };
       _centerLetter = "R";
       _outerNodes = [];
@@ -536,7 +536,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 radius: 40.r,
                                 backgroundColor: Colors.white,
                                 backgroundImage: const AssetImage(
-                                  "assets/icons/circle.png",
+                                  "assets/icons/circle.webp",
                                 ),
                                 onBackgroundImageError: (_, __) {},
                                 child: (_config['icon_mic'] is String)

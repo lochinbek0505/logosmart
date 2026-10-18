@@ -49,15 +49,15 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
       _config = {
         "bg_color": "0xFFF4F6F9",
         "success_sound": "assets/sound/success.mp3",
-        "icon_star": "assets/icons/star.png",
-        "avatar_bg": "assets/icons/circle.png",
-        "avatar_image": "assets/icons/circle_bad.png",
+        "icon_star": "assets/icons/star.webp",
+        "avatar_bg": "assets/icons/circle.webp",
+        "avatar_image": "assets/icons/circle_bad.webp",
       };
       _items = [
-        {"id": "pepper", "image": "assets/game/yellow_pepper.png"},
-        {"id": "tomato", "image": "assets/game/tomato.png"},
-        {"id": "eggplant", "image": "assets/game/eggplant.png"},
-        {"id": "cucumber", "image": "assets/game/cucumber.png"},
+        {"id": "pepper", "image": "assets/game/yellow_pepper.webp"},
+        {"id": "tomato", "image": "assets/game/tomato.webp"},
+        {"id": "eggplant", "image": "assets/game/eggplant.webp"},
+        {"id": "cucumber", "image": "assets/game/cucumber.webp"},
       ];
     }
 

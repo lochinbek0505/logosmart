@@ -51,7 +51,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
           height: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/backround/fon_q.png"),
+              image: AssetImage("assets/backround/fon_q.webp"),
               fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
           ),
           child: Column(
@@ -67,7 +67,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                         if (context.mounted) Navigator.of(context).pop();
                       },
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 24.w,
                         height: 24.h,
                         color: context.palette.textPrimary,
@@ -154,7 +154,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                           decoration: BoxDecoration(
                             image: const DecorationImage(
                               image: AssetImage(
-                                "assets/backround/bacround_sound.png",
+                                "assets/backround/bacround_sound.webp",
                               ),
                               fit: BoxFit.fill,
                             ),
@@ -185,13 +185,13 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                               ),
                               CircleAvatar(
                                 backgroundImage: const AssetImage(
-                                  "assets/icons/circle.png",
+                                  "assets/icons/circle.webp",
                                 ),
                                 radius: 25.r,
                                 child: Transform.translate(
                                   offset: const Offset(0.8, -0.8),
                                   child: Image.asset(
-                                    "assets/icons/play.png",
+                                    "assets/icons/play.webp",
                                     width: 19.w,
                                   ),
                                 ),
@@ -204,7 +204,7 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                   },
                 ),
               ),
-              Image.asset("assets/persons/girl_2.png", height: 460.h),
+              Image.asset("assets/persons/girl_2.webp", height: 460.h),
             ],
           ),
         ),

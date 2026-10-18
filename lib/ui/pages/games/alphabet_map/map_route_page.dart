@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/ui/pages/cv_model/camera_page.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/interactive_lottie.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/widgets/level_button.dart';
-import 'package:logosmart/ui/pages/games/alphabet_map/widgets/tiled_background.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/sliced_map_background.dart';
 import 'package:logosmart/ui/pages/games/path_games/item_and_finish_path_game_page.dart';
 // Video page importi qo'shildi
 import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
@@ -286,178 +286,191 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
       }
     }
 
-    _autoScrollToCurrentIfNeeded(levels, currentLevelId, mapHeight, screenHeight);
+    _autoScrollToCurrentIfNeeded(
+      levels,
+      currentLevelId,
+      mapHeight,
+      screenHeight,
+    );
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: SizedBox(
-          height: mapHeight,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final size = Size(constraints.maxWidth, constraints.maxHeight);
+      body: Stack(
+        children: [
+          // Fon alohida ListView da — faqat ko'rinib turgan bo'laklar yuklanadi
+          Positioned.fill(
+            child: SlicedMapBackground(
+              controller: _scrollController,
+              height: mapHeight,
+            ),
+          ),
+          SingleChildScrollView(
+            controller: _scrollController,
+            child: SizedBox(
+              height: mapHeight,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final size = Size(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
 
-              return Stack(
-                clipBehavior: Clip.none,
-                // pastki tugma tasodifan kesilmasligi uchun qo'shimcha kafolat
-                children: [
-                  Positioned.fill(
-                    child: TiledBackground(
-                      asset: 'assets/backround/map_background.png',
-                      height: mapHeight,
-                    ),
-                  ),
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    // pastki tugma tasodifan kesilmasligi uchun qo'shimcha kafolat
+                    children: [
+                      ...decorations.map((decor) {
+                        final px = decor.dx * size.width;
+                        final py = decor.dy * size.height;
+                        return Positioned(
+                          key: ValueKey(
+                            'decor_${decor.assetPath}_${decor.dx}_${decor.dy}',
+                          ),
+                          left: px - 40,
+                          top: py - 40,
+                          child: RepaintBoundary(
+                            child: InteractiveLottie(
+                              assetPath: decor.assetPath,
+                              size: 80,
+                            ),
+                          ),
+                        );
+                      }),
 
-                  ...decorations.map((decor) {
-                    final px = decor.dx * size.width;
-                    final py = decor.dy * size.height;
-                    return Positioned(
-                      key: ValueKey(
-                        'decor_${decor.assetPath}_${decor.dx}_${decor.dy}',
-                      ),
-                      left: px - 40,
-                      top: py - 40,
-                      child: RepaintBoundary(
-                        child: InteractiveLottie(
-                          assetPath: decor.assetPath,
-                          size: 80,
+                      // ASOSIY LEVEL TUGMALARI (Header dan OLDIN qo'yildi)
+                      ...levels.map((l) {
+                        final px = l.dx * size.width;
+                        final py = l.dy * size.height;
+
+                        final isCurrent = l.id == currentLevelId;
+
+                        return Positioned(
+                          key: ValueKey('level_${l.id}'),
+                          left: px - 40,
+                          top: py - _buttonHalfHeight,
+                          child: LevelButton(
+                            level: l,
+                            isCurrent: isCurrent,
+                            onTap: () async {
+                              if (l.locked) return;
+
+                              final lv = levelStates.firstWhere(
+                                (e) => e.id == l.id,
+                              );
+
+                              context.read<LevelProvider>().openLevel(lv);
+
+                              bool hasAbout = false;
+                              if (lv.exercise != null &&
+                                  lv.exercise!.steps.isNotEmpty) {
+                                hasAbout =
+                                    lv.exercise!.steps.first.action == "about";
+                              }
+
+                              // Diqqat: dispose() o'rniga pause() yozildi.
+                              // Orqaga qaytishda kresh bo'lishini oldini oladi.
+                              await _audioPlayer.pause();
+
+                              if (!context.mounted) return;
+
+                              // YANGILIK: mode = "video" tekshiruvini qo'shdik
+                              if (hasAbout) {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (b) => StartTextPage(data: lv),
+                                  ),
+                                );
+                              } else if (lv.mode == 'video') {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const GameVideoPage(),
+                                  ),
+                                );
+                              } else if (lv.game != null) {
+                                navigationTo(lv.game!.type);
+                              } else if (lv.exercise != null) {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CameraPage(),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      }),
+
+                      // YUQORI QISM - SCORE VA AVATAR (Header)
+                      // Eng oxirida — shuning uchun har doim levellar ustida ko'rinadi
+                      Positioned(
+                        top: 50,
+                        child: SizedBox(
+                          width: size.width,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 25.0),
+                                child: Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Image.asset(
+                                        "assets/icons/star.webp",
+                                        scale: 3,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      levelStates
+                                          .fold<int>(0, (p, e) => p + e.stars)
+                                          .toString(),
+                                      style: TextStyle(
+                                        fontSize: 35.sp,
+                                        color: AppColors.orange_300,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Image.asset(
+                                "assets/icons/circle_bad.webp",
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 25.0,
+                                ),
+                                child: widget.embedded
+                                    ? const SizedBox(width: 50, height: 50)
+                                    : GestureDetector(
+                                        onTap: () =>
+                                            Navigator.of(context).maybePop(),
+                                        child: Image.asset(
+                                          "assets/icons/close_red.webp",
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    );
-                  }),
-
-                  // ASOSIY LEVEL TUGMALARI (Header dan OLDIN qo'yildi)
-                  ...levels.map((l) {
-                    final px = l.dx * size.width;
-                    final py = l.dy * size.height;
-
-                    final isCurrent = l.id == currentLevelId;
-
-                    return Positioned(
-                      key: ValueKey('level_${l.id}'),
-                      left: px - 40,
-                      top: py - _buttonHalfHeight,
-                      child: LevelButton(
-                        level: l,
-                        isCurrent: isCurrent,
-                        onTap: () async {
-                          if (l.locked) return;
-
-                          final lv = levelStates.firstWhere(
-                            (e) => e.id == l.id,
-                          );
-
-                          context.read<LevelProvider>().openLevel(lv);
-
-                          bool hasAbout = false;
-                          if (lv.exercise != null &&
-                              lv.exercise!.steps.isNotEmpty) {
-                            hasAbout =
-                                lv.exercise!.steps.first.action == "about";
-                          }
-
-                          // Diqqat: dispose() o'rniga pause() yozildi.
-                          // Orqaga qaytishda kresh bo'lishini oldini oladi.
-                          await _audioPlayer.pause();
-
-                          if (!context.mounted) return;
-
-                          // YANGILIK: mode = "video" tekshiruvini qo'shdik
-                          if (hasAbout) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (b) => StartTextPage(data: lv),
-                              ),
-                            );
-                          } else if (lv.mode == 'video') {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const GameVideoPage(),
-                              ),
-                            );
-                          } else if (lv.game != null) {
-                            navigationTo(lv.game!.type);
-                          } else if (lv.exercise != null) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CameraPage(),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  }),
-
-                  // YUQORI QISM - SCORE VA AVATAR (Header)
-                  // Eng oxirida — shuning uchun har doim levellar ustida ko'rinadi
-                  Positioned(
-                    top: 50,
-                    child: SizedBox(
-                      width: size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 25.0),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: Image.asset(
-                                    "assets/icons/star.png",
-                                    scale: 3,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  levelStates
-                                      .fold<int>(0, (p, e) => p + e.stars)
-                                      .toString(),
-                                  style: TextStyle(
-                                    fontSize: 35.sp,
-                                    color: AppColors.orange_300,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Image.asset(
-                            "assets/icons/circle_bad.png",
-                            width: 70,
-                            height: 70,
-                            fit: BoxFit.cover,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 25.0,
-                            ),
-                            child: widget.embedded
-                                ? const SizedBox(width: 50, height: 50)
-                                : GestureDetector(
-                                    onTap: () => Navigator.of(context).maybePop(),
-                                    child: Image.asset(
-                                      "assets/icons/close_red.png",
-                                      width: 50,
-                                      height: 50,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

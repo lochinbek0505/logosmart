@@ -31,7 +31,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                   Row(
                     children: [
                       Image.asset(
-                        "assets/icons/star.png",
+                        "assets/icons/star.webp",
                         width: 40.w,
                         height: 40.h,
                       ),
@@ -50,14 +50,14 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                     height: 80.h,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage("assets/icons/circle.png"),
+                        image: AssetImage("assets/icons/circle.webp"),
                         fit: BoxFit.fill,
                       ),
                     ),
                     child: CircleAvatar(
                       radius: 30,
                       backgroundImage: AssetImage(
-                        "assets/icons/circle_bad.png",
+                        "assets/icons/circle_bad.webp",
                       ),
                     ),
                   ),
@@ -69,7 +69,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
 
             // 2. Markazdagi Raketa (Rasm o'rnida Icon ishlatilgan, asset bilan almashtirishingiz mumkin)
             Image.asset(
-              "assets/images/dog_house.png",
+              "assets/images/dog_house.webp",
               width: 80.w,
               height: 80.h,
             ),

@@ -20,7 +20,7 @@ class TopBar extends StatelessWidget {
               child: GestureDetector(
                 onTap: onBack,
                 child: Image.asset(
-                  "assets/icons/arrow_right_button.png",
+                  "assets/icons/arrow_right_button.webp",
                   fit: BoxFit.fill,
                 ),
               ),
@@ -28,9 +28,9 @@ class TopBar extends StatelessWidget {
             // Yulduzlar
             Row(
               children: [
-                Image.asset("assets/icons/star.png", width: 40, height: 40),
+                Image.asset("assets/icons/star.webp", width: 40, height: 40),
                 const SizedBox(width: 12),
-                Image.asset("assets/icons/namber_o.png", height: 35),
+                Image.asset("assets/icons/namber_o.webp", height: 35),
               ],
             ),
           ],

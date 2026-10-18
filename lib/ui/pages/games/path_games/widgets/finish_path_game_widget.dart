@@ -136,7 +136,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                 left: _endPosition.dx - 80.w, // Uyning o'lchamiga qarab markazlashtiring
                 top: _endPosition.dy - 100.h,
                 child: Image.asset(
-                  "assets/game/house.png", // <--- Uy rasmini kiriting
+                  "assets/game/house.webp", // <--- Uy rasmini kiriting
                   height: 120.h,
                   fit: BoxFit.contain,
                 ),
@@ -148,7 +148,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                 left: _endPosition.dx - 120.w,
                 top: _endPosition.dy - 60.h,
                 child: Image.asset(
-                  "assets/game/game_correct.png", // <--- Yashil ptichka rasmini kiriting
+                  "assets/game/game_correct.webp", // <--- Yashil ptichka rasmini kiriting
                   width: 80.w,
                   fit: BoxFit.contain,
                 ),
@@ -179,7 +179,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                             ),
                             decoration: const BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage("assets/game/game_cloud.png"),
+                                image: AssetImage("assets/game/game_cloud.webp"),
                               ),
                             ),
                             child: Padding(
@@ -196,7 +196,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                           ),
                         ),
                       Image.asset(
-                        "assets/game/dog.png", // <--- Yo'lbars o'rniga Kuchukcha rasmi (tiger.png qolsa ham bo'ladi)
+                        "assets/game/dog.webp", // <--- Yo'lbars o'rniga Kuchukcha rasmi (tiger.png qolsa ham bo'ladi)
                         width: 90.w,
                         height: 120.h,
                         fit: BoxFit.contain,

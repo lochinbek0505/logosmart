@@ -28,7 +28,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset("assets/images/error.png", width: 70, height: 70),
+                  Image.asset("assets/images/error.webp", width: 70, height: 70),
 
                   SizedBox(height: 16),
 
@@ -202,7 +202,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
                       Navigator.of(context).pop();
                     },
                     child: Image.asset(
-                      "assets/images/arow_back.png",
+                      "assets/images/arow_back.webp",
                       width: 22,
                       color: Colors.blueGrey.shade800,
                     ),
@@ -220,7 +220,7 @@ class _MyExpertPageState extends State<MyExpertPage> {
               ),
               SizedBox(height: size.height * 0.27),
               ImageIcon(
-                AssetImage("assets/icons/majesticons_plus.png"),
+                AssetImage("assets/icons/majesticons_plus.webp"),
                 size: 64,
                 color: Colors.grey.shade900,
               ),

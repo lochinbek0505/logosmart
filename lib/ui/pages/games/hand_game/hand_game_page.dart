@@ -53,15 +53,15 @@ class _HandGamePageState extends State<HandGamePage> {
       _config = {
         "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
       };
       _handGameItems = [
-        {"box_image": "assets/game/hand_game/box_1.png", "hand_image": "assets/game/hand_game/hand_1.png", "isOpen": false},
-        {"box_image": "assets/game/hand_game/box_2.png", "hand_image": "assets/game/hand_game/hand_2.png", "isOpen": false},
-        {"box_image": "assets/game/hand_game/box_3.png", "hand_image": "assets/game/hand_game/face_1.png", "isOpen": false},
-        {"box_image": "assets/game/hand_game/box_4.png", "hand_image": "assets/game/hand_game/lib_3.png", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_1.webp", "hand_image": "assets/game/hand_game/hand_1.webp", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_2.webp", "hand_image": "assets/game/hand_game/hand_2.webp", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_3.webp", "hand_image": "assets/game/hand_game/face_1.webp", "isOpen": false},
+        {"box_image": "assets/game/hand_game/box_4.webp", "hand_image": "assets/game/hand_game/lib_3.webp", "isOpen": false},
       ];
     }
   }

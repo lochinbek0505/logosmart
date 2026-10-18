@@ -69,9 +69,9 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
         "start_voice": "assets/sound/breath/breath_start.mp3",
         "blow_voice": "assets/sound/breath/butterfly.mp3",
         "lottie_animation": "assets/animation/breath/butterfly.json",
-        "background_image": "assets/backround/breath/butterfly_background.jpg",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
+        "background_image": "assets/backround/breath/butterfly_background.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
       };
     }
 
@@ -361,10 +361,10 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                                 child: CircleAvatar(
                                   radius: 40.r,
                                   backgroundImage: const AssetImage(
-                                    "assets/icons/circle.png",
+                                    "assets/icons/circle.webp",
                                   ),
                                   child: Image.asset(
-                                    "assets/icons/micrafon.png",
+                                    "assets/icons/micrafon.webp",
                                     width: 26.w,
                                     height: 38.h,
                                     color: _isRecording

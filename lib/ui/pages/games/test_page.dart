@@ -40,7 +40,7 @@ class _TestPageState extends State<TestPage>
           // 1. Orqa fon rasmi
           Positioned.fill(
             child: Image.asset(
-              'assets/backround/candle_background.jpg',
+              'assets/backround/breath/candle_background.webp',
               fit: BoxFit.cover,
             ),
           ),

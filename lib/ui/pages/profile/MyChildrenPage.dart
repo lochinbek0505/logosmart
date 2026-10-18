@@ -13,17 +13,17 @@ class MyChildrenPage extends StatefulWidget {
 class _MyChildrenPageState extends State<MyChildrenPage> {
 
   List<Map<String, dynamic>> children=[
-    {"image":"assets/images/wolf.png",
+    {"image":"assets/images/wolf.webp",
     "name":"Karim Abdullayev",
       "lacation":"Samarkand viloyat, Oq daryo tumani, jarqishloq MFY",
       "age":"3"
     },
-    {"image":"assets/images/son_yuzi.png",
+    {"image":"assets/images/son_yuzi.webp",
       "name":"Mirvohid Shodiyev",
       "lacation":"Samarqan viloyati, Pastdarg'om tumani, Ilm MFY",
       "age":"22"
     },
-    {"image":"assets/images/wolf.png",
+    {"image":"assets/images/wolf.webp",
       "name":"Karim Abdullayev",
       "lacation":"Samarkand viloyat, Oq daryo tumani, jarqishloq MFY",
       "age":"3"
@@ -48,7 +48,7 @@ class _MyChildrenPageState extends State<MyChildrenPage> {
                         Navigator.of(context).pop();
                       },
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 22,
                         color: context.palette.icon,
                       ),

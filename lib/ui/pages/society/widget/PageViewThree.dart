@@ -11,7 +11,7 @@ class PageViewThree extends StatefulWidget {
 class _PageViewThreeState extends State<PageViewThree> {
   List<Map<dynamic, dynamic>> datalist = [
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":
       "Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis.",
@@ -22,7 +22,7 @@ class _PageViewThreeState extends State<PageViewThree> {
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":
       "Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis. Ushbu so'z inglez tilidan 'logoped' so'zidan kelib chiqqan. Logopedlar odatda bolalarning til, so'z, ayrimligi va kommunikatsiya bo'limlarida rivojlantirish uchun ishlaydilar.",
@@ -30,12 +30,12 @@ class _PageViewThreeState extends State<PageViewThree> {
       "date": "4 days ago",
       "ontap": 24,
       "number": 36,
-      "backround_image": "assets/backround/vedio_backround.png",
+      "backround_image": "assets/backround/vedio_backround.webp",
 
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":
       "Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis.",
@@ -142,7 +142,7 @@ class _PageViewThreeState extends State<PageViewThree> {
                             SizedBox(width: 12),
                             ImageIcon(
                               AssetImage(
-                                "assets/icons/samalyot.png",
+                                "assets/icons/samalyot.webp",
                               ),
                               color: Colors.black,
                               size: 18,
@@ -151,7 +151,7 @@ class _PageViewThreeState extends State<PageViewThree> {
                             SizedBox(width: 12),
                             ImageIcon(
                               AssetImage(
-                                "assets/icons/coment.png",
+                                "assets/icons/coment.webp",
                               ),
                               color: Colors.black,
                               size: 18,

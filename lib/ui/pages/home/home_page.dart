@@ -27,21 +27,21 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> cards = [
     {
       "title": "Ilk nutqni\nrivojlantirish",
-      "image": "assets/images/mashgulot_bad.png",
+      "image": "assets/images/mashgulot_bad.webp",
       "mainColor": const Color(0xffebb6ae),
       "text": "4+ yosh",
       "page": StartSpeechPage(),
     },
     {
       "title": "Tovushlar\ntalaffuzini\nrivojlantirish",
-      "image": "assets/images/mashgulot_son.png",
+      "image": "assets/images/mashgulot_son.webp",
       "mainColor": const Color(0xff20B9E8),
       "text": "3-5 yosh",
       "page": AlphabetPage(),
     },
     {
       "title": "Video\nmashg'ulotlar",
-      "image": "assets/images/mashgulot_nice.png",
+      "image": "assets/images/mashgulot_nice.webp",
       "mainColor": Colors.blueGrey,
       "text": "0-5 yosh",
       "page": VideoLessonsPage(),
@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           backgroundColor: AppColors.red_400,
                           child: ImageIcon(
-                            const AssetImage("assets/icons/notification.png"),
+                            const AssetImage("assets/icons/notification.webp"),
                             size: 24.w,
                             color: context.palette.textPrimary,
                           ),
@@ -180,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.r),
                       image: const DecorationImage(
-                        image: AssetImage("assets/images/diagnostika.png"),
+                        image: AssetImage("assets/images/diagnostika.webp"),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -238,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                                           radius: 10.r,
                                           child: ImageIcon(
                                             AssetImage(
-                                              "assets/icons/right_back.png",
+                                              "assets/icons/right_back.webp",
                                             ),
                                             size: 5.w,
                                             color: Colors.white,
@@ -362,7 +362,7 @@ class _HomePageState extends State<HomePage> {
                                               offset: const Offset(0.9, 0),
                                               child: ImageIcon(
                                                 const AssetImage(
-                                                  "assets/icons/right_back.png",
+                                                  "assets/icons/right_back.webp",
                                                 ),
                                                 size: 12.w,
                                                 color:
@@ -445,7 +445,7 @@ class _HomePageState extends State<HomePage> {
         ? "Mashg'ulotni boshlang"
         : "${activity.sound} tovushi: ${activity.levelNumber}-mashq";
     final String letterAsset =
-        "assets/alphabet/${(activity?.sound ?? LevelProvider.defaultSound).toLowerCase()}.png";
+        "assets/alphabet/${(activity?.sound ?? LevelProvider.defaultSound).toLowerCase()}.webp";
 
     return Container(
       color: context.palette.backgroundTinted,
@@ -481,7 +481,7 @@ class _HomePageState extends State<HomePage> {
                     child: Transform.translate(
                       offset: const Offset(0.9, 0),
                       child: ImageIcon(
-                        const AssetImage("assets/icons/right_back.png"),
+                        const AssetImage("assets/icons/right_back.webp"),
                         size: 10.w,
                         color: Colors.white,
                       ),

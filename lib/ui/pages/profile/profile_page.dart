@@ -157,27 +157,27 @@ class _ProfilePageState extends State<ProfilePage> {
                     _widget(
                       title:
                           "${provider.profileResponse.subscriptionCode == "DEFAULT" ? "Obuna bo'lish" : "${provider.profileResponse.subscriptionName} obuna"}",
-                      icon: "assets/icons/crown.png",
+                      icon: "assets/icons/crown.webp",
                       navigation: SubscriptionPage(),
                     ),
                     _widget(
                       title: "To'lov tarixi",
-                      icon: "assets/icons/bill.png",
+                      icon: "assets/icons/bill.webp",
                       navigation: BillingsPage(),
                     ),
                     _widget(
                       title: "Mening ma'lumotlarim",
-                      icon: "assets/icons/user.png",
+                      icon: "assets/icons/user.webp",
                       navigation: FlutterEditPage(),
                     ),
                     _widget(
                       title: "Sozlamalar",
-                      icon: "assets/icons/settings.png",
+                      icon: "assets/icons/settings.webp",
                       navigation: SettingsPage(),
                     ),
                     _widget(
                       title: "Bildirishnoma",
-                      icon: "assets/icons/qungiroq.png",
+                      icon: "assets/icons/qungiroq.webp",
                       navigation: NotificationPage(),
                     ),
                     SizedBox(height: 36.h),
@@ -277,7 +277,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   radius: 14.r,
                                   child: Center(
                                     child: Image.asset(
-                                      "assets/icons/delete.png",
+                                      "assets/icons/delete.webp",
                                       width: 16.w,
                                       height: 16.h,
                                     ),

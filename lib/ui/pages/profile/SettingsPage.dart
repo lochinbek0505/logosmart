@@ -78,7 +78,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Navigator.of(context).pop();
                       },
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 22,
                         color: p.icon,
                       ),

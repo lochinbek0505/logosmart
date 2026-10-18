@@ -14,10 +14,10 @@ class AlphabetPage extends StatefulWidget {
 
 class _AlphabetPageState extends State<AlphabetPage> {
   final List<Map<String, dynamic>> alphabet = [
-    {"alphabet": "assets/alphabet/r.png", "text": "R", "number": 32},
-    {"alphabet": "assets/alphabet/l.png", "text": "L", "number": 32},
-    {"alphabet": "assets/alphabet/s.png", "text": "S", "number": 32},
-    {"alphabet": "assets/alphabet/y.png", "text": "Y", "number": 32},
+    {"alphabet": "assets/alphabet/r.webp", "text": "R", "number": 32},
+    {"alphabet": "assets/alphabet/l.webp", "text": "L", "number": 32},
+    {"alphabet": "assets/alphabet/s.webp", "text": "S", "number": 32},
+    {"alphabet": "assets/alphabet/y.webp", "text": "Y", "number": 32},
   ];
 
   @override
@@ -32,7 +32,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
           height: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/backround_xira.png"),
+              image: AssetImage("assets/images/backround_xira.webp"),
               fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
           ),
           child: Column(
@@ -45,7 +45,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 24.w,
                         color: context.palette.icon,
                       ),
@@ -101,7 +101,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                           decoration: BoxDecoration(
                             image: const DecorationImage(
                               image: AssetImage(
-                                "assets/backround/bacround_sound.png",
+                                "assets/backround/bacround_sound.webp",
                               ),
                               fit: BoxFit.fill,
                             ),
@@ -173,13 +173,13 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                         children: [
                                           CircleAvatar(
                                             backgroundImage: const AssetImage(
-                                              "assets/icons/circle.png",
+                                              "assets/icons/circle.webp",
                                             ),
                                             radius: 15.r,
                                             child: Transform.translate(
                                               offset: const Offset(1, -1),
                                               child: Image.asset(
-                                                "assets/icons/play.png",
+                                                "assets/icons/play.webp",
                                                 width: 13.w,
                                               ),
                                             ),

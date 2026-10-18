@@ -25,7 +25,7 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/backround_xira.png"),
+                  image: AssetImage("assets/images/backround_xira.webp"),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -35,7 +35,7 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/backround_xira.png"),
+                  image: AssetImage("assets/images/backround_xira.webp"),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -45,7 +45,7 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
               height: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/backround_xira.png"),
+                  image: AssetImage("assets/images/backround_xira.webp"),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -73,7 +73,7 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
                                     Navigator.of(context).pop();
                                   },
                                   child: Image.asset(
-                                    "assets/icons/arrow_right_button.png",
+                                    "assets/icons/arrow_right_button.webp",
                                     fit: BoxFit.fill,
                                   ),
                                 ),
@@ -82,13 +82,13 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
                               Row(
                                 children: [
                                   Image.asset(
-                                    "assets/icons/star.png",
+                                    "assets/icons/star.webp",
                                     width: 40,
                                     height: 40,
                                   ),
                                   SizedBox(width: 12),
                                   Image.asset(
-                                    "assets/icons/namber_o.png",
+                                    "assets/icons/namber_o.webp",
                                     height: 35,
                                   ),
                                 ],
@@ -126,7 +126,7 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(18),
                                   color: Colors.white,
-                                  image: DecorationImage(image: AssetImage("assets/images/camera_girl.png"),fit: BoxFit.fill)
+                                  image: DecorationImage(image: AssetImage("assets/images/camera_girl.webp"),fit: BoxFit.fill)
 
 
 
@@ -141,11 +141,11 @@ class _VideoButtonPageState extends State<VideoButtonPage> {
                           },
                           child: CircleAvatar(
                             radius: 40,
-                            backgroundImage: AssetImage("assets/icons/circle.png"),
+                            backgroundImage: AssetImage("assets/icons/circle.webp"),
                             child: SizedBox(
                               child: Transform.translate(
                                   offset: Offset(-0.5, -1),
-                                  child: Image.asset("assets/icons/pause.png",width: 34,)),
+                                  child: Image.asset("assets/icons/pause.webp",width: 34,)),
                             ),
                           ),
                         )

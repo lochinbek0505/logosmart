@@ -71,7 +71,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'assets/images/error.png',
+                      'assets/images/error.webp',
                       width: 80.w,
                       height: 80.w,
                       fit: BoxFit.contain,
@@ -271,7 +271,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                     children: [
                       _buildGenderItem(
                         id: 'MALE',
-                        imageAsset: 'assets/images/male.png',
+                        imageAsset: 'assets/images/male.webp',
                         isSelected: selectedGender == 'MALE',
                         onTap: () {
                           setState(() {
@@ -282,7 +282,7 @@ class _RegisterInformationPageState extends State<RegisterInformationPage> {
                       SizedBox(width: 36.w),
                       _buildGenderItem(
                         id: 'FEMALE',
-                        imageAsset: 'assets/images/female.png',
+                        imageAsset: 'assets/images/female.webp',
                         isSelected: selectedGender == 'FEMALE',
                         onTap: () {
                           setState(() {

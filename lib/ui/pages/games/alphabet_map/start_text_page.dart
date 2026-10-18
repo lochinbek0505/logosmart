@@ -35,10 +35,10 @@ class StartTextPage extends StatefulWidget {
 
 class _StartTextPageState extends State<StartTextPage> {
   // Rasm va ikonka yo'llari o'zgaruvchilarda saqlangan
-  static const String _backBtn = "assets/icons/arrow_right_button.png";
-  static const String _starIcon = "assets/icons/star.png";
-  static const String _bgImage = "assets/backround/fon_q.png";
-  static const String _womenImage = "assets/images/women.png";
+  static const String _backBtn = "assets/icons/arrow_right_button.webp";
+  static const String _starIcon = "assets/icons/star.webp";
+  static const String _bgImage = "assets/backround/fon_q.webp";
+  static const String _womenImage = "assets/images/women.webp";
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override

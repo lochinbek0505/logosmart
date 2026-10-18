@@ -13,12 +13,12 @@ class VideoLessonsPage extends StatefulWidget {
 class _VideoLessonsPageState extends State<VideoLessonsPage> {
   List<Map<dynamic, dynamic>> vedioLesson = [
     {
-      "image": "assets/backround/vedio_backround.png",
+      "image": "assets/backround/vedio_backround.webp",
       "text": "Ilk nutqni rivojlantirish",
       "number": 58,
     },
     {
-      "image": "assets/backround/vedio_backround.png",
+      "image": "assets/backround/vedio_backround.webp",
       "text": "Tovushlar bo'yicha mashg'ulotlar",
       "number": 24,
       "navigation": "",

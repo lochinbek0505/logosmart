@@ -19,7 +19,7 @@ class _Onboard1PageState extends State<Onboard1Page> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.asset(
-            "assets/images/onboard1.png",
+            "assets/images/onboard1.webp",
             fit: BoxFit.cover,
             height: 390.h,
             alignment: Alignment.center,

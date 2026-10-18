@@ -63,30 +63,30 @@ class _WolfGamePageState extends State<WolfGamePage>
       "start_voice": "assets/sound/wolf_game/wolf_start.mp3",
       "success_sound": "assets/sound/success.mp3",
       "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-      "background_image": "assets/backround/wolf_game/wolf.jpg",
-      "icon_star": "assets/icons/star.png",
-      "icon_arrow": "assets/icons/arrow_right_button.png",
-      "character_image": "assets/game/wolf_game/wolf.png",
-      "music_icon": "assets/game/wolf_game/music.png",
+      "background_image": "assets/backround/wolf_game/wolf.webp",
+      "icon_star": "assets/icons/star.webp",
+      "icon_arrow": "assets/icons/arrow_right_button.webp",
+      "character_image": "assets/game/wolf_game/wolf.webp",
+      "music_icon": "assets/game/wolf_game/music.webp",
       "cloud_text": "Uyni topishga yordam bering!",
       "options": [
         {
-          "image": "assets/game/wolf_game/cave.png",
+          "image": "assets/game/wolf_game/cave.webp",
           "sound": "assets/sound/wolf_game/RA.mp3",
           "isCorrect": true,
         },
         {
-          "image": "assets/game/wolf_game/bird_house.png",
+          "image": "assets/game/wolf_game/bird_house.webp",
           "sound": "assets/sound/wolf_game/LA.mp3",
           "isCorrect": false,
         },
         {
-          "image": "assets/game/wolf_game/dog_house.png",
+          "image": "assets/game/wolf_game/dog_house.webp",
           "sound": "assets/sound/wolf_game/SA.mp3",
           "isCorrect": false,
         },
         {
-          "image": "assets/game/wolf_game/department.png",
+          "image": "assets/game/wolf_game/department.webp",
           "sound": "assets/sound/wolf_game/YA.mp3",
           "isCorrect": false,
         },
@@ -114,7 +114,7 @@ class _WolfGamePageState extends State<WolfGamePage>
   String get _characterImage =>
       (_config['character_image'] ??
               _config['wolf_image'] ??
-              "assets/game/wolf_game/wolf.png")
+              "assets/game/wolf_game/wolf.webp")
           .toString();
 
   String _cleanAudioPath(String path) {
@@ -256,7 +256,7 @@ class _WolfGamePageState extends State<WolfGamePage>
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_config['background_image'] ?? "assets/backround/wolf_game/wolf.jpg"),
+            image: AssetImage(_config['background_image'] ?? "assets/backround/wolf_game/wolf.webp"),
             fit: BoxFit.cover,
           ),
         ),
@@ -380,7 +380,7 @@ class _WolfGamePageState extends State<WolfGamePage>
                   opacity: isUnlocked ? 0.5 : 1.0,
                   duration: const Duration(milliseconds: 300),
                   child: Image.asset(
-                    _config['music_icon'] ?? "assets/game/wolf_game/music.png",
+                    _config['music_icon'] ?? "assets/game/wolf_game/music.webp",
                     width: speakerSize,
                     height: speakerSize,
                   ),

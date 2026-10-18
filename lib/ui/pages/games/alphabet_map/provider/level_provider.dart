@@ -5,8 +5,8 @@ import 'package:hive/hive.dart';
 
 import '../../../../../core/storage/level_state.dart';
 
-const String skinGold = 'assets/icons/gold.png';
-const String skinSilver = 'assets/icons/silver.png';
+const String skinGold = 'assets/icons/gold.webp';
+const String skinSilver = 'assets/icons/silver.webp';
 
 /// Levellar progressi (ochilgan levellar va yulduzlar) saqlanadigan Hive box.
 /// main() da ochiladi.

@@ -33,7 +33,7 @@ class ComingSoonPage extends StatelessWidget {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/backround_xira.png"),
+            image: AssetImage("assets/images/backround_xira.webp"),
             fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(

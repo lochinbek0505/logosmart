@@ -38,7 +38,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                       Navigator.of(context).pop();
                     },
                     child: Image.asset(
-                      "assets/images/arow_back.png",
+                      "assets/images/arow_back.webp",
                       width: 24.w,
                       color: context.palette.textPrimary,
                     ),
@@ -99,7 +99,7 @@ class _FlutterEditPageState extends State<FlutterEditPage> {
                           backgroundImage: profile.profileImage != null
                               ? authNetworkImage(profile.profileImage!)
                               : const AssetImage(
-                                      "assets/icons/circle_avatar.png",
+                                      "assets/icons/circle_avatar.webp",
                                     )
                                     as ImageProvider,
                           onBackgroundImageError: (_, __) {},

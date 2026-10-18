@@ -66,11 +66,11 @@ class _CookingPageState extends State<CookingPage>
       _config = {
         "start_voice": "assets/sound/cooking/cooking_start.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "bg_image": "assets/backround/cooking/cooking.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_mic": "assets/icons/micrafon.png",
-        "chef_image": "assets/game/cooking/chef_girl.png",
+        "bg_image": "assets/backround/cooking/cooking.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "chef_image": "assets/game/cooking/chef_girl.webp",
       };
       _products = [];
     }
@@ -415,7 +415,7 @@ class _CookingPageState extends State<CookingPage>
                             child: CircleAvatar(
                               radius: 40.r,
                               backgroundImage: const AssetImage(
-                                "assets/icons/circle.png",
+                                "assets/icons/circle.webp",
                               ),
                               child: Image.asset(
                                 _config['icon_mic'], // JSON

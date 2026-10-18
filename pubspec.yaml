@@ -122,6 +122,7 @@ flutter:
     - assets/icon/icon.png
     - assets/alphabet/
     - assets/backround/
+    - assets/backround/map/
     - assets/models/
     - assets/sound/
     - assets/sound/diagnostic/

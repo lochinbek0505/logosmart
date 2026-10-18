@@ -48,7 +48,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/backround/fon_4.png"),
+            image: AssetImage("assets/backround/fon_4.webp"),
             fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
         ),
         child: SafeArea(
@@ -73,7 +73,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                             child: GestureDetector(
                               onTap: () => Navigator.of(context).pop(),
                               child: Image.asset(
-                                "assets/icons/arrow_right_button.png",
+                                "assets/icons/arrow_right_button.webp",
                                 fit: BoxFit.fill,
                               ),
                             ),
@@ -89,14 +89,14 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                             height: 80.w,
                             decoration: const BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage("assets/icons/circle.png"),
+                                image: AssetImage("assets/icons/circle.webp"),
                                 fit: BoxFit.fill,
                               ),
                             ),
                             child: const CircleAvatar(
                               radius: 30,
                               backgroundImage: AssetImage(
-                                "assets/icons/circle_bad.png",
+                                "assets/icons/circle_bad.webp",
                               ),
                             ),
                           ),

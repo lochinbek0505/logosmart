@@ -61,19 +61,19 @@ class _SocietyPageState extends State<SocietyPage> {
                     ),
                     Spacer(),
                     ImageIcon(
-                      AssetImage("assets/icons/search.png"),
+                      AssetImage("assets/icons/search.webp"),
                       size: 20,
                       color: Colors.blueGrey.shade800,
                     ),
                     SizedBox(width: 16),
                     ImageIcon(
-                      AssetImage("assets/icons/vector.png"),
+                      AssetImage("assets/icons/vector.webp"),
                       size: 20,
                       color: Colors.blueGrey.shade800,
                     ),
                     SizedBox(width: 16),
                     ImageIcon(
-                      AssetImage("assets/icons/notification.png"),
+                      AssetImage("assets/icons/notification.webp"),
                       size: 20,
                       color: Colors.blueGrey.shade800,
                     ),

@@ -30,7 +30,7 @@ class _VideosPageState extends State<VideosPage> {
                     Navigator.of(context).pop();
                   },
                   child: Image.asset(
-                    "assets/images/arow_back.png",
+                    "assets/images/arow_back.webp",
                     width: 20,
                     color: context.palette.textPrimary,
                   ),
@@ -69,7 +69,7 @@ class _VideosPageState extends State<VideosPage> {
                           height: size.width * 0.45,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage("assets/backround/img.png"),
+                              image: AssetImage("assets/backround/img.webp"),
                               fit: BoxFit.cover,
                             ),
                             borderRadius: BorderRadius.circular(10),
@@ -86,7 +86,7 @@ class _VideosPageState extends State<VideosPage> {
 
                           ),
                           child: Center(
-                            child: Image.asset("assets/icons/subtract.png",width: 60,height: 60,),
+                            child: Image.asset("assets/icons/subtract.webp",width: 60,height: 60,),
                           ),
                         ),
                         SizedBox(height: 10,),

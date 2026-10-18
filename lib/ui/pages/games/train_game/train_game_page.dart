@@ -76,50 +76,50 @@ class _TrainGamePageState extends State<TrainGamePage>
         "start_voice": "assets/sound/train_game/train_start.mp3",
         "success_sound": "assets/sound/success.mp3",
         "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_mic": "assets/icons/micrafon.png",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
         "trains": [
           {
             "id": "main",
-            "image": "assets/game/train_game/train_main.png",
+            "image": "assets/game/train_game/train_main.webp",
             "syllable": 0,
             "sound": "assets/sound/train_game/train_start.mp3",
           },
           {
             "id": "1",
-            "image": "assets/game/train_game/train_1.png",
+            "image": "assets/game/train_game/train_1.webp",
             "syllable": 1,
             "sound": "assets/sound/train_game/train_1.mp3",
           },
           {
             "id": "2",
-            "image": "assets/game/train_game/train_2.png",
+            "image": "assets/game/train_game/train_2.webp",
             "syllable": 2,
             "sound": "assets/sound/train_game/train_2.mp3",
           },
           {
             "id": "3",
-            "image": "assets/game/train_game/train_3.png",
+            "image": "assets/game/train_game/train_3.webp",
             "syllable": 3,
             "sound": "assets/sound/train_game/train_3.mp3",
           },
         ],
         "items": [
           {
-            "image": "assets/game/train_game/qor_1.png",
+            "image": "assets/game/train_game/qor_1.webp",
             "sound": "assets/sound/train_game/qor.mp3",
             "syllable": 1,
             "text": "qor",
           },
           {
-            "image": "assets/game/train_game/arri_2.jpg",
+            "image": "assets/game/train_game/arri_2.webp",
             "sound": "assets/sound/train_game/ari.mp3",
             "syllable": 2,
             "text": "arri",
           },
           {
-            "image": "assets/game/train_game/vertalyot_3.jpg",
+            "image": "assets/game/train_game/vertalyot_3.webp",
             "sound": "assets/sound/train_game/vertalyot.mp3",
             "syllable": 3,
             "text": "vertolyot",
@@ -436,7 +436,7 @@ class _TrainGamePageState extends State<TrainGamePage>
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.png"),
+                image: AssetImage("assets/backround/fon_q.webp"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -676,7 +676,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                     child: CircleAvatar(
                       radius: 40.r,
                       backgroundImage: const AssetImage(
-                        "assets/icons/circle.png",
+                        "assets/icons/circle.webp",
                       ),
                       child: Image.asset(
                         _config['icon_mic'],

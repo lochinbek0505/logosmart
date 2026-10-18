@@ -21,7 +21,7 @@ class _ResaultPageState extends State<ResaultPage> {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/backround_xira.png"),
+            image: AssetImage("assets/images/backround_xira.webp"),
             fit: BoxFit.fill,
           ),
         ),
@@ -41,12 +41,12 @@ class _ResaultPageState extends State<ResaultPage> {
                         Row(
                           children: [
                             Image.asset(
-                              "assets/icons/star.png",
+                              "assets/icons/star.webp",
                               width: 40,
                               height: 40,
                             ),
                             SizedBox(width: 12),
-                            Image.asset("assets/icons/namber_o.png", height: 35),
+                            Image.asset("assets/icons/namber_o.webp", height: 35),
                           ],
                         ),
                         Container(
@@ -60,14 +60,14 @@ class _ResaultPageState extends State<ResaultPage> {
                           height: 80,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage("assets/icons/circle.png"),
+                              image: AssetImage("assets/icons/circle.webp"),
                               fit: BoxFit.fill,
                             ),
                           ),
                           child: CircleAvatar(
                             radius: 30,
                             backgroundImage: AssetImage(
-                              "assets/icons/circle_bad.png",
+                              "assets/icons/circle_bad.webp",
                             ),
                           ),
                         ),
@@ -87,7 +87,7 @@ class _ResaultPageState extends State<ResaultPage> {
                     ),
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: AssetImage("assets/icons/cloud.png"),
+                          image: AssetImage("assets/icons/cloud.webp"),
                           fit: BoxFit.fill
                       ),
                     ),
@@ -201,7 +201,7 @@ class _ResaultPageState extends State<ResaultPage> {
                   SizedBox(
                     width: size.width*0.43,
                     height: size.width*0.85,
-                    child: Image.asset("assets/images/women.png",fit: BoxFit.fill,),
+                    child: Image.asset("assets/images/women.webp",fit: BoxFit.fill,),
                   ),
                 ],
               ),

@@ -195,7 +195,7 @@ class LevelStateAdapter extends TypeAdapter<LevelState> {
     final int id      = fields[0] as int? ?? 0;
     final int stars   = (fields[1] as int? ?? 0).clamp(0, 3);
     final bool locked = fields[2] as bool? ?? true;
-    final String skin = fields[3] as String? ?? 'assets/icons/silver.png';
+    final String skin = fields[3] as String? ?? 'assets/icons/silver.webp';
 
     String mode = fields[4] as String? ?? 'game';
     if (mode != 'game' && mode != 'exercise') {

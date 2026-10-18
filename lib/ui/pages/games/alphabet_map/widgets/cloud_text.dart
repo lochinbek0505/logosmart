@@ -25,7 +25,7 @@ class CloudText extends StatelessWidget {
       ),
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/icons/cloud.png"),
+          image: AssetImage("assets/icons/cloud.webp"),
           fit: BoxFit.fill,
         ),
       ),

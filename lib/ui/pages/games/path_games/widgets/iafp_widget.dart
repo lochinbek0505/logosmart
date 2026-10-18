@@ -129,7 +129,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                           ),
                           decoration: const BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage("assets/game/game_cloud.png"),
+                              image: AssetImage("assets/game/game_cloud.webp"),
                             ),
                           ),
                           child: Padding(

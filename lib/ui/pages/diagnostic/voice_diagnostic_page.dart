@@ -428,7 +428,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.png"),
+                image: AssetImage("assets/backround/fon_q.webp"),
 
                 fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
             ),
@@ -470,7 +470,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                   },
 
                                   child: Image.asset(
-                                    "assets/icons/arrow_right_button.png",
+                                    "assets/icons/arrow_right_button.webp",
 
                                     fit: BoxFit.fill,
                                   ),
@@ -480,7 +480,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                               Row(
                                 children: [
                                   Image.asset(
-                                    "assets/icons/star.png",
+                                    "assets/icons/star.webp",
 
                                     width: 40.w,
 
@@ -788,11 +788,11 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                                 backgroundImage:
                                                     const AssetImage(
-                                                      "assets/icons/circle.png",
+                                                      "assets/icons/circle.webp",
                                                     ),
 
                                                 child: Image.asset(
-                                                  "assets/icons/micrafon.png",
+                                                  "assets/icons/micrafon.webp",
 
                                                   width: 26.w,
 
@@ -834,7 +834,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
               child: Center(
                 child: Image.asset(
-                  "assets/images/ask_girl.png",
+                  "assets/images/ask_girl.webp",
 
                   width: 473.w,
 
@@ -904,7 +904,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                             ),
 
                             child: Image.asset(
-                              "assets/icons/yellow_error.png",
+                              "assets/icons/yellow_error.webp",
 
                               width: 100.w,
 

@@ -27,7 +27,7 @@ class _MainPageState extends State<MainPage> {
     MapRoadPage(sound: LevelProvider.gamesSound, embedded: true),
     ComingSoonPage(
       title: "Konsultatsiya",
-      image: "assets/images/women.png",
+      image: "assets/images/women.webp",
       description:
           "Tez orada farzandingiz nutqi bo'yicha logoped mutaxassislardan "
           "to'g'ridan-to'g'ri maslahat olishingiz mumkin bo'ladi.",
@@ -40,7 +40,7 @@ class _MainPageState extends State<MainPage> {
     ),
     ComingSoonPage(
       title: "Jamiyat",
-      image: "assets/images/ask_girl.png",
+      image: "assets/images/ask_girl.webp",
       description:
           "Ota-onalar va mutaxassislar tajriba almashadigan, bir-birini "
           "qo'llab-quvvatlaydigan hamjamiyat tayyorlanmoqda.",
@@ -124,50 +124,50 @@ class _MainPageState extends State<MainPage> {
 
             items: [
               BottomNavigationBarItem(
-                icon: _buildIcon("assets/icons/home.png", AppColors.grey_500),
+                icon: _buildIcon("assets/icons/home.webp", AppColors.grey_500),
                 activeIcon: _buildIcon(
-                  "assets/icons/home.png",
+                  "assets/icons/home.webp",
                   AppColors.main_blue_600,
                 ),
                 label: "Mashg'ulotlar",
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon("assets/icons/game.png", AppColors.grey_500),
+                icon: _buildIcon("assets/icons/game.webp", AppColors.grey_500),
                 activeIcon: _buildIcon(
-                  "assets/icons/game.png",
+                  "assets/icons/game.webp",
                   AppColors.main_blue_600,
                 ),
                 label: "O'yinlar",
               ),
               BottomNavigationBarItem(
                 icon: _buildIcon(
-                  "assets/icons/consultation.png",
+                  "assets/icons/consultation.webp",
                   AppColors.grey_500,
                 ),
                 activeIcon: _buildIcon(
-                  "assets/icons/consultation.png",
+                  "assets/icons/consultation.webp",
                   AppColors.main_blue_600,
                 ),
                 label: "Konsultatsiya",
               ),
               BottomNavigationBarItem(
                 icon: _buildIcon(
-                  "assets/icons/community.png",
+                  "assets/icons/community.webp",
                   AppColors.grey_500,
                 ),
                 activeIcon: _buildIcon(
-                  "assets/icons/community.png",
+                  "assets/icons/community.webp",
                   AppColors.main_blue_600,
                 ),
                 label: "Jamiyat",
               ),
               BottomNavigationBarItem(
                 icon: _buildIcon(
-                  "assets/icons/profiles.png",
+                  "assets/icons/profiles.webp",
                   AppColors.grey_500,
                 ),
                 activeIcon: _buildIcon(
-                  "assets/icons/profiles.png",
+                  "assets/icons/profiles.webp",
                   AppColors.main_blue_600,
                 ),
                 label: "Profil",

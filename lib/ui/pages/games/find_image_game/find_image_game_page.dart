@@ -77,16 +77,16 @@ class _FindImageGamePageState extends State<FindImageGamePage>
         "start_voice": "assets/sound/find_image/game_1_start.mp3",
         "success_sound": "assets/sound/success.mp3",
         "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/fon_q.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_mic": "assets/icons/micrafon.png",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
       };
       _gameList = [
-        {"image": "assets/game/find_image/ari.png", "sound": "assets/sound/find_image/ari.mp3", "text": "ari", "isCorrect": true},
-        {"image": "assets/game/find_image/pasha.png", "sound": "assets/sound/find_image/pashsha.mp3", "text": "pashsha", "isCorrect": false},
-        {"image": "assets/game/find_image/ninachi.png", "sound": "assets/sound/find_image/ninachi.mp3", "text": "ninachi", "isCorrect": false},
-        {"image": "assets/game/find_image/qongiz.png", "sound": "assets/sound/find_image/qongiz.mp3", "text": "qo'ng'iz", "isCorrect": false},
+        {"image": "assets/game/find_image/ari.webp", "sound": "assets/sound/find_image/ari.mp3", "text": "ari", "isCorrect": true},
+        {"image": "assets/game/find_image/pasha.webp", "sound": "assets/sound/find_image/pashsha.mp3", "text": "pashsha", "isCorrect": false},
+        {"image": "assets/game/find_image/ninachi.webp", "sound": "assets/sound/find_image/ninachi.mp3", "text": "ninachi", "isCorrect": false},
+        {"image": "assets/game/find_image/qongiz.webp", "sound": "assets/sound/find_image/qongiz.mp3", "text": "qo'ng'iz", "isCorrect": false},
       ];
     }
   }
@@ -514,7 +514,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
                     child: CircleAvatar(
                       radius: 40.r,
                       backgroundImage: const AssetImage(
-                        "assets/icons/circle.png",
+                        "assets/icons/circle.webp",
                       ),
                       child: Image.asset(
                         _config['icon_mic'], // JSON

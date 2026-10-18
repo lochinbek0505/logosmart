@@ -66,11 +66,11 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
         "item_sound": "assets/sound/paint/RRRRA.mp3",
         "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/tiger.png",
+        "image": "assets/game/paint/tiger.webp",
         "target_text": "rrrra",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_star": "assets/icons/star.png",
-        "icon_mic": "assets/icons/micrafon.png",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
         "path_config": {
           "startPoint": {"x": 0.15, "y": 0.9},
           "segments": [
@@ -432,7 +432,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   child: CircleAvatar(
                                     radius: 40.r,
                                     backgroundImage: const AssetImage(
-                                      "assets/icons/circle.png",
+                                      "assets/icons/circle.webp",
                                     ),
                                     child: Image.asset(
                                       _config['icon_mic'], // JSON

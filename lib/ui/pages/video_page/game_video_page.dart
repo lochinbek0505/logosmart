@@ -15,7 +15,7 @@ class GameVideoPage extends StatefulWidget {
   State<GameVideoPage> createState() => _GameVideoPageState();
 }
 
-const String _starIcon = "assets/icons/star.png";
+const String _starIcon = "assets/icons/star.webp";
 
 class _GameVideoPageState extends State<GameVideoPage>
     with WidgetsBindingObserver {
@@ -100,7 +100,7 @@ class _GameVideoPageState extends State<GameVideoPage>
             // Orqa fon
             Positioned.fill(
               child: Image.asset(
-                'assets/backround/fon_q.png',
+                'assets/backround/fon_q.webp',
                 fit: BoxFit.fill,
               ),
             ),
@@ -121,7 +121,7 @@ class _GameVideoPageState extends State<GameVideoPage>
                           Navigator.pop(context);
                         },
                         child: Image.asset(
-                          "assets/icons/arrow_right_button.png",
+                          "assets/icons/arrow_right_button.webp",
                           fit: BoxFit.fill,
                         ),
                       ),

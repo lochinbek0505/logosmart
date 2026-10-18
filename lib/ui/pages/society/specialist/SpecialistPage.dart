@@ -11,7 +11,7 @@ class SpecialistPage extends StatefulWidget {
 class _SpecialistPageState extends State<SpecialistPage> {
   List<Map<dynamic, dynamic>> camentlist = [
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":"Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis.",
 
@@ -21,7 +21,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":"Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis.",
 
@@ -31,7 +31,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
       "navigation": "",
     },
     {
-      "image": "assets/images/yarimta_qizcha.png",
+      "image": "assets/images/yarimta_qizcha.webp",
       "name": "Abdullayeva Lobar",
       "text":"Logoped — odamlarning til o'rganish, ko'rganish, ko'ngillarini boshqarish va o'z fikrlarini ifoda qilish qobiliyatlarini rivojlantiruvchi mutaxassis.",
 
@@ -62,7 +62,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                         Navigator.of(context).pop();
                       },
                       child: Image.asset(
-                        "assets/images/arow_back.png",
+                        "assets/images/arow_back.webp",
                         width: 24,
                         color: Colors.blueGrey.shade800,
                       ),
@@ -86,7 +86,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
-                      image: AssetImage("assets/backround/vedio_backround.png"),
+                      image: AssetImage("assets/backround/vedio_backround.webp"),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -148,7 +148,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: ImageIcon(
-                        AssetImage("assets/icons/star_start.png"),
+                        AssetImage("assets/icons/star_start.webp"),
                         size: 13,
                         color: color,
                       ),
@@ -237,12 +237,12 @@ class _SpecialistPageState extends State<SpecialistPage> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
-                      image: AssetImage("assets/backround/vedio_backround.png"),
+                      image: AssetImage("assets/backround/vedio_backround.webp"),
                       fit: BoxFit.cover,
                     ),
                   ),
                   child: Center(
-                    child: Image.asset("assets/icons/subtract.png",width: 60,height: 60,),
+                    child: Image.asset("assets/icons/subtract.webp",width: 60,height: 60,),
                   ),
                 ),
                 SizedBox(height: 18,),
@@ -289,7 +289,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                   height: size.width * 0.45,
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage("assets/backround/img.png"),
+                        image: AssetImage("assets/backround/img.webp"),
                         fit: BoxFit.cover,
                       ),
                       borderRadius: BorderRadius.circular(10),
@@ -306,7 +306,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
 
                   ),
                   child: Center(
-                    child: Image.asset("assets/icons/subtract.png",width: 60,height: 60,),
+                    child: Image.asset("assets/icons/subtract.webp",width: 60,height: 60,),
                   ),
                 ),
                 SizedBox(height: 8,),
@@ -367,7 +367,7 @@ class _SpecialistPageState extends State<SpecialistPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ImageIcon(
-                                      AssetImage("assets/icons/star_start.png"),
+                                      AssetImage("assets/icons/star_start.webp"),
                                       size: 14,
                                       color: Colors.orange,
                                     ),

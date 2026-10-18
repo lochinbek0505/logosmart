@@ -96,19 +96,19 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
         "start_voice": "assets/sound/puzzle_game/puzzle_start_1.mp3",
         "success_sound": "assets/sound/success.mp3",
         "error_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/puzzle_game/puzzle_back_4.jpg",
-        "icon_arrow": "assets/icons/arrow_right_button.png",
-        "icon_star": "assets/icons/star.png",
-        "puzzle_frame": "assets/game/puzzle_game/puzzle.png",
+        "background_image": "assets/backround/puzzle_game/puzzle_back_4.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "puzzle_frame": "assets/game/puzzle_game/puzzle.webp",
         "correct_anim": "assets/animation/correct.json",
         "incorrect_anim": "assets/animation/xato.json",
       };
 
       pieces = [
-        PuzzlePieceData(id: "t1", pairId: 1, color: const Color(0xFFFFFFFF), isTop: true, currentSide: "left", image: "assets/game/puzzle_game/puzzle_1_game_3.png", sound: "assets/sound/puzzle_game/ari.mp3"),
-        PuzzlePieceData(id: "t2", pairId: 2, color: const Color(0xFFFFFFFF), isTop: true, currentSide: "right", image: "assets/game/puzzle_game/puzzle_1_game_4.png", sound: "assets/sound/puzzle_game/daraxt.mp3"),
-        PuzzlePieceData(id: "b1", pairId: 2, color: const Color(0xFFFFFFFF), isTop: false, currentSide: "left", image: "assets/game/puzzle_game/puzzle_1_game_1.png", sound: "assets/sound/puzzle_game/daraxtlar.mp3"),
-        PuzzlePieceData(id: "b2", pairId: 1, color: const Color(0xFFFFFFFF), isTop: false, currentSide: "right", image: "assets/game/puzzle_game/puzzle_1_game_2.png", sound: "assets/sound/puzzle_game/arilar.mp3"),
+        PuzzlePieceData(id: "t1", pairId: 1, color: const Color(0xFFFFFFFF), isTop: true, currentSide: "left", image: "assets/game/puzzle_game/puzzle_1_game_3.webp", sound: "assets/sound/puzzle_game/ari.mp3"),
+        PuzzlePieceData(id: "t2", pairId: 2, color: const Color(0xFFFFFFFF), isTop: true, currentSide: "right", image: "assets/game/puzzle_game/puzzle_1_game_4.webp", sound: "assets/sound/puzzle_game/daraxt.mp3"),
+        PuzzlePieceData(id: "b1", pairId: 2, color: const Color(0xFFFFFFFF), isTop: false, currentSide: "left", image: "assets/game/puzzle_game/puzzle_1_game_1.webp", sound: "assets/sound/puzzle_game/daraxtlar.mp3"),
+        PuzzlePieceData(id: "b2", pairId: 1, color: const Color(0xFFFFFFFF), isTop: false, currentSide: "right", image: "assets/game/puzzle_game/puzzle_1_game_2.webp", sound: "assets/sound/puzzle_game/arilar.mp3"),
       ];
     }
   }

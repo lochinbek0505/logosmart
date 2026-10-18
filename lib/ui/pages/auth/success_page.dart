@@ -57,7 +57,7 @@ class _SuccessPageState extends State<SuccessPage> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Image.asset(
-                      "assets/images/success_person.png",
+                      "assets/images/success_person.webp",
                       width: 230.w,
                       // Rasm o'lchamini dizaynga moslashtirish mumkin
                       fit: BoxFit.contain,

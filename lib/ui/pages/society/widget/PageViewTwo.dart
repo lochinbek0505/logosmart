@@ -11,21 +11,21 @@ class PageViewTwo extends StatefulWidget {
 class _PageViewTwoState extends State<PageViewTwo> {
   List<Map<dynamic, dynamic>> farmlist = [
     {
-      "image": "assets/backround/backround_hospital.png",
+      "image": "assets/backround/backround_hospital.webp",
       "name": "Medicana hospital",
       "manzil": "Yunusobod tuman, 12 kvartal",
       "level": 2,
       "navigation": "",
     },
     {
-      "image": "assets/backround/backround_hospital.png",
+      "image": "assets/backround/backround_hospital.webp",
       "name": "Medicana hospital",
       "manzil": "Yunusobod tuman, 12 kvartal",
       "level": 3,
       "navigation": "",
     },
     {
-      "image": "assets/backround/backround_hospital.png",
+      "image": "assets/backround/backround_hospital.webp",
       "name": "Medicana hospital",
       "manzil": "Yunusobod tuman, 12 kvartal",
       "level": 4,
@@ -98,7 +98,7 @@ class _PageViewTwoState extends State<PageViewTwo> {
                         ),
                         child: ImageIcon(
                           AssetImage(
-                            "assets/icons/star_start.png",
+                            "assets/icons/star_start.webp",
                           ),
                           size: 13,
                           color: color,

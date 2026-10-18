@@ -28,7 +28,7 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-const String _starIcon = "assets/icons/star.png";
+const String _starIcon = "assets/icons/star.webp";
 const String _clapSound = "sound/cv/clap.mp3";
 
 class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
@@ -420,7 +420,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
           children: [
             Positioned.fill(
               child: Image.asset(
-                'assets/backround/fon_q.png',
+                'assets/backround/fon_q.webp',
                 fit: BoxFit.fill,
               ),
             ),
@@ -439,7 +439,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                           Navigator.pop(context);
                         },
                         child: Image.asset(
-                          "assets/icons/arrow_right_button.png",
+                          "assets/icons/arrow_right_button.webp",
                           fit: BoxFit.fill,
                         ),
                       ),

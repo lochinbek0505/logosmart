@@ -26,12 +26,12 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                     Row(
                       children: [
                         Image.asset(
-                          "assets/icons/star.png",
+                          "assets/icons/star.webp",
                           width: 40,
                           height: 40,
                         ),
                         SizedBox(width: 12),
-                        Image.asset("assets/icons/namber_o.png", height: 35),
+                        Image.asset("assets/icons/namber_o.webp", height: 35),
                       ],
                     ),
                     Container(
@@ -45,14 +45,14 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                       height: 80,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage("assets/icons/circle.png"),
+                          image: AssetImage("assets/icons/circle.webp"),
                           fit: BoxFit.fill,
                         ),
                       ),
                       child: CircleAvatar(
                         radius: 30,
                         backgroundImage: AssetImage(
-                          "assets/icons/circle_bad.png",
+                          "assets/icons/circle_bad.webp",
                         ),
                       ),
                     ),
@@ -72,7 +72,7 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                 ),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("assets/icons/cloud.png"),
+                    image: AssetImage("assets/icons/cloud.webp"),
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -91,23 +91,23 @@ class _VoiceGamePageState extends State<VoiceGamePage> {
                 ),
               ),
               SizedBox(height: 50),
-              Image.asset("assets/icons/helicopter.png"),
+              Image.asset("assets/icons/helicopter.webp"),
               SizedBox(height: 80),
-              Image.asset("assets/icons/volume_button.png"),
+              Image.asset("assets/icons/volume_button.webp"),
               SizedBox(height: 120),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.asset(
-                    "assets/icons/mic.png",
+                    "assets/icons/mic.webp",
                     width: 110,
                     height: 110,
                     fit: BoxFit.fill,
                   ),
                   SizedBox(width: 15),
                   Image.asset(
-                    "assets/icons/pause_button.png",
+                    "assets/icons/pause_button.webp",
                     width: 80,
                     height: 80,
                     fit: BoxFit.fill,

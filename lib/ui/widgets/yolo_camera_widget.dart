@@ -10,12 +10,14 @@ class YoloCameraWidget extends StatefulWidget {
     required this.modelPath,
     this.useGpu = true,
     this.intervalMs = 450,
+    this.confidenceThreshold = 0.25,
     required this.onDetections,
   });
 
   final String modelPath;
   final bool useGpu;
   final int intervalMs;
+  final double confidenceThreshold;
   final OnDetections onDetections;
 
   @override
@@ -31,6 +33,7 @@ class _YoloCameraWidgetState extends State<YoloCameraWidget> {
       modelPath: widget.modelPath,
       task: YOLOTask.detect,
       useGpu: widget.useGpu,
+      confidenceThreshold: widget.confidenceThreshold,
       controller: _controller,
       showNativeUI: false,
       lensFacing: LensFacing.front,
@@ -38,8 +41,11 @@ class _YoloCameraWidgetState extends State<YoloCameraWidget> {
         includeDetections: true,
         throttleInterval: Duration(milliseconds: widget.intervalMs),
       ),
+      // Bo'sh natija ham yuboriladi: "kadrda hech narsa yo'q" holatini
+      // CameraPage bilishi kerak, aks holda ushlab turish vaqti uzilishlar
+      // orqali ham davom etib ketadi.
       onResult: (results) {
-        if (results.isEmpty) return;
+        if (!mounted) return;
 
         final mappedResults = results.map((r) {
           final rect = r.boundingBox;

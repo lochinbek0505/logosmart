@@ -33,13 +33,21 @@ const String _clapSound = "sound/cv/clap.mp3";
 
 class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   final int _totalCycles = 5;
-  final int _holdDurationMs = 450;
+  // Model har ~200 ms da natija beradi (≈5 kadr/s)
+  final int _inferenceIntervalMs = 200;
+  // Harakat shuncha vaqt ushlab turilishi kerak (≈4 kadr)
+  final int _holdDurationMs = 800;
+  // Qaror chiqarish uchun kamida shuncha mos kadr kerak
+  final int _minVotes = 3;
   final int _processIntervalMs = 50;
-  final double _minConfidence = 0.60;
-  final double _requiredAvgConfidence = 0.50;
+  // Kadr hisobga olinadigan eng past ishonch
+  final double _minConfidence = 0.40;
+  // Muvaffaqiyat uchun mos kadrlarning o'rtacha ishonchi
+  final double _requiredAvgConfidence = 0.60;
+  final int _failureCooldownMs = 1500;
   final int _aboutStepDurationMs = 4000;
 
-  Key _camKey = UniqueKey();
+  final Key _camKey = UniqueKey();
 
   // O'ZGARTIRISH: Boshlanishida kamera o'chiq turadi (kutish jarayoni uchun)
   bool _cameraActive = false;
@@ -63,12 +71,14 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   int _currentStepIndex = 0;
   int _completedCycles = 0;
 
-  Map<String, dynamic>? _currentBest;
+  final ValueNotifier<Map<String, dynamic>?> _currentBest = ValueNotifier(null);
 
   DateTime? _actionStartTime;
   DateTime _lastProcessTime = DateTime.now();
-  List<double> _confidenceVotes = [];
+  final List<double> _confidenceVotes = [];
   bool _isProcessingVote = false;
+  // "Yana urinib ko'ramiz" xabari ko'rinib turganda yangi ovoz yig'ilmaydi
+  bool _isInFailureCooldown = false;
   Timer? _aboutTimer;
 
   Color _cameraBoxBorderColor = const Color(0xff20B9E8);
@@ -148,42 +158,65 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   void _onDetections(List<Map<String, dynamic>> results, Size imgSize) {
     if (!mounted ||
-        results.isEmpty ||
         _waitingForNextStep ||
         _isExerciseCompleted ||
-        !_cameraActive)
+        !_cameraActive) {
       return;
+    }
 
     final now = DateTime.now();
-    if (now.difference(_lastProcessTime).inMilliseconds < _processIntervalMs)
+    if (now.difference(_lastProcessTime).inMilliseconds < _processIntervalMs) {
       return;
+    }
     _lastProcessTime = now;
 
     final expectedAction = _steps[_currentStepIndex].action;
 
     if (expectedAction == "about") return;
 
-    _currentBest = results.first;
+    // Uzoq uzilishdan keyin (kadrda yuz yo'q edi) hisob boshidan boshlanadi
+    if (_lastGoodFrameTime != null &&
+        now.difference(_lastGoodFrameTime!).inMilliseconds > _toleranceMs) {
+      _resetVoting();
+    }
 
-    final conf = _extractConfidence(_currentBest!);
-    final label = _extractLabel(_currentBest!);
+    final expectedBest = _bestDetection(
+      results,
+      (r) => _isLabelMatch(_extractLabel(r), expectedAction),
+    );
+    // Faqat pastdagi aniqlash paneli yangilanadi — butun sahifa har kadrda
+    // qayta chizilmaydi (video, kamera, matnlar)
+    _currentBest.value = expectedBest ?? _bestDetection(results, (_) => true);
 
-    if (_isLabelMatch(label, expectedAction) && conf >= _minConfidence) {
-      if (_actionStartTime == null) _actionStartTime = now;
+    if (_isInFailureCooldown) return;
+
+    final conf = expectedBest == null ? 0.0 : _extractConfidence(expectedBest);
+
+    if (expectedBest != null && conf >= _minConfidence) {
+      _actionStartTime ??= now;
       _lastGoodFrameTime = now;
       _confidenceVotes.add(conf);
 
-      if (now.difference(_actionStartTime!).inMilliseconds >= _holdDurationMs) {
+      if (now.difference(_actionStartTime!).inMilliseconds >= _holdDurationMs &&
+          _confidenceVotes.length >= _minVotes) {
         _processFrameVotingResult();
       }
-    } else {
-      if (_lastGoodFrameTime != null &&
-          now.difference(_lastGoodFrameTime!).inMilliseconds > _toleranceMs) {
-        _resetVoting();
+    }
+  }
+
+  /// Shartga mos natijalar ichidan eng ishonchlisini qaytaradi
+  Map<String, dynamic>? _bestDetection(
+    List<Map<String, dynamic>> results,
+    bool Function(Map<String, dynamic>) test,
+  ) {
+    Map<String, dynamic>? best;
+    for (final r in results) {
+      if (!test(r)) continue;
+      if (best == null || _extractConfidence(r) > _extractConfidence(best)) {
+        best = r;
       }
     }
-
-    if (mounted) setState(() {});
+    return best;
   }
 
   void _processFrameVotingResult() {
@@ -193,12 +226,12 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     final avgConfidence =
         _confidenceVotes.reduce((a, b) => a + b) / _confidenceVotes.length;
 
+    _resetVoting();
     if (avgConfidence >= _requiredAvgConfidence) {
       _onStepSuccess();
     } else {
       _onStepFailure();
     }
-    _resetVoting();
   }
 
   void _resetVoting() {
@@ -221,18 +254,22 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   }
 
   void _onStepFailure() {
+    _isInFailureCooldown = true;
     setState(() {
       _cameraBoxBorderColor = Colors.orangeAccent;
       _feedbackMessage = '🤗 Yana bir bor urinib ko\'ramiz!';
     });
 
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          _cameraBoxBorderColor = const Color(0xff20B9E8);
-          _feedbackMessage = '';
-        });
-      }
+    Future.delayed(Duration(milliseconds: _failureCooldownMs), () {
+      if (!mounted) return;
+      _isInFailureCooldown = false;
+      _resetVoting();
+      // Shu orada keyingi qadamga o'tilgan bo'lsa, uning xabariga tegmaymiz
+      if (_waitingForNextStep) return;
+      setState(() {
+        _cameraBoxBorderColor = const Color(0xff20B9E8);
+        _feedbackMessage = '';
+      });
     });
   }
 
@@ -241,8 +278,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _resetVoting();
 
     final completesCycle = _currentStepIndex == _steps.length - 1;
-    final isFinalCycle =
-        completesCycle && _completedCycles + 1 >= _totalCycles;
+    final isFinalCycle = completesCycle && _completedCycles + 1 >= _totalCycles;
     if (completesCycle && !isFinalCycle) {
       _showCycleSuccess();
     }
@@ -322,8 +358,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   Future<void> _playClapSound() async {
     try {
-      await _playAudioAndWait(_clapSound)
-          .timeout(const Duration(seconds: 4), onTimeout: () {});
+      await _playAudioAndWait(
+        _clapSound,
+      ).timeout(const Duration(seconds: 4), onTimeout: () {});
     } catch (e) {
       debugPrint("Ovoz chalishda xatolik: $e");
     }
@@ -339,10 +376,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     return (r['class'] ?? '').toString();
   }
 
+  // Aniq moslik: "past" endi "ichki_past" ni ham qabul qilib yubormaydi
   bool _isLabelMatch(String label, String expectedAction) {
-    return label.trim().toLowerCase().contains(
-      expectedAction.trim().toLowerCase(),
-    );
+    return label.trim().toLowerCase() == expectedAction.trim().toLowerCase();
   }
 
   Future<void> _initializeVideo() async {
@@ -374,25 +410,23 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _cycleBadgeTimer?.cancel();
     _videoController?.dispose();
     _audioPlayer.dispose();
+    _currentBest.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  // Kamerani fonga o'tishda to'xtatish/qayta yoqishni YOLOView plaginining
+  // o'zi lifecycle orqali qiladi — bu yerda faqat video va ovoz hisobi.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      _cameraActive = false;
       _videoController?.pause();
-    } else if (state == AppLifecycleState.resumed && !_isExerciseCompleted) {
+      _resetVoting();
+    } else if (state == AppLifecycleState.resumed &&
+        !_isExerciseCompleted &&
+        _isVideoInitialized) {
       _videoController?.play();
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (mounted)
-          setState(() {
-            _camKey = UniqueKey();
-            _cameraActive = true;
-          });
-      });
     }
   }
 
@@ -518,16 +552,20 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                 ],
               ),
 
-            if (_currentBest != null &&
-                !_isExerciseCompleted &&
+            if (!_isExerciseCompleted &&
                 _cameraActive &&
                 _steps.isNotEmpty &&
                 _steps[_currentStepIndex].action != "about" &&
                 _currentStepIndex == 0)
-              DetectionOverlay(
-                currentBest: _currentBest,
-                onExtractLabel: _extractLabel,
-                onExtractConfidence: _extractConfidence,
+              ValueListenableBuilder<Map<String, dynamic>?>(
+                valueListenable: _currentBest,
+                builder: (context, best, _) => best == null
+                    ? const SizedBox.shrink()
+                    : DetectionOverlay(
+                        currentBest: best,
+                        onExtractLabel: _extractLabel,
+                        onExtractConfidence: _extractConfidence,
+                      ),
               ),
 
             if (_feedbackMessage.isNotEmpty)
@@ -608,17 +646,13 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         borderRadius: BorderRadius.circular(19.r),
         child: _isExerciseCompleted
             ? const SuccessGifPlaceholder()
-            : (_cameraActive && _modelPath != null && sound != null
+            : (_cameraActive && (_modelPath?.isNotEmpty ?? false)
                   ? CameraBox(
-                      size: Size(side, side),
-                      cameraActive: true,
-                      camKey: _camKey,
+                      key: _camKey,
                       modelPath: _modelPath!,
-                      labelsPath: sound!,
+                      intervalMs: _inferenceIntervalMs,
+                      confidenceThreshold: _minConfidence,
                       onDetections: _onDetections,
-                      borderColor: _isExerciseCompleted
-                          ? AppColors.green_700
-                          : _cameraBoxBorderColor,
                     )
                   : Container(
                       color: Colors.black,

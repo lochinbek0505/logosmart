@@ -706,7 +706,7 @@
     "game": {
       "type": "puzzle_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/puzzle_game/puzzle_start_1.mp3",
+        "start_voice": "assets/sound/puzzle_game/gul_start.mp3",
         "success_sound": "assets/sound/success.mp3",
         "error_sound": "assets/sound/diagnostic_error.mp3",
         "background_image": "assets/backround/puzzle_game/puzzle_back_4.jpg",
@@ -722,8 +722,8 @@
             "color": "0xFFFFFFFF",
             "isTop": true,
             "side": "left",
-            "image": "assets/game/puzzle_game/puzzle_1_game_3.png",
-            "sound": "assets/sound/puzzle_game/ari.mp3"
+            "image": "assets/game/puzzle_game/gul.png",
+            "sound": "assets/sound/puzzle_game/gul.mp3"
           },
           {
             "id": "t2",
@@ -731,8 +731,8 @@
             "color": "0xFFFFFFFF",
             "isTop": true,
             "side": "right",
-            "image": "assets/game/puzzle_game/puzzle_1_game_4.png",
-            "sound": "assets/sound/puzzle_game/daraxt.mp3"
+            "image": "assets/game/puzzle_game/olma.png",
+            "sound": "assets/sound/puzzle_game/olma.mp3"
           },
           {
             "id": "b1",
@@ -740,8 +740,8 @@
             "color": "0xFFFFFFFF",
             "isTop": false,
             "side": "left",
-            "image": "assets/game/puzzle_game/puzzle_1_game_1.png",
-            "sound": "assets/sound/puzzle_game/daraxtlar.mp3"
+            "image": "assets/game/puzzle_game/olmalar.png",
+            "sound": "assets/sound/puzzle_game/olmalar.mp3"
           },
           {
             "id": "b2",
@@ -749,8 +749,8 @@
             "color": "0xFFFFFFFF",
             "isTop": false,
             "side": "right",
-            "image": "assets/game/puzzle_game/puzzle_1_game_2.png",
-            "sound": "assets/sound/puzzle_game/arilar.mp3"
+            "image": "assets/game/puzzle_game/gullar.png",
+            "sound": "assets/sound/puzzle_game/gullar.mp3"
           }
         ]
       }
@@ -1552,7 +1552,6 @@
       }
     }
   },
-
   {
     "id": 37,
     "stars": 0,

@@ -115,6 +115,7 @@ flutter:
     - assets/fonts/
     - assets/images/
     - assets/jsons/
+    - assets/first_speech/
     - assets/
     - assets/jsons/regions.json
     - assets/icons/

@@ -1,0 +1,187 @@
+[
+  {
+    "id": 1,
+    "stars": 0,
+    "locked": false,
+    "skin": "assets/icons/gold.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/past.mp3",
+      "mediaPath": "assets/videos/models/tilni_chiqarish.mp4",
+      "steps": [
+        {
+          "text": "Artikulatsion mashqlarni mening ortimdan 5 martadan bajar, har bir harakat aniq bo'lsin.",
+          "sound": "sound/cv/about.mp3",
+          "action": "about"
+        },
+        {
+          "text": "Tilni pastga chiqarib ko‘rsating",
+          "action": "past"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 2,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/ong_chap.mp3",
+      "mediaPath": "assets/videos/models/ong_chap.mp4",
+      "steps": [
+        {
+          "text": "Tilni ongga chiqarib ko‘rsating",
+          "action": "ong"
+        },
+        {
+          "text": "Tilni chapga chiqarib ko‘rsating",
+          "action": "chap"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 3,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/tepa_past.mp3",
+      "mediaPath": "assets/videos/models/til_ogiz_tashqari_tepa_past.mp4",
+      "steps": [
+        {
+          "text": "Tilni tepaga chiqarib ko‘rsating",
+          "action": "tepa"
+        },
+        {
+          "text": "Tilni pastga chiqarib ko‘rsating",
+          "action": "past"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 4,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/tepa_past_ichki.tflite",
+      "sound": "sound/cv/tepa_past_ichida.mp3",
+      "mediaPath": "assets/videos/models/til_ogiz_ichida_tepa_past.mp4",
+      "steps": [
+        {
+          "text": "Tilni tepa tish ortiga tekkazing",
+          "action": "ichki_tepa"
+        },
+        {
+          "text": "Tilni past tish ortiga tekkazing",
+          "action": "ichki_past"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 5,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/tepa_past_ichki.tflite",
+      "sound": "sound/cv/otcha.mp3",
+      "mediaPath": "assets/videos/models/otchaa.mp4",
+      "steps": [
+        {
+          "text": "Tilni tepa tish ortiga tekkazing",
+          "action": "ichki_tepa"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 6,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/otchp.mp3",
+      "mediaPath": "assets/videos/models/ogiz_ichida_aylantirish.mp4",
+      "steps": [
+        {
+          "text": "Tilni ongga chiqarib ko‘rsating",
+          "action": "ong"
+        },
+        {
+          "text": "Tilni tepaga chiqarib ko‘rsating",
+          "action": "tepa"
+        },
+        {
+          "text": "Tilni chapga chiqarib ko‘rsating",
+          "action": "chap"
+        },
+        {
+          "text": "Tilni tepaga chiqarib ko‘rsating",
+          "action": "past"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 7,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ogiz_lab_tish.tflite",
+      "sound": "sound/cv/tish_lab.mp3",
+      "mediaPath": "assets/videos/models/tish_lab.mp4",
+      "steps": [
+        {
+          "text": "Iltimos tishni ko‘rsating",
+          "action": "tish"
+        },
+        {
+          "text": "Iltimos labni ko‘rsating",
+          "action": "lab"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 8,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ogiz_lab_tish.tflite",
+      "sound": "sound/cv/lab.mp3",
+      "mediaPath": "assets/videos/models/lap_chochaytirish.mp4",
+      "steps": [
+        {
+          "text": "Iltimos labni ko‘rsating",
+          "action": "lab"
+        }
+      ]
+    },
+    "game": null
+  }
+]

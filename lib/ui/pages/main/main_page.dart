@@ -23,7 +23,7 @@ class _MainPageState extends State<MainPage> {
   // List of pages corresponding to the tabs
   List<Widget> get pages => [
     const HomePage(),
-    // O'yinlar: barcha o'yinlar bitta xaritada (assets/games.json), hammasi ochiq
+    // O'yinlar: barcha o'yinlar bitta xaritada (assets/games.json), ketma-ket ochiladi
     MapRoadPage(sound: LevelProvider.gamesSound, embedded: true),
     ComingSoonPage(
       title: "Konsultatsiya",

@@ -15,6 +15,9 @@ const String kLevelProgressBox = 'level_progress';
 /// Progress box ichida oxirgi ochilgan tovush xaritasi saqlanadigan kalit
 const String _kLastSoundKey = '_last_sound';
 
+/// O'yinlar xaritasi qulflanganidan keyingi bir martalik migratsiya belgisi
+const String _kGamesLockMigratedKey = '_games_lock_migrated_v1';
+
 typedef OpenLevelCallback = void Function(LevelState level);
 
 /// Bosh sahifadagi "So'ngi harakat" kartasi uchun ma'lumot
@@ -54,14 +57,33 @@ class LevelProvider extends ChangeNotifier {
   int? _currentPlayingLevelId;
   int? get currentPlayingLevelId => _currentPlayingLevelId;
 
-  /// O'yinlar bo'limi xaritasi (hamma o'yinlar bitta joyda, hammasi ochiq)
+  /// O'yinlar bo'limi xaritasi (hamma o'yinlar bitta joyda, ketma-ket ochiladi)
   static const String gamesSound = 'GAMES';
+
+  /// "Ilk nutqni rivojlantirish" bo'limi xaritalari (har biri alohida progress)
+  static const String firstSpeechArticulation = 'FS_ARTIKULATSION';
+  static const String firstSpeechBreath = 'FS_NAFAS';
+  static const String firstSpeechFinger = 'FS_BARMOQ';
+  static const String firstSpeechLine = 'FS_CHIZIQ';
 
   // Har bir tovush o'z level fayliga ega
   static const Map<String, String> soundLevelFiles = {
     'R': 'assets/exsepR.json',
     'L': 'assets/exsep.json',
     gamesSound: 'assets/games.json',
+    firstSpeechArticulation: 'assets/first_speech/artikulatsion.json',
+    firstSpeechBreath: 'assets/first_speech/nafas.json',
+    firstSpeechFinger: 'assets/first_speech/barmoq.json',
+    firstSpeechLine: 'assets/first_speech/chiziq.json',
+  };
+
+  /// Tovush (harf) xaritasi emas — "So'ngi harakat" kartasida ko'rsatilmaydi
+  static const Set<String> _nonSoundMaps = {
+    gamesSound,
+    firstSpeechArticulation,
+    firstSpeechBreath,
+    firstSpeechFinger,
+    firstSpeechLine,
   };
   static const String defaultSound = 'R';
 
@@ -122,7 +144,7 @@ class LevelProvider extends ChangeNotifier {
   // Joriy tovush levellarini yuklash
   Future<void> bootstrap() async {
     final saved = _progressBox?.get(_kLastSoundKey);
-    if (saved is String && hasSound(saved) && saved != gamesSound) {
+    if (saved is String && hasSound(saved) && !_nonSoundMaps.contains(saved)) {
       _lastSound = saved;
     }
     await selectSound(_currentSound);
@@ -135,21 +157,32 @@ class LevelProvider extends ChangeNotifier {
   }
 
   void _rememberLastSound(String sound) {
-    // O'yinlar xaritasi alohida tab — u "so'ngi harakat" hisoblanmaydi
-    if (sound == gamesSound || sound == _lastSound) return;
+    // O'yinlar va Ilk nutq xaritalari tovush mashqi emas — "so'ngi harakat" hisoblanmaydi
+    if (_nonSoundMaps.contains(sound) || sound == _lastSound) return;
     _lastSound = sound;
     _progressBox?.put(_kLastSoundKey, sound);
   }
 
   /// Tovush levellarini (saqlangan progress bilan) yuklab keshlaydi,
   /// joriy xaritani almashtirmaydi.
+  /// Xarita levellari (keshda bo'lsa), joriy xaritani almashtirmaydi.
+  /// Bo'lim kartalarida progress ko'rsatish uchun.
+  List<LevelState>? levelsOf(String sound) => _levelsBySound[sound];
+
+  /// Xarita levellarini oldindan yuklaydi (joriy xarita o'zgarmaydi)
+  Future<void> preloadSound(String sound) async {
+    if (!hasSound(sound) || _levelsBySound.containsKey(sound)) return;
+    await _loadSound(sound);
+    notifyListeners();
+  }
+
   Future<List<LevelState>> _loadSound(String sound) async {
     final cached = _levelsBySound[sound];
     if (cached != null) return cached;
 
-    final loaded = await (_loadingBySound[sound] ??=
-        _loadLevels(soundLevelFiles[sound]!)
-            .then((levels) => _applySavedProgress(sound, levels)));
+    final loaded = await (_loadingBySound[sound] ??= _loadLevels(
+      soundLevelFiles[sound]!,
+    ).then((levels) => _applySavedProgress(sound, levels)));
     _loadingBySound.remove(sound);
     // Xato bo'lsa (bo'sh ro'yxat) keshlamaymiz — keyingi safar qayta urinib ko'riladi
     if (loaded.isNotEmpty) _levelsBySound[sound] ??= loaded;
@@ -208,11 +241,17 @@ class LevelProvider extends ChangeNotifier {
             modelPath: exData['modelPath'] ?? '',
             sound: exData['sound'] ?? '',
             mediaPath: exData['mediaPath'] ?? '',
-            steps: (exData['steps'] as List<dynamic>?)?.map((step) => ExerciseStep(
-              text: step['text'] ?? '',
-              sound: step['sound'],
-              action: step['action'] ?? '',
-            )).toList() ?? [],
+            steps:
+                (exData['steps'] as List<dynamic>?)
+                    ?.map(
+                      (step) => ExerciseStep(
+                        text: step['text'] ?? '',
+                        sound: step['sound'],
+                        action: step['action'] ?? '',
+                      ),
+                    )
+                    .toList() ??
+                [],
           );
         }
 
@@ -245,7 +284,9 @@ class LevelProvider extends ChangeNotifier {
       levels.sort((a, b) => a.id.compareTo(b.id));
 
       if (kDebugMode) {
-        print("✅ $assetPath dan ${levels.length} ta level muvaffaqiyatli yuklandi");
+        print(
+          "✅ $assetPath dan ${levels.length} ta level muvaffaqiyatli yuklandi",
+        );
       }
       return levels;
     } catch (e) {
@@ -262,12 +303,36 @@ class LevelProvider extends ChangeNotifier {
   Box? get _progressBox =>
       Hive.isBoxOpen(kLevelProgressBox) ? Hive.box(kLevelProgressBox) : null;
 
+  /// O'yinlar xaritasi avval hammasi ochiq edi va progressda barcha id lar
+  /// "unlocked" bo'lib saqlangan. Bir marta: ochiqlarni yulduzlar asosida
+  /// qayta hisoblaymiz (1-o'yin + yulduzli o'yinlar + har biridan keyingisi).
+  void _migrateGamesLockOnce() {
+    final box = _progressBox;
+    if (box == null || box.get(_kGamesLockMigratedKey) == true) return;
+
+    final saved = box.get(gamesSound);
+    if (saved is Map) {
+      final stars = Map<String, dynamic>.from(
+        (saved['stars'] as Map?) ?? const {},
+      );
+      final starred = stars.keys.map(int.tryParse).whereType<int>();
+      box.put(gamesSound, {
+        'unlocked': {1, ...starred, ...starred.map((id) => id + 1)}.toList(),
+        'stars': stars,
+      });
+    }
+    box.put(_kGamesLockMigratedKey, true);
+  }
+
   List<LevelState> _applySavedProgress(String sound, List<LevelState> levels) {
+    if (sound == gamesSound) _migrateGamesLockOnce();
     final saved = _progressBox?.get(sound);
     if (saved is! Map) return levels;
 
     final unlocked = Set<int>.from((saved['unlocked'] as List?) ?? const []);
-    final stars = Map<String, dynamic>.from((saved['stars'] as Map?) ?? const {});
+    final stars = Map<String, dynamic>.from(
+      (saved['stars'] as Map?) ?? const {},
+    );
 
     return levels.map((lv) {
       final savedStars = (stars['${lv.id}'] as int?) ?? lv.stars;
@@ -282,8 +347,14 @@ class LevelProvider extends ChangeNotifier {
     final box = _progressBox;
     if (box == null) return;
     box.put(_currentSound, {
-      'unlocked': [for (final lv in _levels) if (!lv.locked) lv.id],
-      'stars': {for (final lv in _levels) if (lv.stars > 0) '${lv.id}': lv.stars},
+      'unlocked': [
+        for (final lv in _levels)
+          if (!lv.locked) lv.id,
+      ],
+      'stars': {
+        for (final lv in _levels)
+          if (lv.stars > 0) '${lv.id}': lv.stars,
+      },
     });
   }
 
@@ -320,7 +391,9 @@ class LevelProvider extends ChangeNotifier {
     final currentLevel = _levels[currentIndex];
 
     final clampedStars = stars.clamp(0, 3);
-    final bestStars = clampedStars > currentLevel.stars ? clampedStars : currentLevel.stars;
+    final bestStars = clampedStars > currentLevel.stars
+        ? clampedStars
+        : currentLevel.stars;
 
     // 1. Joriy level yulduzlarini yangilaymiz (faqat listda)
     _levels[currentIndex] = currentLevel.copyWith(stars: bestStars);
@@ -333,9 +406,9 @@ class LevelProvider extends ChangeNotifier {
       final nextLevel = _levels[nextIndex];
       if (nextLevel.locked) {
         _levels[nextIndex] = nextLevel.copyWith(
-            locked: false,
-            skin: skinGold,
-            stars: 0
+          locked: false,
+          skin: skinGold,
+          stars: 0,
         );
       }
     }

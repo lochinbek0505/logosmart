@@ -434,9 +434,11 @@ class _TrainGamePageState extends State<TrainGamePage>
       body: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.webp"),
+                image: AssetImage(
+                  _config['background_image'] ?? "assets/backround/fon_q.webp",
+                ),
                 fit: BoxFit.cover,
               ),
             ),

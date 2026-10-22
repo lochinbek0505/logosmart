@@ -70,6 +70,7 @@ class LevelProvider extends ChangeNotifier {
   static const Map<String, String> soundLevelFiles = {
     'R': 'assets/exsepR.json',
     'L': 'assets/exsep.json',
+    'S': 'assets/exsepS.json',
     gamesSound: 'assets/games.json',
     firstSpeechArticulation: 'assets/first_speech/artikulatsion.json',
     firstSpeechBreath: 'assets/first_speech/nafas.json',

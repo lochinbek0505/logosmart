@@ -19,11 +19,30 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
 
   // Asosiy mashqlar ro'yxati
   final List<Map<String, dynamic>> alphabet = [
-    {"alphabet": "assets/alphabet/r.webp", "text": "R", "number": 32},
-    {"alphabet": "assets/alphabet/l.webp", "text": "L", "number": 32},
-    {"alphabet": "assets/alphabet/s.webp", "text": "S", "number": 32},
-    {"alphabet": "assets/alphabet/y.webp", "text": "Y", "number": 32},
+    {"alphabet": "assets/alphabet/r.webp", "text": "R"},
+    {"alphabet": "assets/alphabet/l.webp", "text": "L"},
+    {"alphabet": "assets/alphabet/s.webp", "text": "S"},
+    {"alphabet": "assets/alphabet/y.webp", "text": "Y"},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Har bir tovush levellari soni kartalarda ko'rsatilishi uchun
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<LevelProvider>();
+      for (final item in alphabet) {
+        provider.preloadSound(item["text"] as String);
+      }
+    });
+  }
+
+  /// Mashg'ulotlar soni tovush JSON faylidagi levellar soniga qarab
+  String _lessonsLabel(String sound) {
+    final count = context.watch<LevelProvider>().levelsOf(sound)?.length;
+    if (count != null) return "$count ta mashg'ulot";
+    return LevelProvider.hasSound(sound) ? "..." : "Tez kunda";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +55,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/backround/fon_q.webp"),
-            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
+            fit: BoxFit.fill,
+            colorFilter: context.palette.backgroundImageFilter,
+          ),
         ),
         child: SafeArea(
           child: Column(
@@ -235,9 +256,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
       onTap: () {
         final sound = alphabet[index]["text"] as String;
         if (LevelProvider.hasSound(sound)) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => MapRoadPage(sound: sound)),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => MapRoadPage(sound: sound)));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -254,7 +275,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/backround/bacround_sound.webp"),
-              fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
+              fit: BoxFit.fill,
+              colorFilter: context.palette.backgroundImageFilter,
+            ),
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -350,7 +373,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                   ),
                   child: Center(
                     child: Text(
-                      "${alphabet[index]["number"]} ta mashg'ulot",
+                      _lessonsLabel(alphabet[index]["text"] as String),
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,

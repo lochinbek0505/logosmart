@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 import 'map_route_page.dart';
 import 'provider/level_provider.dart';
@@ -14,11 +15,30 @@ class AlphabetPage extends StatefulWidget {
 
 class _AlphabetPageState extends State<AlphabetPage> {
   final List<Map<String, dynamic>> alphabet = [
-    {"alphabet": "assets/alphabet/r.webp", "text": "R", "number": 32},
-    {"alphabet": "assets/alphabet/l.webp", "text": "L", "number": 32},
-    {"alphabet": "assets/alphabet/s.webp", "text": "S", "number": 32},
-    {"alphabet": "assets/alphabet/y.webp", "text": "Y", "number": 32},
+    {"alphabet": "assets/alphabet/r.webp", "text": "R"},
+    {"alphabet": "assets/alphabet/l.webp", "text": "L"},
+    {"alphabet": "assets/alphabet/s.webp", "text": "S"},
+    {"alphabet": "assets/alphabet/y.webp", "text": "Y"},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Har bir tovush levellari soni kartalarda ko'rsatilishi uchun
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<LevelProvider>();
+      for (final item in alphabet) {
+        provider.preloadSound(item["text"] as String);
+      }
+    });
+  }
+
+  /// Mashg'ulotlar soni tovush JSON faylidagi levellar soniga qarab
+  String _lessonsLabel(String sound) {
+    final count = context.watch<LevelProvider>().levelsOf(sound)?.length;
+    if (count != null) return "$count ta mashg'ulot";
+    return LevelProvider.hasSound(sound) ? "..." : "Tez kunda";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +53,9 @@ class _AlphabetPageState extends State<AlphabetPage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/backround_xira.webp"),
-              fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
+              fit: BoxFit.fill,
+              colorFilter: context.palette.backgroundImageFilter,
+            ),
           ),
           child: Column(
             children: [
@@ -122,83 +144,90 @@ class _AlphabetPageState extends State<AlphabetPage> {
                               /// Left side
                               Expanded(
                                 child: Row(
-                                children: [
-                                  Container(
-                                    width: 60.w,
-                                    height: 60.w,
-                                    padding: EdgeInsets.all(2.w),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40.r),
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xffb5e9f7),
-                                          Color(0xff5ad4f2),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ),
-                                    ),
-                                    child: Container(
+                                  children: [
+                                    Container(
+                                      width: 60.w,
+                                      height: 60.w,
+                                      padding: EdgeInsets.all(2.w),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(35.r),
-                                        color: Colors.cyan.shade50,
+                                        borderRadius: BorderRadius.circular(
+                                          40.r,
+                                        ),
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xffb5e9f7),
+                                            Color(0xff5ad4f2),
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        ),
                                       ),
-                                      child: Center(
-                                        child: Image.asset(
-                                          alphabet[index]["alphabet"],
-                                          height: 35.w,
-                                          width: 35.w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            35.r,
+                                          ),
+                                          color: Colors.cyan.shade50,
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            alphabet[index]["alphabet"],
+                                            height: 35.w,
+                                            width: 35.w,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: 16.w),
-                                  Expanded(
-                                    child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        "${alphabet[index]["text"]} tovushini\nrivojlantirish",
-                                        style: TextStyle(
-                                          color: context.palette.textPrimary,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 17.sp,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6.h),
-                                      Row(
+                                    SizedBox(width: 16.w),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          CircleAvatar(
-                                            backgroundImage: const AssetImage(
-                                              "assets/icons/circle.webp",
-                                            ),
-                                            radius: 15.r,
-                                            child: Transform.translate(
-                                              offset: const Offset(1, -1),
-                                              child: Image.asset(
-                                                "assets/icons/play.webp",
-                                                width: 13.w,
-                                              ),
+                                          Text(
+                                            "${alphabet[index]["text"]} tovushini\nrivojlantirish",
+                                            style: TextStyle(
+                                              color:
+                                                  context.palette.textPrimary,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 17.sp,
                                             ),
                                           ),
-                                          SizedBox(width: 5.w),
-                                          Text(
-                                            "Boshlash",
-                                            style: TextStyle(
-                                              color: Color(0xff20B9E8),
-                                              fontSize: 15.sp,
-                                              fontWeight: FontWeight.w700,
-                                            ),
+                                          SizedBox(height: 6.h),
+                                          Row(
+                                            children: [
+                                              CircleAvatar(
+                                                backgroundImage:
+                                                    const AssetImage(
+                                                      "assets/icons/circle.webp",
+                                                    ),
+                                                radius: 15.r,
+                                                child: Transform.translate(
+                                                  offset: const Offset(1, -1),
+                                                  child: Image.asset(
+                                                    "assets/icons/play.webp",
+                                                    width: 13.w,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: 5.w),
+                                              Text(
+                                                "Boshlash",
+                                                style: TextStyle(
+                                                  color: Color(0xff20B9E8),
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
                                     ),
-                                  ),
-                                ],
+                                  ],
                                 ),
                               ),
 
@@ -206,13 +235,18 @@ class _AlphabetPageState extends State<AlphabetPage> {
                               Align(
                                 alignment: Alignment.topRight,
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8.w,
+                                    vertical: 4.h,
+                                  ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20.r),
                                     color: context.palette.primarySoft,
                                   ),
                                   child: Text(
-                                    "${alphabet[index]["number"]} ta mashg'ulot",
+                                    _lessonsLabel(
+                                      alphabet[index]["text"] as String,
+                                    ),
                                     style: TextStyle(
                                       fontSize: 10.sp,
                                       fontWeight: FontWeight.w600,
@@ -235,5 +269,4 @@ class _AlphabetPageState extends State<AlphabetPage> {
       ),
     );
   }
-
 }

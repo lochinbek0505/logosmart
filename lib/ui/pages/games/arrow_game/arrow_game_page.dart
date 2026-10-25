@@ -15,6 +15,7 @@ import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../../../models/target_node_model.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class ArrowGamePage extends StatefulWidget {
@@ -44,6 +45,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   bool _isLoading = false;
   // O'yin tugab, dialog ochilish jarayonida yangi tap/record boshlanmasligi uchun
   bool _isGameEnding = false;
+  int _mistakes = 0;
   String? _recordedFilePath;
   int? _activeVoiceItemId;
 
@@ -229,7 +231,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       }
     } catch (e) {
       debugPrint("STT Xatolik: $e");
-      _handleWrongAnswer();
+      // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
+      _handleWrongAnswer(countMistake: false);
     } finally {
       if (mounted && !_isGameEnding) {
         setState(() {
@@ -262,7 +265,13 @@ class _ArrowGamePageState extends State<ArrowGamePage>
     return regExp.hasMatch(cleanRecognized);
   }
 
-  void _handleWrongAnswer() {
+  void _handleWrongAnswer({bool countMistake = true}) {
+    if (countMistake && ++_mistakes >= kMaxGameMistakes) {
+      _isGameEnding = true;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      showGameFailDialog(context);
+      return;
+    }
     _showSnackbar("Xato eshitildi, qayta urinib ko'ring!", Colors.red);
   }
 
@@ -417,7 +426,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                                 child: Center(
                                   child: CustomTextWidget(
                                     text: _centerLetter, // JSON
-                                    sizeText: 96.sp,
+                                    // "Sh" kabi ikki harfli markaz doiraga sig'ishi uchun 20% kichikroq
+                                    sizeText: _centerLetter.length > 1
+                                        ? 77.sp
+                                        : 96.sp,
                                     textColor: const Color(0xFF4A90E2),
                                     strokeWidth: 8.w,
                                   ),

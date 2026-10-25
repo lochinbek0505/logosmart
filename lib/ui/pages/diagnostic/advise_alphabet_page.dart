@@ -22,6 +22,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
     {"alphabet": "assets/alphabet/r.webp", "text": "R"},
     {"alphabet": "assets/alphabet/l.webp", "text": "L"},
     {"alphabet": "assets/alphabet/s.webp", "text": "S"},
+    {"alphabet": "assets/alphabet/k.webp", "text": "K"},
+    {"alphabet": "assets/alphabet/sh.webp", "text": "Sh"},
+    {"alphabet": "assets/alphabet/z.webp", "text": "Z"},
     {"alphabet": "assets/alphabet/y.webp", "text": "Y"},
   ];
 

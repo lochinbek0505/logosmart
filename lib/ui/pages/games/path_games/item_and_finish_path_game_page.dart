@@ -14,6 +14,7 @@ import 'package:record/record.dart';
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class ItemAndFinishPathGamePage extends StatefulWidget {
@@ -39,6 +40,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
   String? _recordedFilePath;
   bool _isRecording = false;
   bool _isLoading = false;
+  int _mistakes = 0;
 
   late AnimationController _pulseController;
   late AnimationController _bounceController;
@@ -253,11 +255,19 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
           _isLoading = false;
         });
       }
-      _handleWrongAnswer();
+      // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
+      _handleWrongAnswer(countMistake: false);
     }
   }
 
-  void _handleWrongAnswer() async {
+  void _handleWrongAnswer({bool countMistake = true}) async {
+    if (countMistake && ++_mistakes >= kMaxGameMistakes) {
+      AppSettings().vibrateError();
+      await _playAudioAndWait(_config['error_sound']);
+      if (mounted) showGameFailDialog(context);
+      return;
+    }
+
     setState(() {
       _iafpKey = UniqueKey();
       _startPainting = true;

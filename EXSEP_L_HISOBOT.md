@@ -1,11 +1,11 @@
-# `assets/exsep.json` — L tovushi bo'yicha tekshiruv hisoboti
+# `assets/exsepL.json` — L tovushi bo'yicha tekshiruv hisoboti
 
 **Sana:** 2026-10-16
-**Tekshirilgan fayl:** `assets/exsep.json` (dastlab 65 ta element; ko'chirishlardan keyin 58 ta, id 1–58)
+**Tekshirilgan fayl:** `assets/exsepL.json` (dastlab 65 ta element; ko'chirishlardan keyin 58 ta, id 1–58)
 
 ## Umumiy xulosa
 
-`exsep.json` ning **id 1–55** qismi hali ham **R tovushi** dasturining shabloni (R videolari, `Drrr`/`Trrr`/`Rrrr` chiziqli o'yinlar, R so'zli rasm topish va h.k.). L tovushi uchun faqat **chiziqli (path_game) o'yinlar** tayyorlangan, ular ham ro'yxat oxiriga — **id 56–65** ga qo'shib qo'yilgan, o'z joylariga qo'yilmagan.
+`exsepL.json` ning **id 1–55** qismi hali ham **R tovushi** dasturining shabloni (R videolari, `Drrr`/`Trrr`/`Rrrr` chiziqli o'yinlar, R so'zli rasm topish va h.k.). L tovushi uchun faqat **chiziqli (path_game) o'yinlar** tayyorlangan, ular ham ro'yxat oxiriga — **id 56–65** ga qo'shib qo'yilgan, o'z joylariga qo'yilmagan.
 
 | Holat | Soni |
 |---|---|

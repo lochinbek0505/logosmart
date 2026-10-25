@@ -18,6 +18,10 @@ const String _kLastSoundKey = '_last_sound';
 /// O'yinlar xaritasi qulflanganidan keyingi bir martalik migratsiya belgisi
 const String _kGamesLockMigratedKey = '_games_lock_migrated_v1';
 
+/// S xaritasi test uchun hammasi ochiq bo'lgan payt saqlangan progressni
+/// tozalash uchun bir martalik belgi
+const String _kSoundSLockResetKey = '_s_lock_reset_v1';
+
 typedef OpenLevelCallback = void Function(LevelState level);
 
 /// Bosh sahifadagi "So'ngi harakat" kartasi uchun ma'lumot
@@ -69,8 +73,11 @@ class LevelProvider extends ChangeNotifier {
   // Har bir tovush o'z level fayliga ega
   static const Map<String, String> soundLevelFiles = {
     'R': 'assets/exsepR.json',
-    'L': 'assets/exsep.json',
+    'L': 'assets/exsepL.json',
     'S': 'assets/exsepS.json',
+    'K': 'assets/exsepK.json',
+    'Sh': 'assets/exsepSH.json',
+    'Z': 'assets/exsepZ.json',
     gamesSound: 'assets/games.json',
     firstSpeechArticulation: 'assets/first_speech/artikulatsion.json',
     firstSpeechBreath: 'assets/first_speech/nafas.json',
@@ -325,8 +332,19 @@ class LevelProvider extends ChangeNotifier {
     box.put(_kGamesLockMigratedKey, true);
   }
 
+  /// S xaritasi test paytida hammasi ochiq edi va progressda barcha id lar
+  /// "unlocked" bo'lib saqlangan. S undan oldin hech kimda ochilmagan,
+  /// shuning uchun bir marta S progressini butunlay tozalaymiz.
+  void _resetSoundSProgressOnce() {
+    final box = _progressBox;
+    if (box == null || box.get(_kSoundSLockResetKey) == true) return;
+    box.delete('S');
+    box.put(_kSoundSLockResetKey, true);
+  }
+
   List<LevelState> _applySavedProgress(String sound, List<LevelState> levels) {
     if (sound == gamesSound) _migrateGamesLockOnce();
+    if (sound == 'S') _resetSoundSProgressOnce();
     final saved = _progressBox?.get(sound);
     if (saved is! Map) return levels;
 

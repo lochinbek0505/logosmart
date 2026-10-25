@@ -13,6 +13,7 @@ import 'package:record/record.dart';
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class TrainGamePage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _TrainGamePageState extends State<TrainGamePage>
   bool _isLoading = false;
   bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
+  int _mistakes = 0;
   String? _recordedFilePath;
 
   int? _currentlyTestingIndex;
@@ -297,7 +299,8 @@ class _TrainGamePageState extends State<TrainGamePage>
       }
     } catch (e) {
       debugPrint("STT Xatoligi: $e");
-      _handleWrongAnswer();
+      // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
+      _handleWrongAnswer(countMistake: false);
     } finally {
       if (mounted) {
         setState(() {
@@ -342,7 +345,10 @@ class _TrainGamePageState extends State<TrainGamePage>
     return regExp.hasMatch(cleanRecognized);
   }
 
-  Future<void> _handleWrongAnswer() async {
+  Future<void> _handleWrongAnswer({bool countMistake = true}) async {
+    final bool isLastMistake =
+        countMistake && ++_mistakes >= kMaxGameMistakes;
+
     if (mounted) {
       setState(() {
         _showErrorAnim = true;
@@ -353,12 +359,17 @@ class _TrainGamePageState extends State<TrainGamePage>
     AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
-    if (mounted) {
-      setState(() {
-        _showErrorAnim = false;
-        _isPlayingAudio = false;
-      });
+    if (!mounted) return;
+    if (isLastMistake) {
+      // _isPlayingAudio true qoladi — dialog ostida o'yin bosilmaydi
+      setState(() => _showErrorAnim = false);
+      showGameFailDialog(context);
+      return;
     }
+    setState(() {
+      _showErrorAnim = false;
+      _isPlayingAudio = false;
+    });
   }
 
   Future<void> _handleCorrectDrop(int imageIndex) async {

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class DragDropGamePage extends StatefulWidget {
@@ -25,6 +26,10 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
   late List<Map<String, dynamic>> _shadowItems;
 
   final Map<String, bool> _matchedResults = {};
+  int _mistakes = 0;
+  // Shu o'yinda har bir to'g'ri element uchun berilgan ball (yutqazilsa qaytariladi)
+  int _earnedBall = 0;
+  bool _isGameOver = false;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
 
@@ -161,6 +166,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                           padding: EdgeInsets.symmetric(vertical: 14.h),
                           child: DragTarget<Map<String, dynamic>>(
                             onAcceptWithDetails: (details) async {
+                              if (_isGameOver) return;
                               if (details.data['id'] == shadowItem['id']) {
                                 // To'g'ri topildi
                                 AppSettings().vibrateSuccess();
@@ -169,6 +175,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                                 if (!mounted) return;
 
                                 context.read<LevelProvider>().addBall(10); // Har bir to'g'ri element uchun ball
+                                _earnedBall += 10;
 
                                 setState(() {
                                   _matchedResults[shadowItem['id']] = true;
@@ -178,6 +185,12 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                                 _checkGameEnd();
                               } else {
                                 // Xato
+                                if (++_mistakes >= kMaxGameMistakes) {
+                                  _isGameOver = true;
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  showGameFailDialog(context, revokeBall: _earnedBall);
+                                  return;
+                                }
                                 _showSnackbar("Xato, qayta urinib ko'ring!", Colors.red);
                               }
                             },

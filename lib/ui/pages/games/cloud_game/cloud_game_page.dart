@@ -14,6 +14,7 @@ import 'package:record/record.dart';
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class CloudGamePage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _CloudGamePageState extends State<CloudGamePage>
   bool _isRecording = false;
   bool _isLoading = false;
   bool _showErrorAnim = false;
+  int _mistakes = 0;
   String? _recordedFilePath;
 
   // Bulutlar ro'yxati (har biriga isMatched holati qo'shiladi)
@@ -255,7 +257,8 @@ class _CloudGamePageState extends State<CloudGamePage>
       }
     } catch (e) {
       debugPrint("STT Xatolik: $e");
-      _handleWrongAnswer();
+      // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
+      _handleWrongAnswer(countMistake: false);
     } finally {
       if (mounted) {
         setState(() {
@@ -282,7 +285,10 @@ class _CloudGamePageState extends State<CloudGamePage>
     return regExp.hasMatch(cleanRecognized);
   }
 
-  Future<void> _handleWrongAnswer() async {
+  Future<void> _handleWrongAnswer({bool countMistake = true}) async {
+    final bool isLastMistake =
+        countMistake && ++_mistakes >= kMaxGameMistakes;
+
     setState(() {
       _showErrorAnim = true;
     });
@@ -290,12 +296,12 @@ class _CloudGamePageState extends State<CloudGamePage>
     AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
-    if (mounted) {
-      setState(() {
-        _showErrorAnim = false;
-        _activeCloud = null;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _showErrorAnim = false;
+      _activeCloud = null;
+    });
+    if (isLastMistake) showGameFailDialog(context);
   }
 
   void _checkGameEnd() {

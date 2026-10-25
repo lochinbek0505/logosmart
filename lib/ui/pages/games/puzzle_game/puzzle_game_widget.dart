@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class PuzzlePieceData {
@@ -70,6 +71,9 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
 
   bool _showCorrectAnim = false;
   bool _showIncorrectAnim = false;
+  int _mistakes = 0;
+  // Shu o'yinda oraliq qadamlarda berilgan ball (yutqazilsa qaytariladi)
+  int _earnedBall = 0;
 
   int get _totalPairs => pieces.where((p) => p.isTop).length;
 
@@ -193,6 +197,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
 
       // To'g'ri topilgani uchun qo'shimcha ball beramiz (ixtiyoriy)
       context.read<LevelProvider>().addBall(5);
+      _earnedBall += 5;
 
       AppSettings().vibrateSuccess();
       await Future.wait([
@@ -229,6 +234,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     }
     // === XATO TOPILDI ===
     else {
+      final bool isLastMistake = ++_mistakes >= kMaxGameMistakes;
       setState(() {
         _phase = GamePhase.error;
         _showIncorrectAnim = true;
@@ -248,6 +254,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
         selectedBottom = null;
         _phase = GamePhase.idle;
       });
+      if (isLastMistake) showGameFailDialog(context, revokeBall: _earnedBall);
     }
   }
 

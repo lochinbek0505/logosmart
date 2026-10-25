@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class SoundGamePage extends StatefulWidget {
@@ -31,6 +32,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
   bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
   bool _isGameFinished = false;
+  int _mistakes = 0;
 
   @override
   void initState() {
@@ -120,20 +122,23 @@ class _SoundGamePageState extends State<SoundGamePage> {
 
   // Noto'g'ri joylanganda xatolik
   Future<void> _handleWrongDrop() async {
+    final bool isLastMistake = ++_mistakes >= kMaxGameMistakes;
+
     if (mounted) {
       setState(() {
         _showErrorAnim = true;
+        if (isLastMistake) _isGameFinished = true;
       });
     }
 
     AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
-    if (mounted) {
-      setState(() {
-        _showErrorAnim = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _showErrorAnim = false;
+    });
+    if (isLastMistake) showGameFailDialog(context);
   }
 
   // To'g'ri joylanganda o'yinni tugatish

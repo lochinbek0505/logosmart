@@ -1,9 +1,9 @@
-# `exsep.json` — 18 ta o'rin bo'yicha batafsil tahlil
+# `exsepL.json` — 18 ta o'rin bo'yicha batafsil tahlil
 
 **O'rinlar:** 11, 15, 16, 17, 18, 20, 21, 22, 26, 29, 30, 31, 32, 36, 46, 50, 52, 54
 **Asosiy hisobot:** [EXSEP_L_HISOBOT.md](EXSEP_L_HISOBOT.md)
 
-*2026-10-16 holatiga ko'ra `exsep.json` bo'yicha.*
+*2026-10-16 holatiga ko'ra `exsepL.json` bo'yicha.*
 
 > ✅ **Bajarildi (2026-10-16):** 🟢 guruhidagi barcha ko'chirishlar JSON da amalga oshirildi. Oxiridagi takror manbalar (eski id 58–63, 65) o'chirildi, `Lllo` id 64 → **58**. Levellar endi **58 ta**, id lar 1–58 uzluksiz: `unlock()` keyingi levelni `id + 1` bo'yicha ochadi. 🟡 54 va 🔴 17, 29, 32, 52 hali ochiq.
 

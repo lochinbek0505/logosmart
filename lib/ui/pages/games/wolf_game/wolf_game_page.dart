@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../alphabet_map/widgets/cloud_text.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 /// Mikrofonsiz "to'g'ri bo'g'inni topish" o'yini.
@@ -42,6 +43,7 @@ class _WolfGamePageState extends State<WolfGamePage>
   int? _wrongIndex;
   int? _correctIndex;
   bool _isGameOver = false;
+  int _mistakes = 0;
 
   @override
   void initState() {
@@ -211,11 +213,19 @@ class _WolfGamePageState extends State<WolfGamePage>
       await Future.delayed(const Duration(milliseconds: 900));
       if (mounted) _gameEnd();
     } else {
-      setState(() => _wrongIndex = index);
+      final bool isLastMistake = ++_mistakes >= kMaxGameMistakes;
+      setState(() {
+        _wrongIndex = index;
+        if (isLastMistake) _isGameOver = true;
+      });
       _playEffect(_config['incorrect_sound']?.toString());
       await _shakeController.forward(from: 0);
       if (mounted && _wrongIndex == index) {
         setState(() => _wrongIndex = null);
+      }
+      if (isLastMistake && mounted) {
+        await Future.delayed(const Duration(milliseconds: 400));
+        if (mounted) showGameFailDialog(context);
       }
     }
   }

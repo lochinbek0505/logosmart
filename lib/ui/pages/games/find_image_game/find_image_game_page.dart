@@ -14,6 +14,7 @@ import 'package:record/record.dart';
 import '../../../../core/service/uzbekvoice_stt_service.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
+import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
 
 class FindImageGamePage extends StatefulWidget {
@@ -38,6 +39,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   bool _isLoading = false;
   bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
+  int _mistakes = 0;
   String? _recordedFilePath;
 
   // 3 soniyalik intervalni boshqarish uchun taymer
@@ -166,7 +168,9 @@ class _FindImageGamePageState extends State<FindImageGamePage>
 
     final item = _gameList[index];
 
-    await _playAudioAndWait(item["sound"]);
+    // Rasm ovozi hali yozilmagan bo'lishi mumkin — unda to'g'ridan-to'g'ri mikrofon
+    final String sound = (item["sound"] ?? '').toString();
+    if (sound.isNotEmpty) await _playAudioAndWait(sound);
 
     if (!mounted) return;
     setState(() {
@@ -240,7 +244,8 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       }
     } catch (e) {
       debugPrint("STT Xatoligi: $e");
-      _handleWrongAnswer();
+      // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
+      _handleWrongAnswer(countMistake: false);
     } finally {
       if (mounted) {
         setState(() {
@@ -288,7 +293,10 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     return regExp.hasMatch(cleanRecognized);
   }
 
-  Future<void> _handleWrongAnswer() async {
+  Future<void> _handleWrongAnswer({bool countMistake = true}) async {
+    final bool isLastMistake =
+        countMistake && ++_mistakes >= kMaxGameMistakes;
+
     if (mounted) {
       setState(() {
         _showErrorAnim = true;
@@ -299,12 +307,17 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     AppSettings().vibrateError();
     await _playAudioAndWait(_config['incorrect_sound']);
 
-    if (mounted) {
-      setState(() {
-        _showErrorAnim = false;
-        _isPlayingAudio = false;
-      });
+    if (!mounted) return;
+    if (isLastMistake) {
+      // _isPlayingAudio true qoladi — dialog ostida o'yin bosilmaydi
+      setState(() => _showErrorAnim = false);
+      showGameFailDialog(context);
+      return;
     }
+    setState(() {
+      _showErrorAnim = false;
+      _isPlayingAudio = false;
+    });
   }
 
   void _gameEnd() async {

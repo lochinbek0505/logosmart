@@ -162,6 +162,7 @@ flutter:
     - assets/exsepK.json
     - assets/exsepSH.json
     - assets/exsepZ.json
+    - assets/exsepG.json
     - assets/games.json
     - assets/sound/map/
     - assets/sound/cv/

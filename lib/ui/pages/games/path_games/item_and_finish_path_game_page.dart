@@ -12,6 +12,7 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
+import '../../../../core/utils/voice_match.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
@@ -182,29 +183,6 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
     }
   }
 
-  bool _checkVoiceMatch(String recognizedText, String targetText) {
-    String cleanRecognized = recognizedText.toLowerCase().replaceAll(
-      RegExp(r'[^a-z]'),
-      '',
-    );
-    String cleanTarget = targetText.toLowerCase().replaceAll(
-      RegExp(r'[^a-z]'),
-      '',
-    );
-
-    if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
-
-    String patternString = "";
-    for (int i = 0; i < cleanTarget.length; i++) {
-      if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
-        patternString += "${cleanTarget[i]}+";
-      }
-    }
-
-    RegExp regExp = RegExp(patternString);
-    return regExp.hasMatch(cleanRecognized);
-  }
-
   Future<void> _onPathFinished() async {
     setState(() {
       _startPainting = true;
@@ -238,7 +216,11 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
         });
       }
 
-      bool isMatched = _checkVoiceMatch(recognizedText, _config['target_text']);
+      bool isMatched = voiceMatches(
+        recognizedText,
+        _config['target_text'],
+        lenient: true,
+      );
 
       if (isMatched) {
         AppSettings().vibrateSuccess();
@@ -247,7 +229,10 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
         );
         _gameEnd();
       } else {
-        _handleWrongAnswer();
+        // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
+        _handleWrongAnswer(
+          countMistake: !isEmptyTranscript(recognizedText),
+        );
       }
     } catch (e) {
       if (mounted) {

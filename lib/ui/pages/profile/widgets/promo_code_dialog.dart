@@ -42,19 +42,28 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
 
     if (!mounted) return;
 
-    final valid = result.valid == true &&
+    // Obuna sotib olishda backend shu ikki turni qo'llaydi
+    final supported =
+        result.type == "DISCOUNT_PERCENT" || result.type == "FREE_DAYS";
+    final valid =
+        result.valid == true &&
         result.expired != true &&
-        result.limitReached != true;
+        result.limitReached != true &&
+        supported;
 
     setState(() {
       _isLoading = false;
       _isValid = valid;
-      _message = result.message ??
-          (valid ? "Promo kod muvaffaqiyatli!" : "Promo kod yaroqsiz");
+      _message = result.valid == true && !supported
+          ? "Bu promokod obuna uchun emas"
+          : result.message ??
+                (valid ? "Promo kod muvaffaqiyatli!" : "Promo kod yaroqsiz");
     });
 
     if (valid) {
-      Navigator.pop(context, code); // promo kodni qaytaradi
+      // Tekshiruv natijasi qaytariladi — sahifa uni qayta so'ramaydi
+      result.code ??= code;
+      Navigator.pop(context, result);
     }
   }
 
@@ -64,13 +73,14 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
       backgroundColor: context.palette.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding:  EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
-
-            InputFormWidget(controller: _controller, label: "Promo kodni kiriting"),
+            InputFormWidget(
+              controller: _controller,
+              label: "Promo kodni kiriting",
+            ),
             SizedBox(height: 10.h),
             if (_message != null)
               Text(
@@ -91,20 +101,27 @@ class _PromoCodeDialogState extends State<PromoCodeDialog> {
                     borderRadius: BorderRadius.circular(36.r),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 16.h),
-                  disabledBackgroundColor: AppColors.main_blue_600
-                      .withValues(alpha: 0.7),
+                  disabledBackgroundColor: AppColors.main_blue_600.withValues(
+                    alpha: 0.7,
+                  ),
                 ),
                 onPressed: _isLoading ? null : () => _checkPromo(context),
                 child: _isLoading
                     ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-                    :  Text("Tasdiqlash",style: GoogleFonts.nunito(color: Colors.white,fontSize: 15.sp),),
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        "Tasdiqlash",
+                        style: GoogleFonts.nunito(
+                          color: Colors.white,
+                          fontSize: 15.sp,
+                        ),
+                      ),
               ),
             ),
           ],

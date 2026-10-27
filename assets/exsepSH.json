@@ -1079,7 +1079,7 @@
     "exercise": null,
     "game": {
       "type": "arrow",
-      "jsonConfigT": {
+      "jsonConfig": {
         "start_voice": "assets/sound/arrow/arrow_start.mp3",
         "background_image": "assets/backround/arrow/arrow_back_1.webp",
         "icon_star": "assets/icons/star.webp",

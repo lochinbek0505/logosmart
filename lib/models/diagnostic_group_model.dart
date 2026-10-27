@@ -20,6 +20,7 @@ class TemplateItem {
     String? url,
     String? sound,
     String? promptText,
+    String? voiceFile,
     num? orderNo,
   }) => TemplateItem(
     id: id ?? this.id,

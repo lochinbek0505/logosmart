@@ -3,6 +3,7 @@ import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:logosmart/core/utils/money_format.dart';
 import 'package:logosmart/models/billings_model.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,10 @@ class _BillingsPageState extends State<BillingsPage> {
       appBar: AppBar(
         backgroundColor: context.palette.background,
         surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: context.palette.textPrimary, size: 24.w),
+        iconTheme: IconThemeData(
+          color: context.palette.textPrimary,
+          size: 24.w,
+        ),
         title: Text(
           "To'lov tarixi",
           style: GoogleFonts.nunito(
@@ -55,33 +59,51 @@ class _BillingsPageState extends State<BillingsPage> {
                 children: [
                   SizedBox(height: 20.h),
                   Expanded(
-                    child: list.isEmpty
-                        ? Center(
-                            child: Text(
-                              "To'lovlar mavjud emas",
-                              style: GoogleFonts.nunito(
-                                color: context.palette.textPrimary,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
-                        : ListView.separated(
-                            padding: EdgeInsets.only(bottom: 20.h),
-                            itemCount: list.length,
-                            separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                            itemBuilder: (context, index) {
-                              final item = list[index];
-                              final statusInfo = _statusInfo(item);
+                    child: RefreshIndicator(
+                      onRefresh: () => provider.init(context),
+                      child: list.isEmpty
+                          // Bo'sh holat ham tortib yangilansin
+                          ? ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(height: 200.h),
+                                Center(
+                                  child: Text(
+                                    provider.isLoading
+                                        ? ""
+                                        : provider.hasError
+                                        ? "To'lov tarixini yuklab bo'lmadi.\nPastga tortib qayta urinib ko'ring"
+                                        : "To'lovlar mavjud emas",
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.nunito(
+                                      color: context.palette.textPrimary,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.only(bottom: 20.h),
+                              itemCount: list.length,
+                              separatorBuilder: (_, __) =>
+                                  SizedBox(height: 12.h),
+                              itemBuilder: (context, index) {
+                                final item = list[index];
+                                final statusInfo = _statusInfo(item);
 
-                              return _billingCard(item, statusInfo);
-                            },
-                          ),
+                                return _billingCard(item, statusInfo);
+                              },
+                            ),
+                    ),
                   ),
                 ],
               ),
             ),
-            if (provider.isLoading)
+            // Birinchi yuklashda; tortib yangilashda RefreshIndicator o'zi bor
+            if (provider.isLoading && list.isEmpty)
               Positioned.fill(
                 child: Container(
                   color: Colors.black.withValues(alpha: 0.2),
@@ -97,6 +119,7 @@ class _BillingsPageState extends State<BillingsPage> {
       ),
     );
   }
+
   Widget _billingCard(DataList item, _StatusInfo statusInfo) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
@@ -150,7 +173,7 @@ class _BillingsPageState extends State<BillingsPage> {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      "${item.amount ?? "0"} so'm",
+                      "${statusInfo.sign}${formatSomText(item.amount)} so'm",
                       style: GoogleFonts.nunito(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.sp,
@@ -184,7 +207,7 @@ class _BillingsPageState extends State<BillingsPage> {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      formatDateTime(item.createdAt!),
+                      formatDateTime(item.createdAt),
                       style: GoogleFonts.nunito(
                         fontSize: 11.sp,
                         color: context.palette.textSecondary,
@@ -193,12 +216,13 @@ class _BillingsPageState extends State<BillingsPage> {
                   ],
                 ),
 
-                // 4-qator: Xatolik matni (agar mavjud bo'lsa)
-                if (item.errorNote != null)
+                // 4-qator: Xatolik matni. Backend muvaffaqiyatli to'lovga ham
+                // errorNote: "Success" yozadi — faqat bekor qilinganlarda chiqadi
+                if (_errorNote(item) != null)
                   Padding(
                     padding: EdgeInsets.only(top: 6.h),
                     child: Text(
-                      "${item.errorNote}",
+                      _errorNote(item)!,
                       style: GoogleFonts.nunito(
                         fontSize: 11.sp,
                         color: Colors.red,
@@ -214,11 +238,19 @@ class _BillingsPageState extends State<BillingsPage> {
     );
   }
 
+  String? _errorNote(DataList item) {
+    final note = item.errorNote?.toString().trim() ?? "";
+    if (item.status == 1 || item.status == 2) return null;
+    if (note.isEmpty || note.toLowerCase() == "success") return null;
+    return note;
+  }
+
   _StatusInfo _statusInfo(DataList item) {
     final status = item.status ?? 0;
     if (status == 2) {
       return _StatusInfo(
         title: "Pul yechish",
+        sign: "-",
         icon: Icons.arrow_upward,
         iconColor: AppColors.red_400,
         bgColor: AppColors.red_200,
@@ -228,6 +260,7 @@ class _BillingsPageState extends State<BillingsPage> {
     if (status == 1) {
       return _StatusInfo(
         title: "Pul kiritish",
+        sign: "+",
         icon: Icons.arrow_downward,
         iconColor: Colors.green,
         bgColor: Colors.green.shade100,
@@ -235,7 +268,8 @@ class _BillingsPageState extends State<BillingsPage> {
       );
     }
     return _StatusInfo(
-      title: "Xatolik",
+      // status 0 — Click to'lovi bekor qilingan
+      title: "Bekor qilingan",
       icon: Icons.error_outline,
       iconColor: Colors.orange,
       bgColor: Colors.orange.shade100,
@@ -243,7 +277,8 @@ class _BillingsPageState extends State<BillingsPage> {
     );
   }
 
-  String formatDateTime(String rawDate) {
+  String formatDateTime(String? rawDate) {
+    if (rawDate == null) return "";
     try {
       DateTime dt = DateTime.parse(rawDate).toLocal();
       // Format: kun.oy.yil soat:daqiqa
@@ -256,6 +291,7 @@ class _BillingsPageState extends State<BillingsPage> {
 
 class _StatusInfo {
   final String title;
+  final String sign;
   final IconData icon;
   final Color iconColor;
   final Color bgColor;
@@ -263,6 +299,7 @@ class _StatusInfo {
 
   _StatusInfo({
     required this.title,
+    this.sign = "",
     required this.icon,
     required this.iconColor,
     required this.bgColor,

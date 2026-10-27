@@ -25,6 +25,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
     {"alphabet": "assets/alphabet/k.webp", "text": "K"},
     {"alphabet": "assets/alphabet/sh.webp", "text": "Sh"},
     {"alphabet": "assets/alphabet/z.webp", "text": "Z"},
+    {"alphabet": "assets/alphabet/g.webp", "text": "G"},
     {"alphabet": "assets/alphabet/y.webp", "text": "Y"},
   ];
 
@@ -113,9 +114,13 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                             itemCount: alphabet.length,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             itemBuilder: (context, index) {
+                              // Backend tovushni "SH" yoki "sh" deb yuborishi mumkin
+                              final letter = (alphabet[index]["text"] as String)
+                                  .toLowerCase();
                               var check = scores.any(
                                 (element) =>
-                                    element.sound == alphabet[index]["text"] &&
+                                    element.sound?.trim().toLowerCase() ==
+                                        letter &&
                                     !element.matchedSound,
                               );
 
@@ -237,7 +242,7 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                         children: [
                           Text("🔄 ", style: TextStyle(fontSize: 14.sp)),
                           Text(
-                            word.matchedWord.toString().split(",")[0],
+                            word.displayWord.split(",")[0],
                             style: TextStyle(
                               color: context.palette.textPrimary,
                               fontWeight: FontWeight.bold,

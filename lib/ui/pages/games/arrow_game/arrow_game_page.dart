@@ -12,6 +12,7 @@ import 'package:provider/provider.dart'; // Provider importi
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
+import '../../../../core/utils/voice_match.dart';
 import '../../../../models/target_node_model.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
@@ -194,7 +195,11 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
       debugPrint("Tizim eshitgan matn: $recognizedText");
 
-      bool isMatched = _checkVoiceMatch(recognizedText, node.text);
+      bool isMatched = voiceMatches(
+        recognizedText,
+        node.text,
+        lenient: true,
+      );
 
       if (isMatched) {
         if (mounted) {
@@ -227,7 +232,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           await _audioPlayer.play(AssetSource('sound/success.mp3'));
         }
       } else {
-        _handleWrongAnswer();
+        // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
+        _handleWrongAnswer(
+          countMistake: !isEmptyTranscript(recognizedText),
+        );
       }
     } catch (e) {
       debugPrint("STT Xatolik: $e");
@@ -240,29 +248,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
         });
       }
     }
-  }
-
-  bool _checkVoiceMatch(String recognizedText, String targetText) {
-    String cleanRecognized = recognizedText.toLowerCase().replaceAll(
-      RegExp(r"[^a-z']"),
-      "",
-    );
-    String cleanTarget = targetText.toLowerCase().replaceAll(
-      RegExp(r"[^a-z']"),
-      "",
-    );
-
-    if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
-
-    String patternString = "";
-    for (int i = 0; i < cleanTarget.length; i++) {
-      if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
-        patternString += "${cleanTarget[i]}+";
-      }
-    }
-
-    RegExp regExp = RegExp(patternString);
-    return regExp.hasMatch(cleanRecognized);
   }
 
   void _handleWrongAnswer({bool countMistake = true}) {

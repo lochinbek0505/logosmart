@@ -12,6 +12,7 @@ import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
+import '../../../../core/utils/voice_match.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
@@ -237,10 +238,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
 
       debugPrint("STT natijasi: $recognizedText");
 
-      if (recognizedText.isNotEmpty) {
+      if (!isEmptyTranscript(recognizedText)) {
         _evaluateRecognizedText(recognizedText);
       } else {
-        _handleWrongAnswer();
+        // Bo'sh javob — STT nutq topmadi, bola xatosi emas
+        _handleWrongAnswer(countMistake: false);
       }
     } catch (e) {
       debugPrint("STT Xatoligi: $e");
@@ -256,41 +258,23 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   }
 
   void _evaluateRecognizedText(String text) {
-    bool isMatchedAtAll = false;
-
-    for (int i = 0; i < _gameList.length; i++) {
-      final item = _gameList[i];
-      if (_checkVoiceMatch(text, item["text"])) {
-        isMatchedAtAll = true;
-        if (item["isCorrect"] == true) {
-          _gameEnd();
-        } else {
-          _handleWrongAnswer();
-        }
-        break;
+    // Bir nechta variant mos kelsa (masalan "gul" va "gulkaram"), eng uzun
+    // so'z tanlanadi — ro'yxatdagi tartib natijaga ta'sir qilmasin
+    Map<String, dynamic>? bestItem;
+    for (final item in _gameList) {
+      if (!voiceMatches(text, item["text"])) continue;
+      if (bestItem == null ||
+          phonemeWord(item["text"]).length >
+              phonemeWord(bestItem["text"]).length) {
+        bestItem = item;
       }
     }
 
-    if (!isMatchedAtAll) {
+    if (bestItem?["isCorrect"] == true) {
+      _gameEnd();
+    } else {
       _handleWrongAnswer();
     }
-  }
-
-  bool _checkVoiceMatch(String recognizedText, String targetText) {
-    String cleanRecognized = recognizedText.toLowerCase().replaceAll(RegExp(r"[^a-z'ʻ]"), "");
-    String cleanTarget = targetText.toLowerCase().replaceAll(RegExp(r"[^a-z'ʻ]"), "");
-
-    if (cleanTarget.isEmpty || cleanRecognized.isEmpty) return false;
-
-    String patternString = "";
-    for (int i = 0; i < cleanTarget.length; i++) {
-      if (i == 0 || cleanTarget[i] != cleanTarget[i - 1]) {
-        patternString += "${cleanTarget[i]}+";
-      }
-    }
-
-    RegExp regExp = RegExp(patternString);
-    return regExp.hasMatch(cleanRecognized);
   }
 
   Future<void> _handleWrongAnswer({bool countMistake = true}) async {

@@ -15,23 +15,6 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
   List<Template> templates = [];
   List<ScoreResult> scores = [];
 
-  void scoreInit() {
-    scores = [
-      ScoreResult(
-        score: 10,
-        matchedWord: "asal",
-        sound: "S",
-        matchedSound: true,
-      ),
-      ScoreResult(
-        score: 5,
-        matchedWord: "sabzi",
-        sound: "S",
-        matchedSound: false,
-      ),
-    ];
-  }
-
   void init(List<Template> list) {
     templates = list;
     totalScore = 0;
@@ -43,6 +26,13 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
 
   Template? get currentTemplate =>
       currentIndex < templates.length ? templates[currentIndex] : null;
+
+  /// Bajarilgan topshiriqlar ulushi (0..1) — progress bar uchun
+  double get progress =>
+      templates.isEmpty ? 0 : scores.length / templates.length;
+
+  /// Har bir topshiriq uchun eng yuqori ball
+  static const int maxItemScore = 10;
 
   ScoreResult evaluateSpeech(String recognizedText) {
     final tpl = currentTemplate;
@@ -83,7 +73,11 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
   }
 
   Future<void> submitResults(context) async {
-    Map<String, dynamic> data = {"totalPercent": totalScore};
+    // Backend foiz kutadi: ballar (0, 5, 10) 100 ga nisbatan hisoblanadi
+    final maxTotal = scores.length * maxItemScore;
+    Map<String, dynamic> data = {
+      "totalPercent": maxTotal == 0 ? 0 : (totalScore * 100 / maxTotal).round(),
+    };
 
     // "sounds": [
     // {"sound": "string", "percent": 100, "note": "string"},
@@ -94,7 +88,7 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
     for (var value in scores) {
       sounds.add({
         "sound": value.sound,
-        "percent": value.score, // 0, 5, 10 ni 100 ga nisbatan
+        "percent": value.score * 100 ~/ maxItemScore,
         "note": value.matchedSound
             ? "Tovush to‘g‘ri aytilgan"
             : (value.matchedWord != null

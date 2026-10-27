@@ -19,6 +19,7 @@ import 'package:record/record.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import '../../../../core/service/uzbekvoice_stt_service.dart';
+import '../../../../core/utils/voice_match.dart';
 import '../../../../models/diagnostic_group_model.dart';
 import '../../theme/app_colors.dart';
 
@@ -33,6 +34,15 @@ class VoiceDiagnosticPage extends StatefulWidget {
 
 class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     with TickerProviderStateMixin {
+  /// Shundan past (dBFS) bo'lsa — bola gapirmadi deb "balandroq gapir" so'raladi.
+  /// Oddiy nutq -30..-10 atrofida; -10 faqat qichqiriqda o'tardi.
+  static const double _silenceThresholdDb = -30.0;
+
+  /// STT bo'sh javob qaytarsa, topshiriq necha marta qayta beriladi
+  static const int _maxEmptyRetries = 2;
+
+  int _emptyRetries = 0;
+
   final heights = [4.0, 6.0, 8.0, 11.0, 15.0, 21.0, 28.0, 33.0, 36.0];
 
   int activeBars = 0;
@@ -171,7 +181,16 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     _confettiCtrl = ConfettiController(duration: const Duration(seconds: 2));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VoiceDiagnosticProvider>().init(widget.templatesList ?? []);
+      final templates = widget.templatesList ?? [];
+      if (templates.isEmpty) {
+        // Topshiriqsiz sahifa mikrofon ovozini cheksiz qaytarib turardi
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Diagnostika topshiriqlari topilmadi")),
+        );
+        Navigator.of(context).pop();
+        return;
+      }
+      context.read<VoiceDiagnosticProvider>().init(templates);
 
       _playMicOnSound();
     });
@@ -295,20 +314,39 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         activeBars = 0;
       });
 
-      if (_maxAmplitude < -10.0) {
-        setState(() {
-          _isAskingGirl = true;
-        });
-
-        await _player.play(AssetSource("sound/microphone_error.mp3"));
-
+      if (_maxAmplitude < _silenceThresholdDb) {
+        await _askToSpeakAgain();
         return;
       }
 
       if (path != null && File(path).existsSync()) {
-        final text = await _stt.transcribe(audioPath: path);
+        final String text;
+        try {
+          text = await _stt.transcribe(audioPath: path);
+        } catch (e) {
+          // Internet/STT xatosi bolaning xatosi emas — topshiriq qayta beriladi
+          debugPrint("STT Xatolik: $e");
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Internet bilan aloqa yo'q, qayta urinib ko'ring"),
+            ),
+          );
+          _startItemSequence();
+          return;
+        }
 
         if (!mounted) return;
+
+        debugPrint("Tizim eshitgan matn: $text");
+
+        // STT nutq topmadi — bir-ikki marta qayta so'raymiz, keyin baholaymiz
+        if (isEmptyTranscript(text) && _emptyRetries < _maxEmptyRetries) {
+          _emptyRetries++;
+          await _askToSpeakAgain();
+          return;
+        }
+        _emptyRetries = 0;
 
         final provider = context.read<VoiceDiagnosticProvider>();
 
@@ -333,13 +371,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         if (hasNext) {
           _startItemSequence();
         } else {
-          bool suc = true;
-          provider.scores.forEach((item) {
-            if (!item.matchedSound) {
-              suc = false;
-              return;
-            }
-          });
+          final suc = provider.scores.every((item) => item.matchedSound);
 
           provider.submitResults(context);
           if (suc) {
@@ -402,6 +434,16 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     _bounce.repeat(reverse: true);
   }
 
+  /// "Balandroq gapir" ovozi; tugagach topshiriq qayta boshlanadi
+  /// (_player.onPlayerComplete tinglovchisida)
+  Future<void> _askToSpeakAgain() async {
+    setState(() {
+      _isAskingGirl = true;
+    });
+
+    await _player.play(AssetSource("sound/microphone_error.mp3"));
+  }
+
   void _playSuccessBurst() {
     _confettiCtrl.play();
   }
@@ -461,10 +503,15 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                 child: GestureDetector(
                                   onTap: () {
+                                    // Topshiriqlar ham uzatiladi — aks holda
+                                    // qayta boshlaganda ro'yxat bo'sh qolardi
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: (builder) =>
-                                            DiagnosticStartPage(),
+                                            DiagnosticStartPage(
+                                              templatesList:
+                                                  widget.templatesList,
+                                            ),
                                       ),
                                     );
                                   },
@@ -549,7 +596,7 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
                                 stripeColor: AppColors.orange_500,
 
-                                targetProgress: .5,
+                                targetProgress: provider.progress,
                               ),
                             ),
                           ),
@@ -703,6 +750,13 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
                                             ),
 
                                             fit: BoxFit.contain,
+                                            errorBuilder: (_, _, _) =>
+                                                const Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  size: 64,
+                                                  color: Colors.grey,
+                                                ),
                                           ),
                                         ),
                                       ),

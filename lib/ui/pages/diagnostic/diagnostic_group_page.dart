@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logosmart/models/diagnostic_group_model.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -91,10 +92,13 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
               SizedBox(
                 height: 200.h,
                 child: ListView.builder(
-                  itemCount: groups.length,
+                  // Yuklanayotganda ro'yxat bo'sh — spinner uchun bitta element
+                  itemCount: provider.isLoading ? 1 : groups.length,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   itemBuilder: (context, index) {
-                    var group = groups[index];
+                    var group = provider.isLoading
+                        ? DiagnosticGroup()
+                        : groups[index];
                     return provider.isLoading
                         ? Center(
                       child: Container(
@@ -166,16 +170,18 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Image.network(
-                                group.iconUrl!,
-                                headers: authImageHeaders(group.iconUrl!),
+                                group.iconUrl ?? "",
+                                headers: authImageHeaders(group.iconUrl ?? ""),
                                 height: 80.h,
                                 width: 80.w,
                                 fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) =>
+                                    SizedBox(width: 80.w, height: 80.h),
                               ),
                               SizedBox(
                                 width: 160.w,
                                 child: Text(
-                                  group.name!,
+                                  group.name ?? "",
                                   style: GoogleFonts.nunito(
                                     color: context.palette.textPrimary,
                                     fontWeight: FontWeight.w700,

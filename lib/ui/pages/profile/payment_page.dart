@@ -3,6 +3,7 @@ import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logosmart/core/utils/money_format.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,7 @@ class PaymentPage extends StatefulWidget {
   State<PaymentPage> createState() => _PaymentPageState();
 }
 
-class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
+class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver {
   TextEditingController _amountController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isPaymentStarted = false;
@@ -25,6 +26,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
     super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -38,9 +40,12 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
       _isPaymentStarted = false;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Provider.of<ProfileProvider>(context, listen: false).init(context);
+        if (!mounted) return;
+        Provider.of<ProfileProvider>(
+          context,
+          listen: false,
+        ).init(context, silent: true);
       });
-
 
       debugPrint("Foydalanuvchi to'lov ilovasidan qaytib keldi!");
     }
@@ -71,7 +76,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                       ),
                       SizedBox(width: 24.w),
                       Text(
-                        "Pul yechish",
+                        "Balansni to'ldirish",
                         style: GoogleFonts.nunito(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
@@ -107,7 +112,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Balans : ${provider.profileResponse.amount} so'm",
+                              "Balans : ${formatSom(provider.profileResponse.amount)} so'm",
                               style: GoogleFonts.nunito(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16.sp,
@@ -165,7 +170,7 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                               .withValues(alpha: 0.7),
                         ),
                         // isLoading true bo'lsa, tugma bosilmaydi
-                        onPressed: provider.isLoading
+                        onPressed: provider.isActionLoading
                             ? null
                             : () async {
                                 FocusScope.of(context).unfocus();
@@ -177,16 +182,27 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver{
                                       '',
                                     ),
                                   };
-                                  setState(() {
-                                    _isPaymentStarted = true;
-                                  });
-                                  await provider.createPayLink(
+                                  final messenger = ScaffoldMessenger.of(
+                                    context,
+                                  );
+                                  final error = await provider.createPayLink(
                                     context,
                                     payload,
                                   );
+                                  // Click ochilgandagina qaytishda balans
+                                  // yangilanadi
+                                  _isPaymentStarted = error == null;
+                                  if (error != null && error.isNotEmpty) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(error),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
-                        child: provider.isLoading
+                        child: provider.isActionLoading
                             ? SizedBox(
                                 height: 24.h,
                                 width: 24.h,

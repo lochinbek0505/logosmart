@@ -48,27 +48,63 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
     final provider2 = Provider.of<AuthProvider>(context, listen: false);
     await provider2.initRegions();
     if (!mounted) return;
-    await provider.init(context);
+    await provider.init(context, silent: true);
+    if (!mounted) return;
 
     // Profile data bilan default qiymatlar
     final profile = provider.profileResponse;
     _nameController.text = profile.fullName ?? "";
-    selectedAgeValue = profile.age?.toInt();
-    if (profile.region != null) {
-      selectedRegionValue = provider2.regionsList.firstWhere(
-        (r) => r['name'] == profile.region,
-        orElse: () => {},
+    final age = profile.age?.toInt();
+    // Ro'yxatda yo'q qiymat dropdown'ni yiqitadi (items.contains assert)
+    selectedAgeValue = ages.contains(age) ? age : null;
+
+    // Topilmasa null — oldin bo'sh {} qaytarilib, getDistricts(null)
+    // TypeError berardi
+    selectedRegionValue = _findByName(provider2.regionsList, profile.region);
+    selectedDistrictValue = null;
+    if (selectedRegionValue != null) {
+      provider2.getDistricts(selectedRegionValue!['id']);
+      selectedDistrictValue = _findByName(
+        provider2.districts,
+        profile.district,
       );
-      if (selectedRegionValue != null) {
-        provider2.getDistricts(selectedRegionValue!['id']);
-        if (profile.district != null) {
-          selectedDistrictValue = provider2.districts.firstWhere(
-            (d) => d['name'] == profile.district,
-            orElse: () => {},
-          );
-        }
-      }
     }
+    // Qiymatlar provider xabaridan keyin o'rnatildi — qayta chizish kerak
+    setState(() {});
+  }
+
+  Map<String, dynamic>? _findByName(
+    List<Map<String, dynamic>> items,
+    String? name,
+  ) {
+    final target = name?.trim().toLowerCase();
+    if (target == null || target.isEmpty) return null;
+    for (final item in items) {
+      if (item['name']?.toString().trim().toLowerCase() == target) return item;
+    }
+    return null;
+  }
+
+  Future<void> _save(ProfileProvider provider) async {
+    if (!_formKey.currentState!.validate()) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final payload = {
+      "profileImage": provider.profileResponse.profileImage,
+      "fullName": _nameController.text.trim(),
+      "region": selectedRegionValue?['name'],
+      "district": selectedDistrictValue?['name'],
+      "age": selectedAgeValue,
+    };
+    final result = await provider.updateProfile(context, payload);
+    // Xato bo'lsa matni ApiService da ko'rsatiladi
+    if (result == null || !mounted) return;
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text("Ma'lumotlar saqlandi"),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -118,7 +154,8 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
                         controller: _nameController,
                         label: "Ism va familiya",
                         validator: (v) {
-                          if (v == null || v.isEmpty) {
+                          // Faqat probellar ham bo'sh ism hisoblanadi
+                          if (v == null || v.trim().isEmpty) {
                             return "Ismni kiriting";
                           }
                           return null;
@@ -206,25 +243,10 @@ class _ProfileEditInfoPageState extends State<ProfileEditInfoPage> {
                               disabledBackgroundColor: AppColors.main_blue_600
                                   .withValues(alpha: 0.7),
                             ),
-                            onPressed: provider.isLoading
+                            onPressed: provider.isActionLoading
                                 ? null
-                                : () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      final payload = {
-                                        "profileImage": provider.profileResponse.profileImage,
-                                        "fullName": _nameController.text.trim(),
-                                        "region": selectedRegionValue?['name'],
-                                        "district":
-                                            selectedDistrictValue?['name'],
-                                        "age": selectedAgeValue,
-                                      };
-                                      await provider.updateProfile(
-                                        context,
-                                        payload,
-                                      );
-                                    }
-                                  },
-                            child: provider.isLoading
+                                : () => _save(provider),
+                            child: provider.isActionLoading
                                 ? SizedBox(
                                     height: 24.h,
                                     width: 24.h,

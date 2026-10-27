@@ -36,10 +36,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var provider = Provider.of<VoiceDiagnosticProvider>(context);
-    provider.scoreInit();
     var sounds = provider.scores;
-    debugPrint("SOUND TEST");
-    debugPrint(sounds.toString());
 
     return Scaffold(
       backgroundColor: Colors.green.shade300,
@@ -189,7 +186,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                               runSpacing: 10.h,
                               children: sounds.map((item) {
                                 return _buildWordTag(
-                                  item.matchedWord.toString(),
+                                  item.displayWord,
                                   item.matchedSound,
                                 );
                               }).toList(),

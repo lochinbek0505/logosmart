@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logosmart/core/utils/money_format.dart';
+import 'package:logosmart/models/plans_model.dart' as plan;
+import 'package:logosmart/models/promo_check_model.dart';
 import 'package:logosmart/ui/pages/profile/payment_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/profile_provider.dart';
 import 'package:logosmart/ui/pages/profile/widgets/custom_subscription_card.dart';
@@ -18,15 +21,14 @@ class SubscriptionPage extends StatefulWidget {
 }
 
 class _SubscriptionPageState extends State<SubscriptionPage> {
-  int selectedIndex = 0;
-  List<String> features = [];
-  String currentPrice = "";
-  String oldPrice = "";
-  String code = "";
-  bool canSubscribe = true;
+  int? selectedIndex;
 
-  String? promoCode;
-  num? promoDiscountPercent;
+  /// Tasdiqlangan promokod (DISCOUNT_PERCENT yoki FREE_DAYS)
+  PromoCheckModel? _promo;
+
+  /// Rejalar so'rovi tugadi — shundan keyingina "yuklab bo'lmadi" ko'rsatiladi
+  bool _plansRequested = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,82 +36,105 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
       await provider.initPlans(context);
-
       if (!mounted) return;
-
-      final hasData =
-          provider.plansModel.dataListList != null &&
-              provider.plansModel.dataListList!.isNotEmpty;
-
-      if (hasData) {
-        final plans = provider.plansModel.dataListList!;
-        final currentSubCode = provider.profileResponse.subscriptionCode;
-
-        num? currentDuration;
-        if (currentSubCode != null) {
-          final currentPlan = plans.firstWhere(
-                (p) => p.code == currentSubCode,
-            orElse: () => plans.first,
-          );
-          currentDuration = currentPlan.durationDays;
-        }
-
-        // Tanlash mumkin bo‘lgan reja (durationDays katta)
-        final eligibleIndex = plans.indexWhere((p) {
-          if (currentDuration == null) return true;
-          return (p.durationDays ?? 0) > currentDuration;
-        });
-
-        if (eligibleIndex != -1) {
-          final firstPlan = plans[eligibleIndex];
-
-          setState(() {
-            selectedIndex = eligibleIndex;
-            features = firstPlan.featuresList ?? [];
-            currentPrice = (firstPlan.price ?? "").toString();
-            oldPrice =
-            (firstPlan.promoTextsList != null &&
-                firstPlan.promoTextsList!.isNotEmpty)
-                ? firstPlan.promoTextsList!.first
-                : "";
-            code = firstPlan.code ?? "";
-            canSubscribe = true;
-          });
-        } else {
-          // Eng katta reja olingan bo‘lsa
-          setState(() {
-            canSubscribe = false;
-          });
-        }
-      }
+      _plansRequested = true;
+      final plans = provider.plansModel.dataListList ?? [];
+      // Birinchi tanlash mumkin bo'lgan reja oldindan belgilanadi
+      final first = plans.indexWhere((p) => _isSelectable(provider, p));
+      setState(() => selectedIndex = first == -1 ? null : first);
     });
   }
 
-  String discountedPrice() {
-    final price = num.tryParse(currentPrice) ?? 0;
-    final discount = promoDiscountPercent ?? 0;
-    final discounted = price - (price * discount / 100);
-    return discounted.toStringAsFixed(0);
+  /// Hozir amal qilayotgan pullik reja (bo'lmasa null).
+  /// DEFAULT, PROMO_FREE yoki muddati tugagan obuna — cheklov yo'q.
+  plan.DataList? _activePlan(ProfileProvider provider) {
+    final profile = provider.profileResponse;
+    if (!profile.hasActiveSubscription) return null;
+    final plans = provider.plansModel.dataListList ?? [];
+    for (final p in plans) {
+      if (p.code == profile.subscriptionCode) return p;
+    }
+    return null;
+  }
+
+  /// Faol obuna bo'lsa — shu reja yoki undan uzunrog'i (uzaytirish yoki
+  /// yuqoriga o'tish). Backend yangi muddatni eski tugash sanasiga qo'shadi.
+  bool _isSelectable(ProfileProvider provider, plan.DataList p) {
+    final active = _activePlan(provider);
+    if (active == null) return true;
+    return (p.durationDays ?? 0) >= (active.durationDays ?? 0);
+  }
+
+  num _discountPercent() =>
+      _promo?.type == "DISCOUNT_PERCENT" ? (_promo!.discountPercent ?? 0) : 0;
+
+  num _finalPrice(plan.DataList p) {
+    final price = p.price ?? 0;
+    final discounted = price - price * _discountPercent() / 100;
+    return discounted < 0 ? 0 : discounted;
+  }
+
+  Future<void> _enterPromo() async {
+    final result = await showDialog<PromoCheckModel>(
+      context: context,
+      builder: (_) => const PromoCodeDialog(),
+    );
+    if (result == null || !mounted) return;
+    setState(() => _promo = result);
+  }
+
+  Future<void> _confirm(ProfileProvider provider, plan.DataList p) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final price = _finalPrice(p);
+    final balance = provider.profileResponse.amount ?? 0;
+
+    if (price > balance) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            "Hisobingizda yetarli mablag' yo'q (kerak: ${formatSom(price)} so'm). "
+            "Iltimos, hisobni to'ldiring!",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (builder) => PaymentPage()),
+      );
+      // To'lovdan qaytgach balans yangilanadi
+      if (mounted) await provider.init(context, silent: true);
+      return;
+    }
+
+    final ok = await provider.activatePlan(
+      context,
+      p.code ?? "",
+      _promo?.code ?? "",
+    );
+    if (!mounted || !ok) return;
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text("Sizning obunangiz muvaffaqiyatli faollashtirildi!"),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
-
-    final hasData =
-        provider.plansModel.dataListList != null &&
-        provider.plansModel.dataListList!.isNotEmpty;
-
-    // Hozirgi aktiv obunaning durationDays ni topamiz
-    num? currentPlanDurationDays;
-    final currentSubCode = provider.profileResponse.subscriptionCode;
-    if (currentSubCode != null && hasData) {
-      final currentPlan = provider.plansModel.dataListList!.firstWhere(
-        (p) => p.code == currentSubCode,
-        orElse: () => provider.plansModel.dataListList!.first,
-      );
-      currentPlanDurationDays = currentPlan.durationDays;
-    }
+    final plans = provider.plansModel.dataListList ?? [];
+    final hasData = plans.isNotEmpty;
+    final activePlan = _activePlan(provider);
+    final selected = selectedIndex != null && selectedIndex! < plans.length
+        ? plans[selectedIndex!]
+        : null;
+    final promoTexts = selected?.promoTextsList ?? [];
+    final freeDays = _promo?.type == "FREE_DAYS"
+        ? num.tryParse("${_promo?.freeDays}") ?? 0
+        : 0;
 
     return Scaffold(
       backgroundColor: context.palette.background,
@@ -144,51 +169,47 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 9.h),
-                if (hasData)
-                  ...provider.plansModel.dataListList!.asMap().entries.map((
-                    entry,
-                  ) {
-                    final index = entry.key;
-                    final plan = entry.value;
-                    final promoTexts = plan.promoTextsList ?? [];
-                    var planName = provider.profileResponse.subscriptionCode;
-                    final isSelectable = currentPlanDurationDays == null ||
-                        planName =="DEFAULT"
-                        ? true
-                        : (plan.durationDays ?? 0) > currentPlanDurationDays;
+                ...plans.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final p = entry.value;
+                  final texts = p.promoTextsList ?? [];
+                  final selectable = _isSelectable(provider, p);
 
-                    return CustomSubscriptionCard(
+                  return Opacity(
+                    opacity: selectable ? 1 : 0.5,
+                    child: CustomSubscriptionCard(
                       isSelected: selectedIndex == index,
-                      title: plan.name ?? "Nomsiz",
-                      bonusText: promoTexts.length > 1
-                          ? promoTexts[1]
-                          : "",
-                      onTap: isSelectable
-                          ? () {
-                              setState(() {
-                                features = plan.featuresList ?? [];
-                                currentPrice = (plan.price ?? "").toString();
-                                oldPrice = promoTexts.isNotEmpty
-                                    ? promoTexts.first
-                                    : "";
-                                selectedIndex = index;
-                                code = plan.code ?? "";
-                              });
-                            }
+                      title: p.name ?? "Nomsiz",
+                      bonusText: texts.length > 1 ? texts[1] : "",
+                      onTap: selectable
+                          ? () => setState(() => selectedIndex = index)
                           : () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                 SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    "Faqat hozirgi obunadan uzoqroq ($currentPlanDurationDays kundan katta) reja tanlanadi.",
+                                    "Obunangiz faol: faqat ${activePlan?.durationDays} kunlik yoki undan uzunroq reja tanlanadi.",
                                   ),
                                   backgroundColor: Colors.orange,
                                 ),
                               );
                             },
-                    );
-                  }),
+                    ),
+                  );
+                }),
 
-                if (provider.isLoading && !hasData)
+                if (_plansRequested && !provider.isPlansLoading && !hasData)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    child: Text(
+                      "Obuna rejalarini yuklab bo'lmadi",
+                      style: GoogleFonts.nunito(
+                        color: context.palette.textSecondary,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ),
+
+                if (!_plansRequested && !hasData)
                   const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.main_blue_600,
@@ -197,38 +218,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
                 SizedBox(height: 12.h),
                 GestureDetector(
-                  onTap: provider.isLoading
-                      ? null
-                      : () async {
-                          final promo = await showDialog<String>(
-                            context: context,
-                            builder: (_) => const PromoCodeDialog(),
-                          );
-
-                          if (promo != null) {
-                            if (!mounted) return;
-                            final promoResult = await provider.checkPromoCode(
-                              context,
-                              promo,
-                            );
-
-                            if (promoResult.valid == true &&
-                                promoResult.expired != true &&
-                                promoResult.limitReached != true &&
-                                promoResult.type == "DISCOUNT_PERCENT") {
-                              setState(() {
-                                promoCode = promo;
-                                promoDiscountPercent =
-                                    promoResult.discountPercent ?? 0;
-                              });
-                            } else {
-                              setState(() {
-                                promoCode = null;
-                                promoDiscountPercent = null;
-                              });
-                            }
-                          }
-                        },
+                  onTap: provider.isActionLoading ? null : _enterPromo,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -247,9 +237,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                           ),
                         ),
                         child: Text(
-                          promoCode == null
+                          _promo == null
                               ? "Promokod bormi?"
-                              : "Promokod: $promoCode",
+                              : freeDays > 0
+                              ? "Promokod: ${_promo!.code} (+$freeDays kun bepul)"
+                              : "Promokod: ${_promo!.code} (-${_discountPercent()}%)",
                           style: GoogleFonts.nunito(
                             color: context.palette.textStrong,
                             fontSize: 16.sp,
@@ -263,13 +255,16 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
                 SizedBox(height: 16.h),
                 PricingCardWidget(
-                  features: features,
-                  currentPrice: promoDiscountPercent == null
-                      ? currentPrice
-                      : discountedPrice(),
-                  oldPrice: promoDiscountPercent == null
-                      ? oldPrice
-                      : currentPrice,
+                  features: selected?.featuresList ?? [],
+                  currentPrice: selected == null
+                      ? ""
+                      : formatSom(_finalPrice(selected)),
+                  // Chegirma bo'lsa asl narx, bo'lmasa reja promo matni
+                  oldPrice: selected == null
+                      ? ""
+                      : _discountPercent() > 0
+                      ? formatSom(selected.price)
+                      : (promoTexts.isNotEmpty ? promoTexts.first : ""),
                 ),
                 SizedBox(height: 40.h),
                 SizedBox(
@@ -285,47 +280,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       disabledBackgroundColor: AppColors.main_blue_600
                           .withValues(alpha: 0.7),
                     ),
-                    onPressed:provider.isLoading || !canSubscribe
+                    onPressed: provider.isActionLoading || selected == null
                         ? null
-                        : () async {
-                            num? price = promoDiscountPercent == null
-                                ? num.tryParse(currentPrice)
-                                : num.tryParse(discountedPrice());
-                            if (price! <= provider.profileResponse.amount!) {
-                              var a = await provider.activatePlan(
-                                context,
-                                code,
-                                promoCode ?? "",
-                              );
-                              if (!mounted) return;
-                              if (a) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Sizning obunangiz muvaffaqiyatli faollashtirildi!",
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Sizning hisobingizda yetarli mablag' mavjud emas , iltimos hisobni to'ldiring!",
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (builder) => PaymentPage(),
-                                ),
-                              );
-                            }
-                          },
-                    child: provider.isLoading
+                        : () => _confirm(provider, selected),
+                    child: provider.isActionLoading
                         ? SizedBox(
                             height: 24.h,
                             width: 24.h,

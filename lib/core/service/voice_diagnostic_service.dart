@@ -1,38 +1,39 @@
+import '../utils/voice_match.dart';
+
 class VoiceDiagnosticService {
   ScoreResult evaluate({
     required String recognizedText,
     required String promptText,
     required String sound,
   }) {
-    final recNorm = _normalize(recognizedText);
-    // Recognized so'zlarni asliga ziyon yetkazmasdan massivga ajratamiz
-    final recWords = recNorm.split(' ').where((e) => e.isNotEmpty).toList();
+    // Kirill/lotin, apostrof va h/x farqlari tekislanadi; sh, ch, o', g'
+    // bitta tovush hisoblanadi (voice_match.dart)
+    final recWords = phonemeWords(recognizedText);
+    final soundNorm = phonemeWord(sound);
 
-    final promptWords = _normalize(
-      promptText,
-    ).split(' ').where((e) => e.isNotEmpty).toList();
-    final soundNorm = _normalize(sound);
-
-    // 1) promptText dagi so‘zlardan bittasi 100% TO'LIQ mos kelsa
-    for (final w in promptWords) {
-      if (recWords.contains(w)) {
+    // 1) promptText dagi so'z aytilgan bo'lsa. Qo'shimcha bilan aytilgani
+    // ham qabul qilinadi: "asal" → "asalni"
+    for (final word in promptText.split(RegExp(r'\s+'))) {
+      final w = phonemeWord(word);
+      if (w.isNotEmpty && recWords.any((r) => r.startsWith(w))) {
         return ScoreResult(
+          promptText: promptText,
           score: 10,
-          matchedWord: w,
+          matchedWord: word.toLowerCase().replaceAll(RegExp(r'[.,!?;:]'), ''),
           sound: sound,
           matchedSound: true,
         );
       }
     }
 
-    // 2) sound harfi to‘g‘ri aytilgan bo‘lsa
-    // Bola aytgan so'zlar ichidan soundNorm qatnashgan birinchi so'zni qidiramiz
+    // 2) sound tovushi to'g'ri aytilgan bo'lsa. "S" ni "sh" ichidan,
+    // "G" ni "g'" ichidan topib olmaydi
     if (soundNorm.isNotEmpty) {
       for (final recWord in recWords) {
         if (recWord.contains(soundNorm)) {
           return ScoreResult(
+            promptText: promptText,
             score: 5,
-            // Mos kelgan to'liq so'zni qaytaramiz
             matchedWord: promptText,
             sound: sound,
             matchedSound: false,
@@ -42,20 +43,12 @@ class VoiceDiagnosticService {
     }
 
     return ScoreResult(
+      promptText: promptText,
       score: 0,
       matchedWord: null,
       sound: sound,
       matchedSound: false,
     );
-  }
-
-  String _normalize(String t) {
-    return t
-        .toLowerCase()
-        .replaceAll(RegExp(r"[’`ʻʼ]"), "'")
-        .replaceAll(RegExp(r"[^a-zа-яёҳқғў0-9'\s]"), " ")
-        .replaceAll(RegExp(r"\s+"), " ")
-        .trim();
   }
 }
 
@@ -65,15 +58,23 @@ class ScoreResult {
   final String? sound;
   final bool matchedSound;
 
+  /// Bolaga ko'rsatilgan so'z — xato bo'lsa ham (matchedWord null bo'lganda)
+  /// natija sahifalarida shu ko'rsatiladi
+  final String promptText;
+
   ScoreResult({
     required this.score,
     required this.matchedWord,
     required this.sound,
     required this.matchedSound,
+    this.promptText = '',
   });
+
+  /// Natija sahifalarida ko'rsatiladigan so'z
+  String get displayWord => matchedWord ?? promptText;
 
   @override
   String toString() {
-    return 'ScoreResult{score: $score, matchedWord: $matchedWord, sound: $sound, matchedSound: $matchedSound}';
+    return 'ScoreResult{score: $score, matchedWord: $matchedWord, promptText: $promptText, sound: $sound, matchedSound: $matchedSound}';
   }
 }

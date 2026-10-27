@@ -108,15 +108,17 @@ class PricingCardWidget extends StatelessWidget {
             ],
           ),
 
-          Text(
-            "$oldPrice uzs",
-            style: GoogleFonts.nunito(
-              fontSize: 12.sp,
-              color: context.palette.textSecondary,
-              decoration: TextDecoration.lineThrough,
-              fontWeight: FontWeight.w500,
+          // Eski narx bo'lmasa chizilgan " uzs" qolib ketmasin
+          if (oldPrice.isNotEmpty)
+            Text(
+              "$oldPrice uzs",
+              style: GoogleFonts.nunito(
+                fontSize: 12.sp,
+                color: context.palette.textSecondary,
+                decoration: TextDecoration.lineThrough,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
         ],
       ),
     );

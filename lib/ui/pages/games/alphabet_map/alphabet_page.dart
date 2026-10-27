@@ -21,6 +21,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
     {"alphabet": "assets/alphabet/k.webp", "text": "K"},
     {"alphabet": "assets/alphabet/sh.webp", "text": "Sh"},
     {"alphabet": "assets/alphabet/z.webp", "text": "Z"},
+    {"alphabet": "assets/alphabet/g.webp", "text": "G"},
     {"alphabet": "assets/alphabet/y.webp", "text": "Y"},
   ];
 

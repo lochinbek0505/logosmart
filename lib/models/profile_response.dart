@@ -87,6 +87,18 @@ class ProfileResponse {
     return map;
   }
 
+  /// Obuna tugash vaqti (backend Instant: "2026-11-27T10:00:00Z")
+  DateTime? get subscriptionExpiry => subscriptionExpiresAt == null
+      ? null
+      : DateTime.tryParse(subscriptionExpiresAt.toString())?.toLocal();
+
+  /// Pullik obuna hozir amal qilyaptimi. Muddati tugagandan keyin ham backend
+  /// subscriptionCode ni tozalamaydi, shuning uchun kodga emas, sanaga qaraladi.
+  bool get hasActiveSubscription {
+    final expiry = subscriptionExpiry;
+    return expiry != null && expiry.isAfter(DateTime.now());
+  }
+
   ProfileResponse.fromJson(dynamic json) {
     id = json["id"];
     fullName = json["fullName"];

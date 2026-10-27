@@ -74,48 +74,39 @@
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "arrow",
+      "type": "wolf_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/arrow/arrow_start.mp3",
-        "background_image": "assets/backround/arrow/arrow_back_1.webp",
+        "start_voice": "assets/sound/wolf_game/wolf_start.mp3",
+        "background_image": "assets/backround/paint/savanna_k.webp",
         "icon_star": "assets/icons/star.webp",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "center_letter": "R",
-        "outer_nodes": [
+        "music_icon": "assets/game/wolf_game/music.webp",
+        "cloud_text": "RA nomli uyni topishga yordam bering!",
+        "options": [
           {
-            "id": 0,
-            "letter": "A",
-            "color": "0xFFFFA726",
-            "angle": -180.0,
-            "sound": "assets/sound/arrow/ar.mp3",
-            "target_text": "aarr"
+            "image": "assets/game/wolf_game/gor.webp",
+            "sound": "assets/sound/wolf_game/RA.mp3",
+            "isCorrect": true
           },
           {
-            "id": 1,
-            "letter": "O",
-            "color": "0xFF43A047",
-            "angle": -90.0,
-            "sound": "assets/sound/arrow/or.mp3",
-            "target_text": "oorr"
+            "image": "assets/game/wolf_game/bird_house.webp",
+            "sound": "assets/sound/wolf_game/LA.mp3",
+            "isCorrect": false
           },
           {
-            "id": 2,
-            "letter": "U",
-            "color": "0xFFEC407A",
-            "angle": 0.0,
-            "sound": "assets/sound/arrow/ur.mp3",
-            "target_text": "uurr"
+            "image": "assets/game/wolf_game/dog_house.webp",
+            "sound": "assets/sound/wolf_game/SA.mp3",
+            "isCorrect": false
           },
           {
-            "id": 3,
-            "letter": "O'",
-            "color": "0xFF7FD8F7",
-            "angle": 90.0,
-            "sound": "assets/sound/arrow/o1r.mp3",
-            "target_text": "oorr"
+            "image": "assets/game/wolf_game/department.webp",
+            "sound": "assets/sound/wolf_game/YA.mp3",
+            "isCorrect": false
           }
-        ]
+        ],
+        "character_image": "assets/game/paint/bori_z.webp",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3"
       }
     }
   },
@@ -203,741 +194,12 @@
         "item_sound": "assets/sound/paint/DRRRR.mp3",
         "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/dron.webp",
+        "image": "assets/game/paint/dron_r.webp",
         "target_text": "Drrr",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
         "icon_star": "assets/icons/star.webp",
         "icon_mic": "assets/icons/micrafon.webp",
-        "background": "assets/backround/breath/drone_background.webp",
-        "path_config": {
-          "startPoint": {
-            "x": 0.15,
-            "y": 0.9
-          },
-          "segments": [
-            {
-              "cp1": {
-                "x": 1.5,
-                "y": 0.7
-              },
-              "cp2": {
-                "x": -0.5,
-                "y": 0.3
-              },
-              "endPoint": {
-                "x": 0.8,
-                "y": 0
-              }
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "id": 9,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "exercise",
-    "exercise": {
-      "modelPath": "assets/models/ochtp.tflite",
-      "sound": "sound/cv/ong_chap.mp3",
-      "mediaPath": "assets/videos/models/ong_chap.mp4",
-      "steps": [
-        {
-          "text": "Tilni ongga chiqarib ko‘rsating",
-          "action": "ong"
-        },
-        {
-          "text": "Tilni chapga chiqarib ko‘rsating",
-          "action": "chap"
-        }
-      ]
-    },
-    "game": null
-  },
-  {
-    "id": 10,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/face_5.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/face_6.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/face_7.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/face_8.webp"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 11,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "breath",
-      "jsonConfig": {
-        "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/coins.mp3",
-        "lottie_animation": "assets/animation/breath/coins.json",
-        "background_image": "assets/backround/breath/coins_background.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "animation_position": 30
-      }
-    }
-  },
-  {
-    "id": 12,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "path_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/paint/paint_start.mp3",
-        "item_sound": "assets/sound/paint/trrrrrrr.mp3",
-        "error_sound": "assets/sound/paint/paint_end.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/traktor.webp",
-        "target_text": "Trrr",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "background": "assets/backround/paint/traktor.webp",
-        "path_config": {
-          "startPoint": {
-            "x": 0.1,
-            "y": 0.05
-          },
-          "segments": [
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.95,
-                "y": 0.05
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.95,
-                "y": 0.95
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.2,
-                "y": 0.95
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.2,
-                "y": 0.25
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.75,
-                "y": 0.25
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.75,
-                "y": 0.75
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.4,
-                "y": 0.75
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.4,
-                "y": 0.45
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.6,
-                "y": 0.45
-              }
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "id": 13,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "train_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/train_game/train_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "trains": [
-          {
-            "id": "main",
-            "image": "assets/game/train_game/train_main.webp",
-            "syllable": 0,
-            "sound": "assets/sound/train_game/train_start.mp3"
-          },
-          {
-            "id": "1",
-            "image": "assets/game/train_game/train_1.webp",
-            "syllable": 1,
-            "sound": "assets/sound/train_game/train_1.mp3"
-          },
-          {
-            "id": "2",
-            "image": "assets/game/train_game/train_2.webp",
-            "syllable": 2,
-            "sound": "assets/sound/train_game/train_2.mp3"
-          },
-          {
-            "id": "3",
-            "image": "assets/game/train_game/train_3.webp",
-            "syllable": 3,
-            "sound": "assets/sound/train_game/train_3.mp3"
-          }
-        ],
-        "items": [
-          {
-            "image": "assets/game/train_game/qor_1.webp",
-            "sound": "assets/sound/train_game/qor.mp3",
-            "syllable": 1,
-            "text": "qor"
-          },
-          {
-            "image": "assets/game/train_game/arri_2.webp",
-            "sound": "assets/sound/train_game/ari.mp3",
-            "syllable": 2,
-            "text": "arri"
-          },
-          {
-            "image": "assets/game/train_game/vertalyot_3.webp",
-            "sound": "assets/sound/train_game/vertalyot.mp3",
-            "syllable": 3,
-            "text": "vertolyot"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 14,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/face_1.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/face_2.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/face_3.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/face_8.webp"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 15,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "find_image_page",
-      "jsonConfig": {
-        "start_voice": "assets/sound/find_image/game_1_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "items": [
-          {
-            "image": "assets/game/find_image/ari.webp",
-            "sound": "assets/sound/find_image/ari.mp3",
-            "text": "ari",
-            "isCorrect": true
-          },
-          {
-            "image": "assets/game/find_image/pasha.webp",
-            "sound": "assets/sound/find_image/pashsha.mp3",
-            "text": "pashsha",
-            "isCorrect": false
-          },
-          {
-            "image": "assets/game/find_image/ninachi.webp",
-            "sound": "assets/sound/find_image/ninachi.mp3",
-            "text": "ninachi",
-            "isCorrect": false
-          },
-          {
-            "image": "assets/game/find_image/qongiz.webp",
-            "sound": "assets/sound/find_image/qongiz.mp3",
-            "text": "qo'ng'iz",
-            "isCorrect": false
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 16,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "exercise",
-    "exercise": {
-      "modelPath": "assets/models/ogiz_lab_tish.tflite",
-      "sound": "sound/cv/lab.mp3",
-      "mediaPath": "assets/videos/models/lap_chochaytirish.mp4",
-      "steps": [
-        {
-          "text": "Iltimos labni ko‘rsating",
-          "action": "lab"
-        }
-      ]
-    },
-    "game": null
-  },
-  {
-    "id": 17,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "arrow",
-      "jsonConfig": {
-        "start_voice": "assets/sound/arrow/arrow_start.mp3",
-        "background_image": "assets/backround/arrow/arrow_back_1.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "center_letter": "R",
-        "outer_nodes": [
-          {
-            "id": 0,
-            "letter": "A",
-            "color": "0xFFFFA726",
-            "angle": -180.0,
-            "sound": "assets/sound/arrow/ar.mp3",
-            "target_text": "aarr"
-          },
-          {
-            "id": 1,
-            "letter": "O",
-            "color": "0xFF43A047",
-            "angle": -90.0,
-            "sound": "assets/sound/arrow/or.mp3",
-            "target_text": "oorr"
-          },
-          {
-            "id": 2,
-            "letter": "U",
-            "color": "0xFFEC407A",
-            "angle": 0.0,
-            "sound": "assets/sound/arrow/ur.mp3",
-            "target_text": "uurr"
-          },
-          {
-            "id": 4,
-            "letter": "O'",
-            "color": "0xFF7FD8F7",
-            "angle": 90.0,
-            "sound": "assets/sound/arrow/o1r.mp3",
-            "target_text": "orrr"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 18,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "breath",
-      "jsonConfig": {
-        "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/redBallon.mp3",
-        "lottie_animation": "assets/animation/breath/redBallon.json",
-        "background_image": "assets/backround/breath/drone_background.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "animation_position": -1.0
-      }
-    }
-  },
-  {
-    "id": 19,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "video",
-    "exercise": {
-      "modelPath": "",
-      "sound": "",
-      "mediaPath": "assets/videos/map_video/ar.mp4",
-      "steps": []
-    },
-    "game": null
-  },
-  {
-    "id": 20,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "breath",
-      "jsonConfig": {
-        "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/drone.mp3",
-        "lottie_animation": "assets/animation/breath/drone.json",
-        "background_image": "assets/backround/breath/drone_background.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "animation_position": 30
-      }
-    }
-  },
-  {
-    "id": 21,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "puzzle_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/puzzle_game/puzzle_start_1.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "error_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/puzzle_game/puzzle_back_4.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_star": "assets/icons/star.webp",
-        "puzzle_frame": "assets/game/puzzle_game/puzzle.webp",
-        "correct_anim": "assets/animation/correct.json",
-        "incorrect_anim": "assets/animation/xato.json",
-        "pieces": [
-          {
-            "id": "t1",
-            "pairId": 1,
-            "color": "0xFFFFFFFF",
-            "isTop": true,
-            "side": "left",
-            "image": "assets/game/puzzle_game/puzzle_1_game_3.webp",
-            "sound": "assets/sound/puzzle_game/ari.mp3"
-          },
-          {
-            "id": "t2",
-            "pairId": 2,
-            "color": "0xFFFFFFFF",
-            "isTop": true,
-            "side": "right",
-            "image": "assets/game/puzzle_game/puzzle_1_game_4.webp",
-            "sound": "assets/sound/puzzle_game/daraxt.mp3"
-          },
-          {
-            "id": "b1",
-            "pairId": 2,
-            "color": "0xFFFFFFFF",
-            "isTop": false,
-            "side": "left",
-            "image": "assets/game/puzzle_game/puzzle_1_game_1.webp",
-            "sound": "assets/sound/puzzle_game/daraxtlar.mp3"
-          },
-          {
-            "id": "b2",
-            "pairId": 1,
-            "color": "0xFFFFFFFF",
-            "isTop": false,
-            "side": "right",
-            "image": "assets/game/puzzle_game/puzzle_1_game_2.webp",
-            "sound": "assets/sound/puzzle_game/arilar.mp3"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 22,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "path_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/paint/paint_start.mp3",
-        "item_sound": "assets/sound/paint/rrrrrrrrr.mp3",
-        "error_sound": "assets/sound/paint/paint_end.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/sher.webp",
-        "target_text": "Rrrr",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "background": "assets/backround/paint/paint_background.webp",
-        "path_config": {
-          "startPoint": {
-            "x": 0.6,
-            "y": 0.05
-          },
-          "segments": [
-            {
-              "type": "curve",
-              "cp1": {
-                "x": 0.0,
-                "y": 0.05
-              },
-              "cp2": {
-                "x": 0.0,
-                "y": 0.35
-              },
-              "endPoint": {
-                "x": 0.9,
-                "y": 0.35
-              }
-            },
-            {
-              "type": "curve",
-              "cp1": {
-                "x": 1.0,
-                "y": 0.35
-              },
-              "cp2": {
-                "x": 1.3,
-                "y": 0.65
-              },
-              "endPoint": {
-                "x": 0.1,
-                "y": 0.65
-              }
-            },
-            {
-              "type": "curve",
-              "cp1": {
-                "x": 0,
-                "y": 0.65
-              },
-              "cp2": {
-                "x": -0.3,
-                "y": 0.95
-              },
-              "endPoint": {
-                "x": 0.9,
-                "y": 0.9
-              }
-            },
-            {
-              "type": "curve",
-              "cp1": {
-                "x": 1.1,
-                "y": 0.9
-              },
-              "cp2": {
-                "x": 0.6,
-                "y": 0.95
-              },
-              "endPoint": {
-                "x": 0.3,
-                "y": 1
-              }
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "id": 23,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "video",
-    "exercise": {
-      "modelPath": "",
-      "sound": "",
-      "mediaPath": "assets/videos/map_video/or.mp4",
-      "steps": []
-    },
-    "game": null
-  },
-  {
-    "id": 24,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "exercise",
-    "exercise": {
-      "modelPath": "assets/models/ochtp.tflite",
-      "sound": "sound/cv/tepa_past.mp3",
-      "mediaPath": "assets/videos/models/til_ogiz_tashqari_tepa_past.mp4",
-      "steps": [
-        {
-          "text": "Tilni tepaga chiqarib ko‘rsating",
-          "action": "tepa"
-        },
-        {
-          "text": "Tilni pastga chiqarib ko‘rsating",
-          "action": "past"
-        }
-      ]
-    },
-    "game": null
-  },
-  {
-    "id": 25,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/hand_5.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/hand_6.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/hand_7.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/hand_8.webp"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 26,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "video",
-    "exercise": {
-      "modelPath": "",
-      "sound": "",
-      "mediaPath": "assets/videos/map_video/r.MP4",
-      "steps": []
-    },
-    "game": null
-  },
-  {
-    "id": 27,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "path_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/paint/paint_start.mp3",
-        "item_sound": "assets/sound/paint/RRRRA.mp3",
-        "error_sound": "assets/sound/paint/paint_end.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/zebra.webp",
-        "target_text": "Rrra",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "background": "assets/backround/paint/savanna.webp",
+        "background": "assets/backround/paint/osmon.webp",
         "path_config": {
           "startPoint": {
             "x": 0.6,
@@ -1070,7 +332,694 @@
     }
   },
   {
-    "id": 28,
+    "id": 9,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/ong_chap.mp3",
+      "mediaPath": "assets/videos/models/ong_chap.mp4",
+      "steps": [
+        {
+          "text": "Tilni ongga chiqarib ko‘rsating",
+          "action": "ong"
+        },
+        {
+          "text": "Tilni chapga chiqarib ko‘rsating",
+          "action": "chap"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 10,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "hand_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "items": [
+          {
+            "box_image": "assets/game/hand_game/box_1.webp",
+            "hand_image": "assets/game/hand_game/face_1.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_2.webp",
+            "hand_image": "assets/game/hand_game/face_2.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_3.webp",
+            "hand_image": "assets/game/hand_game/face_3.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_4.webp",
+            "hand_image": "assets/game/hand_game/face_8.webp"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 11,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "breath",
+      "jsonConfig": {
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/coins.mp3",
+        "lottie_animation": "assets/animation/breath/coins.json",
+        "background_image": "assets/backround/breath/coins_background.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "animation_position": 30
+      }
+    }
+  },
+  {
+    "id": 12,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "path_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/trrrrrrr.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "image": "assets/game/paint/traktor_r.webp",
+        "target_text": "Trrr",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/utloq_echki.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.6,
+            "y": 0.05
+          },
+          "segments": [
+            {
+              "type": "curve",
+              "cp1": {
+                "x": 0.0,
+                "y": 0.05
+              },
+              "cp2": {
+                "x": 0.0,
+                "y": 0.35
+              },
+              "endPoint": {
+                "x": 0.9,
+                "y": 0.35
+              }
+            },
+            {
+              "type": "curve",
+              "cp1": {
+                "x": 1.0,
+                "y": 0.35
+              },
+              "cp2": {
+                "x": 1.3,
+                "y": 0.65
+              },
+              "endPoint": {
+                "x": 0.1,
+                "y": 0.65
+              }
+            },
+            {
+              "type": "curve",
+              "cp1": {
+                "x": 0,
+                "y": 0.65
+              },
+              "cp2": {
+                "x": -0.3,
+                "y": 0.95
+              },
+              "endPoint": {
+                "x": 0.9,
+                "y": 0.9
+              }
+            },
+            {
+              "type": "curve",
+              "cp1": {
+                "x": 1.1,
+                "y": 0.9
+              },
+              "cp2": {
+                "x": 0.6,
+                "y": 0.95
+              },
+              "endPoint": {
+                "x": 0.3,
+                "y": 1
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 13,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "find_image_page",
+      "jsonConfig": {
+        "start_voice": "assets/sound/find_image/game_1_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "items": [
+          {
+            "image": "assets/game/find_image/ari.webp",
+            "sound": "assets/sound/find_image/ari.mp3",
+            "text": "ari",
+            "isCorrect": true
+          },
+          {
+            "image": "assets/game/find_image/pasha.webp",
+            "sound": "assets/sound/find_image/pashsha.mp3",
+            "text": "pashsha",
+            "isCorrect": false
+          },
+          {
+            "image": "assets/game/find_image/ninachi.webp",
+            "sound": "assets/sound/find_image/ninachi.mp3",
+            "text": "ninachi",
+            "isCorrect": false
+          },
+          {
+            "image": "assets/game/find_image/qongiz.webp",
+            "sound": "assets/sound/find_image/qongiz.mp3",
+            "text": "qo'ng'iz",
+            "isCorrect": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 14,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ogiz_lab_tish.tflite",
+      "sound": "sound/cv/lab.mp3",
+      "mediaPath": "assets/videos/models/lap_chochaytirish.mp4",
+      "steps": [
+        {
+          "text": "Iltimos labni ko‘rsating",
+          "action": "lab"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 15,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "path_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/ARRRR.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "image": "assets/game/paint/kenguru.webp",
+        "target_text": "Arrr",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/savanna_k.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.1,
+            "y": 0.05
+          },
+          "segments": [
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.95,
+                "y": 0.05
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.95,
+                "y": 0.95
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.2,
+                "y": 0.95
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.2,
+                "y": 0.25
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.75,
+                "y": 0.25
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.75,
+                "y": 0.75
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.4,
+                "y": 0.75
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.4,
+                "y": 0.45
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.6,
+                "y": 0.45
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 16,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "arrow",
+      "jsonConfig": {
+        "start_voice": "assets/sound/arrow/arrow_start.mp3",
+        "background_image": "assets/backround/arrow/arrow_back_1.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "center_letter": "R",
+        "outer_nodes": [
+          {
+            "id": 0,
+            "letter": "A",
+            "color": "0xFFFFA726",
+            "angle": -162.0,
+            "sound": "assets/sound/arrow/ar.mp3",
+            "target_text": "aarr"
+          },
+          {
+            "id": 1,
+            "letter": "O",
+            "color": "0xFF43A047",
+            "angle": -90.0,
+            "sound": "assets/sound/arrow/or.mp3",
+            "target_text": "oorr"
+          },
+          {
+            "id": 2,
+            "letter": "U",
+            "color": "0xFFEC407A",
+            "angle": -18.0,
+            "sound": "assets/sound/arrow/ur.mp3",
+            "target_text": "uurr"
+          },
+          {
+            "id": 3,
+            "letter": "I",
+            "color": "0xFF7FD8F7",
+            "angle": 54.0,
+            "sound": "assets/sound/arrow/ir.mp3",
+            "target_text": "iirr"
+          },
+          {
+            "id": 4,
+            "letter": "E",
+            "color": "0xFFAB47BC",
+            "angle": 126.0,
+            "sound": "assets/sound/arrow/er.mp3",
+            "target_text": "eerr"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 17,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "breath",
+      "jsonConfig": {
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/redBallon.mp3",
+        "lottie_animation": "assets/animation/breath/redBallon.json",
+        "background_image": "assets/backround/breath/drone_background.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "animation_position": -1.0
+      }
+    }
+  },
+  {
+    "id": 18,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "video",
+    "exercise": {
+      "modelPath": "",
+      "sound": "",
+      "mediaPath": "assets/videos/map_video/ar.mp4",
+      "steps": []
+    },
+    "game": null
+  },
+  {
+    "id": 19,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "breath",
+      "jsonConfig": {
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/drone.mp3",
+        "lottie_animation": "assets/animation/breath/drone.json",
+        "background_image": "assets/backround/breath/drone_background.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "animation_position": 30
+      }
+    }
+  },
+  {
+    "id": 20,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "puzzle_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/puzzle_game/puzzle_start_1.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "error_sound": "assets/sound/diagnostic_error.mp3",
+        "background_image": "assets/backround/puzzle_game/puzzle_back_4.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "puzzle_frame": "assets/game/puzzle_game/puzzle.webp",
+        "correct_anim": "assets/animation/correct.json",
+        "incorrect_anim": "assets/animation/xato.json",
+        "pieces": [
+          {
+            "id": "t1",
+            "pairId": 1,
+            "color": "0xFFFFFFFF",
+            "isTop": true,
+            "side": "left",
+            "image": "assets/game/puzzle_game/puzzle_1_game_3.webp",
+            "sound": "assets/sound/puzzle_game/ari.mp3"
+          },
+          {
+            "id": "t2",
+            "pairId": 2,
+            "color": "0xFFFFFFFF",
+            "isTop": true,
+            "side": "right",
+            "image": "assets/game/puzzle_game/puzzle_1_game_4.webp",
+            "sound": "assets/sound/puzzle_game/daraxt.mp3"
+          },
+          {
+            "id": "b1",
+            "pairId": 2,
+            "color": "0xFFFFFFFF",
+            "isTop": false,
+            "side": "left",
+            "image": "assets/game/puzzle_game/puzzle_1_game_1.webp",
+            "sound": "assets/sound/puzzle_game/daraxtlar.mp3"
+          },
+          {
+            "id": "b2",
+            "pairId": 1,
+            "color": "0xFFFFFFFF",
+            "isTop": false,
+            "side": "right",
+            "image": "assets/game/puzzle_game/puzzle_1_game_2.webp",
+            "sound": "assets/sound/puzzle_game/arilar.mp3"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 21,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "path_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/ORRRR.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "image": "assets/game/paint/chigirtka.webp",
+        "target_text": "Ooor",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/utloq_kichkina.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.15,
+            "y": 0.9
+          },
+          "segments": [
+            {
+              "cp1": {
+                "x": 1.5,
+                "y": 0.7
+              },
+              "cp2": {
+                "x": -0.5,
+                "y": 0.3
+              },
+              "endPoint": {
+                "x": 0.8,
+                "y": 0
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 22,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "video",
+    "exercise": {
+      "modelPath": "",
+      "sound": "",
+      "mediaPath": "assets/videos/map_video/or.mp4",
+      "steps": []
+    },
+    "game": null
+  },
+  {
+    "id": 23,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "exercise",
+    "exercise": {
+      "modelPath": "assets/models/ochtp.tflite",
+      "sound": "sound/cv/tepa_past.mp3",
+      "mediaPath": "assets/videos/models/til_ogiz_tashqari_tepa_past.mp4",
+      "steps": [
+        {
+          "text": "Tilni tepaga chiqarib ko‘rsating",
+          "action": "tepa"
+        },
+        {
+          "text": "Tilni pastga chiqarib ko‘rsating",
+          "action": "past"
+        }
+      ]
+    },
+    "game": null
+  },
+  {
+    "id": 24,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "video",
+    "exercise": {
+      "modelPath": "",
+      "sound": "",
+      "mediaPath": "assets/videos/map_video/r.MP4",
+      "steps": []
+    },
+    "game": null
+  },
+  {
+    "id": 25,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "path_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/rrrrrrrrr.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "image": "assets/game/paint/sher_z.webp",
+        "target_text": "Rrrr",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/savanna_k.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.95,
+            "y": 0.6
+          },
+          "segments": [
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.98,
+                "y": 0.15
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.75,
+                "y": 0.65
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.65,
+                "y": 0.05
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.55,
+                "y": 0.85
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.4,
+                "y": 0.1
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.3,
+                "y": 0.95
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.15,
+                "y": 0.2
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.05,
+                "y": 0.6
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 26,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1116,58 +1065,7 @@
     }
   },
   {
-    "id": 29,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "sound_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/sound_game/raketa_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "main_image": "assets/game/sound_game/raketa.webp",
-        "background_image": "assets/backround/sound_game/rocket_bg.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "target_word": [
-          {
-            "text": "",
-            "sound": "",
-            "correct": "RA"
-          },
-          {
-            "text": "KE",
-            "sound": "assets/sound/sound_game/ke.mp3",
-            "correct": ""
-          },
-          {
-            "text": "TA",
-            "sound": "assets/sound/sound_game/ta.mp3",
-            "correct": ""
-          }
-        ],
-        "options": [
-          {
-            "text": "YA",
-            "sound": "assets/sound/sound_game/ya.mp3"
-          },
-          {
-            "text": "RA",
-            "sound": "assets/sound/sound_game/ra.mp3"
-          },
-          {
-            "text": "LA",
-            "sound": "assets/sound/sound_game/la.mp3"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 30,
+    "id": 27,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1187,60 +1085,94 @@
             "id": 0,
             "letter": "A",
             "color": "0xFFFFA726",
-            "angle": -180.0,
-            "sound": "assets/sound/arrow/ar.mp3",
-            "target_text": "aarr"
+            "angle": -162.0,
+            "sound": "assets/sound/arrow/RRRA RRRRRA RRRRA.mp3",
+            "target_text": "rraa"
           },
           {
             "id": 1,
-            "letter": "O",
+            "letter": "U",
             "color": "0xFF43A047",
             "angle": -90.0,
-            "sound": "assets/sound/arrow/or.mp3",
-            "target_text": "oorr"
+            "sound": "assets/sound/arrow/ru.mp3",
+            "target_text": "rruu"
           },
           {
             "id": 2,
-            "letter": "U",
+            "letter": "I",
             "color": "0xFFEC407A",
-            "angle": 0.0,
-            "sound": "assets/sound/arrow/ur.mp3",
-            "target_text": "uurr"
+            "angle": -18.0,
+            "sound": "assets/sound/arrow/ri.mp3",
+            "target_text": "rrii"
           },
           {
             "id": 3,
-            "letter": "O'",
+            "letter": "E",
             "color": "0xFF7FD8F7",
-            "angle": 90.0,
-            "sound": "assets/sound/arrow/o1r.mp3",
-            "target_text": "orrr"
+            "angle": 54.0,
+            "sound": "assets/sound/arrow/re.mp3",
+            "target_text": "rree"
+          },
+          {
+            "id": 4,
+            "letter": "O",
+            "color": "0xFFAB47BC",
+            "angle": 126.0,
+            "sound": "assets/sound/arrow/ro.mp3",
+            "target_text": "rroo"
           }
         ]
       }
     }
   },
   {
-    "id": 31,
+    "id": 28,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "breath",
+      "type": "path_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/breath/breath_start.mp3",
-        "blow_voice": "assets/sound/breath/ball.mp3",
-        "lottie_animation": "assets/animation/breath/ball.json",
-        "background_image": "assets/backround/breath/ball_background.webp",
-        "icon_star": "assets/icons/star.webp",
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/RRRRA.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "image": "assets/game/paint/zebra_z.webp",
+        "target_text": "Rrra",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "animation_position": 50
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/savanna_k.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.8,
+            "y": 0.05
+          },
+          "segments": [
+            {
+              "type": "curve",
+              "cp1": {
+                "x": -0.5,
+                "y": 0.3
+              },
+              "cp2": {
+                "x": 1.5,
+                "y": 0.7
+              },
+              "endPoint": {
+                "x": 0.15,
+                "y": 0.95
+              }
+            }
+          ]
+        }
       }
     }
   },
   {
-    "id": 32,
+    "id": 29,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1262,47 +1194,47 @@
           {
             "id": 1,
             "text": "ar",
-            "music": "assets/sound/cloud_game/ar.mp3"
+            "music": "assets/sound/arrow/ar.mp3"
           },
           {
             "id": 2,
             "text": "ir",
-            "music": "assets/sound/cloud_game/ir.mp3"
+            "music": "assets/sound/arrow/ir.mp3"
           },
           {
             "id": 3,
             "text": "ur",
-            "music": "assets/sound/cloud_game/ur.mp3"
+            "music": "assets/sound/arrow/ur.mp3"
           },
           {
             "id": 4,
             "text": "er",
-            "music": "assets/sound/cloud_game/er.mp3"
+            "music": "assets/sound/arrow/er.mp3"
           },
           {
             "id": 5,
             "text": "re",
-            "music": "assets/sound/cloud_game/re.mp3"
+            "music": "assets/sound/arrow/re.mp3"
           },
           {
             "id": 6,
             "text": "or",
-            "music": "assets/sound/cloud_game/or.mp3"
+            "music": "assets/sound/arrow/or.mp3"
           },
           {
             "id": 7,
             "text": "ru",
-            "music": "assets/sound/cloud_game/ru.mp3"
+            "music": "assets/sound/arrow/ru.mp3"
           },
           {
             "id": 8,
             "text": "ro",
-            "music": "assets/sound/cloud_game/ro.mp3"
+            "music": "assets/sound/arrow/ro.mp3"
           },
           {
             "id": 9,
             "text": "ri",
-            "music": "assets/sound/cloud_game/ri.mp3"
+            "music": "assets/sound/arrow/ri.mp3"
           },
           {
             "id": 10,
@@ -1314,7 +1246,7 @@
     }
   },
   {
-    "id": 33,
+    "id": 30,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1328,7 +1260,7 @@
     "game": null
   },
   {
-    "id": 34,
+    "id": 31,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1351,43 +1283,101 @@
     "game": null
   },
   {
-    "id": 35,
+    "id": 32,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "hand_game",
+      "type": "path_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/RRRRRI.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
+        "image": "assets/game/paint/yolbars.webp",
+        "target_text": "Rrri",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/hand_9.webp"
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/utloq.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.9,
+            "y": 0.95
           },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/hand_10.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/hand_11.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/hand_12.webp"
-          }
-        ]
+          "segments": [
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.05,
+                "y": 0.95
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.05,
+                "y": 0.05
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.8,
+                "y": 0.05
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.8,
+                "y": 0.75
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.25,
+                "y": 0.75
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.25,
+                "y": 0.25
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.6,
+                "y": 0.25
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.6,
+                "y": 0.55
+              }
+            },
+            {
+              "type": "line",
+              "endPoint": {
+                "x": 0.4,
+                "y": 0.55
+              }
+            }
+          ]
+        }
       }
     }
   },
   {
-    "id": 36,
+    "id": 33,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1448,9 +1438,8 @@
       }
     }
   },
-
   {
-    "id": 37,
+    "id": 34,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1464,7 +1453,7 @@
     "game": null
   },
   {
-    "id": 38,
+    "id": 35,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1484,7 +1473,7 @@
     }
   },
   {
-    "id": 39,
+    "id": 36,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1530,43 +1519,52 @@
     }
   },
   {
-    "id": 40,
+    "id": 37,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "hand_game",
+      "type": "path_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
+        "start_voice": "assets/sound/paint/paint_start.mp3",
+        "item_sound": "assets/sound/paint/Rrrro.mp3",
+        "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
+        "image": "assets/game/paint/robot.webp",
+        "target_text": "Rrro",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/lib_1.webp"
+        "icon_star": "assets/icons/star.webp",
+        "icon_mic": "assets/icons/micrafon.webp",
+        "background": "assets/backround/paint/robotfon.webp",
+        "path_config": {
+          "startPoint": {
+            "x": 0.85,
+            "y": 0.9
           },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/lib_2.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/lib_3.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/lib_4.webp"
-          }
-        ]
+          "segments": [
+            {
+              "cp1": {
+                "x": -0.5,
+                "y": 0.7
+              },
+              "cp2": {
+                "x": 1.5,
+                "y": 0.3
+              },
+              "endPoint": {
+                "x": 0.2,
+                "y": 0
+              }
+            }
+          ]
+        }
       }
     }
   },
   {
-    "id": 41,
+    "id": 38,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1585,7 +1583,7 @@
     "game": null
   },
   {
-    "id": 42,
+    "id": 39,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1599,7 +1597,43 @@
     "game": null
   },
   {
-    "id": 43,
+    "id": 40,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "hand_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "background_image": "assets/backround/fon_q.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "items": [
+          {
+            "box_image": "assets/game/hand_game/box_1.webp",
+            "hand_image": "assets/game/hand_game/hand_9.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_2.webp",
+            "hand_image": "assets/game/hand_game/hand_10.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_3.webp",
+            "hand_image": "assets/game/hand_game/hand_11.webp"
+          },
+          {
+            "box_image": "assets/game/hand_game/box_4.webp",
+            "hand_image": "assets/game/hand_game/hand_12.webp"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 41,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1619,7 +1653,7 @@
     }
   },
   {
-    "id": 44,
+    "id": 42,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1629,75 +1663,33 @@
       "type": "path_game",
       "jsonConfig": {
         "start_voice": "assets/sound/paint/paint_start.mp3",
-        "item_sound": "assets/sound/paint/Rrrro.mp3",
+        "item_sound": "assets/sound/paint/RRRRRU.mp3",
         "error_sound": "assets/sound/paint/paint_end.mp3",
         "success_sound": "assets/sound/success.mp3",
-        "image": "assets/game/paint/ajdar.webp",
-        "target_text": "Rrro",
+        "image": "assets/game/paint/sigir.webp",
+        "target_text": "Rrru",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
         "icon_star": "assets/icons/star.webp",
         "icon_mic": "assets/icons/micrafon.webp",
-        "background": "assets/backround/paint/dragon.webp",
+        "background": "assets/backround/paint/utloq_echki.webp",
         "path_config": {
           "startPoint": {
-            "x": 0.4,
-            "y": 0.05
+            "x": 0.15,
+            "y": 0.9
           },
           "segments": [
             {
-              "type": "line",
-              "endPoint": {
-                "x": 0.85,
-                "y": 0.02
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.35,
-                "y": 0.25
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.95,
-                "y": 0.35
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.15,
-                "y": 0.45
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.9,
-                "y": 0.6
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.05,
+              "cp1": {
+                "x": 1.5,
                 "y": 0.7
-              }
-            },
-            {
-              "type": "line",
+              },
+              "cp2": {
+                "x": -0.5,
+                "y": 0.3
+              },
               "endPoint": {
                 "x": 0.8,
-                "y": 0.85
-              }
-            },
-            {
-              "type": "line",
-              "endPoint": {
-                "x": 0.4,
-                "y": 0.95
+                "y": 0
               }
             }
           ]
@@ -1706,85 +1698,58 @@
     }
   },
   {
-    "id": 45,
+    "id": 43,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "wolf_game",
+      "type": "sound_game",
       "jsonConfig": {
-        "start_voice": "assets/sound/wolf_game/wolf_start.mp3",
-        "background_image": "assets/backround/wolf_game/wolf.webp",
+        "start_voice": "assets/sound/sound_game/raketa_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
+        "main_image": "assets/game/sound_game/raketa.webp",
+        "background_image": "assets/backround/sound_game/rocket_bg.webp",
         "icon_star": "assets/icons/star.webp",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "wolf_image": "assets/game/wolf_game/wolf.webp",
-        "music_icon": "assets/game/wolf_game/music.webp",
-        "cloud_text": "Uyni topishga yordam bering!",
+        "target_word": [
+          {
+            "text": "",
+            "sound": "",
+            "correct": "RA"
+          },
+          {
+            "text": "KE",
+            "sound": "assets/sound/sound_game/ke.mp3",
+            "correct": ""
+          },
+          {
+            "text": "TA",
+            "sound": "assets/sound/sound_game/ta.mp3",
+            "correct": ""
+          }
+        ],
         "options": [
           {
-            "image": "assets/game/wolf_game/cave.webp",
-            "sound": "assets/sound/wolf_game/RA.mp3",
-            "isCorrect": true
+            "text": "YA",
+            "sound": "assets/sound/sound_game/ya.mp3"
           },
           {
-            "image": "assets/game/wolf_game/bird_house.webp",
-            "sound": "assets/sound/wolf_game/LA.mp3",
-            "isCorrect": false
+            "text": "RA",
+            "sound": "assets/sound/sound_game/ra.mp3"
           },
           {
-            "image": "assets/game/wolf_game/dog_house.webp",
-            "sound": "assets/sound/wolf_game/SA.mp3",
-            "isCorrect": false
-          },
-          {
-            "image": "assets/game/wolf_game/department.webp",
-            "sound": "assets/sound/wolf_game/YA.mp3",
-            "isCorrect": false
+            "text": "LA",
+            "sound": "assets/sound/sound_game/la.mp3"
           }
         ]
       }
     }
   },
   {
-    "id": 46,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "hand_game",
-      "jsonConfig": {
-        "start_voice": "assets/sound/hand_game/hand_game_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "background_image": "assets/backround/fon_q.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "items": [
-          {
-            "box_image": "assets/game/hand_game/box_1.webp",
-            "hand_image": "assets/game/hand_game/lib_5.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_2.webp",
-            "hand_image": "assets/game/hand_game/lib_6.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_3.webp",
-            "hand_image": "assets/game/hand_game/lib_7.webp"
-          },
-          {
-            "box_image": "assets/game/hand_game/box_4.webp",
-            "hand_image": "assets/game/hand_game/lib_8.webp"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": 47,
+    "id": 44,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1804,7 +1769,7 @@
     }
   },
   {
-    "id": 48,
+    "id": 45,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1827,7 +1792,27 @@
     "game": null
   },
   {
-    "id": 49,
+    "id": 46,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "breath",
+      "jsonConfig": {
+        "start_voice": "assets/sound/breath/breath_start.mp3",
+        "blow_voice": "assets/sound/breath/ball.mp3",
+        "lottie_animation": "assets/animation/breath/ball.json",
+        "background_image": "assets/backround/breath/ball_background.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "animation_position": 50
+      }
+    }
+  },
+  {
+    "id": 47,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1841,41 +1826,68 @@
     "game": null
   },
   {
-    "id": 50,
+    "id": 48,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
     "mode": "game",
     "exercise": null,
     "game": {
-      "type": "cloud",
+      "type": "arrow",
       "jsonConfig": {
-        "start_voice": "assets/sound/cloud_game/bulut.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
-        "background_image": "assets/backround/breath/drone_background.webp",
+        "start_voice": "assets/sound/arrow/arrow_start.mp3",
+        "background_image": "assets/backround/arrow/arrow_back_1.webp",
         "icon_star": "assets/icons/star.webp",
         "icon_arrow": "assets/icons/arrow_right_button.webp",
         "icon_mic": "assets/icons/micrafon.webp",
-        "helicopter_image": "assets/game/cloud_game/helicopter.webp",
-        "cloud_image": "assets/game/cloud_game/cloud.webp",
-        "clouds": [
+        "center_letter": "R",
+        "outer_nodes": [
+          {
+            "id": 0,
+            "letter": "A",
+            "color": "0xFFFFA726",
+            "angle": -162.0,
+            "sound": "assets/sound/arrow/ar.mp3",
+            "target_text": "aarr"
+          },
           {
             "id": 1,
-            "text": "za",
-            "music": "assets/sound/cloud_game/za.mp3"
+            "letter": "O",
+            "color": "0xFF43A047",
+            "angle": -90.0,
+            "sound": "assets/sound/arrow/or.mp3",
+            "target_text": "oorr"
           },
           {
             "id": 2,
-            "text": "zi",
-            "music": "assets/sound/cloud_game/zi.mp3"
+            "letter": "U",
+            "color": "0xFFEC407A",
+            "angle": -18.0,
+            "sound": "assets/sound/arrow/ur.mp3",
+            "target_text": "uurr"
+          },
+          {
+            "id": 3,
+            "letter": "I",
+            "color": "0xFF7FD8F7",
+            "angle": 54.0,
+            "sound": "assets/sound/arrow/ir.mp3",
+            "target_text": "iirr"
+          },
+          {
+            "id": 4,
+            "letter": "E",
+            "color": "0xFFAB47BC",
+            "angle": 126.0,
+            "sound": "assets/sound/arrow/er.mp3",
+            "target_text": "eerr"
           }
         ]
       }
     }
   },
   {
-    "id": 51,
+    "id": 49,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1895,7 +1907,7 @@
     }
   },
   {
-    "id": 52,
+    "id": 50,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1926,7 +1938,7 @@
     "game": null
   },
   {
-    "id": 53,
+    "id": 51,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1972,7 +1984,58 @@
     }
   },
   {
-    "id": 54,
+    "id": 52,
+    "stars": 0,
+    "locked": true,
+    "skin": "assets/icons/silver.webp",
+    "mode": "game",
+    "exercise": null,
+    "game": {
+      "type": "sound_game",
+      "jsonConfig": {
+        "start_voice": "assets/sound/sound_game/raketa_start.mp3",
+        "success_sound": "assets/sound/success.mp3",
+        "incorrect_sound": "assets/sound/diagnostic_error.mp3",
+        "main_image": "assets/game/sound_game/raketa.webp",
+        "background_image": "assets/backround/sound_game/rocket_bg.webp",
+        "icon_star": "assets/icons/star.webp",
+        "icon_arrow": "assets/icons/arrow_right_button.webp",
+        "target_word": [
+          {
+            "text": "",
+            "sound": "",
+            "correct": "RA"
+          },
+          {
+            "text": "KE",
+            "sound": "assets/sound/sound_game/ke.mp3",
+            "correct": ""
+          },
+          {
+            "text": "TA",
+            "sound": "assets/sound/sound_game/ta.mp3",
+            "correct": ""
+          }
+        ],
+        "options": [
+          {
+            "text": "YA",
+            "sound": "assets/sound/sound_game/ya.mp3"
+          },
+          {
+            "text": "RA",
+            "sound": "assets/sound/sound_game/ra.mp3"
+          },
+          {
+            "text": "LA",
+            "sound": "assets/sound/sound_game/la.mp3"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 53,
     "stars": 0,
     "locked": true,
     "skin": "assets/icons/silver.webp",
@@ -1984,67 +2047,5 @@
       "steps": []
     },
     "game": null
-  },
-  {
-    "id": 55,
-    "stars": 0,
-    "locked": true,
-    "skin": "assets/icons/silver.webp",
-    "mode": "game",
-    "exercise": null,
-    "game": {
-      "type": "cooking",
-      "jsonConfig": {
-        "start_voice": "assets/sound/cooking/school_start.mp3",
-        "success_sound": "assets/sound/success.mp3",
-        "bg_image": "assets/game/cooking/classroom.webp",
-        "icon_arrow": "assets/icons/arrow_right_button.webp",
-        "icon_star": "assets/icons/star.webp",
-        "icon_mic": "assets/icons/micrafon.webp",
-        "chef_image": "assets/game/cooking/maktab_qiz.webp",
-        "products": [
-          {
-            "id": "daftar",
-            "asset": "assets/game/cooking/daftar.webp",
-            "text": "daftar",
-            "sound": "assets/sound/cooking/daftar.mp3",
-            "x": 220,
-            "y": 550
-          },
-          {
-            "id": "karmon",
-            "asset": "assets/game/cooking/karmon.webp",
-            "text": "karmon",
-            "sound": "assets/sound/cooking/karmon.mp3",
-            "x": 40,
-            "y": 520
-          },
-          {
-            "id": "ochirgich",
-            "asset": "assets/game/cooking/ochirgich.webp",
-            "text": "o'chirgich",
-            "sound": "assets/sound/cooking/ochirgich.mp3",
-            "x": 130,
-            "y": 420
-          },
-          {
-            "id": "ruchka",
-            "asset": "assets/game/cooking/ruchka.webp",
-            "text": "ruchka",
-            "sound": "assets/sound/cooking/ruchka.mp3",
-            "x": 230,
-            "y": 320
-          },
-          {
-            "id": "sirkul",
-            "asset": "assets/game/cooking/sirkul.webp",
-            "text": "sirkul",
-            "sound": "assets/sound/cooking/sirkul.mp3",
-            "x": 220,
-            "y": 200
-          }
-        ]
-      }
-    }
   }
 ]

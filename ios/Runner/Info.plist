@@ -72,5 +72,9 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamera artikulyatsiya mashqlari va diagnostika uchun kerak.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Mikrofon nutq o'yinlari va ovozli diagnostika uchun kerak.</string>
 </dict>
 </plist>

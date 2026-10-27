@@ -78,6 +78,7 @@ class LevelProvider extends ChangeNotifier {
     'K': 'assets/exsepK.json',
     'Sh': 'assets/exsepSH.json',
     'Z': 'assets/exsepZ.json',
+    'G': 'assets/exsepG.json',
     gamesSound: 'assets/games.json',
     firstSpeechArticulation: 'assets/first_speech/artikulatsion.json',
     firstSpeechBreath: 'assets/first_speech/nafas.json',

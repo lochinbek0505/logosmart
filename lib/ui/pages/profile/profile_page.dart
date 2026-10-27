@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/core/utils/auth_image.dart';
+import 'package:logosmart/core/utils/money_format.dart';
+import 'package:logosmart/models/profile_response.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/profile/NotificationPage.dart';
@@ -99,12 +101,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: EdgeInsets.symmetric(horizontal: 6.w),
                       child: GestureDetector(
                         onTap: () async {
-                          Navigator.push(
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (builder) => PaymentPage(),
                             ),
                           );
+                          // To'lov sahifasidan qaytganda balans yangilansin
+                          if (context.mounted) {
+                            provider.init(context, silent: true);
+                          }
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -130,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Balans : ${provider.profileResponse.amount ?? 0} so'm",
+                                  "Balans : ${formatSom(provider.profileResponse.amount)} so'm",
                                   style: GoogleFonts.nunito(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16.sp,
@@ -155,8 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     SizedBox(height: 24.h),
                     _widget(
-                      title:
-                          "${provider.profileResponse.subscriptionCode == "DEFAULT" ? "Obuna bo'lish" : "${provider.profileResponse.subscriptionName} obuna"}",
+                      title: _subscriptionTitle(provider.profileResponse),
                       icon: "assets/icons/crown.webp",
                       navigation: SubscriptionPage(),
                     ),
@@ -208,7 +213,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.r),
                             color: context.palette.surface,
-                            border: Border.all(color: context.palette.dangerBorder),
+                            border: Border.all(
+                              color: context.palette.dangerBorder,
+                            ),
                           ),
                           child: Center(
                             child: Row(
@@ -267,7 +274,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.r),
                             color: context.palette.surface,
-                            border: Border.all(color: context.palette.dangerBorder),
+                            border: Border.all(
+                              color: context.palette.dangerBorder,
+                            ),
                           ),
                           child: Center(
                             child: Row(
@@ -305,7 +314,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            if (provider.isLoading)
+            // Tizimdan chiqish / akkauntni o'chirish paytida ham
+            if (provider.isLoading || provider.isActionLoading)
               Positioned.fill(
                 child: Container(
                   color: Colors.black.withValues(alpha: 0.2),
@@ -320,6 +330,19 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  /// Faol obuna bo'lsa nomi va tugash sanasi; muddati tugagan yoki
+  /// DEFAULT bo'lsa "Obuna bo'lish"
+  String _subscriptionTitle(ProfileResponse profile) {
+    final expiry = profile.subscriptionExpiry;
+    if (!profile.hasActiveSubscription || expiry == null) {
+      return "Obuna bo'lish";
+    }
+    final name = profile.subscriptionName?.trim();
+    final date =
+        "${expiry.day.toString().padLeft(2, '0')}.${expiry.month.toString().padLeft(2, '0')}.${expiry.year}";
+    return "${name == null || name.isEmpty ? "Obuna" : "$name obuna"} ($date gacha)";
   }
 
   Widget _widget({

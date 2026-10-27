@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logosmart/core/service/app_settings.dart';
 import 'package:logosmart/core/service/notification_service.dart';
+import 'package:logosmart/core/service/permission_service.dart';
 import 'package:logosmart/firebase_options.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
@@ -28,7 +29,10 @@ Future<void> main() async {
   // Top-level handler runApp'dan oldin ro'yxatdan o'tishi shart
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // Ruxsat so'rovi ilova ochilishini to'xtatib qo'ymasligi uchun kutmaymiz
-  NotificationService().init();
+  // Bildirishnoma dialogidan keyin kamera va mikrofon ruxsatlari so'raladi
+  NotificationService().init().whenComplete(
+    PermissionService().requestOnFirstLaunch,
+  );
   WidgetsBinding.instance.addPostFrameCallback(
     (_) => NotificationService().handleInitialMessage(),
   );

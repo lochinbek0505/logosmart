@@ -11,12 +11,15 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
   List<String> errors = [];
   int currentIndex = 0;
 
-  // templates ro‘yxati
-  List<Template> templates = [];
+  // Faol shablonlardagi barcha topshiriqlar, orderNo bo'yicha tartiblangan
+  List<TemplateItem> items = [];
   List<ScoreResult> scores = [];
 
   void init(List<Template> list) {
-    templates = list;
+    items = [
+      for (final t in list)
+        if (t.active != false) ...?t.itemsList,
+    ]..sort((a, b) => (a.orderNo ?? 0).compareTo(b.orderNo ?? 0));
     totalScore = 0;
     errors = [];
     scores = [];
@@ -24,19 +27,25 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Template? get currentTemplate =>
-      currentIndex < templates.length ? templates[currentIndex] : null;
+  TemplateItem? get currentItem =>
+      currentIndex < items.length ? items[currentIndex] : null;
 
   /// Bajarilgan topshiriqlar ulushi (0..1) — progress bar uchun
-  double get progress =>
-      templates.isEmpty ? 0 : scores.length / templates.length;
+  double get progress => items.isEmpty ? 0 : scores.length / items.length;
+
+  /// Admin panel "k", "SH" kabi yozishi mumkin — "K", "Sh" ko'rinishiga keltiramiz
+  static String normalizeSound(String? sound) {
+    final s = sound?.trim() ?? "";
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1).toLowerCase();
+  }
 
   /// Har bir topshiriq uchun eng yuqori ball
   static const int maxItemScore = 10;
 
   ScoreResult evaluateSpeech(String recognizedText) {
-    final tpl = currentTemplate;
-    if (tpl == null || tpl.itemsList == null || tpl.itemsList!.isEmpty) {
+    final item = currentItem;
+    if (item == null) {
       return ScoreResult(
         score: 0,
         matchedWord: null,
@@ -45,15 +54,15 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
       );
     }
 
-    final item = tpl.itemsList!.first;
+    final sound = normalizeSound(item.sound);
     final res = _service.evaluate(
       recognizedText: recognizedText,
       promptText: item.promptText ?? "",
-      sound: item.sound ?? "",
+      sound: sound,
     );
 
     if (res.score == 0) {
-      errors.add("${item.sound} tovushi noto‘g‘ri");
+      errors.add("$sound tovushi noto‘g‘ri");
     } else {
       totalScore += res.score;
     }
@@ -64,7 +73,7 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
   }
 
   bool next() {
-    if (currentIndex < templates.length - 1) {
+    if (currentIndex < items.length - 1) {
       currentIndex++;
       notifyListeners();
       return true;
@@ -83,19 +92,25 @@ class VoiceDiagnosticProvider extends ChangeNotifier {
     // {"sound": "string", "percent": 100, "note": "string"},
     // ],
 
+    // Har bir tovush bir nechta so'z bilan tekshiriladi — tovush bo'yicha jamlaymiz
+    final bySound = <String, List<ScoreResult>>{};
+    for (var value in scores) {
+      bySound.putIfAbsent(value.sound ?? "", () => []).add(value);
+    }
+
     List<Map<String, dynamic>> sounds = [];
 
-    for (var value in scores) {
+    bySound.forEach((sound, results) {
+      final sum = results.fold<int>(0, (a, r) => a + r.score);
+      final correct = results.where((r) => r.matchedSound).length;
       sounds.add({
-        "sound": value.sound,
-        "percent": value.score * 100 ~/ maxItemScore,
-        "note": value.matchedSound
+        "sound": sound,
+        "percent": (sum * 100 / (results.length * maxItemScore)).round(),
+        "note": correct == results.length
             ? "Tovush to‘g‘ri aytilgan"
-            : (value.matchedWord != null
-                  ? "Tovush noto‘g‘ri, lekin so‘zda qatnashgan"
-                  : "Tovush noto‘g‘ri"),
+            : "${results.length} ta so‘zdan $correct tasida to‘g‘ri aytilgan",
       });
-    }
+    });
 
     data["sounds"] = sounds;
 

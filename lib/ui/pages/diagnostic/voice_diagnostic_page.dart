@@ -63,7 +63,6 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
   bool _isRecording = false;
 
-
   bool _isImageReady = false;
 
   bool _isMicReady = false;
@@ -181,8 +180,9 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     _confettiCtrl = ConfettiController(duration: const Duration(seconds: 2));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final templates = widget.templatesList ?? [];
-      if (templates.isEmpty) {
+      final provider = context.read<VoiceDiagnosticProvider>()
+        ..init(widget.templatesList ?? []);
+      if (provider.items.isEmpty) {
         // Topshiriqsiz sahifa mikrofon ovozini cheksiz qaytarib turardi
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Diagnostika topshiriqlari topilmadi")),
@@ -190,7 +190,6 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
         Navigator.of(context).pop();
         return;
       }
-      context.read<VoiceDiagnosticProvider>().init(templates);
 
       _playMicOnSound();
     });
@@ -240,13 +239,16 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
 
     final provider = context.read<VoiceDiagnosticProvider>();
 
-    final item = provider.currentTemplate?.itemsList?.first;
+    final voiceFile = provider.currentItem?.voiceFile;
 
-    if (item != null && item.voiceFile != null && item.voiceFile!.isNotEmpty) {
+    if (voiceFile != null && voiceFile.isNotEmpty) {
       _audioState = 2;
 
+      // Backend to'liq URL beradi; eski ma'lumotlarda asset fayl nomi bo'lishi mumkin
       await _audioPlayer.play(
-        AssetSource("sound/diagnostic/${item.voiceFile}"),
+        voiceFile.startsWith("http")
+            ? UrlSource(voiceFile)
+            : AssetSource("sound/diagnostic/$voiceFile"),
       );
     } else {
       _playMicOnSound();
@@ -452,528 +454,549 @@ class _VoiceDiagnosticPageState extends State<VoiceDiagnosticPage>
     _errorAnimCtrl.forward(from: 0);
   }
 
+  void _goBack() {
+    _audioPlayer.stop();
+    _player.stop();
+    // Topshiriqlar ham uzatiladi — aks holda
+    // qayta boshlaganda ro'yxat bo'sh qolardi
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (builder) =>
+            DiagnosticStartPage(templatesList: widget.templatesList),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
     final provider = context.watch<VoiceDiagnosticProvider>();
 
-    final template = provider.currentTemplate;
+    final item = provider.currentItem;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            width: size.width,
+    // Tizim "orqaga" tugmasi/jesti ham ilovadagi orqaga tugmasi bilan bir xil ishlasin
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goBack();
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Container(
+              width: size.width,
 
-            height: size.height,
+              height: size.height,
 
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/backround/fon_q.webp"),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/backround/fon_q.webp"),
 
-                fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
-            ),
+                  fit: BoxFit.fill,
+                  colorFilter: context.palette.backgroundImageFilter,
+                ),
+              ),
 
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
 
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.05),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.05),
 
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 17.w),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 17.w),
 
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
 
-                        children: [
-                          SizedBox(height: 15.h),
+                          children: [
+                            SizedBox(height: 15.h),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                            children: [
-                              SizedBox(
-                                width: 56.w,
+                              children: [
+                                SizedBox(
+                                  width: 56.w,
 
-                                height: 56.h,
+                                  height: 56.h,
 
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Topshiriqlar ham uzatiladi — aks holda
-                                    // qayta boshlaganda ro'yxat bo'sh qolardi
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (builder) =>
-                                            DiagnosticStartPage(
-                                              templatesList:
-                                                  widget.templatesList,
-                                            ),
-                                      ),
-                                    );
-                                  },
+                                  child: GestureDetector(
+                                    onTap: _goBack,
 
-                                  child: Image.asset(
-                                    "assets/icons/arrow_right_button.webp",
+                                    child: Image.asset(
+                                      "assets/icons/arrow_right_button.webp",
 
-                                    fit: BoxFit.fill,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    "assets/icons/star.webp",
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      "assets/icons/star.webp",
 
-                                    width: 40.w,
+                                      width: 40.w,
 
-                                    height: 40.h,
-                                  ),
+                                      height: 40.h,
+                                    ),
 
-                                  const SizedBox(width: 12),
+                                    const SizedBox(width: 12),
 
-                                  Stack(
-                                    alignment: Alignment.center,
+                                    Stack(
+                                      alignment: Alignment.center,
 
-                                    children: [
-                                      Text(
-                                        "${provider.totalScore}",
-
-                                        style: TextStyle(
-                                          fontSize: 35.sp,
-
-                                          fontWeight: FontWeight.w800,
-
-                                          color: Colors.white,
-                                        ),
-                                      ),
-
-                                      AnimatedSwitcher(
-                                        duration: const Duration(
-                                          milliseconds: 400,
-                                        ),
-
-                                        transitionBuilder: (c, a) =>
-                                            ScaleTransition(scale: a, child: c),
-
-                                        child: Text(
+                                      children: [
+                                        Text(
                                           "${provider.totalScore}",
 
-                                          key: ValueKey(provider.totalScore),
-
                                           style: TextStyle(
-                                            fontSize: 32.sp,
+                                            fontSize: 35.sp,
 
                                             fontWeight: FontWeight.w800,
 
-                                            color: const Color(0xFFF7C24B),
+                                            color: Colors.white,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
 
-                          SizedBox(height: 16.h),
+                                        AnimatedSwitcher(
+                                          duration: const Duration(
+                                            milliseconds: 400,
+                                          ),
 
-                          SizedBox(
-                            width: size.width,
+                                          transitionBuilder: (c, a) =>
+                                              ScaleTransition(
+                                                scale: a,
+                                                child: c,
+                                              ),
 
-                            height: 9.h,
+                                          child: Text(
+                                            "${provider.totalScore}",
 
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.r),
+                                            key: ValueKey(provider.totalScore),
 
-                              child: ShinyStripedProgressBar(
-                                progressColor: AppColors.orange_200,
+                                            style: TextStyle(
+                                              fontSize: 32.sp,
 
-                                stripeColor: AppColors.orange_500,
+                                              fontWeight: FontWeight.w800,
 
-                                targetProgress: provider.progress,
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(height: 48.h),
-
-                          AnimatedOpacity(
-                            opacity: (_isMicReady && !_isAskingGirl)
-                                ? 1.0
-                                : 0.0,
-
-                            duration: const Duration(milliseconds: 600),
-
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-
-                              crossAxisAlignment: CrossAxisAlignment.end,
-
-                              mainAxisSize: MainAxisSize.min,
-
-                              children: List.generate(heights.length, (index) {
-                                Color? color;
-
-                                if (activeBars == 0) {
-                                  color = Colors.white;
-                                } else if (activeBars < heights.length - 1) {
-                                  color = index < activeBars
-                                      ? AppColors.red_200
-                                      : Colors.white;
-                                } else {
-                                  color = index < activeBars
-                                      ? AppColors.green_600
-                                      : Colors.white;
-                                }
-
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 3,
-                                  ),
-
-                                  width: 12,
-
-                                  height: heights[index],
-
-                                  decoration: BoxDecoration(
-                                    color: color,
-
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-
-                          SizedBox(height: 100.h),
-
-                          AnimatedOpacity(
-                            opacity: (_isImageReady && !_isAskingGirl)
-                                ? 1.0
-                                : 0.0,
-
-                            duration: const Duration(milliseconds: 600),
-
-                            child: AnimatedBuilder(
-                              animation: _imageFloat,
-
-                              builder: (context, child) {
-                                return Transform.translate(
-                                  offset: Offset(0, _imageFloatAnim.value),
-
-                                  child: Container(
-                                    width: 220.w,
-
-                                    height: 240.h,
-
-                                    padding: EdgeInsets.all(5.w),
-
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(28.r),
-
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xff00D3FF),
-
-                                          Color(0xff0066FF),
-                                        ],
-
-                                        begin: Alignment.topLeft,
-
-                                        end: Alignment.bottomRight,
-                                      ),
-
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(
-                                            0xff00D3FF,
-                                          ).withValues(alpha: 0.4),
-
-                                          blurRadius: 15,
-
-                                          spreadRadius: 2,
-
-                                          offset: const Offset(-3, 5),
-                                        ),
-
-                                        BoxShadow(
-                                          color: const Color(
-                                            0xff0066FF,
-                                          ).withValues(alpha: 0.3),
-
-                                          blurRadius: 18,
-
-                                          spreadRadius: 2,
-
-                                          offset: const Offset(3, 8),
+                                              color: const Color(0xFFF7C24B),
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 16.h),
+
+                            SizedBox(
+                              width: size.width,
+
+                              height: 9.h,
+
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.r),
+
+                                child: ShinyStripedProgressBar(
+                                  progressColor: AppColors.orange_200,
+
+                                  stripeColor: AppColors.orange_500,
+
+                                  targetProgress: provider.progress,
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: 48.h),
+
+                            AnimatedOpacity(
+                              opacity: (_isMicReady && !_isAskingGirl)
+                                  ? 1.0
+                                  : 0.0,
+
+                              duration: const Duration(milliseconds: 600),
+
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+
+                                crossAxisAlignment: CrossAxisAlignment.end,
+
+                                mainAxisSize: MainAxisSize.min,
+
+                                children: List.generate(heights.length, (
+                                  index,
+                                ) {
+                                  Color? color;
+
+                                  if (activeBars == 0) {
+                                    color = Colors.white;
+                                  } else if (activeBars < heights.length - 1) {
+                                    color = index < activeBars
+                                        ? AppColors.red_200
+                                        : Colors.white;
+                                  } else {
+                                    color = index < activeBars
+                                        ? AppColors.green_600
+                                        : Colors.white;
+                                  }
+
+                                  return Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 3,
+                                    ),
+
+                                    width: 12,
+
+                                    height: heights[index],
+
+                                    decoration: BoxDecoration(
+                                      color: color,
+
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+
+                            SizedBox(height: 100.h),
+
+                            AnimatedOpacity(
+                              opacity: (_isImageReady && !_isAskingGirl)
+                                  ? 1.0
+                                  : 0.0,
+
+                              duration: const Duration(milliseconds: 600),
+
+                              child: AnimatedBuilder(
+                                animation: _imageFloat,
+
+                                builder: (context, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, _imageFloatAnim.value),
 
                                     child: Container(
-                                      padding: EdgeInsets.all(12.w),
+                                      width: 220.w,
+
+                                      height: 240.h,
+
+                                      padding: EdgeInsets.all(5.w),
 
                                       decoration: BoxDecoration(
-                                        color: context.palette.surface,
-
                                         borderRadius: BorderRadius.circular(
-                                          28.r - 5.w,
+                                          28.r,
                                         ),
+
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xff00D3FF),
+
+                                            Color(0xff0066FF),
+                                          ],
+
+                                          begin: Alignment.topLeft,
+
+                                          end: Alignment.bottomRight,
+                                        ),
+
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xff00D3FF,
+                                            ).withValues(alpha: 0.4),
+
+                                            blurRadius: 15,
+
+                                            spreadRadius: 2,
+
+                                            offset: const Offset(-3, 5),
+                                          ),
+
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xff0066FF,
+                                            ).withValues(alpha: 0.3),
+
+                                            blurRadius: 18,
+
+                                            spreadRadius: 2,
+
+                                            offset: const Offset(3, 8),
+                                          ),
+                                        ],
                                       ),
 
                                       child: Container(
+                                        padding: EdgeInsets.all(12.w),
+
                                         decoration: BoxDecoration(
-                                          color: context.isDarkMode ? context.palette.surfaceVariant : const Color(0xFFF2F8FF),
+                                          color: context.palette.surface,
 
                                           borderRadius: BorderRadius.circular(
-                                            18.r,
+                                            28.r - 5.w,
                                           ),
                                         ),
 
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            18.r,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: context.isDarkMode
+                                                ? context.palette.surfaceVariant
+                                                : const Color(0xFFF2F8FF),
+
+                                            borderRadius: BorderRadius.circular(
+                                              18.r,
+                                            ),
                                           ),
 
-                                          child: Image.network(
-                                            template?.itemsList?.first.url ??
-                                                "https://via.placeholder.com/130x150.png?text=No+Image",
-                                            headers: authImageHeaders(
-                                              template?.itemsList?.first.url ??
-                                                  "",
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              18.r,
                                             ),
 
-                                            fit: BoxFit.contain,
-                                            errorBuilder: (_, _, _) =>
-                                                const Icon(
-                                                  Icons
-                                                      .image_not_supported_outlined,
-                                                  size: 64,
-                                                  color: Colors.grey,
-                                                ),
+                                            child: Image.network(
+                                              item?.url ??
+                                                  "https://via.placeholder.com/130x150.png?text=No+Image",
+                                              headers: authImageHeaders(
+                                                item?.url ?? "",
+                                              ),
+
+                                              fit: BoxFit.contain,
+                                              errorBuilder: (_, _, _) => const Icon(
+                                                Icons
+                                                    .image_not_supported_outlined,
+                                                size: 64,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
 
-                          SizedBox(height: 80.h),
+                            SizedBox(height: 80.h),
 
-                          AnimatedOpacity(
-                            opacity: (_isMicReady && !_isAskingGirl)
-                                ? 1.0
-                                : 0.0,
+                            AnimatedOpacity(
+                              opacity: (_isMicReady && !_isAskingGirl)
+                                  ? 1.0
+                                  : 0.0,
 
-                            duration: const Duration(milliseconds: 600),
+                              duration: const Duration(milliseconds: 600),
 
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
-                              mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
 
-                              children: [
-                                SizedBox(width: 6.w),
+                                children: [
+                                  SizedBox(width: 6.w),
 
-                                GestureDetector(
-                                  child: AnimatedBuilder(
-                                    animation: Listenable.merge([
-                                      _pulse,
+                                  GestureDetector(
+                                    child: AnimatedBuilder(
+                                      animation: Listenable.merge([
+                                        _pulse,
 
-                                      _bounce,
-                                    ]),
+                                        _bounce,
+                                      ]),
 
-                                    builder: (context, child) {
-                                      return Transform.translate(
-                                        offset: Offset(0, _bounceAnim.value),
+                                      builder: (context, child) {
+                                        return Transform.translate(
+                                          offset: Offset(0, _bounceAnim.value),
 
-                                        child: Stack(
-                                          alignment: Alignment.center,
+                                          child: Stack(
+                                            alignment: Alignment.center,
 
-                                          children: [
-                                            Container(
-                                              width: 110.w,
+                                            children: [
+                                              Container(
+                                                width: 110.w,
 
-                                              height: 110.h,
+                                                height: 110.h,
 
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-
-                                                color: _isRecording
-                                                    ? _colorAnim.value
-                                                          ?.withValues(alpha: 0.25)
-                                                    : Colors.white.withValues(
-                                                        alpha: 0.15,
-                                                      ),
-                                              ),
-                                            ),
-
-                                            Container(
-                                              width: 90.w,
-
-                                              height: 90.h,
-
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-
-                                                color: _isRecording
-                                                    ? _colorAnim.value
-                                                          ?.withValues(alpha: 0.35)
-                                                    : Colors.white.withValues(
-                                                        alpha: 0.2,
-                                                      ),
-                                              ),
-                                            ),
-
-                                            ScaleTransition(
-                                              scale: _scale,
-
-                                              child: CircleAvatar(
-                                                radius: 40.r,
-
-                                                backgroundImage:
-                                                    const AssetImage(
-                                                      "assets/icons/circle.webp",
-                                                    ),
-
-                                                child: Image.asset(
-                                                  "assets/icons/micrafon.webp",
-
-                                                  width: 26.w,
-
-                                                  height: 38.r,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
 
                                                   color: _isRecording
                                                       ? _colorAnim.value
-                                                      : null,
+                                                            ?.withValues(
+                                                              alpha: 0.25,
+                                                            )
+                                                      : Colors.white.withValues(
+                                                          alpha: 0.15,
+                                                        ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
 
-                                SizedBox(width: 10.w),
-                              ],
+                                              Container(
+                                                width: 90.w,
+
+                                                height: 90.h,
+
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+
+                                                  color: _isRecording
+                                                      ? _colorAnim.value
+                                                            ?.withValues(
+                                                              alpha: 0.35,
+                                                            )
+                                                      : Colors.white.withValues(
+                                                          alpha: 0.2,
+                                                        ),
+                                                ),
+                                              ),
+
+                                              ScaleTransition(
+                                                scale: _scale,
+
+                                                child: CircleAvatar(
+                                                  radius: 40.r,
+
+                                                  backgroundImage:
+                                                      const AssetImage(
+                                                        "assets/icons/circle.webp",
+                                                      ),
+
+                                                  child: Image.asset(
+                                                    "assets/icons/micrafon.webp",
+
+                                                    width: 26.w,
+
+                                                    height: 38.r,
+
+                                                    color: _isRecording
+                                                        ? _colorAnim.value
+                                                        : null,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  SizedBox(width: 10.w),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          IgnorePointer(
-            ignoring: !_isAskingGirl,
+            IgnorePointer(
+              ignoring: !_isAskingGirl,
 
-            child: AnimatedOpacity(
-              opacity: _isAskingGirl ? 1.0 : 0.0,
+              child: AnimatedOpacity(
+                opacity: _isAskingGirl ? 1.0 : 0.0,
 
-              duration: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 400),
 
-              child: Center(
-                child: Image.asset(
-                  "assets/images/ask_girl.webp",
+                child: Center(
+                  child: Image.asset(
+                    "assets/images/ask_girl.webp",
 
-                  width: 473.w,
+                    width: 473.w,
 
-                  height: 473.h,
+                    height: 473.h,
 
-                  fit: BoxFit.contain,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          Align(
-            alignment: Alignment.topCenter,
+            Align(
+              alignment: Alignment.topCenter,
 
-            child: ConfettiWidget(
-              confettiController: _confettiCtrl,
+              child: ConfettiWidget(
+                confettiController: _confettiCtrl,
 
-              blastDirectionality: BlastDirectionality.explosive,
+                blastDirectionality: BlastDirectionality.explosive,
 
-              shouldLoop: false,
+                shouldLoop: false,
 
-              gravity: 0.5,
+                gravity: 0.5,
 
-              emissionFrequency: 0.05,
+                emissionFrequency: 0.05,
 
-              numberOfParticles: 25,
+                numberOfParticles: 25,
 
-              colors: const [
-                Colors.green,
+                colors: const [
+                  Colors.green,
 
-                Colors.blue,
+                  Colors.blue,
 
-                Colors.orange,
+                  Colors.orange,
 
-                Colors.pink,
+                  Colors.pink,
 
-                Colors.purple,
-              ],
+                  Colors.purple,
+                ],
+              ),
             ),
-          ),
 
-          IgnorePointer(
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_errorAnimCtrl, _errorWobbleCtrl]),
+            IgnorePointer(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_errorAnimCtrl, _errorWobbleCtrl]),
 
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _errorOpacity.value,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _errorOpacity.value,
 
-                  child: Center(
-                    child: ScaleTransition(
-                      scale: _errorScale,
+                    child: Center(
+                      child: ScaleTransition(
+                        scale: _errorScale,
 
-                      child: Transform.translate(
-                        offset: Offset(_errorShakeX.value, 0),
+                        child: Transform.translate(
+                          offset: Offset(_errorShakeX.value, 0),
 
-                        child: Transform.rotate(
-                          angle: _errorRotate.value,
+                          child: Transform.rotate(
+                            angle: _errorRotate.value,
 
-                          child: Container(
-                            padding: const EdgeInsets.all(18),
+                            child: Container(
+                              padding: const EdgeInsets.all(18),
 
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
 
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
 
-                            child: Image.asset(
-                              "assets/icons/yellow_error.webp",
+                              child: Image.asset(
+                                "assets/icons/yellow_error.webp",
 
-                              width: 100.w,
+                                width: 100.w,
 
-                              height: 100.h,
+                                height: 100.h,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

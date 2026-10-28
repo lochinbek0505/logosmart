@@ -1,3 +1,4 @@
+import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -64,12 +65,7 @@ class _ResaultPageState extends State<ResaultPage> {
                               fit: BoxFit.fill,
                             ),
                           ),
-                          child: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: AssetImage(
-                              "assets/icons/circle_bad.webp",
-                            ),
-                          ),
+                          child: const ProfileAvatar(),
                         ),
                       ],
                     ),

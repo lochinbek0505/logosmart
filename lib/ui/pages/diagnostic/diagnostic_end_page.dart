@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
+import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -90,12 +91,7 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                                 fit: BoxFit.fill,
                               ),
                             ),
-                            child: const CircleAvatar(
-                              radius: 30,
-                              backgroundImage: AssetImage(
-                                "assets/icons/circle_bad.webp",
-                              ),
-                            ),
+                            child: const ProfileAvatar(),
                           ),
                         ],
                       ),

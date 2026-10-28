@@ -2,6 +2,7 @@ import 'package:logosmart/core/service/app_settings.dart';
 import 'dart:convert'; // JSON o'qish uchun
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +57,6 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
         "success_sound": "assets/sound/success.mp3",
         "icon_star": "assets/icons/star.webp",
         "avatar_bg": "assets/icons/circle.webp",
-        "avatar_image": "assets/icons/circle_bad.webp",
       };
       _items = [
         {"id": "pepper", "image": "assets/game/yellow_pepper.webp"},
@@ -283,10 +283,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                 fit: BoxFit.fill,
               ),
             ),
-            child: CircleAvatar(
-              radius: 30,
-              backgroundImage: AssetImage(_config['avatar_image']), // JSON
-            ),
+            child: const ProfileAvatar(),
           ),
         ],
       ),

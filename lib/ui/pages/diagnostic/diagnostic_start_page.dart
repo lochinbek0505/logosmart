@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
+import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,195 +36,165 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
     super.dispose();
   }
 
+  void _goBack() {
+    _audioPlayer.stop();
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => DiagnosticGroupPage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: Colors.green.shade300,
-      body: Container(
-        width: size.width,
-        height: size.height,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/backround/fon_q.webp"),
-            fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 15.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 56.w,
-                        height: 56.h,
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => DiagnosticGroupPage(),
-                              ),
-                            );
-                          },
-                          child: Image.asset(
-                            "assets/icons/arrow_right_button.webp",
-                            fit: BoxFit.fill,
+    // Tizim "orqaga" tugmasi/jesti ham ilovadagi orqaga tugmasi bilan bir xil ishlasin
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goBack();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.green.shade300,
+        body: Container(
+          width: size.width,
+          height: size.height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/backround/fon_q.webp"),
+              fit: BoxFit.fill,
+              colorFilter: context.palette.backgroundImageFilter,
+            ),
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 15.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 56.w,
+                          height: 56.h,
+                          child: GestureDetector(
+                            onTap: _goBack,
+                            child: Image.asset(
+                              "assets/icons/arrow_right_button.webp",
+                              fit: BoxFit.fill,
+                            ),
                           ),
                         ),
-                      ),
 
-                      Container(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                          top: 8.5,
-                          bottom: 11.5,
-                        ),
-                        width: 80.h,
-                        height: 80.w,
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/icons/circle.webp"),
-                            fit: BoxFit.fill,
+                        Container(
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: 8.5,
+                            bottom: 11.5,
                           ),
-                        ),
-                        child: const CircleAvatar(
-                          radius: 30,
-                          backgroundImage: AssetImage(
-                            "assets/icons/circle_bad.webp",
+                          width: 80.h,
+                          height: 80.w,
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage("assets/icons/circle.webp"),
+                              fit: BoxFit.fill,
+                            ),
                           ),
+                          child: const ProfileAvatar(),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 15.h),
-
-                Container(
-                  width: 250.w,
-                  height: 160.h,
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
-                    top: 22,
-                    bottom: 11.5,
-                  ),
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/big_cloud.webp"),
-                      fit: BoxFit.fill,
+                      ],
                     ),
                   ),
-                  child: Transform.translate(
-                    offset: Offset(0, 25.h),
-                    child: Text(
-                      "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.nunito(
-                        color: context.palette.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15.sp,
+
+                  SizedBox(height: 15.h),
+
+                  Container(
+                    width: 250.w,
+                    height: 160.h,
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      top: 22,
+                      bottom: 11.5,
+                    ),
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/big_cloud.webp"),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    child: Transform.translate(
+                      offset: Offset(0, 25.h),
+                      child: Text(
+                        "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.nunito(
+                          color: context.palette.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15.sp,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                Transform.translate(
-                  offset: Offset(0, -15.h),
-                  child: Image.asset(
-                    "assets/persons/girl_1.webp",
-                    width: 200.w,
-                    height: 380.h,
+                  Transform.translate(
+                    offset: Offset(0, -15.h),
+                    child: Image.asset(
+                      "assets/persons/girl_1.webp",
+                      width: 200.w,
+                      height: 380.h,
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 20.h),
-                GestureDetector(
-                  onTap: () async {
-                    // 1. Eng birinchi audioni to'xtatamiz!
-                    await _audioPlayer.stop();
+                  SizedBox(height: 20.h),
+                  GestureDetector(
+                    onTap: () async {
+                      // 1. Eng birinchi audioni to'xtatamiz!
+                      await _audioPlayer.stop();
 
-                    // 2. Tugma animatsiyasi uchun holatni o'zgartiramiz
-                    setState(() {
-                      _isPressed = true;
-                    });
-
-                    // Biroz kutamiz (animatsiya ko'rinishi uchun)
-                    await Future.delayed(const Duration(milliseconds: 160));
-
-                    if (context.mounted) {
+                      // 2. Tugma animatsiyasi uchun holatni o'zgartiramiz
                       setState(() {
-                        _isPressed = false;
+                        _isPressed = true;
                       });
 
-                      // 3. Keyingi sahifaga o'tamiz
-                      Navigator.pushReplacement(
-                        context,
-                        GameBouncePageRoute(
-                          page: VoiceDiagnosticPage(
-                            templatesList: widget.templatesList,
+                      // Biroz kutamiz (animatsiya ko'rinishi uchun)
+                      await Future.delayed(const Duration(milliseconds: 160));
+
+                      if (context.mounted) {
+                        setState(() {
+                          _isPressed = false;
+                        });
+
+                        // 3. Keyingi sahifaga o'tamiz
+                        Navigator.pushReplacement(
+                          context,
+                          GameBouncePageRoute(
+                            page: VoiceDiagnosticPage(
+                              templatesList: widget.templatesList,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(7),
-                    width: 264.w,
-                    height: 72.h,
-                    decoration: BoxDecoration(
-                      color: context.palette.surface,
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                    child: _isPressed
-                        ? Container(
-                            width: size.width,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: const Color(0xff20B9E8),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "BOSHLASH",
-                                style: GoogleFonts.nunito(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24.sp,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(
-                            padding: const EdgeInsets.only(bottom: 3),
-                            width: size.width,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: const Color(0xff47809e),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.only(top: 2),
-                              width: 190,
-                              height: 57,
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      width: 264.w,
+                      height: 72.h,
+                      decoration: BoxDecoration(
+                        color: context.palette.surface,
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      child: _isPressed
+                          ? Container(
+                              width: size.width,
+                              height: 60,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(29),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xffbee9f7),
-                                    Color(0xff20B9E8),
-                                  ],
-                                  end: Alignment.bottomCenter,
-                                  begin: Alignment.topCenter,
-                                ),
+                                color: const Color(0xff20B9E8),
+                                borderRadius: BorderRadius.circular(30),
                               ),
                               child: Center(
                                 child: Text(
@@ -235,13 +206,48 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
                                   ),
                                 ),
                               ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.only(bottom: 3),
+                              width: size.width,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: const Color(0xff47809e),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.only(top: 2),
+                                width: 190,
+                                height: 57,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(29),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xffbee9f7),
+                                      Color(0xff20B9E8),
+                                    ],
+                                    end: Alignment.bottomCenter,
+                                    begin: Alignment.topCenter,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "BOSHLASH",
+                                    style: GoogleFonts.nunito(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 30.h), // Eng pastki xavfsiz bo'sh joy
-              ],
+                  SizedBox(height: 30.h), // Eng pastki xavfsiz bo'sh joy
+                ],
+              ),
             ),
           ),
         ),

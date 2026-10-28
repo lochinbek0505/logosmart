@@ -1,3 +1,4 @@
+import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/main/widgets/custom_text_widget.dart';
@@ -54,12 +55,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                         fit: BoxFit.fill,
                       ),
                     ),
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: AssetImage(
-                        "assets/icons/circle_bad.webp",
-                      ),
-                    ),
+                    child: const ProfileAvatar(),
                   ),
                 ],
               ),

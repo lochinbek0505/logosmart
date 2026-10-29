@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:logosmart/models/avatars_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 import 'package:logosmart/models/promo_check_model.dart';
 import 'package:logosmart/ui/pages/auth/login_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/profile/providers/notifications_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -231,7 +233,7 @@ class ProfileProvider with ChangeNotifier {
       isActionLoading = false;
     }
     if (!context.mounted) return;
-    await _signOutLocally(context);
+    await signOutLocally(context);
   }
 
   Future<void> deleteAccount(BuildContext context) async {
@@ -244,7 +246,7 @@ class ProfileProvider with ChangeNotifier {
       // Akkaunt serverda o'chmasa qurilmadan chiqarilmaydi — xato
       // ApiService da ko'rsatiladi
       if (response && context.mounted) {
-        await _signOutLocally(context);
+        await signOutLocally(context);
       }
     } catch (e) {
       debugPrint("Akkauntni o'chirishda xato: $e");
@@ -254,11 +256,15 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _signOutLocally(BuildContext context) async {
+  /// Qurilmadan chiqarish (logout, akkaunt o'chirish, sessiya tugashi)
+  Future<void> signOutLocally(BuildContext context) async {
     await _tokenStorage.clearAll();
     _profileResponse = ProfileResponse();
     _cacheLoaded = false;
     NotificationsProvider().clear();
+    if (context.mounted) {
+      Provider.of<LevelProvider>(context, listen: false).clearServerData();
+    }
     notifyListeners();
 
     if (!context.mounted) return;

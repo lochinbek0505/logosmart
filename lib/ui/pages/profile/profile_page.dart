@@ -381,26 +381,34 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: AppColors.main_blue_600,
-                      radius: 14.r,
-                      child: Center(
-                        child: Image.asset(icon, width: 16.w, height: 16.h),
+                // Uzun sarlavha (obuna nomi + sana) strelkani surib chiqarmasin
+                Expanded(
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: AppColors.main_blue_600,
+                        radius: 14.r,
+                        child: Center(
+                          child: Image.asset(icon, width: 16.w, height: 16.h),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Text(
-                      title,
-                      style: GoogleFonts.nunito(
-                        color: context.palette.textPrimary,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.nunito(
+                            color: context.palette.textPrimary,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                SizedBox(width: 8.w),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 20.w,

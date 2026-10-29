@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:logosmart/core/network/api_service.dart';
 import 'package:logosmart/core/service/notification_service.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
+import 'package:provider/provider.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
@@ -82,6 +84,8 @@ class AuthProvider with ChangeNotifier {
         debugPrint("TOKEN ${response.accessToken}");
         // FCM tokenni yangi userga bog'lash (kutmaymiz)
         NotificationService().registerToken();
+        // Tovush mashqlari progressi shu foydalanuvchiniki bo'lsin
+        Provider.of<LevelProvider>(context, listen: false).reloadForUser();
         return true;
       } else {
         return false;
@@ -129,6 +133,8 @@ class AuthProvider with ChangeNotifier {
       if (response != null) {
         await tokenStorage.saveLoginData(response);
         NotificationService().registerToken();
+        // Tovush mashqlari progressi shu foydalanuvchiniki bo'lsin
+        Provider.of<LevelProvider>(context, listen: false).reloadForUser();
         return true;
       } else {
         return false;

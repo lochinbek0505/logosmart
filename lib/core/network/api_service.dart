@@ -53,29 +53,72 @@ class ApiService {
           return handler.next(response);
         },
         onError: (DioException e, handler) {
-          if (e.response?.statusCode == 401) {
-            // WebStorageService().clearAll();
-            // Bu yerda navigator orqali login sahifasiga yo'naltirish kodi bo'ladi
-          }
+          if (_isSessionExpired(e)) _handleSessionExpired();
           return handler.next(e);
         },
       ),
     );
   }
 
+  /// Sessiya tugaganda chaqiriladi (main.dart da o'rnatiladi):
+  /// tokenni tozalab login sahifasiga qaytaradi.
+  static Future<void> Function()? onSessionExpired;
+  bool _expiring = false;
+
+  /// Javob body sidagi "message" — body JSON bo'lmasa (masalan 502 da nginx
+  /// HTML qaytaradi) null.
+  static String? messageOf(dynamic data) {
+    if (data is Map) {
+      final m = data["message"];
+      if (m != null && m.toString().isNotEmpty) return m.toString();
+    }
+    return null;
+  }
+
+  /// 5xx (server/nginx xatosi) uchun tushunarli matn, aks holda statusMessage
+  static String? statusText(Response? response) {
+    final status = response?.statusCode ?? 0;
+    if (status >= 500) {
+      return "Server vaqtincha ishlamayapti. Birozdan keyin urinib ko'ring.";
+    }
+    return response?.statusMessage;
+  }
+
+  /// Token muddati tugagan/yaroqsiz: 401, yoki body siz 403 (Spring Security).
+  /// "message" li 403 — biznes taqiq (masalan "Bu level faqat obunachilar
+  /// uchun."), u logout qilmaydi.
+  bool _isSessionExpired(DioException e) {
+    final status = e.response?.statusCode;
+    if (status != 401 && status != 403) return false;
+    if (e.requestOptions.path.startsWith("auth/")) return false;
+    if (e.requestOptions.headers['Authorization'] == null) return false;
+    return status == 401 || messageOf(e.response?.data) == null;
+  }
+
+  Future<void> _handleSessionExpired() async {
+    final handler = onSessionExpired;
+    if (_expiring || handler == null) return;
+    _expiring = true;
+    try {
+      await handler();
+    } finally {
+      _expiring = false;
+    }
+  }
+
   Future<bool> login_init(context, Map<String, dynamic> data) async {
     try {
       var response = await _dio.post("auth/login/init", data: data);
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -92,15 +135,15 @@ class ApiService {
     try {
       var response = await _dio.post("auth/logout");
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-                e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+                statusText(e.response) ??
                 "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -117,15 +160,15 @@ class ApiService {
     try {
       var response = await _dio.delete("profile/me/delete");
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-                e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+                statusText(e.response) ??
                 "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -145,7 +188,7 @@ class ApiService {
 
       // Status 200 yoki 201 bo'lishi mumkin, API hujjatiga qarab to'g'rilaysiz
       if (response.statusCode == 200) {
-        showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+        showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
         return LoginModel.fromJson(response.data);
       } else {
         return null;
@@ -155,8 +198,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -174,15 +217,15 @@ class ApiService {
     try {
       var response = await _dio.post("auth/register/init", data: data);
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -205,7 +248,7 @@ class ApiService {
 
       // Status 200 yoki 201 bo'lishi mumkin, API hujjatiga qarab to'g'rilaysiz
       if (response.statusCode == 200) {
-        showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+        showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
         return LoginModel.fromJson(response.data);
       } else {
         return null;
@@ -215,8 +258,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -234,15 +277,15 @@ class ApiService {
     try {
       var response = await _dio.post("auth/forgot-password/init", data: data);
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -263,15 +306,15 @@ class ApiService {
         data: data,
       );
 
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
       return response.statusCode == 200;
     } on DioException catch (e) {
       String errorMessage = "Xatolik yuz berdi";
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -288,7 +331,7 @@ class ApiService {
   Future<bool> reset_password(context, Map<String, dynamic> data) async {
     try {
       var response = await _dio.post("auth/forgot-password/reset", data: data);
-      showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       return response.statusCode == 200;
     } on DioException catch (e) {
@@ -296,8 +339,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -316,7 +359,7 @@ class ApiService {
   ) async {
     try {
       var response = await _dio.post("payment/click/pay-link", data: data);
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return PayLinkResponse.fromJson(response.data);
@@ -328,8 +371,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -345,7 +388,7 @@ class ApiService {
   Future<ProfileResponse?> getProfile(context) async {
     try {
       var response = await _dio.get("profile/me");
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return ProfileResponse.fromJson(response.data);
@@ -357,8 +400,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -401,12 +444,12 @@ class ApiService {
         if (e.response?.data is Map<String, dynamic>) {
           // Agar to'g'ri JSON kelsa, "message" ni olamiz
           errorMessage =
-              e.response?.data["message"] ??
-              e.response?.statusMessage ??
+              messageOf(e.response?.data) ??
+              statusText(e.response) ??
               "Noma'lum xato";
         } else {
           // Agar oddiy matn (String) yoki HTML kelsa, shunchaki stringga o'giramiz
-          errorMessage = e.response?.statusMessage ?? "Noma'lum xato";
+          errorMessage = statusText(e.response) ?? "Noma'lum xato";
           // Yoki kerak bo'lsa to'g'ridan-to'g'ri e.response?.data.toString() dan foydalanishingiz mumkin
         }
       } else {
@@ -442,12 +485,12 @@ class ApiService {
         if (e.response?.data is Map<String, dynamic>) {
           // Agar to'g'ri JSON kelsa, "message" ni olamiz
           errorMessage =
-              e.response?.data["message"] ??
-              e.response?.statusMessage ??
+              messageOf(e.response?.data) ??
+              statusText(e.response) ??
               "Noma'lum xato";
         } else {
           // Agar oddiy matn (String) yoki HTML kelsa, shunchaki stringga o'giramiz
-          errorMessage = e.response?.statusMessage ?? "Noma'lum xato";
+          errorMessage = statusText(e.response) ?? "Noma'lum xato";
           // Yoki kerak bo'lsa to'g'ridan-to'g'ri e.response?.data.toString() dan foydalanishingiz mumkin
         }
       } else {
@@ -481,8 +524,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -498,7 +541,7 @@ class ApiService {
   Future<PromoCheckModel?> checkPromo(context, code) async {
     try {
       var response = await _dio.get("promocodes/check/${code}");
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return PromoCheckModel.fromJson(response.data);
@@ -510,8 +553,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -532,7 +575,7 @@ class ApiService {
   ) async {
     try {
       var response = await _dio.put("profile/me", data: data);
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return ProfileResponse.fromJson(response.data);
@@ -544,8 +587,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -561,7 +604,7 @@ class ApiService {
   Future<BillingsModel?> getBillings(context) async {
     try {
       var response = await _dio.get("payment/click/my-transactions");
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return BillingsModel.fromJson(response.data);
@@ -573,8 +616,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -590,7 +633,7 @@ class ApiService {
   Future<DiagnosticGroupModel?> getDiagnosticGroup(context) async {
     try {
       var response = await _dio.get("diagnostic-groups");
-      // showSnakBar(context, response.data["message"] ?? "Muvaffaqiyatli!");
+      // showSnakBar(context, messageOf(response.data) ?? "Muvaffaqiyatli!");
 
       if (response.statusCode == 200) {
         return DiagnosticGroupModel.fromJson(response.data);
@@ -602,8 +645,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-            e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
             "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -634,8 +677,8 @@ class ApiService {
 
       if (e.response != null && e.response?.data != null) {
         errorMessage =
-            e.response?.data["message"] ??
-                e.response?.statusMessage ??
+            messageOf(e.response?.data) ??
+                statusText(e.response) ??
                 "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
@@ -728,5 +771,78 @@ class ApiService {
       debugPrint("Hammasini o'qildi qilishda xato: $e");
       return false;
     }
+  }
+
+  // --- OVOZ (TOVUSH) MASHQLARI ---
+
+  /// Tovush mashqlari ro'yxati (id, name, sequenceNumber, count, ...)
+  Future<List<Map<String, dynamic>>?> getVoicePractices() async {
+    try {
+      var response = await _dio.get("voice-practices");
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint("Tovush mashqlarini olishda xato: $e");
+    }
+    return null;
+  }
+
+  /// Mashq levellari foydalanuvchi progressi (stars, locked) bilan.
+  /// Obunasiz foydalanuvchiga faqat bepul levellar qaytadi.
+  Future<List<dynamic>?> getVoicePracticeLevels(String voicePracticeId) async {
+    try {
+      var response = await _dio.get(
+        "levels",
+        queryParameters: {"voicePracticeId": voicePracticeId},
+      );
+      if (response.statusCode == 200 && response.data is List) {
+        return response.data as List;
+      }
+    } catch (e) {
+      debugPrint("Levellarni olishda xato: $e");
+    }
+    return null;
+  }
+
+  /// Level natijasini (yulduzlarni) serverga yuborish. [levelId] — mongo id.
+  /// true — qabul qilindi, false — server rad etdi (qayta yuborish foydasiz,
+  /// masalan pullik level — 403), null — tarmoq/server xatosi (keyin qayta).
+  Future<bool?> submitLevelStars(String levelId, int stars) async {
+    try {
+      var response = await _dio.post(
+        "levels/$levelId/stars",
+        data: {"stars": stars.clamp(0, 3)},
+      );
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      debugPrint("Yulduzlarni yuborishda xato: $e");
+      final status = e.response?.statusCode;
+      if (status != null && status >= 400 && status < 500 && status != 401) {
+        // Body siz 403 — sessiya tugagan, natija keyingi login uchun qoladi
+        if (status == 403 && messageOf(e.response?.data) == null) return null;
+        return false;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Yulduzlarni yuborishda xato: $e");
+      return null;
+    }
+  }
+
+  /// Yulduzlar tarixi (eng yangisi birinchi) — oxirgi o'ynalgan mashqni topish uchun
+  Future<List<dynamic>?> getStarHistory() async {
+    try {
+      var response = await _dio.get("stars/history");
+      if (response.statusCode == 200 && response.data is List) {
+        return response.data as List;
+      }
+    } catch (e) {
+      debugPrint("Yulduzlar tarixini olishda xato: $e");
+    }
+    return null;
   }
 }

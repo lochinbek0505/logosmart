@@ -146,8 +146,17 @@ class LevelState {
   @HiveField(6)
   final ExerciseInfo? exercise;
 
+  /// Serverdagi level (mongo) id si — natija shu id bilan yuboriladi.
+  /// Lokal JSON xaritalarida null.
+  final String? serverId;
+
+  /// false — pullik level, obuna yo'q: qulflangan, kontenti kelmaydi
+  final bool available;
+
   const LevelState({
     required this.id,
+    this.serverId,
+    this.available = true,
     required this.stars,
     required this.locked,
     required this.skin,
@@ -167,6 +176,8 @@ class LevelState {
   }) {
     return LevelState(
       id: id ?? this.id,
+      serverId: serverId,
+      available: available,
       stars: stars ?? this.stars,
       locked: locked ?? this.locked,
       skin: skin ?? this.skin,

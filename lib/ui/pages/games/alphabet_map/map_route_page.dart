@@ -31,6 +31,7 @@ import '../wolf_game/wolf_game_page.dart';
 import 'provider/level_provider.dart';
 import 'start_text_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../widgets/subscription_offer_dialog.dart';
 
 List<Offset> generatePositionsSin(int count) {
   return List.generate(count, (i) {
@@ -268,6 +269,39 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
     _cachedDecorations = decorations;
   }
 
+  Widget _buildEmptyState(BuildContext context) {
+    final provider = context.watch<LevelProvider>();
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Mashg'ulotlar topilmadi. Internetni tekshiring yoki "
+              "obunangiz faolligini ko'ring.",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => provider.refreshSound(widget.sound),
+              child: const Text("Qayta urinish"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final levelStates = context.watch<LevelProvider>().levels;
@@ -304,6 +338,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
               height: mapHeight,
             ),
           ),
+          // Tovush mashqi levellari serverdan kelguncha / kelmasa
+          if (levelStates.isEmpty && LevelProvider.isServerSound(widget.sound))
+            Positioned.fill(child: _buildEmptyState(context)),
           SingleChildScrollView(
             controller: _scrollController,
             child: SizedBox(
@@ -352,11 +389,19 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                             level: l,
                             isCurrent: isCurrent,
                             onTap: () async {
-                              if (l.locked) return;
-
                               final lv = levelStates.firstWhere(
                                 (e) => e.id == l.id,
                               );
+                              // Pullik level, obuna yo'q — obunaga taklif
+                              if (!lv.available) {
+                                final provider = context.read<LevelProvider>();
+                                if (await showSubscriptionOffer(context)) {
+                                  await provider.refreshPractices();
+                                  await provider.refreshSound(widget.sound);
+                                }
+                                return;
+                              }
+                              if (l.locked) return;
 
                               context.read<LevelProvider>().openLevel(lv);
 

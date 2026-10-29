@@ -3,6 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logosmart/core/network/api_service.dart';
+import 'package:logosmart/core/storage/token_storage.dart';
 import 'package:logosmart/core/service/app_settings.dart';
 import 'package:logosmart/core/service/notification_service.dart';
 import 'package:logosmart/core/service/permission_service.dart';
@@ -53,7 +55,25 @@ Future<void> main() async {
   //
   // // await Hive.openBox<LevelState>(kLevelsBox);
 
+  // Token muddati tugasa (401 / body siz 403) — login sahifasiga qaytariladi
+  ApiService.onSessionExpired = _onSessionExpired;
+
   runApp(MyApp());
+}
+
+Future<void> _onSessionExpired() async {
+  // Bir nechta so'rov birdan 403 olsa ham bir marta chiqariladi
+  if (await TokenStorage().getAccessToken() == null) return;
+  final context = navigatorKey.currentContext;
+  if (context == null || !context.mounted) {
+    await TokenStorage().clearAll();
+    return;
+  }
+  ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+    const SnackBar(content: Text("Sessiya muddati tugadi. Qaytadan kiring.")),
+  );
+  await Provider.of<ProfileProvider>(context, listen: false)
+      .signOutLocally(context);
 }
 
 class MyApp extends StatelessWidget {

@@ -1,9 +1,37 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:pinput/pinput.dart';
+import 'package:smart_auth/smart_auth.dart';
+
+/// Android: SMS User Consent API — SMS kelganda foydalanuvchi "Ruxsat berish"
+/// ni bossa kod avtomatik to'ldiriladi (backend SMS matnini o'zgartirish
+/// shart emas). iOS da Pinput'ning oneTimeCode autofill'i klaviaturada
+/// kodni taklif qiladi.
+class _SmsRetrieverImpl implements SmsRetriever {
+  const _SmsRetrieverImpl();
+
+  @override
+  Future<void> dispose() =>
+      SmartAuth.instance.removeUserConsentApiListener();
+
+  @override
+  Future<String?> getSmsCode() async {
+    final res = await SmartAuth.instance.getSmsWithUserConsentApi(
+      matcher: r'\b\d{4}\b', // 4 xonali kod
+    );
+    if (res.hasData) return res.data?.code;
+    return null;
+  }
+
+  /// true bo'lsa Pinput getSmsCode ni darhol qayta chaqiradi — bekor qilish
+  /// yoki xatoda tsikl bo'lmasligi uchun bir marta tinglaymiz
+  @override
+  bool get listenForMultipleSms => false;
+}
 
 class OtpInputField extends StatefulWidget {
   final bool isTimerActive;
@@ -118,6 +146,9 @@ class OtpInputFieldState extends State<OtpInputField> with SingleTickerProviderS
             child: Pinput(
               length: 4,
               controller: widget.controller,
+              smsRetriever: defaultTargetPlatform == TargetPlatform.android
+                  ? const _SmsRetrieverImpl()
+                  : null,
               separatorBuilder: (a) => SizedBox(width: 12.w),
               defaultPinTheme: defaultPinTheme,
               focusedPinTheme: focusedPinTheme,

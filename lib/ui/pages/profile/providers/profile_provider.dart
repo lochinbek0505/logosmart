@@ -258,7 +258,9 @@ class ProfileProvider with ChangeNotifier {
 
   /// Qurilmadan chiqarish (logout, akkaunt o'chirish, sessiya tugashi)
   Future<void> signOutLocally(BuildContext context) async {
-    await _tokenStorage.clearAll();
+    // clearAll() secure storage'dagi HAMMA kalitlarni (sozlamalar: mavzu,
+    // ovoz, vibratsiya...) ham o'chirib yuborardi — faqat auth ma'lumotlari
+    await _tokenStorage.deleteAuthData();
     _profileResponse = ProfileResponse();
     _cacheLoaded = false;
     NotificationsProvider().clear();

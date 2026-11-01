@@ -18,6 +18,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class ArrowGamePage extends StatefulWidget {
   const ArrowGamePage({super.key});
@@ -141,8 +142,19 @@ class _ArrowGamePageState extends State<ArrowGamePage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   Future<void> _startRecording() async {
@@ -229,7 +241,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
         } else {
           _showSnackbar("Barakalla! To'g'ri topildi.", Colors.green);
           AppSettings().vibrateSuccess();
-          await _audioPlayer.play(AssetSource('sound/success.mp3'));
+          await _audioPlayer.play(appAudioSource('sound/success.mp3'));
         }
       } else {
         // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
@@ -291,7 +303,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
     // Success ovozi FAQAT shu yerda, bir marta chalinadi.
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource('sound/success.mp3'));
+    await _audioPlayer.play(appAudioSource('sound/success.mp3'));
 
     if (!mounted) return;
 
@@ -346,7 +358,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           color: const Color(0xFF8FD8F0), // fallback fon rangi
           image: (_config['background_image'] is String)
               ? DecorationImage(
-            image: AssetImage(_config['background_image'] as String),
+            image: AppImage.provider(_config['background_image'] as String),
             fit: BoxFit.fill,
             onError: (error, stackTrace) {
               debugPrint("Background image yuklanmadi: $error");
@@ -369,7 +381,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                 child: Center(
                   child: SizedBox(
                     width: 360.w,
-                    height: 440.h,
+                    // Tashqi harflar doirasi (outerRadius + harf yarmi) balandlikka
+                    // sig'ishi shart — planshet/keng ekranda .w katta, .h kichik
+                    // bo'lib harflar header/mikrofon ustiga chiqib ketardi
+                    height: max(440.h, (outerRadius + 40.w) * 2 + 16.h),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final Offset centerPoint = Offset(
@@ -532,12 +547,12 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                               child: CircleAvatar(
                                 radius: 40.r,
                                 backgroundColor: Colors.white,
-                                backgroundImage: const AssetImage(
+                                backgroundImage: AppImage.provider(
                                   "assets/icons/circle.webp",
                                 ),
                                 onBackgroundImageError: (_, __) {},
                                 child: (_config['icon_mic'] is String)
-                                    ? Image.asset(
+                                    ? AppImage.asset(
                                   _config['icon_mic'] as String,
                                   width: 24.w,
                                   height: 32.h,
@@ -598,7 +613,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
               width: 48.w,
               height: 48.h,
               child: (_config['icon_arrow'] is String)
-                  ? Image.asset(
+                  ? AppImage.asset(
                 _config['icon_arrow'] as String,
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) =>
@@ -615,7 +630,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                 width: 40.w,
                 height: 40.h,
                 child: (_config['icon_star'] is String)
-                    ? Image.asset(
+                    ? AppImage.asset(
                   _config['icon_star'] as String,
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.star, color: Colors.orange),

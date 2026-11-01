@@ -55,9 +55,13 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
               image: AssetImage("assets/backround/fon_q.webp"),
               fit: BoxFit.fill, colorFilter: context.palette.backgroundImageFilter),
           ),
-          child: Column(
+          // SafeArea + Expanded rasm: avval qattiq 60 + 200.h + 460.h bo'lib,
+          // kichik ekran/katta shriftda pastdan chiqib ketardi
+          child: SafeArea(
+            bottom: false,
+            child: Column(
             children: [
-              const SizedBox(height: 60, width: double.infinity),
+              const SizedBox(height: 16, width: double.infinity),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -210,8 +214,15 @@ class _DiagnosticGroupPageState extends State<DiagnosticGroupPage> {
                   },
                 ),
               ),
-              Image.asset("assets/persons/girl_2.webp", height: 460.h),
+              Expanded(
+                child: Image.asset(
+                  "assets/persons/girl_2.webp",
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                ),
+              ),
             ],
+            ),
           ),
         ),
       ),

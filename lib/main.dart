@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logosmart/core/network/api_service.dart';
+import 'package:logosmart/core/resources/resource_manager.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
 import 'package:logosmart/core/service/app_settings.dart';
 import 'package:logosmart/core/service/notification_service.dart';
@@ -27,6 +28,8 @@ Future<void> main() async {
   await AppSettings().load();
   await Hive.initFlutter();
   await Hive.openBox(kLevelProgressBox);
+  // Serverdan yuklangan o'yin/mashq resurslari (login'dan keyin yuklanadi)
+  await ResourceManager.instance.init();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Top-level handler runApp'dan oldin ro'yxatdan o'tishi shart
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -66,7 +69,8 @@ Future<void> _onSessionExpired() async {
   if (await TokenStorage().getAccessToken() == null) return;
   final context = navigatorKey.currentContext;
   if (context == null || !context.mounted) {
-    await TokenStorage().clearAll();
+    // Faqat auth kalitlari — sozlamalar (mavzu, ovoz) saqlanib qolsin
+    await TokenStorage().deleteAuthData();
     return;
   }
   ScaffoldMessenger.maybeOf(context)?.showSnackBar(

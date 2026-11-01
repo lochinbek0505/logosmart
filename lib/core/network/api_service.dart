@@ -744,8 +744,9 @@ class ApiService {
   Future<int?> getUnreadNotificationsCount() async {
     try {
       var response = await _dio.get("notifications/unread-count");
-      if (response.statusCode == 200) {
-        return response.data["count"];
+      if (response.statusCode == 200 && response.data is Map) {
+        // Backend son o'rniga satr/null qaytarsa ham yiqilmasin
+        return (response.data["count"] as num?)?.toInt();
       }
     } catch (e) {
       debugPrint("O'qilmaganlar sonini olishda xato: $e");
@@ -845,4 +846,57 @@ class ApiService {
     }
     return null;
   }
+
+  // --- ILOVA RESURSLARI (rasm, ovoz, video, model) ---
+
+  /// Resurslar manifesti. [version] serverdagi bilan teng bo'lsa server 304 qaytaradi —
+  /// unda `{"notModified": true}` qaytariladi. Xato bo'lsa null.
+  /// Faqat testlar uchun: so'rovlarni lokal test serverga yo'naltirish
+  @visibleForTesting
+  set baseUrlForTesting(String url) => _dio.options.baseUrl = url;
+
+  /// Oxirgi muvaffaqiyatsiz manifest so'rovining status kodi (null — tarmoq xatosi)
+  int? lastResourceManifestStatus;
+
+  Future<Map<String, dynamic>?> getResourceManifest({int? version}) async {
+    lastResourceManifestStatus = null;
+    try {
+      var response = await _dio.get(
+        "resources/manifest",
+        queryParameters: {if (version != null && version >= 0) "version": version},
+        options: Options(validateStatus: (s) => s == 200 || s == 304),
+      );
+      if (response.statusCode == 304) return {"notModified": true};
+      if (response.data is Map) return Map<String, dynamic>.from(response.data);
+    } on DioException catch (e) {
+      lastResourceManifestStatus = e.response?.statusCode;
+      debugPrint("Resurslar manifestini olishda xato: $e");
+    } catch (e) {
+      debugPrint("Resurslar manifestini olishda xato: $e");
+    }
+    return null;
+  }
+
+  /// Resurs faylini oqim (stream) sifatida ochadi. [from] > 0 bo'lsa `Range: bytes=from-`
+  /// yuboriladi — uzilgan yuklash shu joyidan davom etadi (server 206 qaytaradi).
+  /// Xato bo'lsa DioException tashlaydi (status kodi bilan).
+  Future<Response<ResponseBody>> openResourceStream(
+    String path, {
+    int from = 0,
+    CancelToken? cancelToken,
+  }) {
+    return _dio.get<ResponseBody>(
+      "resources/file",
+      queryParameters: {"path": path},
+      cancelToken: cancelToken,
+      options: Options(
+        responseType: ResponseType.stream,
+        headers: {if (from > 0) "Range": "bytes=$from-"},
+        // 416 — so'ralgan joy fayl oxiridan keyin (qism eskirgan), qaytadan yuklanadi
+        validateStatus: (s) => s == 200 || s == 206 || s == 416,
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+  }
+
 }

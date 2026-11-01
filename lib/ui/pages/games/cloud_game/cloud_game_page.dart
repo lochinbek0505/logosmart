@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart'; // Provider importi
 import 'package:record/record.dart';
@@ -17,6 +16,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class CloudGamePage extends StatefulWidget {
   const CloudGamePage({super.key});
@@ -156,8 +156,19 @@ class _CloudGamePageState extends State<CloudGamePage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   // MARK: - O'yin jarayoni mantiqlari
@@ -173,7 +184,7 @@ class _CloudGamePageState extends State<CloudGamePage>
     });
 
     String cleanPath = _cleanAudioPath(cloud["music"]);
-    await _audioPlayer.play(AssetSource(cleanPath));
+    await _audioPlayer.play(appAudioSource(cleanPath));
   }
 
   Future<void> _onCloudDropped(Map<String, dynamic> cloud) async {
@@ -251,7 +262,12 @@ class _CloudGamePageState extends State<CloudGamePage>
 
       if (isMatched) {
         AppSettings().vibrateSuccess();
-        await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+        try {
+          await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
+        } catch (e) {
+          debugPrint("Audio xatosi: $e");
+        }
+        if (!mounted) return;
         setState(() {
           cloud["isMatched"] = true;
           _activeCloud = null;
@@ -280,6 +296,8 @@ class _CloudGamePageState extends State<CloudGamePage>
     final bool isLastMistake =
         countMistake && ++_mistakes >= kMaxGameMistakes;
 
+    // STT javobi kelguncha sahifa yopilgan bo'lishi mumkin
+    if (!mounted) return;
     setState(() {
       _showErrorAnim = true;
     });
@@ -349,7 +367,7 @@ class _CloudGamePageState extends State<CloudGamePage>
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_config['background_image']), // JSON
+                image: AppImage.provider(_config['background_image']), // JSON
                 fit: BoxFit.fill,
               ),
             ),
@@ -364,10 +382,10 @@ class _CloudGamePageState extends State<CloudGamePage>
                       children: [
                         // MARK: Vertolyot (DragTarget)
                         DragTarget<Map<String, dynamic>>(
-                          onWillAccept: (data) =>
+                          onWillAcceptWithDetails: (_) =>
                           _activeCloud == null && !_isRecording && !_isLoading,
-                          onAccept: (data) {
-                            _onCloudDropped(data);
+                          onAcceptWithDetails: (details) {
+                            _onCloudDropped(details.data);
                           },
                           builder: (context, candidateData, rejectedData) {
                             return SizedBox(
@@ -386,7 +404,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                                         child: child,
                                       );
                                     },
-                                    child: Image.asset(
+                                    child: AppImage.asset(
                                       _config['helicopter_image'], // JSON
                                       height: 140.h,
                                       fit: BoxFit.contain,
@@ -447,7 +465,7 @@ class _CloudGamePageState extends State<CloudGamePage>
             Container(
               color: Colors.black26,
               child: Center(
-                child: Lottie.asset(
+                child: AppLottie.asset(
                   "assets/animation/xato.json",
                   width: 200.w,
                   height: 200.h,
@@ -469,7 +487,7 @@ class _CloudGamePageState extends State<CloudGamePage>
       height: 60.h,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(_config['cloud_image']), // JSON
+          image: AppImage.provider(_config['cloud_image']), // JSON
           fit: BoxFit.contain,
         ),
       ),
@@ -528,10 +546,10 @@ class _CloudGamePageState extends State<CloudGamePage>
                     scale: _scaleAnim,
                     child: CircleAvatar(
                       radius: 40.r,
-                      backgroundImage: const AssetImage(
+                      backgroundImage: AppImage.provider(
                         "assets/icons/circle.webp",
                       ),
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['icon_mic'], // JSON
                         width: 24.w,
                         height: 32.h,
@@ -559,7 +577,7 @@ class _CloudGamePageState extends State<CloudGamePage>
               context.read<LevelProvider>().clearCurrentLevel();
               Navigator.of(context).pop();
             },
-            child: Image.asset(
+            child: AppImage.asset(
               _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
@@ -568,7 +586,7 @@ class _CloudGamePageState extends State<CloudGamePage>
           ),
           Row(
             children: [
-              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
+              AppImage.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],

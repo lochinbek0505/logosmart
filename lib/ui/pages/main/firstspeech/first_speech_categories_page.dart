@@ -89,9 +89,13 @@ class _FirstSpeechCategoriesPageState extends State<FirstSpeechCategoriesPage> {
             colorFilter: context.palette.backgroundImageFilter,
           ),
         ),
-        child: Column(
+        // SafeArea: avval qattiq 60px edi — notch'li telefonda status bar
+        // bilan ustma-ust tushardi
+        child: SafeArea(
+          bottom: false,
+          child: Column(
           children: [
-            const SizedBox(height: 60, width: double.infinity),
+            const SizedBox(height: 16, width: double.infinity),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -143,6 +147,7 @@ class _FirstSpeechCategoriesPageState extends State<FirstSpeechCategoriesPage> {
               ),
             ),
           ],
+          ),
         ),
       ),
     );

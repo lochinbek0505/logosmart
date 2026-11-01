@@ -15,7 +15,11 @@ class OtpVerificationPage extends StatefulWidget {
   final String phone;
   final String check;
 
-  const OtpVerificationPage({super.key, required this.check, required this.phone});
+  const OtpVerificationPage({
+    super.key,
+    required this.check,
+    required this.phone,
+  });
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -108,145 +112,161 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 28.h),
-              Text(
-                'Telefon raqamini tasdiqlash',
-                style: GoogleFonts.nunito(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  color: context.palette.textStrong,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                '${maskPhoneNumber(widget.phone)} raqamli telefoningizga tasdiqlash\nkodi yuborildi',
-                style: GoogleFonts.nunito(
-                  fontSize: 16.sp,
-                  color: context.palette.textSecondary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 36.w),
-              OtpInputField(
-                key: _otpKey,
-                isTimerActive: _isTimerActive,
-                remainingSeconds: _remainingSeconds,
-                onResendTap: _handleResend,
-                onChanged: (value) {
-                  _enteredOtp = value;
-                  debugPrint("Hozirgi yozilgan kod: $_enteredOtp");
-                },
-                onCompleted: (value) {
-                  debugPrint("Kod to'liq yozildi: $value");
-                },
-                controller: _otpController,
-              ),
-              Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.main_blue_600,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(36.r),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.h,
-                      horizontal: 20.w,
-                    ),
-                    disabledBackgroundColor: AppColors.main_blue_600
-                        .withValues(alpha: 0.7),
-                  ),
-                  // DIQQAT: loading vaqtida qayta bosib yubormaslik uchun
-                  onPressed: provider.isLoading
-                      ? null
-                      : () async {
-                          if (_otpKey.currentState?.validate() ?? false) {
-                            FocusScope.of(
-                              context,
-                            ).unfocus(); // Klaviaturani yopish
-
-                            switch (widget.check) {
-                              case "register":
-                                bool isSuccess = await provider.registerVerify(
-                                  context,
-                                  widget.phone,
-                                  _enteredOtp,
-                                );
-                                if (isSuccess && context.mounted) {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (builder) => const SuccessPage(),
-                                    ),
-                                    (Route<dynamic> route) => false,
-                                  );
-                                }
-                                break;
-                              case "forgot_password":
-                                bool isSuccess = await provider.forgetVerifyOtp(
-                                  context,
-                                  {
-                                    "phoneNumber": widget.phone,
-                                    "code": _enteredOtp,
-                                  },
-                                );
-                                if (isSuccess && context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (builder) =>
-                                           ResetPasswordPage(phone: widget.phone),
-                                    ),
-                                  );
-                                }
-                                break;
-                              case "login":
-                                bool isSuccess = await provider.loginVerify(
-                                  context,
-                                  widget.phone,
-                                  _enteredOtp,
-                                );
-                                if (isSuccess && context.mounted) {
-                                  // pushReplacement orqali orqaga qaytishni yopib yuboramiz
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (builder) => const SuccessPage(),
-                                    ),
-                                    (Route<dynamic> route) =>
-                                        false, // false qaytsa, barcha eski sahifalar tozalanadi
-                                  );
-                                }
-                                break;
-                            }
-                          }
-                        },
-                  child: provider.isLoading
-                      ? SizedBox(
-                          height: 24.h,
-                          width: 24.h,
-                          child: const CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : Text(
-                          "Tasdiqlash",
-                          style: GoogleFonts.nunito(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
+          child: LayoutBuilder(
+            // Klaviatura ochilganda balandlik kamayadi — scroll bo'ladi,
+            // aks holda Spacer tugmani pastga suradi
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 28.h),
+                      Text(
+                        'Telefon raqamini tasdiqlash',
+                        style: GoogleFonts.nunito(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                          color: context.palette.textStrong,
                         ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        '${maskPhoneNumber(widget.phone)} raqamli telefoningizga tasdiqlash\nkodi yuborildi',
+                        style: GoogleFonts.nunito(
+                          fontSize: 16.sp,
+                          color: context.palette.textSecondary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 36.w),
+                      OtpInputField(
+                        key: _otpKey,
+                        isTimerActive: _isTimerActive,
+                        remainingSeconds: _remainingSeconds,
+                        onResendTap: _handleResend,
+                        onChanged: (value) {
+                          _enteredOtp = value;
+                          debugPrint("Hozirgi yozilgan kod: $_enteredOtp");
+                        },
+                        onCompleted: (value) {
+                          debugPrint("Kod to'liq yozildi: $value");
+                        },
+                        controller: _otpController,
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.main_blue_600,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(36.r),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 16.h,
+                              horizontal: 20.w,
+                            ),
+                            disabledBackgroundColor: AppColors.main_blue_600
+                                .withValues(alpha: 0.7),
+                          ),
+                          // DIQQAT: loading vaqtida qayta bosib yubormaslik uchun
+                          onPressed: provider.isLoading
+                              ? null
+                              : () async {
+                                  if (_otpKey.currentState?.validate() ??
+                                      false) {
+                                    FocusScope.of(
+                                      context,
+                                    ).unfocus(); // Klaviaturani yopish
+
+                                    switch (widget.check) {
+                                      case "register":
+                                        bool isSuccess = await provider
+                                            .registerVerify(
+                                              context,
+                                              widget.phone,
+                                              _enteredOtp,
+                                            );
+                                        if (isSuccess && context.mounted) {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (builder) =>
+                                                  const SuccessPage(),
+                                            ),
+                                            (Route<dynamic> route) => false,
+                                          );
+                                        }
+                                        break;
+                                      case "forgot_password":
+                                        bool isSuccess = await provider
+                                            .forgetVerifyOtp(context, {
+                                              "phoneNumber": widget.phone,
+                                              "code": _enteredOtp,
+                                            });
+                                        if (isSuccess && context.mounted) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (builder) =>
+                                                  ResetPasswordPage(
+                                                    phone: widget.phone,
+                                                  ),
+                                            ),
+                                          );
+                                        }
+                                        break;
+                                      case "login":
+                                        bool isSuccess = await provider
+                                            .loginVerify(
+                                              context,
+                                              widget.phone,
+                                              _enteredOtp,
+                                            );
+                                        if (isSuccess && context.mounted) {
+                                          // pushReplacement orqali orqaga qaytishni yopib yuboramiz
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (builder) =>
+                                                  const SuccessPage(),
+                                            ),
+                                            (Route<dynamic> route) =>
+                                                false, // false qaytsa, barcha eski sahifalar tozalanadi
+                                          );
+                                        }
+                                        break;
+                                    }
+                                  }
+                                },
+                          child: provider.isLoading
+                              ? SizedBox(
+                                  height: 24.h,
+                                  width: 24.h,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  "Tasdiqlash",
+                                  style: GoogleFonts.nunito(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      SizedBox(height: 20.h),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 20.h),
-            ],
+            ),
           ),
         ),
       ),

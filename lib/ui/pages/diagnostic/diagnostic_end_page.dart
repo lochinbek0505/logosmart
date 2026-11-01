@@ -83,7 +83,9 @@ class _DiagnosticPage extends State<DiagnosticEndPage> {
                               top: 8.5,
                               bottom: 11.5,
                             ),
-                            width: 80.h,
+                            // Avval width: 80.h, height: 80.w — o'lchamlar almashib,
+                            // keng/tor ekranda avatar cho'zilib qolardi
+                            width: 80.w,
                             height: 80.w,
                             decoration: const BoxDecoration(
                               image: DecorationImage(

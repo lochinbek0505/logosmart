@@ -23,6 +23,7 @@ import '../sound_game/sound_game_page.dart';
 import '../train_game/train_game_page.dart';
 import '../wolf_game/wolf_game_page.dart';
 import '../path_games/item_and_finish_path_game_page.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class StartTextPage extends StatefulWidget {
   final LevelState data;
@@ -45,15 +46,17 @@ class _StartTextPageState extends State<StartTextPage> {
   void initState() {
     super.initState();
 
-    _playAudioAndWait(widget.data.exercise!.steps.first.sound!);
+    // Ovoz bo'lmasa ham sahifa ochilaveradi (avval null! yiqilardi)
+    final sound = widget.data.exercise?.steps.firstOrNull?.sound;
+    if (sound != null && sound.isNotEmpty) _playAudioAndWait(sound);
   }
 
   void _onStartPressed() {
-    // Xatolik oldini olish uchun avval ro'yxat bo'sh emasligini tekshiramiz
-    if (widget.data.exercise?.steps.isNotEmpty == true) {
-      widget.data.exercise!.steps.removeAt(0);
-    }
-
+    // DIQQAT: avval shu yerda steps.removeAt(0) qilinardi — bu provider
+    // keshidagi LevelState'ni o'zgartirib yuborardi: level ikkinchi marta
+    // ochilganda "about" bosqichi yo'qolib, intro chiqmay qolardi, bitta
+    // bosqichli mashqda esa CameraPage "Ma'lumotlar topilmadi" derdi.
+    // Endi "about" bosqichini CameraPage o'zi o'tkazib yuboradi.
     if (widget.data.mode == "exercise") {
       // Birinchi bosqichni bosganda:
       context.read<LevelProvider>().setCurrentLevel(widget.data.id);
@@ -75,8 +78,18 @@ class _StartTextPageState extends State<StartTextPage> {
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(path));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(path));
+    } catch (e) {
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   @override
@@ -85,9 +98,9 @@ class _StartTextPageState extends State<StartTextPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_bgImage),
+            image: AppImage.provider(_bgImage),
             fit: BoxFit.cover,
           ),
         ),
@@ -109,7 +122,7 @@ class _StartTextPageState extends State<StartTextPage> {
               // 3. Qahramon (Ayol) rasmi (Tugmadan teparoqda turishi uchun)
               Positioned(
                 bottom: 110.h,
-                child: Image.asset(
+                child: AppImage.asset(
                   _womenImage,
                   height: 380.h, // Rasmni ekranga qarab proporsional moslash
                   fit: BoxFit.contain,
@@ -136,7 +149,7 @@ class _StartTextPageState extends State<StartTextPage> {
         children: [
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
-            child: Image.asset(
+            child: AppImage.asset(
               _backBtn,
               width: 48.w,
               height: 48.h,
@@ -145,7 +158,7 @@ class _StartTextPageState extends State<StartTextPage> {
           ),
           Row(
             children: [
-              Image.asset(_starIcon, width: 32.w, height: 32.h),
+              AppImage.asset(_starIcon, width: 32.w, height: 32.h),
               SizedBox(width: 8.w),
               CustomTextWidget(text: "0", sizeText: 32.sp),
             ],

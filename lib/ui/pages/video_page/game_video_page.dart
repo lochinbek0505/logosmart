@@ -7,6 +7,7 @@ import 'package:video_player/video_player.dart';
 
 import '../games/alphabet_map/provider/level_provider.dart';
 import '../main/widgets/custom_text_widget.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class GameVideoPage extends StatefulWidget {
   const GameVideoPage({super.key});
@@ -49,7 +50,8 @@ class _GameVideoPageState extends State<GameVideoPage>
 
   Future<void> _initializeVideo() async {
     try {
-      _videoController = VideoPlayerController.asset(_videoUrl)
+      // Video hali orqa fonda yuklanmagan bo'lsa — shu yerda yuklab olinadi
+      _videoController = (await appVideoController(_videoUrl))
         ..setLooping(true)
         ..setVolume(1.0);
 
@@ -99,7 +101,7 @@ class _GameVideoPageState extends State<GameVideoPage>
           children: [
             // Orqa fon
             Positioned.fill(
-              child: Image.asset(
+              child: AppImage.asset(
                 'assets/backround/fon_q.webp',
                 fit: BoxFit.fill,
               ),
@@ -120,7 +122,7 @@ class _GameVideoPageState extends State<GameVideoPage>
                           context.read<LevelProvider>().clearCurrentLevel();
                           Navigator.pop(context);
                         },
-                        child: Image.asset(
+                        child: AppImage.asset(
                           "assets/icons/arrow_right_button.webp",
                           fit: BoxFit.fill,
                         ),
@@ -128,7 +130,7 @@ class _GameVideoPageState extends State<GameVideoPage>
                     ),
                     Row(
                       children: [
-                        Image.asset(_starIcon, width: 32.w, height: 32.h),
+                        AppImage.asset(_starIcon, width: 32.w, height: 32.h),
                         SizedBox(width: 8.w),
                         Consumer<LevelProvider>(
                           builder: (context, provider, child) {
@@ -145,20 +147,32 @@ class _GameVideoPageState extends State<GameVideoPage>
               ),
             ),
 
-            // Video qismi
+            // Video qismi — avval qattiq 160.h + 0.6*H + tugma bo'lib, past
+            // ekranlarda tugma pastdan chiqib ketardi; endi video qolgan joyga
+            // qarab kichrayadi
             Column(
               children: [
-                SizedBox(height: 160.h, width: size.width),
-                GameVideoBox(
-                  size: size,
-                  isVideoInitialized: _isVideoInitialized,
-                  isVideoError: _isVideoError,
-                  currentVideoPath: _videoUrl,
-                  // URL manzil berilmoqda
-                  videoController: _videoController,
-                  onRetry: _initializeVideo,
+                SizedBox(
+                  height: MediaQuery.of(context).padding.top + 20.h + 50.h + 20.h,
+                  width: size.width,
                 ),
-                SizedBox(height: 40.h),
+                Expanded(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: GameVideoBox(
+                        size: size,
+                        isVideoInitialized: _isVideoInitialized,
+                        isVideoError: _isVideoError,
+                        currentVideoPath: _videoUrl,
+                        // URL manzil berilmoqda
+                        videoController: _videoController,
+                        onRetry: _initializeVideo,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.h),
 
                 // Davom etish tugmasi (Darajani yakunlash)
                 AnimatedStartButton(
@@ -179,6 +193,7 @@ class _GameVideoPageState extends State<GameVideoPage>
                     }
                   },
                 ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 24.h),
               ],
             ),
           ],

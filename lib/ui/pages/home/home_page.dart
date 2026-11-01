@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shiny_striped_progress_bar/shiny_striped_progress_bar.dart';
 
 import '../diagnostic/diagnostic_group_page.dart';
+import 'widgets/resource_status_card.dart';
 import '../games/alphabet_map/map_route_page.dart';
 import '../games/alphabet_map/provider/level_provider.dart';
 import '../main/firstspeech/StartSpeechPage.dart';
@@ -88,30 +89,35 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Assalomu alaykum",
-                                    style: GoogleFonts.nunito(
-                                      fontSize: 19.sp,
-                                      color: context.palette.textPrimary,
+                              child: FittedBox(
+                                // Katta shriftda ham sarlavha sig'sin
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Assalomu alaykum",
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 19.sp,
+                                        color: context.palette.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    (profile.fullName ?? "").isEmpty
-                                        ? ""
-                                        : "${profile.fullName} !",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.nunito(
-                                      fontSize: 23.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: context.palette.textPrimary,
+                                    Text(
+                                      (profile.fullName ?? "").isEmpty
+                                          ? ""
+                                          : "${profile.fullName} !",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 23.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.palette.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -157,6 +163,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // Orqa fonda resurslar yuklanayotgani (videolar, modellar, yangilanishlar)
+            const SliverToBoxAdapter(child: ResourceStatusCard()),
+
             // Diagnostic card
             SliverToBoxAdapter(
               child: Padding(
@@ -191,30 +200,35 @@ class _HomePageState extends State<HomePage> {
                             horizontal: 16.w,
                             vertical: 10.h,
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Ekpress-\ndiagnostika",
-                                style: GoogleFonts.nunito(
-                                  color: Colors.white,
-                                  fontSize: 24.sp,
+                          child: FittedBox(
+                            // Katta shriftda karta balandligiga sig'sin
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Ekpress-\ndiagnostika",
+                                  style: GoogleFonts.nunito(
+                                    color: Colors.white,
+                                    fontSize: 24.sp,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 14.h),
-                              Container(
-                                width: 125.w,
-                                height: 45.h,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: Colors.orange.shade400,
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                    vertical: 12.h,
+                                SizedBox(height: 14.h),
+                                Container(
+                                  constraints: BoxConstraints(minWidth: 125.w),
+                                  height: 45.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: Colors.orange.shade400,
+                                  ),
+                                  // Kenglik qat'iy emas — katta shriftda ham matn sig'adi
+                                  padding: EdgeInsets.only(
+                                    left: 16.w,
+                                    right: 12.w,
                                   ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -226,6 +240,7 @@ class _HomePageState extends State<HomePage> {
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
+                                      SizedBox(width: 8.w),
                                       Card(
                                         elevation: 2,
                                         margin: EdgeInsets.zero,
@@ -248,8 +263,8 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -298,128 +313,142 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            top: 14,
-                            bottom: 14,
-                          ),
-                          // Elementlar sig'may qolsa scroll bo'lishi uchun qo'shildi
-                          child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            // Scroll yumshoq va bilinmaydigan bo'lishi uchun
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  cards[index]["title"],
-                                  style: GoogleFonts.nunito(
-                                    // Karta foni har doim och — matn mavzudan
-                                    // qat'i nazar to'q bo'lishi kerak
-                                    color: AppColors.grey_900,
-                                    fontSize: 22.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(height: 14.h),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (builder) =>
-                                            cards[index]["page"],
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              top: 14,
+                              bottom: 14,
+                            ),
+                            // Elementlar sig'may qolsa scroll bo'lishi uchun qo'shildi
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              // Scroll yumshoq va bilinmaydigan bo'lishi uchun
+                              child: FittedBox(
+                                // Katta shriftda karta kengligiga sig'sin
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      cards[index]["title"],
+                                      style: GoogleFonts.nunito(
+                                        // Karta foni har doim och — matn mavzudan
+                                        // qat'i nazar to'q bo'lishi kerak
+                                        color: AppColors.grey_900,
+                                        fontSize: 22.sp,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 125.w,
-                                    height: 50.h,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(35.r),
-                                      color: cards[index]["mainColor"],
                                     ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                        vertical: 12.h,
+                                    SizedBox(height: 14.h),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (builder) =>
+                                                cards[index]["page"],
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          minWidth: 125.w,
+                                        ),
+                                        height: 50.h,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            35.r,
+                                          ),
+                                          color: cards[index]["mainColor"],
+                                        ),
+                                        // Kenglik qat'iy emas — katta shriftda ham matn sig'adi
+                                        padding: EdgeInsets.only(
+                                          left: 16.w,
+                                          right: 12.w,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Boshlash",
+                                              style: GoogleFonts.nunito(
+                                                color: Colors.white,
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            CircleAvatar(
+                                              backgroundColor: Colors.white,
+                                              radius: 11.w,
+                                              child: Transform.translate(
+                                                offset: const Offset(0.9, 0),
+                                                child: ImageIcon(
+                                                  const AssetImage(
+                                                    "assets/icons/right_back.webp",
+                                                  ),
+                                                  size: 12.w,
+                                                  color:
+                                                      cards[index]["mainColor"],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Boshlash",
-                                            style: GoogleFonts.nunito(
-                                              color: Colors.white,
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w700,
+                                    ),
+                                    SizedBox(height: 14.h),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 70.w,
+                                          height: 25.h,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.green_600,
+                                            borderRadius: BorderRadius.circular(
+                                              46.r,
                                             ),
                                           ),
-                                          CircleAvatar(
-                                            backgroundColor: Colors.white,
-                                            radius: 11.w,
-                                            child: Transform.translate(
-                                              offset: const Offset(0.9, 0),
-                                              child: ImageIcon(
-                                                const AssetImage(
-                                                  "assets/icons/right_back.webp",
-                                                ),
-                                                size: 12.w,
-                                                color:
-                                                    cards[index]["mainColor"],
+                                          child: Center(
+                                            child: Text(
+                                              "40 ta o'yin",
+                                              style: GoogleFonts.nunito(
+                                                fontSize: 12.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 14.h),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 70.w,
-                                      height: 25.h,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.green_600,
-                                        borderRadius: BorderRadius.circular(
-                                          46.r,
                                         ),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "40 ta o'yin",
-                                          style: GoogleFonts.nunito(
-                                            fontSize: 12.sp,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
+                                        SizedBox(width: 4.w),
+                                        Container(
+                                          width: 60.w,
+                                          height: 25.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.orange.shade300,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              cards[index]["text"],
+                                              style: GoogleFonts.nunito(
+                                                fontSize: 12.sp,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Container(
-                                      width: 60.w,
-                                      height: 25.h,
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.shade300,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          cards[index]["text"],
-                                          style: GoogleFonts.nunito(
-                                            fontSize: 12.sp,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -488,81 +517,86 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "So'ngi harakat",
-                      style: GoogleFonts.nunito(
-                        fontSize: 14.sp,
-                        color: context.palette.textStrong,
+                FittedBox(
+                  // Katta shriftda karta balandligiga sig'sin
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "So'ngi harakat",
+                        style: GoogleFonts.nunito(
+                          fontSize: 14.sp,
+                          color: context.palette.textStrong,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        Container(
-                          width: 50.r,
-                          height: 50.r,
-                          padding: EdgeInsets.all(2.r),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [Color(0xffb5e9f7), Color(0xff5ad4f2)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
+                      SizedBox(height: 12.h),
+                      Row(
+                        children: [
+                          Container(
+                            width: 50.r,
+                            height: 50.r,
+                            padding: EdgeInsets.all(2.r),
+                            decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.cyan.shade50,
+                              gradient: LinearGradient(
+                                colors: [Color(0xffb5e9f7), Color(0xff5ad4f2)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
                             ),
-                            child: Center(
-                              child: Image.asset(
-                                letterAsset,
-                                width: 28.r,
-                                height: 28.r,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.cyan.shade50,
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  letterAsset,
+                                  width: 28.r,
+                                  height: 28.r,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: size.width - 146,
-                              child: Text(
-                                title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.nunito(
-                                  color: context.palette.textStrong,
-                                  fontSize: 16.sp,
+                          SizedBox(width: 8.w),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: size.width - 146,
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.nunito(
+                                    color: context.palette.textStrong,
+                                    fontSize: 16.sp,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 8.h),
-                            SizedBox(
-                              width: size.width - 146,
-                              height: 9.h,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: ShinyStripedProgressBar(
-                                  // Progress o'zgarsa bar qayta chiziladi
-                                  key: ValueKey(activity?.progress ?? 0),
-                                  progressColor: AppColors.orange_200,
-                                  stripeColor: AppColors.orange_500,
-                                  targetProgress: activity?.progress ?? 0,
+                              SizedBox(height: 8.h),
+                              SizedBox(
+                                width: size.width - 146,
+                                height: 9.h,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  child: ShinyStripedProgressBar(
+                                    // Progress o'zgarsa bar qayta chiziladi
+                                    key: ValueKey(activity?.progress ?? 0),
+                                    progressColor: AppColors.orange_200,
+                                    stripeColor: AppColors.orange_500,
+                                    targetProgress: activity?.progress ?? 0,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

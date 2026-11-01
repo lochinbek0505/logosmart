@@ -5,7 +5,6 @@ import 'dart:convert'; // JSON parse uchun
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class BreathPage extends StatefulWidget {
   const BreathPage({super.key});
@@ -131,7 +131,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     });
 
     // Boshlang'ich ovozni JSON dan olib ishga tushirish
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['start_voice'])));
+    await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['start_voice'])));
   }
 
   void _startListening() {
@@ -166,7 +166,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
     // Muvaffaqiyatli ovozni chalish
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource('sound/success.mp3'));
+    await _audioPlayer.play(appAudioSource('sound/success.mp3'));
 
     if (!mounted) return;
 
@@ -206,7 +206,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
           _hasBlown = true;
 
           // JSON dan olingan puflash ovozini chalish
-          _audioPlayer.play(AssetSource(_cleanAudioPath(_config['blow_voice'])));
+          _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['blow_voice'])));
           _lottieController.forward(from: 0.0);
           _breathCount++;
         }
@@ -249,13 +249,17 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_config['background_image']), // JSON dan rasm
+            image: AppImage.provider(_config['background_image']), // JSON dan rasm
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
+        // SafeArea: avval qattiq 50.h edi — kichik ekranda header status bar
+        // ostida qolardi
+        child: SafeArea(
+          bottom: false,
+          child: Column(
           children: [
-            SizedBox(height: 50.h),
+            SizedBox(height: 12.h),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -270,7 +274,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                         context.read<LevelProvider>().clearCurrentLevel();
                         Navigator.pop(context);
                       },
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['icon_arrow'],
                         fit: BoxFit.fill,
                       ),
@@ -278,7 +282,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                   ),
                   Row(
                     children: [
-                      Image.asset(
+                      AppImage.asset(
                         _config['icon_star'], // JSON dan yulduzcha
                         width: 40.w,
                         height: 40.h,
@@ -301,7 +305,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
               // Y o'qi bo'yicha surish (X o'qi 0 da qoladi).
               // Agar ekran hajmiga moslashuvchan bo'lishini xohlasangiz animPosition.h qilib ishlatsangiz bo'ladi.
               offset: Offset(0, animPosition),
-              child: Lottie.asset(
+              child: AppLottie.asset(
                 _config['lottie_animation'], // JSON dan lottie animation
                 controller: _lottieController,
                 animate: _isMicReady,
@@ -360,10 +364,10 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                                 scale: _scale,
                                 child: CircleAvatar(
                                   radius: 40.r,
-                                  backgroundImage: const AssetImage(
+                                  backgroundImage: AppImage.provider(
                                     "assets/icons/circle.webp",
                                   ),
-                                  child: Image.asset(
+                                  child: AppImage.asset(
                                     "assets/icons/micrafon.webp",
                                     width: 26.w,
                                     height: 38.h,
@@ -386,6 +390,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
 
             SizedBox(height: 40.h),
           ],
+          ),
         ),
       ),
     );

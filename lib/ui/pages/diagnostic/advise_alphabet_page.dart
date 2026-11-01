@@ -278,7 +278,8 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 7),
         child: Container(
-          height: 115,
+          // Qattiq 115 px edi — katta shriftda ikki qatorli matn chiqib ketardi
+          constraints: BoxConstraints(minHeight: 115.h),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -298,7 +299,9 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              // Expanded: matn tor ekranda o'ng yorliq ustiga chiqmasin
+              Expanded(
+                child: Row(
                 children: [
                   Container(
                     width: 60,
@@ -327,9 +330,11 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Column(
+                  Expanded(
+                    child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         "${alphabet[index]["text"]} tovushini\nrivojlantirish",
@@ -367,26 +372,28 @@ class _AdviseAlphabetPageState extends State<AdviseAlphabetPage> {
                         ],
                       ),
                     ],
+                    ),
                   ),
                 ],
+                ),
               ),
+              const SizedBox(width: 8),
               Align(
                 alignment: Alignment.topRight,
+                // Qattiq 100x25 o'rniga padding — uzun matn ("Obuna kerak",
+                // "5 / 12 ta mashg'ulot") kesilmaydi
                 child: Container(
-                  width: 100,
-                  height: 25,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: context.palette.primarySoft,
                   ),
-                  child: Center(
-                    child: Text(
-                      _lessonsLabel(alphabet[index]["text"] as String),
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.palette.textPrimary,
-                      ),
+                  child: Text(
+                    _lessonsLabel(alphabet[index]["text"] as String),
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                 ),

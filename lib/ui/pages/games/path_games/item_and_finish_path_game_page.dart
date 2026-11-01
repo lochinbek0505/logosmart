@@ -17,6 +17,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class ItemAndFinishPathGamePage extends StatefulWidget {
   const ItemAndFinishPathGamePage({super.key});
@@ -136,8 +137,19 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(path)));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(_cleanAudioPath(path)));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   Future<void> _initPage() async {
@@ -225,7 +237,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
       if (isMatched) {
         AppSettings().vibrateSuccess();
         await _audioPlayer.play(
-          AssetSource(_cleanAudioPath(_config['success_sound'])),
+          appAudioSource(_cleanAudioPath(_config['success_sound'])),
         );
         _gameEnd();
       } else {
@@ -308,7 +320,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
             height: size.height,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
+                image: AppImage.provider(
                   _config['background'],
                 ),
                 fit: BoxFit.cover,
@@ -335,7 +347,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                     .clearCurrentLevel();
                                 Navigator.of(context).pop();
                               },
-                              child: Image.asset(
+                              child: AppImage.asset(
                                 _config['icon_arrow'], // JSON
                                 fit: BoxFit.fill,
                               ),
@@ -343,7 +355,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                           ),
                           Row(
                             children: [
-                              Image.asset(
+                              AppImage.asset(
                                 _config['icon_star'], // JSON
                                 width: 32.w,
                                 height: 32.h,
@@ -426,10 +438,10 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   scale: _scaleAnim,
                                   child: CircleAvatar(
                                     radius: 40.r,
-                                    backgroundImage: const AssetImage(
+                                    backgroundImage: AppImage.provider(
                                       "assets/icons/circle.webp",
                                     ),
-                                    child: Image.asset(
+                                    child: AppImage.asset(
                                       _config['icon_mic'], // JSON
                                       width: 24.w,
                                       height: 32.h,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 import 'package:logosmart/ui/theme/app_colors.dart'; // O'zingizdagi yo'lga moslang
 
 class GameSuccessDialog extends StatelessWidget {
@@ -31,7 +31,7 @@ class GameSuccessDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Yutuq animatsiyasi
-            Lottie.asset(
+            AppLottie.asset(
               'assets/animation/success.json',
               width: 120.w,
               height: 120.h,

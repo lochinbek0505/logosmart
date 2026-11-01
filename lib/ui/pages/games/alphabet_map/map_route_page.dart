@@ -31,6 +31,7 @@ import '../wolf_game/wolf_game_page.dart';
 import 'provider/level_provider.dart';
 import 'start_text_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../widgets/level_resources_dialog.dart';
 import '../widgets/subscription_offer_dialog.dart';
 
 List<Offset> generatePositionsSin(int count) {
@@ -402,6 +403,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                                 return;
                               }
                               if (l.locked) return;
+                              // Level fayllari qurilmada bo'lmasa — avval yuklab olinadi
+                              if (!await prepareLevelResources(context, lv)) return;
+                              if (!context.mounted) return;
 
                               context.read<LevelProvider>().openLevel(lv);
 
@@ -433,7 +437,7 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                                     builder: (context) => const GameVideoPage(),
                                   ),
                                 );
-                              } else if (lv.game != null) {
+                              } else if (lv.mode == 'game' && lv.game != null) {
                                 navigationTo(lv.game!.type);
                               } else if (lv.exercise != null) {
                                 await Navigator.push(
@@ -630,15 +634,20 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   }
 
   Future<void> _playLoopingAudio(String path) async {
-    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.play(AssetSource(path));
+    try {
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      await _audioPlayer.play(AssetSource(path));
+    } catch (e) {
+      // Fon musiqasi chiqmasa xarita baribir ishlayveradi
+      debugPrint("Xarita musiqasi xatosi: $e");
+    }
   }
 
   @override
   void dispose() {
     AppSettings().removeListener(_onSettingsChanged);
     _scrollController.dispose();
-    super.dispose();
     _audioPlayer.dispose();
+    super.dispose();
   }
 }

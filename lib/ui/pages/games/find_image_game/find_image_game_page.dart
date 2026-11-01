@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
@@ -17,6 +16,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class FindImageGamePage extends StatefulWidget {
   const FindImageGamePage({super.key});
@@ -317,7 +317,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     }
 
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+    await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
 
     if (!mounted) return;
     showDialog(
@@ -347,8 +347,19 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   @override
@@ -378,7 +389,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_config['background_image']), // JSON
+                image: AppImage.provider(_config['background_image']), // JSON
                 fit: BoxFit.fill,
               ),
             ),
@@ -421,7 +432,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
             Container(
               color: Colors.black26,
               child: Center(
-                child: Lottie.asset(
+                child: AppLottie.asset(
                   "assets/animation/xato.json",
                   width: 200.w,
                   height: 200.h,
@@ -456,7 +467,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Image.asset(
+              AppImage.asset(
                 item["image"]!, // JSON
                 width: 120.w,
                 height: 120.h,
@@ -510,10 +521,10 @@ class _FindImageGamePageState extends State<FindImageGamePage>
                     scale: _scaleAnim,
                     child: CircleAvatar(
                       radius: 40.r,
-                      backgroundImage: const AssetImage(
+                      backgroundImage: AppImage.provider(
                         "assets/icons/circle.webp",
                       ),
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['icon_mic'], // JSON
                         width: 24.w,
                         height: 32.h,
@@ -543,7 +554,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
               context.read<LevelProvider>().clearCurrentLevel();
               Navigator.of(context).pop();
             },
-            child: Image.asset(
+            child: AppImage.asset(
               _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
@@ -552,7 +563,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
           ),
           Row(
             children: [
-              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
+              AppImage.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],

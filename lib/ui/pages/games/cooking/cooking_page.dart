@@ -10,6 +10,7 @@ import 'package:provider/provider.dart'; // Provider
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class CookingPage extends StatefulWidget {
   const CookingPage({super.key});
@@ -142,8 +143,19 @@ class _CookingPageState extends State<CookingPage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   void _startFakeRecording() {
@@ -164,8 +176,14 @@ class _CookingPageState extends State<CookingPage>
 
     await _audioPlayer.stop();
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+    try {
+      await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
+    } catch (e) {
+      debugPrint("Audio xatosi: $e");
+    }
 
+    // await dan keyin sahifa yopilgan bo'lishi mumkin
+    if (!mounted) return;
     setState(() {
       _eatingItemId = item['id'];
       _isGirlEating = true;
@@ -229,7 +247,7 @@ class _CookingPageState extends State<CookingPage>
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-              image: AssetImage(_config['bg_image']), // JSON
+              image: AppImage.provider(_config['bg_image']), // JSON
               fit: BoxFit.fill
           ),
         ),
@@ -249,7 +267,7 @@ class _CookingPageState extends State<CookingPage>
                         context.read<LevelProvider>().clearCurrentLevel();
                         Navigator.of(context).pop();
                       },
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['icon_arrow'], // JSON
                         width: 48.w,
                         height: 48.h,
@@ -258,7 +276,7 @@ class _CookingPageState extends State<CookingPage>
                     ),
                     Row(
                       children: [
-                        Image.asset(
+                        AppImage.asset(
                             _config['icon_star'], // JSON
                             width: 32.w,
                             height: 32.h
@@ -313,7 +331,7 @@ class _CookingPageState extends State<CookingPage>
 
                           await _audioPlayer.stop();
                           _audioPlayer.play(
-                            AssetSource(_cleanAudioPath(item['sound'])),
+                            appAudioSource(_cleanAudioPath(item['sound'])),
                           );
                           _startFakeRecording();
                         },
@@ -326,13 +344,13 @@ class _CookingPageState extends State<CookingPage>
                             });
                           }
                         },
-                        feedback: Image.asset(
+                        feedback: AppImage.asset(
                           item['asset'],
                           width: 80.w,
                           height: 80.h,
                         ),
                         childWhenDragging: const SizedBox.shrink(),
-                        child: Image.asset(
+                        child: AppImage.asset(
                           item['asset'],
                           width: 85.w,
                           height: 85.h,
@@ -363,7 +381,7 @@ class _CookingPageState extends State<CookingPage>
                               : 1.0,
                         ),
                       transformAlignment: Alignment.bottomCenter,
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['chef_image'], // JSON
                         width: 180.w,
                         height: 320.h,
@@ -414,10 +432,10 @@ class _CookingPageState extends State<CookingPage>
                             scale: _scaleAnim,
                             child: CircleAvatar(
                               radius: 40.r,
-                              backgroundImage: const AssetImage(
+                              backgroundImage: AppImage.provider(
                                 "assets/icons/circle.webp",
                               ),
-                              child: Image.asset(
+                              child: AppImage.asset(
                                 _config['icon_mic'], // JSON
                                 width: 24.w,
                                 height: 32.h,

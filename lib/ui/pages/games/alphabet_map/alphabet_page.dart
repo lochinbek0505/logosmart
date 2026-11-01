@@ -95,9 +95,13 @@ class _AlphabetPageState extends State<AlphabetPage> {
               colorFilter: context.palette.backgroundImageFilter,
             ),
           ),
-          child: Column(
+          // SafeArea: avval qattiq 60px edi — notch'li telefonda status bar
+          // bilan ustma-ust, oddiy telefonda ortiqcha bo'sh joy bo'lardi
+          child: SafeArea(
+            bottom: false,
+            child: Column(
             children: [
-              const SizedBox(height: 60, width: double.infinity),
+              const SizedBox(height: 16, width: double.infinity),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -263,12 +267,23 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                                   ),
                                                 ),
                                                 SizedBox(width: 5.w),
-                                                Text(
-                                                  "Boshlash",
-                                                  style: TextStyle(
-                                                    color: Color(0xff20B9E8),
-                                                    fontSize: 15.sp,
-                                                    fontWeight: FontWeight.w700,
+                                                // Katta shriftda tor kartaga sig'sin
+                                                Flexible(
+                                                  child: FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      "Boshlash",
+                                                      style: TextStyle(
+                                                        color: Color(
+                                                          0xff20B9E8,
+                                                        ),
+                                                        fontSize: 15.sp,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -314,6 +329,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),

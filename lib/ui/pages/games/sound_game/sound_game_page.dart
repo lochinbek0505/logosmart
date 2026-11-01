@@ -6,7 +6,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../../../theme/app_colors.dart';
@@ -14,6 +13,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class SoundGamePage extends StatefulWidget {
   const SoundGamePage({super.key});
@@ -111,7 +111,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
     });
 
     try {
-      await _audioPlayer.play(AssetSource(cleanPath));
+      await _audioPlayer.play(appAudioSource(cleanPath));
       await completer.future;
     } catch (e) {
       debugPrint("Audio xatosi: $e");
@@ -193,48 +193,63 @@ class _SoundGamePageState extends State<SoundGamePage> {
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_config['background_image']),
+                image: AppImage.provider(_config['background_image']),
                 fit: BoxFit.cover,
               ),
             ),
             child: AbsorbPointer(
               absorbing: _isPlayingAudio || _showErrorAnim || _isGameFinished,
-              child: Column(
-                children: [
-                  SizedBox(height: 50.h),
-                  _buildHeader(totalBall),
-                  SizedBox(height: 30.h),
+              // SafeArea + moslashuvchan oraliqlar: avval qattiq 50.h/150.h
+              // bo'lib, kichik ekran yoki katta shriftda pastki variantlar
+              // ekrandan chiqib ketardi
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    SizedBox(height: 12.h),
+                    _buildHeader(totalBall),
+                    SizedBox(height: 20.h),
 
-                  // Asosiy Rasm
-                  Image.asset(
-                    _config['main_image'],
-                    width: 200.w,
-                    height: 200.h,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(height: 50.h),
-
-                  // Tepasidagi maqsad qilingan bo'g'inlar (Target slots)
-                  Wrap(
-                    spacing: 12.w,
-                    runSpacing: 12.h,
-                    alignment: WrapAlignment.center,
-                    children: List.generate(_targetWord.length, (index) {
-                      return _buildTargetSlot(_targetWord[index], index);
-                    }),
-                  ),
-
-                  SizedBox(height: 150.h),
-
-                  // Pastdagi tanlov bo'g'inlari (Draggable options)
-                  if (!_isGameFinished)
-                    Wrap(
-                      spacing: 16.w,
-                      runSpacing: 16.h,
-                      alignment: WrapAlignment.center,
-                      children: _options.map((option) => _buildDraggableOption(option)).toList(),
+                    // Asosiy Rasm — qolgan joyga qarab kichrayadi
+                    Flexible(
+                      flex: 5,
+                      child: AppImage.asset(
+                        _config['main_image'],
+                        width: 200.w,
+                        height: 200.h,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                ],
+                    SizedBox(height: 24.h),
+
+                    // Tepasidagi maqsad qilingan bo'g'inlar (Target slots)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Wrap(
+                        spacing: 12.w,
+                        runSpacing: 12.h,
+                        alignment: WrapAlignment.center,
+                        children: List.generate(_targetWord.length, (index) {
+                          return _buildTargetSlot(_targetWord[index], index);
+                        }),
+                      ),
+                    ),
+
+                    const Spacer(flex: 3),
+
+                    // Pastdagi tanlov bo'g'inlari (Draggable options)
+                    if (!_isGameFinished)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Wrap(
+                          spacing: 16.w,
+                          runSpacing: 16.h,
+                          alignment: WrapAlignment.center,
+                          children: _options.map((option) => _buildDraggableOption(option)).toList(),
+                        ),
+                      ),
+                    SizedBox(height: 32.h),
+                  ],
+                ),
               ),
             ),
           ),
@@ -244,7 +259,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
             Container(
               color: Colors.black26,
               child: Center(
-                child: Lottie.asset(
+                child: AppLottie.asset(
                   "assets/animation/xato.json",
                   width: 200.w,
                   height: 200.h,
@@ -294,8 +309,9 @@ class _SoundGamePageState extends State<SoundGamePage> {
     } else {
       // Katak bo'sh bo'lsa (DragTarget)
       return DragTarget<Map<String, dynamic>>(
-        onWillAccept: (data) => true,
-        onAccept: (data) {
+        onWillAcceptWithDetails: (_) => true,
+        onAcceptWithDetails: (details) {
+          final data = details.data;
           if (data["text"] == item["correct"]) {
             _handleCorrectDrop(index, data);
           } else {
@@ -394,7 +410,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
               width: 48.w,
               height: 48.h,
               child: (_config['icon_arrow'] is String)
-                  ? Image.asset(
+                  ? AppImage.asset(
                 _config['icon_arrow'] as String,
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) => const Icon(
@@ -411,7 +427,7 @@ class _SoundGamePageState extends State<SoundGamePage> {
                 width: 40.w,
                 height: 40.h,
                 child: (_config['icon_star'] is String)
-                    ? Image.asset(
+                    ? AppImage.asset(
                   _config['icon_star'] as String,
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.star, color: Colors.orange),

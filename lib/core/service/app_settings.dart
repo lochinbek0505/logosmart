@@ -19,17 +19,23 @@ class AppSettings extends ChangeNotifier {
   static const _gameMusicKey = 'settings_game_music';
   static const _vibrationKey = 'settings_vibration';
   static const _themeModeKey = 'settings_theme_mode';
+  static const _downloadOnMobileKey = 'settings_download_on_mobile';
 
   bool _pushEnabled = true;
   bool _notificationSound = true;
   bool _gameMusic = true;
   bool _vibration = true;
   ThemeMode _themeMode = ThemeMode.system;
+  bool _downloadOnMobile = false;
 
   bool get pushEnabled => _pushEnabled;
   bool get notificationSound => _notificationSound;
   bool get gameMusic => _gameMusic;
   bool get vibration => _vibration;
+
+  /// Videolar va AI modellarni (katta fayllar) mobil internetda ham orqa fonda yuklash.
+  /// O'chiq bo'lsa faqat Wi-Fi'da yuklanadi (mashq ochilganda kerakli fayl baribir yuklanadi).
+  bool get downloadOnMobile => _downloadOnMobile;
 
   /// Ilova mavzusi: tizimga mos, yorug' yoki qorong'i.
   ThemeMode get themeMode => _themeMode;
@@ -41,6 +47,8 @@ class AppSettings extends ChangeNotifier {
       _notificationSound = await _read(_notificationSoundKey);
       _gameMusic = await _read(_gameMusicKey);
       _vibration = await _read(_vibrationKey);
+      _downloadOnMobile =
+          (await _storage.read(key: _downloadOnMobileKey)) == 'true';
       final mode = await _storage.read(key: _themeModeKey);
       _themeMode = ThemeMode.values.firstWhere(
         (m) => m.name == mode,
@@ -75,6 +83,12 @@ class AppSettings extends ChangeNotifier {
     _vibration = value;
     notifyListeners();
     await _write(_vibrationKey, value);
+  }
+
+  Future<void> setDownloadOnMobile(bool value) async {
+    _downloadOnMobile = value;
+    notifyListeners();
+    await _write(_downloadOnMobileKey, value);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {

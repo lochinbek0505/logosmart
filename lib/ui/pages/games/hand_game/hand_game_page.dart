@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class HandGamePage extends StatefulWidget {
   const HandGamePage({super.key});
@@ -91,8 +92,19 @@ class _HandGamePageState extends State<HandGamePage> {
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   // Bosilganda ishlaydigan funksiya
@@ -108,7 +120,7 @@ class _HandGamePageState extends State<HandGamePage> {
 
     // Muvaffaqiyat ovozini chalish
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+    await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
 
     // Hammasi ochildimi tekshiramiz
     bool isAllOpen = _handGameItems.every((e) => e["isOpen"] == true);
@@ -163,7 +175,7 @@ class _HandGamePageState extends State<HandGamePage> {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_config['background_image']), // JSON
+            image: AppImage.provider(_config['background_image']), // JSON
             fit: BoxFit.fill,
           ),
         ),
@@ -212,7 +224,7 @@ class _HandGamePageState extends State<HandGamePage> {
                                 ),
                               );
                             },
-                            child: Image.asset(
+                            child: AppImage.asset(
                               item["isOpen"]
                                   ? item["hand_image"]! // JSON (box ichidagi rasm)
                                   : item["box_image"]!, // JSON (quti)
@@ -245,7 +257,7 @@ class _HandGamePageState extends State<HandGamePage> {
               context.read<LevelProvider>().clearCurrentLevel();
               Navigator.of(context).pop();
             },
-            child: Image.asset(
+            child: AppImage.asset(
               _config['icon_arrow'], // JSON
               width: 48.w,
               height: 48.h,
@@ -254,7 +266,7 @@ class _HandGamePageState extends State<HandGamePage> {
           ),
           Row(
             children: [
-              Image.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
+              AppImage.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],

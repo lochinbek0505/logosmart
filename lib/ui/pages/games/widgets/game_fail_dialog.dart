@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 import 'package:logosmart/core/service/app_settings.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 import '../alphabet_map/provider/level_provider.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 /// Bola bitta o'yinda shuncha marta xato qilsa o'yin ballsiz yakunlanadi
 /// va keyingi o'yin ochiladi
@@ -105,7 +105,7 @@ class _GameFailDialogState extends State<GameFailDialog>
                 final t = Curves.easeInOut.transform(_wobbleController.value);
                 return Transform.rotate(angle: (t - 0.5) * 0.12, child: child);
               },
-              child: Lottie.asset(
+              child: AppLottie.asset(
                 'assets/animation/xato.json',
                 width: 120.w,
                 height: 120.h,

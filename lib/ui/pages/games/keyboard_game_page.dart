@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logosmart/ui/pages/main/widgets/custom_text_widget.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class KeyboardGamePage extends StatefulWidget {
   const KeyboardGamePage({super.key});
@@ -31,7 +32,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
+                      AppImage.asset(
                         "assets/icons/star.webp",
                         width: 40.w,
                         height: 40.h,
@@ -51,7 +52,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
                     height: 80.h,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage("assets/icons/circle.webp"),
+                        image: AppImage.provider("assets/icons/circle.webp"),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -64,7 +65,7 @@ class _KeyboardGamePageState extends State<KeyboardGamePage> {
             SizedBox(height: 60.h),
 
             // 2. Markazdagi Raketa (Rasm o'rnida Icon ishlatilgan, asset bilan almashtirishingiz mumkin)
-            Image.asset(
+            AppImage.asset(
               "assets/images/dog_house.webp",
               width: 80.w,
               height: 80.h,

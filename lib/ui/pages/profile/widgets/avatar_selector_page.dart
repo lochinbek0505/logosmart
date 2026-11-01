@@ -154,21 +154,28 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: () {
-              if (_selectedAvatar != null) {
-                var map = {
-                  "fullName": provider.profileResponse.fullName,
-                  "age": provider.profileResponse.age,
-                  "profileImage": _selectedAvatar!.url,
-                  "region": provider.profileResponse.region,
-                  "district": provider.profileResponse.district,
-                };
-                debugPrint(map.toString());
-                provider.updateProfile(context, map);
-              }
-
-              Navigator.pop(context, _selectedAvatar);
-            },
+            // So'rov tugashini kutamiz: avval kutmasdan pop qilinar, xato
+            // bo'lsa foydalanuvchi bilmas, profil ham yangilanmay qolardi
+            onPressed: provider.isActionLoading
+                ? null
+                : () async {
+                    final selected = _selectedAvatar;
+                    if (selected == null) {
+                      Navigator.pop(context);
+                      return;
+                    }
+                    var map = {
+                      "fullName": provider.profileResponse.fullName,
+                      "age": provider.profileResponse.age,
+                      "profileImage": selected.url,
+                      "region": provider.profileResponse.region,
+                      "district": provider.profileResponse.district,
+                    };
+                    final result = await provider.updateProfile(context, map);
+                    if (!context.mounted) return;
+                    // Xato matni ApiService da snackbar bilan ko'rsatiladi
+                    if (result != null) Navigator.pop(context, selected);
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.main_blue_600,
               shape: RoundedRectangleBorder(
@@ -177,14 +184,23 @@ class _AvatarSelectionPageState extends State<AvatarSelectionPage> {
               padding: EdgeInsets.symmetric(vertical: 16.h),
               elevation: 2,
             ),
-            child: Text(
-              "Yangilash",
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            child: provider.isActionLoading
+                ? SizedBox(
+                    height: 22.h,
+                    width: 22.h,
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : Text(
+                    "Yangilash",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
         ),
       ),

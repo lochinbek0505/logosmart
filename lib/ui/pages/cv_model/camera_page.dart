@@ -20,6 +20,7 @@ import 'widgets/SuccessGifPlaceholder.dart';
 import 'widgets/celebration_overlay.dart';
 import 'widgets/cycle_success_badge.dart';
 import 'widgets/video_box.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -99,8 +100,18 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(path));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(path));
+    } catch (e) {
+      // Ovoz ochilmasa mashq baribir boshlanaveradi
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   @override
@@ -112,7 +123,13 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     final currentLevelData = provider.currentLevelData;
 
     if (currentLevelData != null && currentLevelData.exercise != null) {
-      _steps = currentLevelData.exercise!.steps;
+      // Birinchi "about" bosqichi StartTextPage'da ko'rsatib bo'lingan —
+      // uni bu yerda o'tkazib yuboramiz (ro'yxatning o'zi o'zgartirilmaydi,
+      // level qayta ochilganda intro yana chiqadi)
+      final steps = currentLevelData.exercise!.steps;
+      _steps = steps.isNotEmpty && steps.first.action == "about"
+          ? steps.sublist(1)
+          : List.of(steps);
       _videoPath = currentLevelData.exercise!.mediaPath;
       _modelPath = currentLevelData.exercise!.modelPath;
       sound = currentLevelData.exercise!.sound;
@@ -136,6 +153,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     // 3. Endi video va kamerani ishga tushiramiz
     if (mounted) {
+      // Model qurilmada bo'lmasa (orqa fonda hali yuklanmagan) — shu yerda yuklab olinadi
+      final modelPath = _modelPath;
+      if (modelPath != null && modelPath.isNotEmpty) {
+        _modelPath = await appModelPath(modelPath);
+      }
       await _initializeVideo(); // Video yuklanadi va play bo'ladi
 
       setState(() {
@@ -385,7 +407,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     if (_videoPath == null) return;
 
     try {
-      _videoController = VideoPlayerController.asset(_videoPath!)
+      _videoController = (await appVideoController(_videoPath!))
         ..setLooping(true)
         // O'ZGARTIRISH: Videoning ovozi chiqishi uchun 0.0 o'rniga 1.0 qildim
         ..setVolume(1.0);
@@ -453,7 +475,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         body: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(
+              child: AppImage.asset(
                 'assets/backround/fon_q.webp',
                 fit: BoxFit.fill,
               ),
@@ -472,7 +494,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                           context.read<LevelProvider>().clearCurrentLevel();
                           Navigator.pop(context);
                         },
-                        child: Image.asset(
+                        child: AppImage.asset(
                           "assets/icons/arrow_right_button.webp",
                           fit: BoxFit.fill,
                         ),
@@ -480,7 +502,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                     ),
                     Row(
                       children: [
-                        Image.asset(_starIcon, width: 32.w, height: 32.h),
+                        AppImage.asset(_starIcon, width: 32.w, height: 32.h),
                         SizedBox(width: 8.w),
                         Consumer<LevelProvider>(
                           builder: (context, provider, child) {

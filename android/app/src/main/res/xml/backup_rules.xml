@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 va undan past: serverdan yuklangan resurslar (~155 MB) zaxira nusxaga kirmasin -->
+<full-backup-content>
+    <exclude domain="file" path="resources/" />
+</full-backup-content>

@@ -12,6 +12,7 @@ import '../alphabet_map/provider/level_provider.dart';
 import '../alphabet_map/widgets/cloud_text.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 /// Mikrofonsiz "to'g'ri bo'g'inni topish" o'yini.
 ///
@@ -138,7 +139,7 @@ class _WolfGamePageState extends State<WolfGamePage>
     });
 
     try {
-      await _audioPlayer.play(AssetSource(_cleanAudioPath(path)));
+      await _audioPlayer.play(appAudioSource(_cleanAudioPath(path)));
       // Ovoz tugash hodisasi kelmasa ham o'yin qotib qolmasin
       await completer.future.timeout(
         const Duration(seconds: 20),
@@ -155,7 +156,7 @@ class _WolfGamePageState extends State<WolfGamePage>
 
   void _playEffect(String? path) {
     if (path == null || path.isEmpty) return;
-    _effectPlayer.play(AssetSource(_cleanAudioPath(path))).catchError((e) {
+    _effectPlayer.play(appAudioSource(_cleanAudioPath(path))).catchError((e) {
       debugPrint("Effekt ovozi xatosi: $e");
     });
   }
@@ -266,7 +267,7 @@ class _WolfGamePageState extends State<WolfGamePage>
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_config['background_image'] ?? "assets/backround/wolf_game/wolf.webp"),
+            image: AppImage.provider(_config['background_image'] ?? "assets/backround/wolf_game/wolf.webp"),
             fit: BoxFit.cover,
           ),
         ),
@@ -289,7 +290,7 @@ class _WolfGamePageState extends State<WolfGamePage>
                         width: 270.w,
                         height: 170.h,
                       ),
-                      Image.asset(
+                      AppImage.asset(
                         _characterImage,
                         height: 170.h,
                         cacheHeight: characterCacheHeight,
@@ -371,7 +372,7 @@ class _WolfGamePageState extends State<WolfGamePage>
             AnimatedScale(
               scale: isCorrect ? 1.25 : (isUnlocked ? 1.1 : 1.0),
               duration: const Duration(milliseconds: 300),
-              child: Image.asset(
+              child: AppImage.asset(
                 image,
                 width: imageWidth,
                 height: imageHeight,
@@ -389,7 +390,7 @@ class _WolfGamePageState extends State<WolfGamePage>
                 child: AnimatedOpacity(
                   opacity: isUnlocked ? 0.5 : 1.0,
                   duration: const Duration(milliseconds: 300),
-                  child: Image.asset(
+                  child: AppImage.asset(
                     _config['music_icon'] ?? "assets/game/wolf_game/music.webp",
                     width: speakerSize,
                     height: speakerSize,
@@ -429,7 +430,7 @@ class _WolfGamePageState extends State<WolfGamePage>
               width: 48.w,
               height: 48.h,
               child: (_config['icon_arrow'] is String)
-                  ? Image.asset(
+                  ? AppImage.asset(
                       _config['icon_arrow'] as String,
                       fit: BoxFit.fill,
                       errorBuilder: (context, error, stackTrace) => const Icon(
@@ -446,7 +447,7 @@ class _WolfGamePageState extends State<WolfGamePage>
                 width: 40.w,
                 height: 40.h,
                 child: (_config['icon_star'] is String)
-                    ? Image.asset(
+                    ? AppImage.asset(
                         _config['icon_star'] as String,
                         errorBuilder: (context, error, stackTrace) =>
                             const Icon(Icons.star, color: Colors.orange),

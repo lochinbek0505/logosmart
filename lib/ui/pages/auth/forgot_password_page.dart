@@ -51,13 +51,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ),
       ),
-      body: Container(
-        // Ekran balandligidan kam bo'lmagan joy egallashi uchun
-        constraints: BoxConstraints(
-          minHeight:
-              MediaQuery.of(context).size.height -
-              MediaQuery.of(context).padding.top,
-        ),
+      // Klaviatura ochilganda balandlik kamayadi — scroll bo'ladi (avval
+      // "Bottom overflowed" chiqardi), aks holda Spacer tugmani pastga suradi
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
         child: Form(
           key: _formKey,
           child: IntrinsicHeight(
@@ -199,6 +198,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(height: 36.h),
               ],
             ),
+          ),
+        ),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widge
 import 'package:logosmart/ui/theme/app_colors.dart';
 
 import 'dashed_path_painter.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class FinishPathGameWidget extends StatefulWidget {
   final PathConfig pathConfig;
@@ -135,7 +136,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
               Positioned(
                 left: _endPosition.dx - 80.w, // Uyning o'lchamiga qarab markazlashtiring
                 top: _endPosition.dy - 100.h,
-                child: Image.asset(
+                child: AppImage.asset(
                   "assets/game/house.webp", // <--- Uy rasmini kiriting
                   height: 120.h,
                   fit: BoxFit.contain,
@@ -147,7 +148,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
               Positioned(
                 left: _endPosition.dx - 120.w,
                 top: _endPosition.dy - 60.h,
-                child: Image.asset(
+                child: AppImage.asset(
                   "assets/game/game_correct.webp", // <--- Yashil ptichka rasmini kiriting
                   width: 80.w,
                   fit: BoxFit.contain,
@@ -177,9 +178,9 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                               horizontal: 14.w,
                               vertical: 8.h,
                             ),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage("assets/game/game_cloud.webp"),
+                                image: AppImage.provider("assets/game/game_cloud.webp"),
                               ),
                             ),
                             child: Padding(
@@ -195,7 +196,7 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                             ),
                           ),
                         ),
-                      Image.asset(
+                      AppImage.asset(
                         "assets/game/dog.webp", // <--- Yo'lbars o'rniga Kuchukcha rasmi (tiger.png qolsa ham bo'ladi)
                         width: 90.w,
                         height: 120.h,

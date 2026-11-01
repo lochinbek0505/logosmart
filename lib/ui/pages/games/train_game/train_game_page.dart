@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
@@ -16,6 +15,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class TrainGamePage extends StatefulWidget {
   const TrainGamePage({super.key});
@@ -398,8 +398,19 @@ class _TrainGamePageState extends State<TrainGamePage>
       if (!completer.isCompleted) completer.complete();
     });
 
-    await _audioPlayer.play(AssetSource(cleanPath));
-    return completer.future;
+    try {
+      await _audioPlayer.play(appAudioSource(cleanPath));
+    } catch (e) {
+      // Fayl ochilmasa o'yin qotib qolmasin
+      debugPrint("Audio xatosi ($path): $e");
+      subscription.cancel();
+      return;
+    }
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   @override
@@ -426,7 +437,7 @@ class _TrainGamePageState extends State<TrainGamePage>
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
+                image: AppImage.provider(
                   _config['background_image'] ?? "assets/backround/fon_q.webp",
                 ),
                 fit: BoxFit.cover,
@@ -434,44 +445,54 @@ class _TrainGamePageState extends State<TrainGamePage>
             ),
             child: AbsorbPointer(
               absorbing: _isPlayingAudio || _showErrorAnim,
-              child: Column(
-                children: [
-                  SizedBox(height: 50.h),
-                  _buildHeader(totalBall),
-                  SizedBox(height: 50.h),
+              // SafeArea: avval qattiq 50.h edi — kichik ekranda header
+              // status bar ostida qolardi
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    SizedBox(height: 12.h),
+                    _buildHeader(totalBall),
+                    SizedBox(height: 30.h),
 
-                  // VAGONLAR QISMI
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ..._trains.map((train) => _buildTrainItem(train)),
-                      ],
-                    ),
-                  ),
-
-                  // RASMLAR QISMI
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    // VAGONLAR QISMI — vagonlar ko'p bo'lsa ekranga sig'ib kichrayadi
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(_gameList.length, (index) {
-                            return _buildDraggableImage(
-                              _gameList[index],
-                              index,
-                            );
-                          }),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ..._trains.map((train) => _buildTrainItem(train)),
+                          ],
                         ),
                       ),
                     ),
-                  ),
 
-                  // MIKROFON HOLATI
-                  _buildMicState(),
-                ],
+                    // RASMLAR QISMI — 3 tadan ko'p rasm bo'lsa ham chiqib ketmaydi
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (var i = 0; i < _gameList.length; i++) ...[
+                                  if (i > 0) SizedBox(width: 16.w),
+                                  _buildDraggableImage(_gameList[i], i),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // MIKROFON HOLATI
+                    _buildMicState(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -481,7 +502,7 @@ class _TrainGamePageState extends State<TrainGamePage>
             Container(
               color: Colors.black26,
               child: Center(
-                child: Lottie.asset(
+                child: AppLottie.asset(
                   "assets/animation/xato.json",
                   width: 200.w,
                   height: 200.h,
@@ -496,8 +517,9 @@ class _TrainGamePageState extends State<TrainGamePage>
 
   Widget _buildTrainItem(Map<String, dynamic> train) {
     return DragTarget<Map<String, dynamic>>(
-      onWillAccept: (data) => true,
-      onAccept: (data) {
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) {
+        final data = details.data;
         if (data["syllable"] == train["syllable"]) {
           _handleCorrectDrop(data["index"]);
         } else {
@@ -507,7 +529,7 @@ class _TrainGamePageState extends State<TrainGamePage>
       builder: (context, candidateData, rejectedData) {
         return GestureDetector(
           onTap: () => _onWagonTap(train),
-          child: Image.asset(
+          child: AppImage.asset(
             train["image"],
             height: 60.h,
             color: candidateData.isNotEmpty ? Colors.grey.shade400 : null,
@@ -551,7 +573,7 @@ class _TrainGamePageState extends State<TrainGamePage>
         children: [
           Padding(
             padding: EdgeInsets.all(8.w),
-            child: Image.asset(
+            child: AppImage.asset(
               item["image"],
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) =>
@@ -667,10 +689,10 @@ class _TrainGamePageState extends State<TrainGamePage>
                     scale: _scaleAnim,
                     child: CircleAvatar(
                       radius: 40.r,
-                      backgroundImage: const AssetImage(
+                      backgroundImage: AppImage.provider(
                         "assets/icons/circle.webp",
                       ),
-                      child: Image.asset(
+                      child: AppImage.asset(
                         _config['icon_mic'],
                         width: 24.w,
                         height: 32.h,
@@ -701,7 +723,7 @@ class _TrainGamePageState extends State<TrainGamePage>
             child: SizedBox(
               width: 48.w,
               height: 48.h,
-              child: Image.asset(
+              child: AppImage.asset(
                 _config['icon_arrow'],
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) =>
@@ -714,7 +736,7 @@ class _TrainGamePageState extends State<TrainGamePage>
               SizedBox(
                 width: 40.w,
                 height: 40.h,
-                child: Image.asset(
+                child: AppImage.asset(
                   _config['icon_star'],
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.star, color: Colors.orange),

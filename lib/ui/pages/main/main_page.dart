@@ -8,6 +8,8 @@ import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.da
 import 'package:logosmart/ui/pages/main/coming_soon_page.dart';
 import 'package:logosmart/ui/pages/profile/profile_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
+import 'package:logosmart/core/resources/resource_manager.dart';
+import 'package:logosmart/ui/pages/start/resource_download_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -19,6 +21,16 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   // Track the currently selected tab index
   int _selectedIndex = 0;
+
+  /// O'yin/mashq resurslari qurilmada bormi — yo'q bo'lsa avval yuklash ekrani
+  bool _resourcesReady = ResourceManager.instance.coreReady;
+
+  @override
+  void initState() {
+    super.initState();
+    // Avval yuklangan bo'lsa — yangilanishlar va videolar orqa fonda
+    if (_resourcesReady) ResourceManager.instance.syncInBackground(force: true);
+  }
 
   // List of pages corresponding to the tabs
   List<Widget> get pages => [
@@ -77,9 +89,28 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_resourcesReady) {
+      return ResourceDownloadPage(
+        onReady: () => setState(() => _resourcesReady = true),
+        onSkip: () => setState(() => _resourcesReady = true),
+      );
+    }
     return Scaffold(
       // Display the page that corresponds to the selected index
-      body: pages[_selectedIndex],
+      body: Stack(
+        children: [
+          Positioned.fill(child: pages[_selectedIndex]),
+          // Birinchi yuklash o'tkazib yuborilgan bo'lsa — boshqa tablarda ham yuklanish holati
+          // (Bosh sahifada o'rniga ResourceStatusCard turadi)
+          if (_selectedIndex != 0)
+            Positioned(
+              left: 16.w,
+              right: 16.w,
+              bottom: 96.h,
+              child: const _ResourceBanner(),
+            ),
+        ],
+      ),
       extendBody: true,
       // Custom height va corner uchun Container bilan o'raymiz
       bottomNavigationBar: Container(
@@ -176,6 +207,80 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Asosiy resurslar to'liq yuklanmaguncha pastda kichik holat paneli
+class _ResourceBanner extends StatelessWidget {
+  const _ResourceBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final manager = ResourceManager.instance;
+    return ValueListenableBuilder<bool>(
+      valueListenable: manager.coreReadyNotifier,
+      builder: (context, ready, _) {
+        if (ready) return const SizedBox.shrink();
+        return ValueListenableBuilder<ResourceProgress>(
+          valueListenable: manager.progress,
+          builder: (context, p, _) {
+            final failed = p.error != null;
+            return Material(
+              color: context.palette.surface,
+              elevation: 4,
+              borderRadius: BorderRadius.circular(14.r),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14.r),
+                // Xato bo'lsa — bosib qayta urinish
+                onTap: failed ? () => manager.syncInBackground(force: true) : null,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                  child: Row(
+                    children: [
+                      Icon(
+                        failed ? Icons.wifi_off_rounded : Icons.cloud_download_rounded,
+                        size: 20.sp,
+                        color: failed ? AppColors.red_500 : AppColors.main_blue_600,
+                      ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              failed
+                                  ? "Yuklash to'xtadi — qayta urinish uchun bosing"
+                                  : "Mashg'ulotlar yuklanmoqda: ${(p.fraction * 100).round()}%",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.nunito(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: context.palette.textStrong,
+                              ),
+                            ),
+                            if (!failed) ...[
+                              SizedBox(height: 6.h),
+                              LinearProgressIndicator(
+                                value: p.totalFiles == 0 ? null : p.fraction,
+                                minHeight: 4.h,
+                                color: AppColors.main_blue_600,
+                                backgroundColor: context.palette.border,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

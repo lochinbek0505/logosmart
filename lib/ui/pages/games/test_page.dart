@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class TestPage extends StatefulWidget {
   TestPage({super.key});
@@ -39,7 +39,7 @@ class _TestPageState extends State<TestPage>
         children: [
           // 1. Orqa fon rasmi
           Positioned.fill(
-            child: Image.asset(
+            child: AppImage.asset(
               'assets/backround/breath/candle_background.webp',
               fit: BoxFit.cover,
             ),
@@ -47,7 +47,7 @@ class _TestPageState extends State<TestPage>
 
           Align(
             alignment: const Alignment(0.0, 0.3),
-            child: Lottie.asset(
+            child: AppLottie.asset(
               'assets/animation/candle.json',
               width: 350,
               height: 350,

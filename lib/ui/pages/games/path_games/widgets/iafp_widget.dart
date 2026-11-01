@@ -5,6 +5,7 @@ import 'package:logosmart/ui/pages/games/path_games/widgets/path_drag_game_widge
 import 'package:logosmart/ui/theme/app_colors.dart';
 
 import 'dashed_path_painter.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class IafpWidget extends StatefulWidget {
   final PathConfig pathConfig;
@@ -127,9 +128,9 @@ class _IafpWidgetState extends State<IafpWidget> {
                             horizontal: 14.w,
                             vertical: 8.h,
                           ),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage("assets/game/game_cloud.webp"),
+                              image: AppImage.provider("assets/game/game_cloud.webp"),
                             ),
                           ),
                           child: Padding(
@@ -145,7 +146,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                           ),
                         ),
                       ),
-                    Image.asset(
+                    AppImage.asset(
                       widget.image,
                       width: 110.w,
                       fit: BoxFit.contain,

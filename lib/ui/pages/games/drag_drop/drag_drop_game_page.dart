@@ -11,6 +11,7 @@ import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class DragDropGamePage extends StatefulWidget {
   const DragDropGamePage({Key? key}) : super(key: key);
@@ -132,11 +133,18 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30.w),
-                child: Row(
+                // FittedBox: elementlar 4 tadan ko'p bo'lsa yoki ekran past
+                // bo'lsa ustunlar chiqib ketmasdan kichrayadi
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: 375.w - 60.w,
+                    child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Chap ustun: Rangli elementlar (Draggable)
                     Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _items.map((item) {
                         if (_matchedResults[item['id']] == true) {
@@ -147,12 +155,12 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                           padding: EdgeInsets.symmetric(vertical: 14.h),
                           child: Draggable<Map<String, dynamic>>(
                             data: item,
-                            feedback: Image.asset(item['image'], width: 85.w, height: 85.h),
+                            feedback: AppImage.asset(item['image'], width: 85.w, height: 85.h),
                             childWhenDragging: Opacity(
                               opacity: 0.3,
-                              child: Image.asset(item['image'], width: 85.w, height: 85.h),
+                              child: AppImage.asset(item['image'], width: 85.w, height: 85.h),
                             ),
-                            child: Image.asset(item['image'], width: 85.w, height: 85.h),
+                            child: AppImage.asset(item['image'], width: 85.w, height: 85.h),
                           ),
                         );
                       }).toList(),
@@ -160,6 +168,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
 
                     // O'ng ustun: Soyalar (DragTarget)
                     Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: _shadowItems.map((shadowItem) {
                         return Padding(
@@ -170,7 +179,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                               if (details.data['id'] == shadowItem['id']) {
                                 // To'g'ri topildi
                                 AppSettings().vibrateSuccess();
-                                await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+                                await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
 
                                 if (!mounted) return;
 
@@ -196,7 +205,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                             },
                             builder: (context, candidateData, rejectedData) {
                               if (_matchedResults[shadowItem['id']] == true) {
-                                return Image.asset(shadowItem['image'], width: 85.w, height: 85.h);
+                                return AppImage.asset(shadowItem['image'], width: 85.w, height: 85.h);
                               }
 
                               return ColorFiltered(
@@ -204,7 +213,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                                   Color(0xFF555555),
                                   BlendMode.srcIn,
                                 ),
-                                child: Image.asset(shadowItem['image'], width: 85.w, height: 85.h),
+                                child: AppImage.asset(shadowItem['image'], width: 85.w, height: 85.h),
                               );
                             },
                           ),
@@ -212,6 +221,8 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
                       }).toList(),
                     ),
                   ],
+                ),
+                  ),
                 ),
               ),
             ),
@@ -279,7 +290,7 @@ class _DragDropGamePageState extends State<DragDropGamePage> {
             height: 80.h,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_config['avatar_bg']), // JSON
+                image: AppImage.provider(_config['avatar_bg']), // JSON
                 fit: BoxFit.fill,
               ),
             ),

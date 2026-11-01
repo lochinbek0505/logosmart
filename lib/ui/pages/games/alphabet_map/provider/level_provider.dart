@@ -32,6 +32,9 @@ const String _kServerLevelsPrefix = '_srv_levels_';
 /// Serverga hali yetib bormagan natijalar: {levelMongoId: yulduz}
 const String _kPendingStarsKey = '_srv_pending_stars';
 
+/// O'yinlarda to'plangan umumiy ball (ilova qayta ochilganda yo'qolmasin)
+const String _kBallKey = '_total_ball';
+
 typedef OpenLevelCallback = void Function(LevelState level);
 
 /// Bosh sahifadagi "So'ngi harakat" kartasi uchun ma'lumot
@@ -154,9 +157,17 @@ class LevelProvider extends ChangeNotifier {
   OpenLevelCallback? onOpenLevel;
 
   void addBall(int value) {
-    _ball += value;
+    // Manfiy bo'lib ketmasin (yutqazganda qaytarib olinadi)
+    _ball = (_ball + value).clamp(0, 1 << 30);
     notifyListeners();
+    // Avval faqat xotirada edi — ilova yopilsa 0 ga tushib qolardi
+    _progressBox?.put(_kBallKey, _ball);
     _syncScoreToBackend(value);
+  }
+
+  void _loadBall() {
+    final saved = _progressBox?.get(_kBallKey);
+    if (saved is int) _ball = saved;
   }
 
   void setCurrentLevel(int id) {
@@ -192,6 +203,7 @@ class LevelProvider extends ChangeNotifier {
 
   // Joriy tovush levellarini yuklash
   Future<void> bootstrap() async {
+    _loadBall();
     final saved = _progressBox?.get(_kLastSoundKey);
     if (saved is String && hasSound(saved) && !_nonSoundMaps.contains(saved)) {
       _lastSound = saved;
@@ -245,6 +257,8 @@ class LevelProvider extends ChangeNotifier {
     _progressBox?.delete(_kPracticeIdsKey);
     _progressBox?.delete(_kPendingStarsKey);
     _progressBox?.delete(_kLastSoundKey);
+    _progressBox?.delete(_kBallKey);
+    _ball = 0;
     _lastSound = null;
     if (isServerSound(_currentSound)) {
       _levels = [];
@@ -550,11 +564,21 @@ class LevelProvider extends ChangeNotifier {
 
   /// JSON yoki server javobidagi levellar ro'yxatini [LevelState] ga o'giradi.
   /// Server javobida `id` — mongo id, `levelId` — tartib raqami.
+  static bool _isNonEmptyExercise(Object? ex) {
+    if (ex is! Map) return false;
+    String str(Object? v) => (v ?? '').toString().trim();
+    return str(ex['modelPath']).isNotEmpty ||
+        str(ex['mediaPath']).isNotEmpty ||
+        str(ex['sound']).isNotEmpty ||
+        ((ex['steps'] as List?)?.isNotEmpty ?? false);
+  }
+
   List<LevelState> _parseLevels(List<dynamic> jsonData) {
     final levels = jsonData.whereType<Map>().map((data) {
         // Exercise ma'lumotlarini parse qilish
         ExerciseInfo? exerciseInfo;
-        if (data['exercise'] != null) {
+        // Server bo'sh obyekt yuborishi mumkin ({"modelPath": "", "steps": []}) — bu "mashq yo'q"
+        if (_isNonEmptyExercise(data['exercise'])) {
           var exData = data['exercise'];
           exerciseInfo = ExerciseInfo(
             modelPath: exData['modelPath'] ?? '',
@@ -576,7 +600,8 @@ class LevelProvider extends ChangeNotifier {
 
         // Game ma'lumotlarini parse qilish
         GameInfo? gameInfo;
-        if (data['game'] != null) {
+        // Server mashq levellari uchun ham {"type": ""} yuboradi — turi bo'sh bo'lsa o'yin yo'q
+        if (data['game'] is Map && (data['game']['type'] ?? '').toString().isNotEmpty) {
           var gData = data['game'];
           gameInfo = GameInfo(
             type: gData['type'] ?? '',

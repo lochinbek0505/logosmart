@@ -5,13 +5,13 @@ import 'dart:convert'; // JSON o'qish uchun
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../../main/widgets/custom_text_widget.dart';
 import '../alphabet_map/provider/level_provider.dart';
 import '../widgets/game_fail_dialog.dart';
 import '../widgets/game_success_dialog.dart';
+import 'package:logosmart/core/resources/app_resources.dart';
 
 class PuzzlePieceData {
   final String id;
@@ -76,6 +76,9 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
   int _earnedBall = 0;
 
   int get _totalPairs => pieces.where((p) => p.isTop).length;
+
+  /// Ekran kengligiga qarab hisoblanadigan qism o'lchami (build da yangilanadi)
+  double _pieceSize = 180;
 
   @override
   void initState() {
@@ -171,11 +174,15 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     });
 
     try {
-      await _audioPlayer.play(AssetSource(_cleanAudioPath(path)));
+      await _audioPlayer.play(appAudioSource(_cleanAudioPath(path)));
     } catch (e) {
       if (!completer.isCompleted) completer.complete();
     }
-    return completer.future;
+    // Tugash hodisasi kelmasa ham (buzilgan fayl) abadiy kutib qolmaymiz
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => subscription?.cancel(),
+    );
   }
 
   Future<void> _checkMatch() async {
@@ -273,7 +280,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
     provider.unlock(stars: 3);
 
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(AssetSource(_cleanAudioPath(_config['success_sound'])));
+    await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
 
     if (!mounted) return;
 
@@ -296,14 +303,20 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double pieceWidth = 180.w + 16.0;
+    // Ikki ustun + 3 ta oraliq ekranga sig'ishi kerak: avval 180.w + 16 qattiq
+    // bo'lib, tor ekranlarda (2*196.w > 375.w) qismlar ustma-ust tushardi
+    final double minGap = 12.w;
+    final double maxPiece = 180.w;
+    final double pieceSize =
+        ((screenWidth - 3 * minGap) / 2).clamp(80.0, maxPiece).toDouble();
+    _pieceSize = pieceSize;
 
-    final double remainingSpace = screenWidth - (pieceWidth * 2);
-    final double equalGap = remainingSpace > 0 ? remainingSpace / 3 : 0;
+    final double remainingSpace = screenWidth - (pieceSize * 2);
+    final double equalGap = remainingSpace / 3;
 
     // X va Y koordinatalari
     final double leftColumnX = equalGap;
-    final double rightColumnX = screenWidth - equalGap - pieceWidth;
+    final double rightColumnX = screenWidth - equalGap - pieceSize;
 
     final double topUnmergedY = 200.h;
     final double bottomUnmergedY = 420.h;
@@ -318,7 +331,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(_config['background_image']), // JSON
+            image: AppImage.provider(_config['background_image']), // JSON
             fit: BoxFit.cover,
           ),
         ),
@@ -350,7 +363,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
                 opacity: _showCorrectAnim ? 1.0 : 0.0,
                 child: Center(
                   child: _showCorrectAnim
-                      ? Lottie.asset(
+                      ? AppLottie.asset(
                     _config['correct_anim'], // JSON
                     width: 250.w,
                     height: 250.h,
@@ -367,7 +380,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
                 opacity: _showIncorrectAnim ? 1.0 : 0.0,
                 child: Center(
                   child: _showIncorrectAnim
-                      ? Lottie.asset(
+                      ? AppLottie.asset(
                     _config['incorrect_anim'], // JSON
                     width: 250.w,
                     height: 250.h,
@@ -449,16 +462,16 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
               duration: const Duration(milliseconds: 300),
               turns: currentRotation,
               child: Container(
-                width: 180.w,
-                height: 180.h,
+                width: _pieceSize,
+                height: _pieceSize,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(_config['puzzle_frame']), // JSON
+                    image: AppImage.provider(_config['puzzle_frame']), // JSON
                     fit: BoxFit.contain,
                   ),
                 ),
-                child: Image.asset(piece.image, scale: 8.w),
+                child: AppImage.asset(piece.image, scale: 8.w),
               ),
             ),
           ),
@@ -480,7 +493,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
                 context.read<LevelProvider>().clearCurrentLevel();
                 Navigator.of(context).pop();
               },
-              child: Image.asset(
+              child: AppImage.asset(
                 _config['icon_arrow'], // JSON
                 width: 48.w,
                 height: 48.h,
@@ -489,7 +502,7 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
             ),
             Row(
               children: [
-                Image.asset(_config['icon_star'], width: 40.w, height: 40.h), // JSON
+                AppImage.asset(_config['icon_star'], width: 40.w, height: 40.h), // JSON
                 SizedBox(width: 8.w),
                 CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
               ],

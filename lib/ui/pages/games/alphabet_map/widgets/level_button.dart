@@ -45,6 +45,22 @@ class _LevelButtonState extends State<LevelButton> with SingleTickerProviderStat
     }
   }
 
+  // Keyingi level ochilganda "joriy" belgisi ko'chadi — tugmalar ValueKey
+  // bilan saqlanib qolgani uchun animatsiyani shu yerda yoqib/o'chiramiz
+  // (avval eski level pulsatsiya qilaverar, yangisi qilmas edi)
+  @override
+  void didUpdateWidget(covariant LevelButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isCurrent == widget.isCurrent) return;
+    if (widget.isCurrent) {
+      _pulseController.repeat(reverse: true);
+    } else {
+      _pulseController
+        ..stop()
+        ..value = 0;
+    }
+  }
+
   @override
   void dispose() {
     _pulseController.dispose();

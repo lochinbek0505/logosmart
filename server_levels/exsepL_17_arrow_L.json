@@ -1,0 +1,34 @@
+{
+  "start_voice": "assets/sound/arrow/arrow_start.mp3",
+  "background_image": "assets/backround/arrow/arrow_back_1.webp",
+  "icon_star": "assets/icons/star.webp",
+  "icon_arrow": "assets/icons/arrow_right_button.webp",
+  "icon_mic": "assets/icons/micrafon.webp",
+  "center_letter": "L",
+  "outer_nodes": [
+    {
+      "id": 0,
+      "letter": "O",
+      "color": "0xFF43A047",
+      "angle": -150,
+      "sound": "assets/sound/arrow/OLLL.mp3",
+      "target_text": "ooll"
+    },
+    {
+      "id": 1,
+      "letter": "U",
+      "color": "0xFFEC407A",
+      "angle": -30,
+      "sound": "assets/sound/arrow/ULLL.mp3",
+      "target_text": "uull"
+    },
+    {
+      "id": 2,
+      "letter": "I",
+      "color": "0xFF7FD8F7",
+      "angle": 90,
+      "sound": "assets/sound/arrow/ILLLL.mp3",
+      "target_text": "iill"
+    }
+  ]
+}

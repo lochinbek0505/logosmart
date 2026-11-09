@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:logosmart/ui/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/widgets/cloud_text.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logosmart/ui/pages/diagnostic/voice_diagnostic_page.dart';
@@ -113,33 +114,15 @@ class _DiagnosticPage extends State<DiagnosticStartPage> {
 
                   SizedBox(height: 15.h),
 
-                  Container(
+                  // Matn bulutga sig'maganda shrift kichrayadi, keyin bulut o'sadi
+                  CloudText(
+                    text: "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
+                    image: "assets/images/big_cloud.webp",
                     width: 250.w,
                     height: 160.h,
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                      top: 22,
-                      bottom: 11.5,
-                    ),
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/big_cloud.webp"),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    child: Transform.translate(
-                      offset: Offset(0, 25.h),
-                      child: Text(
-                        "Diagnostika vaqtida ortiqcha shovqin qilmang! ",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.nunito(
-                          color: context.palette.textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15.sp,
-                        ),
-                      ),
-                    ),
+                    fontSize: 15.sp,
+                    minFontSize: 12.sp,
+                    color: context.palette.textPrimary,
                   ),
 
                   Transform.translate(

@@ -38,7 +38,7 @@ class _TrainGamePageState extends State<TrainGamePage>
   bool _isLoading = false;
   bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
-  int _mistakes = 0;
+  final _attempts = GameAttempts();
   String? _recordedFilePath;
 
   int? _currentlyTestingIndex;
@@ -154,8 +154,8 @@ class _TrainGamePageState extends State<TrainGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
 
     // Yangi qo'shilgan: Bolalar uchun Drag qilish animatsiyasi (Tepaga suriluvchi qo'lcha)
     _dragHintController = AnimationController(
@@ -245,7 +245,7 @@ class _TrainGamePageState extends State<TrainGamePage>
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
         _recordedFilePath =
-        '${tempDir.path}/train_game_${DateTime.now().millisecondsSinceEpoch}.wav';
+            '${tempDir.path}/train_game_${DateTime.now().millisecondsSinceEpoch}.wav';
 
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav),
@@ -325,8 +325,7 @@ class _TrainGamePageState extends State<TrainGamePage>
   }
 
   Future<void> _handleWrongAnswer({bool countMistake = true}) async {
-    final bool isLastMistake =
-        countMistake && ++_mistakes >= kMaxGameMistakes;
+    final bool isLastMistake = _attempts.register(counted: countMistake);
 
     if (mounted) {
       setState(() {
@@ -559,12 +558,12 @@ class _TrainGamePageState extends State<TrainGamePage>
         border: isUnlocked ? Border.all(color: Colors.green, width: 3) : null,
         boxShadow: isUnlocked
             ? [
-          BoxShadow(
-            color: Colors.green.withValues(alpha: 0.4),
-            blurRadius: 15,
-            spreadRadius: 2,
-          )
-        ]
+                BoxShadow(
+                  color: Colors.green.withValues(alpha: 0.4),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ]
             : [],
       ),
       child: Stack(
@@ -577,7 +576,7 @@ class _TrainGamePageState extends State<TrainGamePage>
               item["image"],
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.image, color: Colors.grey),
+                  const Icon(Icons.image, color: Colors.grey),
             ),
           ),
 
@@ -602,7 +601,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                             color: Colors.green.withValues(alpha: 0.5),
                             blurRadius: 8,
                             spreadRadius: 1,
-                          )
+                          ),
                         ],
                       ),
                       child: Icon(
@@ -621,19 +620,12 @@ class _TrainGamePageState extends State<TrainGamePage>
 
     if (isUnlocked) {
       return Draggable<Map<String, dynamic>>(
-        data: {
-          ...item,
-          "index": index,
-        },
+        data: {...item, "index": index},
         feedback: Material(
           color: Colors.transparent,
           child: Opacity(
             opacity: 0.9,
-            child: SizedBox(
-              width: 110.w,
-              height: 150.h,
-              child: childWidget,
-            ),
+            child: SizedBox(width: 110.w, height: 150.h, child: childWidget),
           ),
         ),
         childWhenDragging: Opacity(opacity: 0.3, child: childWidget),
@@ -655,56 +647,56 @@ class _TrainGamePageState extends State<TrainGamePage>
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : AnimatedBuilder(
-          animation: Listenable.merge([
-            _pulseController,
-            _bounceController,
-          ]),
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _bounceAnim.value),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 110.w,
-                    height: 110.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.25)
-                          : Colors.transparent,
+                animation: Listenable.merge([
+                  _pulseController,
+                  _bounceController,
+                ]),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _bounceAnim.value),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 110.w,
+                          height: 110.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.25)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        Container(
+                          width: 90.w,
+                          height: 90.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.35)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        ScaleTransition(
+                          scale: _scaleAnim,
+                          child: CircleAvatar(
+                            radius: 40.r,
+                            backgroundImage: AppImage.provider(
+                              "assets/icons/circle.webp",
+                            ),
+                            child: AppImage.asset(
+                              _config['icon_mic'],
+                              width: 24.w,
+                              height: 32.h,
+                              color: _isRecording ? _colorAnim.value : null,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Container(
-                    width: 90.w,
-                    height: 90.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.35)
-                          : Colors.transparent,
-                    ),
-                  ),
-                  ScaleTransition(
-                    scale: _scaleAnim,
-                    child: CircleAvatar(
-                      radius: 40.r,
-                      backgroundImage: AppImage.provider(
-                        "assets/icons/circle.webp",
-                      ),
-                      child: AppImage.asset(
-                        _config['icon_mic'],
-                        width: 24.w,
-                        height: 32.h,
-                        color: _isRecording ? _colorAnim.value : null,
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -727,7 +719,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                 _config['icon_arrow'],
                 fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                    const Icon(Icons.arrow_back_ios_new, color: Colors.black),
               ),
             ),
           ),
@@ -739,7 +731,7 @@ class _TrainGamePageState extends State<TrainGamePage>
                 child: AppImage.asset(
                   _config['icon_star'],
                   errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.star, color: Colors.orange),
+                      const Icon(Icons.star, color: Colors.orange),
                 ),
               ),
               SizedBox(width: 8.w),

@@ -230,6 +230,29 @@ void main() {
     expect(m.status.value.phase, ResourcePhase.idle, reason: 'hammasi yuklangach karta yashirinadi');
   });
 
+  test("orqa fondagi yuklash xato bilan to'xtasa — tugma bosilmasa ham o'zi davom etadi", () async {
+    srv.put('assets/game/a.webp', bytesOf(1000, 1));
+    srv.put('assets/videos/v.mp4', bytesOf(4000, 2), group: 'videos');
+    srv.corrupt.add('assets/videos/v.mp4');
+
+    final m = await fresh();
+    m.autoRetryDelaysForTesting = const [Duration(milliseconds: 50)];
+    expect(await m.downloadCore(), isTrue);
+    await m.idle();
+    expect(m.status.value.phase, ResourcePhase.failed);
+    expect(m.fileFor('assets/videos/v.mp4'), isNull);
+
+    // Server tuzaldi — hech narsa chaqirmaymiz, yuklash o'zi qayta boshlanadi
+    srv.corrupt.clear();
+    srv.version++;
+    for (var i = 0; i < 100 && m.fileFor('assets/videos/v.mp4') == null; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      await m.idle();
+    }
+    expect(await local('assets/videos/v.mp4').readAsBytes(), bytesOf(4000, 2));
+    expect(m.status.value.phase, ResourcePhase.idle);
+  });
+
   test('internet yo\'q bo\'lsa — tarmoq xatosi, yuklangan fayllar saqlanib qoladi', () async {
     srv.put('assets/game/a.webp', bytesOf(1000, 1));
     final m = await fresh();

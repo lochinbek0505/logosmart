@@ -27,7 +27,6 @@ class CloudGamePage extends StatefulWidget {
 
 class _CloudGamePageState extends State<CloudGamePage>
     with TickerProviderStateMixin {
-
   // JSON dan keladigan sozlamalar
   late Map<String, dynamic> _config;
 
@@ -38,7 +37,7 @@ class _CloudGamePageState extends State<CloudGamePage>
   bool _isRecording = false;
   bool _isLoading = false;
   bool _showErrorAnim = false;
-  int _mistakes = 0;
+  final _attempts = GameAttempts();
   String? _recordedFilePath;
 
   // Bulutlar ro'yxati (har biriga isMatched holati qo'shiladi)
@@ -83,7 +82,6 @@ class _CloudGamePageState extends State<CloudGamePage>
           "isMatched": false,
         };
       }).toList();
-
     } else {
       // Fallback (Xavfsizlik uchun qoldirildi, agar Provider orqali ochilmasa ishlayveradi)
       _config = {
@@ -120,8 +118,8 @@ class _CloudGamePageState extends State<CloudGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
 
     _floatingController = AnimationController(
       vsync: this,
@@ -208,7 +206,7 @@ class _CloudGamePageState extends State<CloudGamePage>
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
         _recordedFilePath =
-        '${tempDir.path}/cloud_game_${DateTime.now().millisecondsSinceEpoch}.wav';
+            '${tempDir.path}/cloud_game_${DateTime.now().millisecondsSinceEpoch}.wav';
 
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav),
@@ -263,7 +261,9 @@ class _CloudGamePageState extends State<CloudGamePage>
       if (isMatched) {
         AppSettings().vibrateSuccess();
         try {
-          await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
+          await _audioPlayer.play(
+            appAudioSource(_cleanAudioPath(_config['success_sound'])),
+          );
         } catch (e) {
           debugPrint("Audio xatosi: $e");
         }
@@ -275,9 +275,7 @@ class _CloudGamePageState extends State<CloudGamePage>
         _checkGameEnd();
       } else {
         // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
-        _handleWrongAnswer(
-          countMistake: !isEmptyTranscript(recognizedText),
-        );
+        _handleWrongAnswer(countMistake: !isEmptyTranscript(recognizedText));
       }
     } catch (e) {
       debugPrint("STT Xatolik: $e");
@@ -293,8 +291,7 @@ class _CloudGamePageState extends State<CloudGamePage>
   }
 
   Future<void> _handleWrongAnswer({bool countMistake = true}) async {
-    final bool isLastMistake =
-        countMistake && ++_mistakes >= kMaxGameMistakes;
+    final bool isLastMistake = _attempts.register(counted: countMistake);
 
     // STT javobi kelguncha sahifa yopilgan bo'lishi mumkin
     if (!mounted) return;
@@ -383,7 +380,9 @@ class _CloudGamePageState extends State<CloudGamePage>
                         // MARK: Vertolyot (DragTarget)
                         DragTarget<Map<String, dynamic>>(
                           onWillAcceptWithDetails: (_) =>
-                          _activeCloud == null && !_isRecording && !_isLoading,
+                              _activeCloud == null &&
+                              !_isRecording &&
+                              !_isLoading,
                           onAcceptWithDetails: (details) {
                             _onCloudDropped(details.data);
                           },
@@ -398,7 +397,10 @@ class _CloudGamePageState extends State<CloudGamePage>
                                     animation: _floatingController,
                                     builder: (context, child) {
                                       double offset =
-                                          sin(_floatingController.value * pi * 2) * 8;
+                                          sin(
+                                            _floatingController.value * pi * 2,
+                                          ) *
+                                          8;
                                       return Transform.translate(
                                         offset: Offset(0, offset),
                                         child: child,
@@ -414,7 +416,7 @@ class _CloudGamePageState extends State<CloudGamePage>
                                     Positioned(
                                       bottom: 20.h,
                                       child: _buildCloudItem(_activeCloud!, 0),
-                                    )
+                                    ),
                                 ],
                               ),
                             );
@@ -430,25 +432,32 @@ class _CloudGamePageState extends State<CloudGamePage>
                             alignment: WrapAlignment.center,
                             spacing: 12.w,
                             runSpacing: 10.h,
-                            children: _cloudList.where((cloud) {
-                              return cloud["isMatched"] == false && cloud != _activeCloud;
-                            }).map((cloud) {
-                              int index = _cloudList.indexOf(cloud);
+                            children: _cloudList
+                                .where((cloud) {
+                                  return cloud["isMatched"] == false &&
+                                      cloud != _activeCloud;
+                                })
+                                .map((cloud) {
+                                  int index = _cloudList.indexOf(cloud);
 
-                              return Draggable<Map<String, dynamic>>(
-                                data: cloud,
-                                onDragStarted: () => _onDragStarted(cloud),
-                                child: _buildCloudItem(cloud, index),
-                                feedback: Material(
-                                  color: Colors.transparent,
-                                  child: Opacity(
-                                    opacity: 0.8,
+                                  return Draggable<Map<String, dynamic>>(
+                                    data: cloud,
+                                    onDragStarted: () => _onDragStarted(cloud),
                                     child: _buildCloudItem(cloud, index),
-                                  ),
-                                ),
-                                childWhenDragging: SizedBox(width: 100.w, height: 60.h),
-                              );
-                            }).toList(),
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: Opacity(
+                                        opacity: 0.8,
+                                        child: _buildCloudItem(cloud, index),
+                                      ),
+                                    ),
+                                    childWhenDragging: SizedBox(
+                                      width: 100.w,
+                                      height: 60.h,
+                                    ),
+                                  );
+                                })
+                                .toList(),
                           ),
                         ),
                       ],
@@ -512,56 +521,56 @@ class _CloudGamePageState extends State<CloudGamePage>
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : AnimatedBuilder(
-          animation: Listenable.merge([
-            _pulseController,
-            _bounceController,
-          ]),
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _bounceAnim.value),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 110.w,
-                    height: 110.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.25)
-                          : Colors.transparent,
+                animation: Listenable.merge([
+                  _pulseController,
+                  _bounceController,
+                ]),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _bounceAnim.value),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 110.w,
+                          height: 110.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.25)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        Container(
+                          width: 90.w,
+                          height: 90.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.35)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        ScaleTransition(
+                          scale: _scaleAnim,
+                          child: CircleAvatar(
+                            radius: 40.r,
+                            backgroundImage: AppImage.provider(
+                              "assets/icons/circle.webp",
+                            ),
+                            child: AppImage.asset(
+                              _config['icon_mic'], // JSON
+                              width: 24.w,
+                              height: 32.h,
+                              color: _isRecording ? _colorAnim.value : null,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Container(
-                    width: 90.w,
-                    height: 90.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.35)
-                          : Colors.transparent,
-                    ),
-                  ),
-                  ScaleTransition(
-                    scale: _scaleAnim,
-                    child: CircleAvatar(
-                      radius: 40.r,
-                      backgroundImage: AppImage.provider(
-                        "assets/icons/circle.webp",
-                      ),
-                      child: AppImage.asset(
-                        _config['icon_mic'], // JSON
-                        width: 24.w,
-                        height: 32.h,
-                        color: _isRecording ? _colorAnim.value : null,
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -586,7 +595,11 @@ class _CloudGamePageState extends State<CloudGamePage>
           ),
           Row(
             children: [
-              AppImage.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
+              AppImage.asset(
+                _config['icon_star'],
+                width: 32.w,
+                height: 32.h,
+              ), // JSON
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],

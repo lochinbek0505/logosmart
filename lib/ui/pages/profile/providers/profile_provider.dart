@@ -13,6 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../../core/storage/token_storage.dart';
 
+enum PlanCheckoutResult { activated, paymentStarted, linkFailed, failed }
+
 class ProfileProvider with ChangeNotifier {
   /// Profil yuklanmoqda (profil sahifasidagi umumiy loader)
   bool isLoading = false;
@@ -161,6 +163,51 @@ class ProfileProvider with ChangeNotifier {
     return false;
   }
 
+  /// Tarifni sotib olish. Balans yetsa obuna darhol faollashadi
+  /// ([PlanCheckoutResult.activated]); yetmasa yetmagan summa uchun Click
+  /// ochiladi ([PlanCheckoutResult.paymentStarted]) — pul tushishi bilan obuna
+  /// serverda o'zi faollashadi.
+  Future<PlanCheckoutResult> checkoutPlan(
+    BuildContext context,
+    String planCode,
+    String promoCode,
+  ) async {
+    try {
+      isActionLoading = true;
+      notifyListeners();
+      final response = await ApiService().checkoutPlan(context, {
+        "planCode": planCode,
+        "promoCode": promoCode,
+      });
+      if (response == null) return PlanCheckoutResult.failed;
+      if (response.paid) {
+        if (context.mounted) await init(context, silent: true);
+        return PlanCheckoutResult.activated;
+      }
+      final url = response.url;
+      if (url == null || url.isEmpty || !await openMyLink(url)) {
+        return PlanCheckoutResult.linkFailed;
+      }
+      return PlanCheckoutResult.paymentStarted;
+    } catch (e) {
+      debugPrint("Obunani sotib olishda xato: $e");
+      return PlanCheckoutResult.failed;
+    } finally {
+      isActionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Click'dan qaytgach: kutilayotgan obunani faollashtirishni so'raydi va
+  /// profilni yangilaydi. Obuna [before] dagidan yangilangan bo'lsa true.
+  Future<bool> settlePendingPlan(BuildContext context, dynamic before) async {
+    await ApiService().settlePendingPlan();
+    if (!context.mounted) return false;
+    await init(context, silent: true);
+    final p = _profileResponse;
+    return p.hasActiveSubscription && "${p.subscriptionExpiresAt}" != "$before";
+  }
+
   Future<PromoCheckModel> checkPromoCode(
     BuildContext context,
     String promoCode,
@@ -258,6 +305,13 @@ class ProfileProvider with ChangeNotifier {
 
   /// Qurilmadan chiqarish (logout, akkaunt o'chirish, sessiya tugashi)
   Future<void> signOutLocally(BuildContext context) async {
+    // Hali serverga yetib bormagan natija va ballar — token o'chmasidan oldin
+    if (context.mounted) {
+      await Provider.of<LevelProvider>(
+        context,
+        listen: false,
+      ).flushBeforeSignOut();
+    }
     // clearAll() secure storage'dagi HAMMA kalitlarni (sozlamalar: mavzu,
     // ovoz, vibratsiya...) ham o'chirib yuborardi — faqat auth ma'lumotlari
     await _tokenStorage.deleteAuthData();

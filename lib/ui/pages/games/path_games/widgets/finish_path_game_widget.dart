@@ -9,7 +9,8 @@ import 'package:logosmart/core/resources/app_resources.dart';
 
 class FinishPathGameWidget extends StatefulWidget {
   final PathConfig pathConfig;
-  final VoidCallback? onComplete; // O'yin tugaganda parent'ga xabar berish uchun
+  final VoidCallback?
+  onComplete; // O'yin tugaganda parent'ga xabar berish uchun
 
   const FinishPathGameWidget({
     super.key,
@@ -64,7 +65,8 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
 
     if (currentTangent == null) return;
 
-    double dotProduct = (details.delta.dx * currentTangent.vector.dx) +
+    double dotProduct =
+        (details.delta.dx * currentTangent.vector.dx) +
         (details.delta.dy * currentTangent.vector.dy);
 
     double deltaProgress = dotProduct / _pathMetric!.length;
@@ -91,7 +93,9 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
       if (_progress >= 0.9) {
         _progress = 1.0;
         _isSuccess = true;
-        final endTangent = _pathMetric!.getTangentForOffset(_pathMetric!.length);
+        final endTangent = _pathMetric!.getTangentForOffset(
+          _pathMetric!.length,
+        );
         if (endTangent != null) {
           _currentPosition = endTangent.position;
         }
@@ -134,7 +138,9 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
 
             if (_path != null)
               Positioned(
-                left: _endPosition.dx - 80.w, // Uyning o'lchamiga qarab markazlashtiring
+                left:
+                    _endPosition.dx -
+                    80.w, // Uyning o'lchamiga qarab markazlashtiring
                 top: _endPosition.dy - 100.h,
                 child: AppImage.asset(
                   "assets/game/house.webp", // <--- Uy rasmini kiriting
@@ -180,17 +186,28 @@ class _FinishPathGameWidgetState extends State<FinishPathGameWidget> {
                             ),
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: AppImage.provider("assets/game/game_cloud.webp"),
+                                image: AppImage.provider(
+                                  "assets/game/game_cloud.webp",
+                                ),
                               ),
                             ),
+                            // Bulut ichiga bir qatorda sig'adi: avval tor joyda so'z harf bo'yicha
+                            // bo'linib, oxirgi harflar ("ooor" -> "ooo") ko'rinmay qolardi
                             child: Padding(
-                              padding: EdgeInsets.only(top: 5.0.h, left: 3.w),
-                              child: Text(
-                                "Rrr-Rrr",
-                                style: TextStyle(
-                                  color: AppColors.sky_blue_900,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20.sp,
+                              padding: EdgeInsets.only(top: 5.0.h),
+                              child: Center(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    "Rrr-Rrr",
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: TextStyle(
+                                      color: AppColors.sky_blue_900,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20.sp,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

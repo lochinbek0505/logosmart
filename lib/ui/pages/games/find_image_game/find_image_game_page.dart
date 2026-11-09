@@ -7,6 +7,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart'; // Provider import
 import 'package:record/record.dart';
 
@@ -27,7 +28,6 @@ class FindImageGamePage extends StatefulWidget {
 
 class _FindImageGamePageState extends State<FindImageGamePage>
     with TickerProviderStateMixin {
-
   // JSON dan keladigan sozlamalar
   late Map<String, dynamic> _config;
   late List<Map<String, dynamic>> _gameList;
@@ -40,8 +40,10 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   bool _isLoading = false;
   bool _isPlayingAudio = false;
   bool _showErrorAnim = false;
-  int _mistakes = 0;
+  final _attempts = GameAttempts();
   String? _recordedFilePath;
+  // Bola qaysi rasmni bosib aytayotgani — javob shu rasm bilan solishtiriladi
+  int? _activeIndex;
 
   // 3 soniyalik intervalni boshqarish uchun taymer
   Timer? _recordingTimer;
@@ -86,10 +88,30 @@ class _FindImageGamePageState extends State<FindImageGamePage>
         "icon_mic": "assets/icons/micrafon.webp",
       };
       _gameList = [
-        {"image": "assets/game/find_image/ari.webp", "sound": "assets/sound/find_image/ari.mp3", "text": "ari", "isCorrect": true},
-        {"image": "assets/game/find_image/pasha.webp", "sound": "assets/sound/find_image/pashsha.mp3", "text": "pashsha", "isCorrect": false},
-        {"image": "assets/game/find_image/ninachi.webp", "sound": "assets/sound/find_image/ninachi.mp3", "text": "ninachi", "isCorrect": false},
-        {"image": "assets/game/find_image/qongiz.webp", "sound": "assets/sound/find_image/qongiz.mp3", "text": "qo'ng'iz", "isCorrect": false},
+        {
+          "image": "assets/game/find_image/ari.webp",
+          "sound": "assets/sound/find_image/ari.mp3",
+          "text": "ari",
+          "isCorrect": true,
+        },
+        {
+          "image": "assets/game/find_image/pasha.webp",
+          "sound": "assets/sound/find_image/pashsha.mp3",
+          "text": "pashsha",
+          "isCorrect": false,
+        },
+        {
+          "image": "assets/game/find_image/ninachi.webp",
+          "sound": "assets/sound/find_image/ninachi.mp3",
+          "text": "ninachi",
+          "isCorrect": false,
+        },
+        {
+          "image": "assets/game/find_image/qongiz.webp",
+          "sound": "assets/sound/find_image/qongiz.mp3",
+          "text": "qo'ng'iz",
+          "isCorrect": false,
+        },
       ];
     }
   }
@@ -113,8 +135,8 @@ class _FindImageGamePageState extends State<FindImageGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
 
     _floatingController = AnimationController(
       vsync: this,
@@ -163,8 +185,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       });
     }
 
+    // Yozuv boshlanguncha _isPlayingAudio true qoladi: ovoz tugashi bilan
+    // yozuv boshlanishi orasidagi await larda ikkinchi bosish o'tib ketmasin
     setState(() {
       _isPlayingAudio = true;
+      _activeIndex = index;
     });
 
     final item = _gameList[index];
@@ -174,23 +199,30 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     if (sound.isNotEmpty) await _playAudioAndWait(sound);
 
     if (!mounted) return;
+    final started = await _startRecording();
+    if (!mounted) return;
     setState(() {
       _isPlayingAudio = false;
     });
 
-    await _startRecording();
+    if (!started) {
+      await _showMicPermissionDialog();
+      return;
+    }
 
+    _recordingTimer?.cancel();
     _recordingTimer = Timer(const Duration(seconds: 3), () {
       _stopAndCheckRecording();
     });
   }
 
-  Future<void> _startRecording() async {
+  /// Yozuv boshlansa true. Mikrofonga ruxsat bo'lmasa false.
+  Future<bool> _startRecording() async {
     try {
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
         _recordedFilePath =
-        '${tempDir.path}/find_image_${DateTime.now().millisecondsSinceEpoch}.wav';
+            '${tempDir.path}/find_image_${DateTime.now().millisecondsSinceEpoch}.wav';
 
         await _audioRecorder.start(
           const RecordConfig(encoder: AudioEncoder.wav),
@@ -204,10 +236,39 @@ class _FindImageGamePageState extends State<FindImageGamePage>
             _bounceController.repeat(reverse: true);
           });
         }
+        return true;
       }
     } catch (e) {
       debugPrint("Mikrofonni yoqishda xatolik: $e");
     }
+    return false;
+  }
+
+  /// Mikrofonga ruxsat yo'q — aks holda bola rasmni bosadi-yu hech narsa bo'lmaydi
+  Future<void> _showMicPermissionDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        title: const Text("Mikrofonga ruxsat kerak"),
+        content: const Text(
+          "O'yinda so'zni aytish uchun mikrofonga ruxsat bering.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text("Yopish"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              openAppSettings();
+            },
+            child: const Text("Sozlamalarni ochish"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _stopAndCheckRecording() async {
@@ -237,6 +298,8 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       );
 
       debugPrint("STT natijasi: $recognizedText");
+      // Javob kutilayotganda sahifadan chiqib ketilgan bo'lishi mumkin
+      if (!mounted) return;
 
       if (!isEmptyTranscript(recognizedText)) {
         _evaluateRecognizedText(recognizedText);
@@ -246,6 +309,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       }
     } catch (e) {
       debugPrint("STT Xatoligi: $e");
+      if (!mounted) return;
       // Tarmoq/STT xatosi bolaning xatosi emas — hisoblanmaydi
       _handleWrongAnswer(countMistake: false);
     } finally {
@@ -270,7 +334,12 @@ class _FindImageGamePageState extends State<FindImageGamePage>
       }
     }
 
-    if (bestItem?["isCorrect"] == true) {
+    // Bola to'g'ri rasmni bosib, aynan o'shani aytishi kerak
+    final index = _activeIndex;
+    final tapped = index == null ? null : _gameList[index];
+    if (bestItem != null &&
+        identical(bestItem, tapped) &&
+        bestItem["isCorrect"] == true) {
       _gameEnd();
     } else {
       _handleWrongAnswer();
@@ -278,8 +347,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   }
 
   Future<void> _handleWrongAnswer({bool countMistake = true}) async {
-    final bool isLastMistake =
-        countMistake && ++_mistakes >= kMaxGameMistakes;
+    final bool isLastMistake = _attempts.register(counted: countMistake);
 
     if (mounted) {
       setState(() {
@@ -305,6 +373,7 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   }
 
   void _gameEnd() async {
+    if (!mounted) return;
     // PROVIDER ORQALI BALL QO'SHISH VA LEVEL OCHISH
     final provider = context.read<LevelProvider>();
     provider.addBall(10);
@@ -317,7 +386,9 @@ class _FindImageGamePageState extends State<FindImageGamePage>
     }
 
     AppSettings().vibrateSuccess();
-    await _audioPlayer.play(appAudioSource(_cleanAudioPath(_config['success_sound'])));
+    await _audioPlayer.play(
+      appAudioSource(_cleanAudioPath(_config['success_sound'])),
+    );
 
     if (!mounted) return;
     showDialog(
@@ -380,6 +451,10 @@ class _FindImageGamePageState extends State<FindImageGamePage>
   Widget build(BuildContext context) {
     // UMUMIY BALLNI PROVIDERDAN OLAMIZ
     final totalBall = context.watch<LevelProvider>().ball;
+    // Kvadrat to'r: balandlik bo'yicha 300.h, lekin tor ekranda kenglikdan oshmaydi
+    // (avval .w va .h aralash edi — planshetda rasm katakdan kattalashardi)
+    final double gridSize = min(300.h, MediaQuery.sizeOf(context).width - 40.w);
+    final double gridSpacing = gridSize * 0.035;
 
     return Scaffold(
       body: Stack(
@@ -405,14 +480,15 @@ class _FindImageGamePageState extends State<FindImageGamePage>
                   ),
                   Center(
                     child: SizedBox(
-                      width: 300.h,
-                      height: 300.h,
+                      width: gridSize,
+                      height: gridSize,
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 10.w,
-                          mainAxisSpacing: 10.h,
+                          crossAxisSpacing: gridSpacing,
+                          mainAxisSpacing: gridSpacing,
                         ),
                         itemCount: _gameList.length,
                         itemBuilder: (context, index) {
@@ -452,28 +528,27 @@ class _FindImageGamePageState extends State<FindImageGamePage>
         animation: _floatingController,
         builder: (context, child) {
           double offset = sin(_floatingController.value * pi * 2) * 4;
-          return Transform.translate(
-            offset: Offset(0, offset),
-            child: child,
-          );
+          return Transform.translate(offset: Offset(0, offset), child: child);
         },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r)
-          ),
-          width: 150.h,
-          height: 150.h,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              AppImage.asset(
-                item["image"]!, // JSON
-                width: 120.w,
-                height: 120.h,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double cell = constraints.biggest.shortestSide;
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.r),
               ),
-            ],
-          ),
+              padding: EdgeInsets.all(cell * 0.1),
+              // Rasmlar 160px dan 2000px gacha — o'lchamni katak belgilaydi,
+              // fayl piksellari emas (fit siz kichik rasmlar mayda chiqardi)
+              child: AppImage.asset(
+                item["image"]!, // JSON
+                fit: BoxFit.contain,
+                cacheWidth:
+                    (cell * MediaQuery.devicePixelRatioOf(context)).round(),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -487,58 +562,56 @@ class _FindImageGamePageState extends State<FindImageGamePage>
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : AnimatedBuilder(
-          animation: Listenable.merge([
-            _pulseController,
-            _bounceController,
-          ]),
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _bounceAnim.value),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 110.w,
-                    height: 110.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.25)
-                          : Colors.transparent,
+                animation: Listenable.merge([
+                  _pulseController,
+                  _bounceController,
+                ]),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _bounceAnim.value),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 110.w,
+                          height: 110.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.25)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        Container(
+                          width: 90.w,
+                          height: 90.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _isRecording
+                                ? _colorAnim.value?.withValues(alpha: 0.35)
+                                : Colors.transparent,
+                          ),
+                        ),
+                        ScaleTransition(
+                          scale: _scaleAnim,
+                          child: CircleAvatar(
+                            radius: 40.r,
+                            backgroundImage: AppImage.provider(
+                              "assets/icons/circle.webp",
+                            ),
+                            child: AppImage.asset(
+                              _config['icon_mic'], // JSON
+                              width: 24.w,
+                              height: 32.h,
+                              color: _isRecording ? _colorAnim.value : null,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Container(
-                    width: 90.w,
-                    height: 90.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isRecording
-                          ? _colorAnim.value?.withValues(alpha: 0.35)
-                          : Colors.transparent,
-                    ),
-                  ),
-                  ScaleTransition(
-                    scale: _scaleAnim,
-                    child: CircleAvatar(
-                      radius: 40.r,
-                      backgroundImage: AppImage.provider(
-                        "assets/icons/circle.webp",
-                      ),
-                      child: AppImage.asset(
-                        _config['icon_mic'], // JSON
-                        width: 24.w,
-                        height: 32.h,
-                        color: _isRecording
-                            ? _colorAnim.value
-                            :  null,
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -563,7 +636,11 @@ class _FindImageGamePageState extends State<FindImageGamePage>
           ),
           Row(
             children: [
-              AppImage.asset(_config['icon_star'], width: 32.w, height: 32.h), // JSON
+              AppImage.asset(
+                _config['icon_star'],
+                width: 32.w,
+                height: 32.h,
+              ), // JSON
               SizedBox(width: 8.w),
               CustomTextWidget(text: currentBall.toString(), sizeText: 32.sp),
             ],

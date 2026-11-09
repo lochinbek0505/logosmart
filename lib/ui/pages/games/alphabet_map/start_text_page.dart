@@ -111,14 +111,6 @@ class _StartTextPageState extends State<StartTextPage> {
               // 1. Yuqori qism: Header (Tepaga yopishtirilgan)
               Positioned(top: 15.h, left: 0, right: 0, child: _buildHeader()),
 
-              // 2. O'rta qism: Matnli bulutcha
-              Positioned(
-                top: 100.h,
-                child: CloudText(
-                  text: widget.data.exercise?.steps.first.text ?? "",
-                ),
-              ),
-
               // 3. Qahramon (Ayol) rasmi (Tugmadan teparoqda turishi uchun)
               Positioned(
                 bottom: 110.h,
@@ -126,6 +118,15 @@ class _StartTextPageState extends State<StartTextPage> {
                   _womenImage,
                   height: 380.h, // Rasmni ekranga qarab proporsional moslash
                   fit: BoxFit.contain,
+                ),
+              ),
+
+              // 2. Matnli bulutcha — qahramondan keyin chiziladi: uzun matnda
+              // bulut pastga o'sganda ham matn rasm ostida qolmaydi
+              Positioned(
+                top: 100.h,
+                child: CloudText(
+                  text: widget.data.exercise?.steps.first.text ?? "",
                 ),
               ),
 

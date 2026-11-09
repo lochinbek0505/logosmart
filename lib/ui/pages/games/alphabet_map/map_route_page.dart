@@ -13,6 +13,7 @@ import 'package:logosmart/ui/pages/video_page/game_video_page.dart';
 import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/network/network_status.dart';
 import '../../../../core/service/app_settings.dart';
 import '../../../../core/storage/level_state.dart';
 import '../../../../models/decoration_item.dart';
@@ -32,6 +33,7 @@ import 'provider/level_provider.dart';
 import 'start_text_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/level_resources_dialog.dart';
+import '../widgets/no_internet.dart';
 import '../widgets/subscription_offer_dialog.dart';
 
 List<Offset> generatePositionsSin(int count) {
@@ -51,7 +53,8 @@ class MapRoadPage extends StatelessWidget {
     this.scrollToCurrent = false,
   });
 
-  /// Qaysi tovush xaritasi ochiladi ([LevelProvider.soundLevelFiles] kaliti)
+  /// Qaysi xarita ochiladi: tovush (R, L, ...), [LevelProvider.gamesSound]
+  /// yoki [LevelProvider.firstSpeechSound]
   final String sound;
 
   /// Pastki menyu ichida (tab sifatida) ko'rsatilganda true:
@@ -109,6 +112,10 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final ScrollController _scrollController = ScrollController();
   bool _didAutoScroll = false;
+
+  /// Internet bormi: null — tekshirilmoqda. Levellar va progress serverda,
+  /// internet bo'lmasa xaritaga kirib bo'lmaydi.
+  bool? _online;
 
   // Tugma o'lchami (LevelButton va decor uchun offset -40 ishlatilgani uchun 80px deb olamiz)
   static const double _buttonHalfHeight = 40.0;
@@ -178,8 +185,26 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
   @override
   void initState() {
     super.initState();
-    context.read<LevelProvider>().selectSound(widget.sound);
+    // Kadr chizilayotganda provider'ni yangilab bo'lmaydi (setState during build)
+    final provider = context.read<LevelProvider>();
+    Future.microtask(() {
+      if (mounted) provider.selectSound(widget.sound);
+    });
     initPage();
+    _checkOnline();
+  }
+
+  Future<void> _checkOnline() async {
+    final ok = await NetworkStatus.instance.check();
+    if (!mounted) return;
+    setState(() => _online = ok);
+  }
+
+  /// Internet qaytdi — xarita serverdan qayta olinadi
+  void _onOnline() {
+    if (!mounted || _online == true) return;
+    setState(() => _online = true);
+    context.read<LevelProvider>().refreshSound(widget.sound);
   }
 
   // LOTTIE ANIMATSIYALARI
@@ -294,7 +319,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => provider.refreshSound(widget.sound),
+              onPressed: () => provider.currentSound == widget.sound
+                  ? provider.refreshSound(widget.sound)
+                  : provider.selectSound(widget.sound),
               child: const Text("Qayta urinish"),
             ),
           ],
@@ -305,7 +332,11 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
 
   @override
   Widget build(BuildContext context) {
-    final levelStates = context.watch<LevelProvider>().levels;
+    final provider = context.watch<LevelProvider>();
+    // Internet tekshirilguncha / yo'q bo'lsa levellar ko'rsatilmaydi
+    final levelStates = _online == true && provider.currentSound == widget.sound
+        ? provider.levels
+        : const <LevelState>[];
     final screenHeight = MediaQuery.of(context).size.height;
 
     _rebuildCacheIfNeeded(levelStates, screenHeight);
@@ -339,9 +370,13 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
               height: mapHeight,
             ),
           ),
-          // Tovush mashqi levellari serverdan kelguncha / kelmasa
-          if (levelStates.isEmpty && LevelProvider.isServerSound(widget.sound))
+          // Levellar serverdan kelguncha / kelmasa
+          if (_online == true && levelStates.isEmpty)
             Positioned.fill(child: _buildEmptyState(context)),
+          if (_online == null)
+            const Positioned.fill(
+              child: Center(child: CircularProgressIndicator()),
+            ),
           SingleChildScrollView(
             controller: _scrollController,
             child: SizedBox(
@@ -393,6 +428,9 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                               final lv = levelStates.firstWhere(
                                 (e) => e.id == l.id,
                               );
+                              // O'yin va natijalar serverda — internetsiz ochilmaydi
+                              if (!await ensureOnline(context)) return;
+                              if (!context.mounted) return;
                               // Pullik level, obuna yo'q — obunaga taklif
                               if (!lv.available) {
                                 final provider = context.read<LevelProvider>();
@@ -404,7 +442,8 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
                               }
                               if (l.locked) return;
                               // Level fayllari qurilmada bo'lmasa — avval yuklab olinadi
-                              if (!await prepareLevelResources(context, lv)) return;
+                              if (!await prepareLevelResources(context, lv))
+                                return;
                               if (!context.mounted) return;
 
                               context.read<LevelProvider>().openLevel(lv);
@@ -519,6 +558,19 @@ class _MapRoadBodyState extends State<_MapRoadBody> {
               ),
             ),
           ),
+          // Internet yo'q — xaritaga kirib bo'lmaydi
+          if (_online == false)
+            Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black38,
+                child: NoInternetView(
+                  onOnline: _onOnline,
+                  onBack: widget.embedded
+                      ? null
+                      : () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ),
         ],
       ),
     );

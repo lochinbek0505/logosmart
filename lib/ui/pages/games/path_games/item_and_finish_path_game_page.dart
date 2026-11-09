@@ -42,7 +42,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
   String? _recordedFilePath;
   bool _isRecording = false;
   bool _isLoading = false;
-  int _mistakes = 0;
+  final _attempts = GameAttempts();
 
   late AnimationController _pulseController;
   late AnimationController _bounceController;
@@ -242,9 +242,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
         _gameEnd();
       } else {
         // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
-        _handleWrongAnswer(
-          countMistake: !isEmptyTranscript(recognizedText),
-        );
+        _handleWrongAnswer(countMistake: !isEmptyTranscript(recognizedText));
       }
     } catch (e) {
       if (mounted) {
@@ -258,7 +256,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
   }
 
   void _handleWrongAnswer({bool countMistake = true}) async {
-    if (countMistake && ++_mistakes >= kMaxGameMistakes) {
+    if (_attempts.register(counted: countMistake)) {
       AppSettings().vibrateError();
       await _playAudioAndWait(_config['error_sound']);
       if (mounted) showGameFailDialog(context);
@@ -320,9 +318,7 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
             height: size.height,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AppImage.provider(
-                  _config['background'],
-                ),
+                image: AppImage.provider(_config['background']),
                 fit: BoxFit.cover,
               ),
             ),
@@ -420,7 +416,9 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: _isRecording
-                                        ? _colorAnim.value?.withValues(alpha: 0.25)
+                                        ? _colorAnim.value?.withValues(
+                                            alpha: 0.25,
+                                          )
                                         : Colors.grey.withValues(alpha: 0.15),
                                   ),
                                 ),
@@ -430,7 +428,9 @@ class _ItemAndFinishPathGamePageState extends State<ItemAndFinishPathGamePage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: _isRecording
-                                        ? _colorAnim.value?.withValues(alpha: 0.35)
+                                        ? _colorAnim.value?.withValues(
+                                            alpha: 0.35,
+                                          )
                                         : Colors.grey.withValues(alpha: 0.2),
                                   ),
                                 ),

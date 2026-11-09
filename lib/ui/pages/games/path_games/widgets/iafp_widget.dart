@@ -62,7 +62,8 @@ class _IafpWidgetState extends State<IafpWidget> {
 
     if (currentTangent == null) return;
 
-    double dotProduct = (details.delta.dx * currentTangent.vector.dx) +
+    double dotProduct =
+        (details.delta.dx * currentTangent.vector.dx) +
         (details.delta.dy * currentTangent.vector.dy);
 
     double deltaProgress = dotProduct / _pathMetric!.length;
@@ -95,6 +96,10 @@ class _IafpWidgetState extends State<IafpWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
+        // Qahramon har doim bir xil kvadrat ichida: rasmlar 117px dan 1800px
+        // gacha va har xil proporsiyada (avval faqat width berilgani uchun
+        // keng rasmlar pastak, bo'ylari esa juda baland chiqardi)
+        final double heroSize = 110.w;
 
         if (_path == null || _widgetSize != size) {
           _initPath(size);
@@ -108,9 +113,10 @@ class _IafpWidgetState extends State<IafpWidget> {
                 size: size,
                 painter: DashedPathPainter(path: _path!),
               ),
+            // Kvadrat markazi aynan yo'l nuqtasida turadi
             Positioned(
-              left: _currentPosition.dx - 45.w,
-              top: _currentPosition.dy - 60.h,
+              left: _currentPosition.dx - heroSize / 2,
+              top: _currentPosition.dy - heroSize / 2,
               child: GestureDetector(
                 onPanUpdate: _onPanUpdate,
                 child: Stack(
@@ -120,7 +126,7 @@ class _IafpWidgetState extends State<IafpWidget> {
                     if (_progress < 0.1)
                       Positioned(
                         top: -70.h,
-                        left: -15.w,
+                        left: (heroSize - 108.w) / 2,
                         child: Container(
                           width: 108.w,
                           height: 67.h,
@@ -130,17 +136,28 @@ class _IafpWidgetState extends State<IafpWidget> {
                           ),
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AppImage.provider("assets/game/game_cloud.webp"),
+                              image: AppImage.provider(
+                                "assets/game/game_cloud.webp",
+                              ),
                             ),
                           ),
+                          // Bulut ichiga bir qatorda sig'adi: avval tor joyda so'z harf bo'yicha
+                          // bo'linib, oxirgi harflar ("ooor" -> "ooo") ko'rinmay qolardi
                           child: Padding(
-                            padding: EdgeInsets.only(top: 5.0.h, left: 20.w),
-                            child: Text(
-                              widget.sound,
-                              style: TextStyle(
-                                color: AppColors.sky_blue_900,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
+                            padding: EdgeInsets.only(top: 5.0.h),
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  widget.sound,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  style: TextStyle(
+                                    color: AppColors.sky_blue_900,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.sp,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -148,8 +165,12 @@ class _IafpWidgetState extends State<IafpWidget> {
                       ),
                     AppImage.asset(
                       widget.image,
-                      width: 110.w,
+                      width: heroSize,
+                      height: heroSize,
                       fit: BoxFit.contain,
+                      cacheWidth:
+                          (heroSize * MediaQuery.devicePixelRatioOf(context))
+                              .round(),
                     ),
                   ],
                 ),

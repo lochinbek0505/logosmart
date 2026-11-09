@@ -3,7 +3,8 @@ import 'package:logosmart/ui/theme/app_colors.dart';
 import 'package:logosmart/ui/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'first_speech_categories_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/map_route_page.dart';
+import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 
 class StartSpeechPage extends StatefulWidget {
   const StartSpeechPage({super.key});
@@ -30,7 +31,10 @@ class _StartSpeechPageState extends State<StartSpeechPage> {
     Future.delayed(const Duration(milliseconds: 180), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const FirstSpeechCategoriesPage()),
+        // Ilk nutq — serverdagi bitta xarita (R, L xaritalari kabi)
+        MaterialPageRoute(
+          builder: (_) => MapRoadPage(sound: LevelProvider.firstSpeechSound),
+        ),
       );
     });
   }

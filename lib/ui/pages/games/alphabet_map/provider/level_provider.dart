@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 
 import '../../../../../core/network/api_service.dart';
+import '../../../../../core/network/network_status.dart';
 import '../../../../../core/storage/level_state.dart';
 
 const String skinGold = 'assets/icons/gold.webp';
 const String skinSilver = 'assets/icons/silver.webp';
 
-/// Levellar progressi (ochilgan levellar va yulduzlar) saqlanadigan Hive box.
-/// main() da ochiladi.
+/// Levellar keshi, serverga hali yetib bormagan natijalar va ball navbati
+/// saqlanadigan Hive box. main() da ochiladi.
 const String kLevelProgressBox = 'level_progress';
 
 /// Progress box ichida oxirgi ochilgan tovush xaritasi saqlanadigan kalit
@@ -26,14 +30,23 @@ const String _kSoundSLockResetKey = '_s_lock_reset_v1';
 /// Server tovush mashqlari: tovush -> voicePracticeId (offline uchun kesh)
 const String _kPracticeIdsKey = '_srv_practice_ids';
 
-/// Serverdan olingan levellar (offline uchun kesh), kalit: prefiks + tovush
+/// Serverdan olingan levellar (kesh), kalit: prefiks + xarita
 const String _kServerLevelsPrefix = '_srv_levels_';
 
 /// Serverga hali yetib bormagan natijalar: {levelMongoId: yulduz}
 const String _kPendingStarsKey = '_srv_pending_stars';
 
-/// O'yinlarda to'plangan umumiy ball (ilova qayta ochilganda yo'qolmasin)
-const String _kBallKey = '_total_ball';
+/// Eski (faqat qurilmada saqlangan) umumiy ball — bir marta serverga ko'chiriladi
+const String _kLegacyBallKey = '_total_ball';
+
+/// Serverdagi umumiy ballning oxirgi ma'lum qiymati
+const String _kServerBallKey = '_srv_ball';
+
+/// Serverga hali yetib bormagan ball o'zgarishlari: [{id, delta}, ...]
+const String _kPendingBallKey = '_srv_pending_ball';
+
+/// Bir so'rovda yuboriladigan ball hodisalari (server cheklovi 200)
+const int _kBallBatch = 100;
 
 typedef OpenLevelCallback = void Function(LevelState level);
 
@@ -61,15 +74,32 @@ class LastActivity {
       totalLevels == 0 ? 0 : (completedLevels / totalLevels).clamp(0.0, 1.0);
 }
 
-class LevelProvider extends ChangeNotifier {
+/// Eski lokal progress kaliti va uning yangi (server) xaritadagi siljishi
+class _LegacyPart {
+  const _LegacyPart(this.key, this.offset);
+
+  final String key;
+  final int offset;
+}
+
+class LevelProvider extends ChangeNotifier with WidgetsBindingObserver {
   LevelProvider({bool autoBootstrap = true}) {
     if (autoBootstrap) {
-      Future.microtask(bootstrap);
+      _listening = true;
+      NetworkStatus.instance.addListener(_onNetworkChanged);
+      WidgetsBinding.instance.addObserver(this);
+      _ready = Future.microtask(bootstrap);
     }
   }
 
-  int _ball = 0;
-  int get ball => _ball;
+  Future<void>? _ready;
+
+  /// Testlar uchun: avtomatik bootstrap tugashini kutish
+  @visibleForTesting
+  Future<void> get ready => _ready ?? Future.value();
+
+  bool _listening = false;
+  bool _disposed = false;
 
   int? _currentPlayingLevelId;
   int? get currentPlayingLevelId => _currentPlayingLevelId;
@@ -77,50 +107,58 @@ class LevelProvider extends ChangeNotifier {
   /// O'yinlar bo'limi xaritasi (hamma o'yinlar bitta joyda, ketma-ket ochiladi)
   static const String gamesSound = 'GAMES';
 
-  /// "Ilk nutqni rivojlantirish" bo'limi xaritalari (har biri alohida progress)
-  static const String firstSpeechArticulation = 'FS_ARTIKULATSION';
-  static const String firstSpeechBreath = 'FS_NAFAS';
-  static const String firstSpeechFinger = 'FS_BARMOQ';
-  static const String firstSpeechLine = 'FS_CHIZIQ';
+  /// "Ilk nutqni rivojlantirish" bo'limi — bitta xarita
+  static const String firstSpeechSound = 'FIRST_SPEECH';
+
+  /// Bo'lim xaritalari: kalit -> server yo'li (GET /games, GET /first-speech)
+  static const Map<String, String> sectionPaths = {
+    gamesSound: 'games',
+    firstSpeechSound: 'first-speech',
+  };
 
   /// Tovush mashqlari — levellar va progress serverdan olinadi
   /// (/voice-practices, /levels, /levels/{id}/stars).
   /// Server'dagi mashq nomi tovush bilan bir xil bo'lishi kerak (R, Sh, ...).
   static const Set<String> serverSounds = {'R', 'L', 'S', 'K', 'Sh', 'Z', 'G'};
 
-  // Qolgan xaritalar o'z level fayliga ega
-  static const Map<String, String> soundLevelFiles = {
-    gamesSound: 'assets/games.json',
-    firstSpeechArticulation: 'assets/first_speech/artikulatsion.json',
-    firstSpeechBreath: 'assets/first_speech/nafas.json',
-    firstSpeechFinger: 'assets/first_speech/barmoq.json',
-    firstSpeechLine: 'assets/first_speech/chiziq.json',
+  /// Avval progress faqat qurilmada saqlangan xaritalar. Ilk nutq 4 ta alohida
+  /// xarita edi — endi bitta xaritada ketma-ket: artikulatsion (1–8),
+  /// nafas (9–20), barmoq (21–27), chiziq (28–42).
+  static const Map<String, List<_LegacyPart>> _legacyParts = {
+    gamesSound: [_LegacyPart(gamesSound, 0)],
+    firstSpeechSound: [
+      _LegacyPart('FS_ARTIKULATSION', 0),
+      _LegacyPart('FS_NAFAS', 8),
+      _LegacyPart('FS_BARMOQ', 20),
+      _LegacyPart('FS_CHIZIQ', 27),
+    ],
   };
 
-  /// Tovush (harf) xaritasi emas — "So'ngi harakat" kartasida ko'rsatilmaydi
-  static const Set<String> _nonSoundMaps = {
-    gamesSound,
-    firstSpeechArticulation,
-    firstSpeechBreath,
-    firstSpeechFinger,
-    firstSpeechLine,
-  };
+  static Iterable<String> get _legacyKeys =>
+      _legacyParts.values.expand((parts) => parts.map((p) => p.key));
+
   static const String defaultSound = 'R';
 
-  static bool hasSound(String sound) =>
-      serverSounds.contains(sound) || soundLevelFiles.containsKey(sound);
+  /// Barcha xaritalar (tovushlar, o'yinlar, ilk nutq) serverda
+  static Iterable<String> get allMaps => [...serverSounds, ...sectionPaths.keys];
 
-  static bool isServerSound(String sound) => serverSounds.contains(sound);
+  static bool hasSound(String sound) =>
+      serverSounds.contains(sound) || sectionPaths.containsKey(sound);
+
+  /// Xarita levellari va progressi serverdan olinadimi (hammasi — ha)
+  static bool isServerSound(String sound) => hasSound(sound);
+
+  static bool isSection(String sound) => sectionPaths.containsKey(sound);
 
   final ApiService _api = ApiService();
 
   /// Tovush -> serverdagi voicePracticeId
   Map<String, String> _practiceIds = {};
 
-  /// Tovush -> mashq ma'lumoti (available, availableLevelsCount, count, ...)
+  /// Tovush/bo'lim -> mashq ma'lumoti (available, availableLevelsCount, count, ...)
   Map<String, Map<String, dynamic>> _practiceInfo = {};
 
-  /// Foydalanuvchida faol obuna bormi (server /voice-practices javobidan)
+  /// Foydalanuvchida faol obuna bormi (server javobidan)
   bool? _subscribed;
   bool? get subscribed => _subscribed;
 
@@ -144,8 +182,7 @@ class LevelProvider extends ChangeNotifier {
   String _currentSound = defaultSound;
   String get currentSound => _currentSound;
 
-  // Ma'lumotlarni vaqtincha faqat ro'yxatda (xotirada) saqlaymiz.
-  // Tovushlar orasida o'tganda progress yo'qolmasligi uchun har biri alohida keshlanadi.
+  // Tovushlar orasida o'tganda qayta yuklanmasligi uchun har biri alohida keshlanadi.
   final Map<String, List<LevelState>> _levelsBySound = {};
   // Ro'yxatdagi o'zgarishlar (yulduz, unlock) keshdagi ro'yxatga ham tushadi,
   // chunki ikkalasi bitta obyekt.
@@ -156,18 +193,96 @@ class LevelProvider extends ChangeNotifier {
 
   OpenLevelCallback? onOpenLevel;
 
-  void addBall(int value) {
-    // Manfiy bo'lib ketmasin (yutqazganda qaytarib olinadi)
-    _ball = (_ball + value).clamp(0, 1 << 30);
-    notifyListeners();
-    // Avval faqat xotirada edi — ilova yopilsa 0 ga tushib qolardi
-    _progressBox?.put(_kBallKey, _ball);
-    _syncScoreToBackend(value);
+  // --- UMUMIY BALL (serverda) ---
+
+  /// Serverdagi ball + hali yuborilmagan o'zgarishlar (server kabi 0 dan
+  /// pastga tushmaydi)
+  int get ball {
+    var v = _serverBall;
+    for (final e in _pendingBall()) {
+      v = max(0, v + ((e['delta'] as num?)?.toInt() ?? 0));
+    }
+    return v;
   }
 
-  void _loadBall() {
-    final saved = _progressBox?.get(_kBallKey);
-    if (saved is int) _ball = saved;
+  int _serverBall = 0;
+
+  final Random _rnd = Random.secure();
+
+  String _newEventId() =>
+      '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}-'
+      '${_rnd.nextInt(1 << 32).toRadixString(36)}';
+
+  void addBall(int value) {
+    if (value == 0) return;
+    final pending = _pendingBall()..add({'id': _newEventId(), 'delta': value});
+    _savePendingBall(pending);
+    notifyListeners();
+    _flushBall();
+  }
+
+  List<Map<String, dynamic>> _pendingBall() {
+    final saved = _progressBox?.get(_kPendingBallKey);
+    if (saved is! List) return [];
+    return saved
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  void _savePendingBall(List<Map<String, dynamic>> pending) {
+    if (pending.isEmpty) {
+      _progressBox?.delete(_kPendingBallKey);
+    } else {
+      _progressBox?.put(_kPendingBallKey, pending);
+    }
+  }
+
+  void _loadBallState() {
+    final saved = _progressBox?.get(_kServerBallKey);
+    _serverBall = saved is int ? saved : 0;
+    // Avval ball faqat qurilmada edi — bir marta serverga hodisa sifatida yuboramiz
+    final legacy = _progressBox?.get(_kLegacyBallKey);
+    if (legacy is int && legacy > 0) {
+      final pending = _pendingBall()
+        ..add({'id': 'legacy-${_newEventId()}', 'delta': legacy});
+      _savePendingBall(pending);
+    }
+    _progressBox?.delete(_kLegacyBallKey);
+  }
+
+  Future<void>? _flushingBall;
+
+  /// Navbatdagi ball hodisalarini yuboradi; navbat bo'sh bo'lsa serverdagi
+  /// qiymatni o'qiydi. Yuborish paytida qo'shilgan hodisalar ham shu
+  /// aylanishda yuboriladi.
+  Future<void> _flushBall({bool refresh = false}) =>
+      _flushingBall ??= _doFlushBall(refresh).whenComplete(() => _flushingBall = null);
+
+  Future<void> _doFlushBall(bool refresh) async {
+    var pending = _pendingBall();
+    if (pending.isEmpty) {
+      if (!refresh) return;
+      final b = await _api.getBall();
+      if (b != null && _pendingBall().isEmpty) _setServerBall(b);
+      return;
+    }
+    while (pending.isNotEmpty) {
+      final batch = pending.take(_kBallBatch).toList();
+      final res = await _api.postBallEvents(batch);
+      if (res == null) return; // internet yo'q — keyingi safar
+      final sent = batch.map((e) => e['id']).toSet();
+      pending = _pendingBall()..removeWhere((e) => sent.contains(e['id']));
+      _savePendingBall(pending);
+      if (res.ball != null) _setServerBall(res.ball!);
+      notifyListeners();
+    }
+  }
+
+  void _setServerBall(int b) {
+    _serverBall = max(0, b);
+    _progressBox?.put(_kServerBallKey, _serverBall);
+    notifyListeners();
   }
 
   void setCurrentLevel(int id) {
@@ -203,11 +318,13 @@ class LevelProvider extends ChangeNotifier {
 
   // Joriy tovush levellarini yuklash
   Future<void> bootstrap() async {
-    _loadBall();
+    _loadBallState();
     final saved = _progressBox?.get(_kLastSoundKey);
-    if (saved is String && hasSound(saved) && !_nonSoundMaps.contains(saved)) {
+    if (saved is String && serverSounds.contains(saved)) {
       _lastSound = saved;
     }
+    // Ball: navbatdagilar yuboriladi va serverdagi qiymat olinadi
+    unawaited(_flushBall(refresh: true));
     // Bola kelib qolgan joy: serverdagi eng oxirgi natija qaysi mashqda bo'lsa
     final serverLast = await _lastSoundFromServer();
     if (serverLast != null) {
@@ -221,35 +338,60 @@ class LevelProvider extends ChangeNotifier {
       await _loadSound(last);
       notifyListeners();
     }
+    // O'yinlar va Ilk nutq: eski (qurilmadagi) progress darhol serverga
+    // ko'chirilsin va xaritalar keshda tayyor tursin
+    for (final s in sectionPaths.keys) {
+      await preloadSound(s);
+    }
   }
 
-  /// Yulduzlar tarixidagi eng yangi yozuv qaysi tovush mashqiga tegishli
+  /// Yulduzlar tarixidagi eng yangi tovush mashqi yozuvi (o'yin/ilk nutq emas)
   Future<String?> _lastSoundFromServer() async {
     final history = await _api.getStarHistory();
     if (history == null || history.isEmpty) return null;
-    final first = history.first;
-    if (first is! Map) return null;
-    final practiceId = first['voicePracticeId'];
-    if (practiceId == null) return null;
     await _ensurePracticeIds();
-    for (final e in _practiceIds.entries) {
-      if (e.value == practiceId) return e.key;
+    final bySoundId = {for (final e in _practiceIds.entries) e.value: e.key};
+    for (final item in history) {
+      if (item is! Map) continue;
+      final sound = bySoundId[item['voicePracticeId']];
+      if (sound != null) return sound;
     }
     return null;
   }
 
-  /// Login/logout dan keyin: oldingi foydalanuvchi server ma'lumotlarini tozalaydi
-  /// va yangisini yuklaydi.
+  /// Login dan keyin: oldingi foydalanuvchi server ma'lumotlarini tozalaydi
+  /// va yangisini yuklaydi. Eski (yangilanishdan oldingi) lokal progress
+  /// saqlanib qoladi va shu foydalanuvchiga ko'chiriladi.
   Future<void> reloadForUser() async {
-    clearServerData();
+    clearServerData(keepLegacy: true);
     await bootstrap();
   }
 
-  /// Server tovush mashqlari keshi va "so'ngi harakat"ni tozalaydi (logout)
-  void clearServerData() {
-    for (final sound in serverSounds) {
+  /// Logout'dan oldin: navbatdagi natija va ballarni serverga yuborishga
+  /// urinib ko'radi (ko'pi bilan [timeout]).
+  Future<void> flushBeforeSignOut({
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
+    try {
+      await Future.wait([
+        _flushPendingStars(),
+        _flushBall(),
+      ]).timeout(timeout);
+    } catch (_) {}
+  }
+
+  /// Server ma'lumotlari keshi, navbatlar va "so'ngi harakat"ni tozalaydi
+  /// (logout). Keyingi foydalanuvchiga oldingisining progressi o'tmasin.
+  void clearServerData({bool keepLegacy = false}) {
+    for (final sound in allMaps) {
       _levelsBySound.remove(sound);
       _progressBox?.delete('$_kServerLevelsPrefix$sound');
+    }
+    if (!keepLegacy) {
+      for (final key in _legacyKeys) {
+        _progressBox?.delete(key);
+      }
+      _progressBox?.delete(_kLegacyBallKey);
     }
     _practiceIds = {};
     _practiceInfo = {};
@@ -257,25 +399,22 @@ class LevelProvider extends ChangeNotifier {
     _progressBox?.delete(_kPracticeIdsKey);
     _progressBox?.delete(_kPendingStarsKey);
     _progressBox?.delete(_kLastSoundKey);
-    _progressBox?.delete(_kBallKey);
-    _ball = 0;
+    _progressBox?.delete(_kServerBallKey);
+    _progressBox?.delete(_kPendingBallKey);
+    _serverBall = 0;
     _lastSound = null;
-    if (isServerSound(_currentSound)) {
-      _levels = [];
-      _currentPlayingLevelId = null;
-    }
+    _levels = [];
+    _currentPlayingLevelId = null;
     notifyListeners();
   }
 
   void _rememberLastSound(String sound) {
     // O'yinlar va Ilk nutq xaritalari tovush mashqi emas — "so'ngi harakat" hisoblanmaydi
-    if (_nonSoundMaps.contains(sound) || sound == _lastSound) return;
+    if (!serverSounds.contains(sound) || sound == _lastSound) return;
     _lastSound = sound;
     _progressBox?.put(_kLastSoundKey, sound);
   }
 
-  /// Tovush levellarini (saqlangan progress bilan) yuklab keshlaydi,
-  /// joriy xaritani almashtirmaydi.
   /// Xarita levellari (keshda bo'lsa), joriy xaritani almashtirmaydi.
   /// Bo'lim kartalarida progress ko'rsatish uchun.
   List<LevelState>? levelsOf(String sound) => _levelsBySound[sound];
@@ -291,21 +430,18 @@ class LevelProvider extends ChangeNotifier {
     final cached = _levelsBySound[sound];
     if (cached != null) return cached;
 
-    final loaded = await (_loadingBySound[sound] ??= isServerSound(sound)
-        ? _loadServerLevels(sound)
-        : _loadLevels(
-            soundLevelFiles[sound]!,
-          ).then((levels) => _applySavedProgress(sound, levels)));
+    final loaded =
+        await (_loadingBySound[sound] ??= _loadServerLevels(sound));
     _loadingBySound.remove(sound);
     // Xato bo'lsa (bo'sh ro'yxat) keshlamaymiz — keyingi safar qayta urinib ko'riladi
     if (loaded.isNotEmpty) _levelsBySound[sound] ??= loaded;
     return _levelsBySound[sound] ?? loaded;
   }
 
-  /// Xaritani tanlangan tovush ([soundLevelFiles] kaliti) levellariga almashtiradi.
+  /// Xaritani tanlangan tovush/bo'lim levellariga almashtiradi.
   Future<void> selectSound(String sound) async {
     if (!hasSound(sound)) {
-      if (kDebugMode) print("❌ '$sound' tovushi uchun level fayli yo'q");
+      if (kDebugMode) print("❌ '$sound' xaritasi yo'q");
       return;
     }
     _rememberLastSound(sound);
@@ -313,7 +449,7 @@ class LevelProvider extends ChangeNotifier {
     final cached = _levelsBySound[sound];
     if (sound == _currentSound && cached != null) {
       _levels = cached;
-      if (isServerSound(sound)) refreshSound(sound);
+      refreshSound(sound);
       return;
     }
 
@@ -324,11 +460,11 @@ class LevelProvider extends ChangeNotifier {
       _levels = cached;
       notifyListeners();
       // Server progressi (boshqa qurilma, obuna) o'zgargan bo'lishi mumkin
-      if (isServerSound(sound)) refreshSound(sound);
+      refreshSound(sound);
       return;
     }
 
-    // Eski tovush levellari yangi yuklanguncha ko'rinmasin
+    // Eski xarita levellari yangi yuklanguncha ko'rinmasin
     _levels = [];
     _loading = true;
     notifyListeners();
@@ -339,13 +475,12 @@ class LevelProvider extends ChangeNotifier {
 
     _loading = false;
     _levels = loaded;
-    _fetchScoreFromBackend();
     notifyListeners();
   }
 
   /// Xaritani serverdan qayta yuklaydi (keshdagi ro'yxat almashtiriladi)
   Future<void> refreshSound(String sound) async {
-    if (!isServerSound(sound) || _loadingBySound.containsKey(sound)) return;
+    if (!hasSound(sound) || _loadingBySound.containsKey(sound)) return;
     final fresh = await (_loadingBySound[sound] = _loadServerLevels(sound));
     _loadingBySound.remove(sound);
     if (fresh.isEmpty && (_levelsBySound[sound]?.isNotEmpty ?? false)) return;
@@ -357,30 +492,7 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // JSON fayldan ma'lumotlarni yuklash (o'yinlar va "Ilk nutq" xaritalari)
-  Future<List<LevelState>> _loadLevels(String assetPath) async {
-    try {
-      // JSON faylni o'qish
-      final String jsonString = await rootBundle.loadString(assetPath);
-      final List<dynamic> jsonData = json.decode(jsonString);
-
-      final levels = _parseLevels(jsonData);
-
-      if (kDebugMode) {
-        print(
-          "✅ $assetPath dan ${levels.length} ta level muvaffaqiyatli yuklandi",
-        );
-      }
-      return levels;
-    } catch (e) {
-      if (kDebugMode) {
-        print("❌ $assetPath ni o'qishda xatolik: $e");
-      }
-      return [];
-    }
-  }
-
-  // --- SERVER TOVUSH MASHQLARI ---
+  // --- SERVER XARITALARI ---
 
   /// Tovush -> voicePracticeId xaritasini serverdan (bo'lmasa keshdan) oladi
   Future<void> _ensurePracticeIds() async {
@@ -399,7 +511,11 @@ class LevelProvider extends ChangeNotifier {
     final practices = await _api.getVoicePractices();
     if (practices == null) return;
     final ids = <String, String>{};
-    final info = <String, Map<String, dynamic>>{};
+    final info = <String, Map<String, dynamic>>{
+      // Bo'limlar ma'lumoti o'z API'sidan keladi — saqlanib qoladi
+      for (final s in sectionPaths.keys)
+        if (_practiceInfo[s] != null) s: _practiceInfo[s]!,
+    };
     for (final p in practices) {
       final sound = _soundOfPracticeName(p['name']?.toString() ?? '');
       final id = p['id']?.toString();
@@ -428,20 +544,39 @@ class LevelProvider extends ChangeNotifier {
     return null;
   }
 
-  Future<List<LevelState>> _loadServerLevels(String sound) async {
-    await _flushPendingStars();
+  /// Xarita levellari serverdan: tovushlar — /levels?voicePracticeId=,
+  /// O'yinlar va Ilk nutq — /games, /first-speech
+  Future<List<dynamic>?> _fetchLevels(String sound) async {
+    final section = sectionPaths[sound];
+    if (section != null) {
+      final data = await _api.getSection(section);
+      if (data == null || data['levels'] is! List) return null;
+      _practiceInfo[sound] = {
+        'id': data['id'],
+        'count': data['totalLevels'],
+        'availableLevelsCount': data['availableLevelsCount'],
+        'available': ((data['availableLevelsCount'] as num?) ?? 0) > 0,
+        'subscribed': data['subscribed'],
+      };
+      if (data['subscribed'] is bool) _subscribed = data['subscribed'] as bool;
+      return data['levels'] as List;
+    }
     await _ensurePracticeIds();
     final practiceId = _practiceIds[sound];
+    if (practiceId == null) return null;
+    return _api.getVoicePracticeLevels(practiceId);
+  }
+
+  Future<List<LevelState>> _loadServerLevels(String sound) async {
+    await _flushPendingStars();
 
     final box = _progressBox;
     final cacheKey = '$_kServerLevelsPrefix$sound';
-    List<dynamic>? raw;
-    if (practiceId != null) {
-      raw = await _api.getVoicePracticeLevels(practiceId);
-      if (raw != null) box?.put(cacheKey, json.encode(raw));
-    }
-    if (raw == null) {
-      // Internet yo'q — oxirgi marta olingan ro'yxat
+    var raw = await _fetchLevels(sound);
+    if (raw != null) {
+      box?.put(cacheKey, json.encode(raw));
+    } else {
+      // Server javob bermadi — oxirgi marta olingan ro'yxat
       final cached = box?.get(cacheKey);
       if (cached is String) {
         try {
@@ -476,7 +611,7 @@ class LevelProvider extends ChangeNotifier {
   }
 
   /// Natija avval navbatga yoziladi, server qabul qilgach o'chiriladi —
-  /// internet bo'lmasa ham progress yo'qolmaydi.
+  /// internet uzilsa ham progress yo'qolmaydi.
   Future<void> _submitStars(String levelMongoId, int stars) async {
     final pending = _pendingStars();
     final prev = pending[levelMongoId] ?? -1;
@@ -485,23 +620,49 @@ class LevelProvider extends ChangeNotifier {
     await _flushPendingStars();
   }
 
-  bool _flushing = false;
+  Future<void>? _flushingStars;
 
-  Future<void> _flushPendingStars() async {
-    if (_flushing) return;
-    _flushing = true;
-    try {
-      for (final e in _pendingStars().entries) {
+  Future<void> _flushPendingStars() =>
+      _flushingStars ??= _doFlushStars().whenComplete(() => _flushingStars = null);
+
+  Future<void> _doFlushStars() async {
+    // Yuborish paytida yangi natija qo'shilsa (yoki yulduzi oshsa) — u ham yuboriladi
+    while (true) {
+      final snapshot = _pendingStars();
+      if (snapshot.isEmpty) return;
+      for (final e in snapshot.entries) {
         final ok = await _api.submitLevelStars(e.key, e.value);
-        if (ok == null) break; // internet yo'q — keyingi safar
+        if (ok == null) return; // internet yo'q — keyingi safar
         // Qabul qilindi yoki rad etildi (pullik level) — navbatdan olinadi
         final pending = _pendingStars();
         if (pending[e.key] == e.value) pending.remove(e.key);
         _savePendingStars(pending);
       }
-    } finally {
-      _flushing = false;
     }
+  }
+
+  /// Hammasi navbatda turgan bo'lsa (internet qaytdi / ilova fondan qaytdi):
+  /// natijalar va ball yuboriladi, ochiq xarita serverdan yangilanadi.
+  Future<void> syncNow() async {
+    await Future.wait([_flushPendingStars(), _flushBall(refresh: true)]);
+    if (_disposed) return;
+    if (_levelsBySound.containsKey(_currentSound)) {
+      await refreshSound(_currentSound);
+    }
+  }
+
+  bool _wasOnline = true;
+
+  void _onNetworkChanged() {
+    final online = NetworkStatus.instance.isOnline;
+    final reconnected = online && !_wasOnline;
+    _wasOnline = online;
+    if (reconnected) syncNow();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) syncNow();
   }
 
   /// Server progressiga hali yuborilmagan natijalarni va eski (qurilmada
@@ -533,22 +694,43 @@ class LevelProvider extends ChangeNotifier {
 
   /// Avval progress faqat qurilmada (Hive) saqlanardi. Bir marta: uni
   /// navbatga qo'yib serverga yuboramiz va qurilmadagisini o'chiramiz.
+  /// Ilk nutqning 4 ta eski xaritasi yangi xaritaga siljish bilan tushadi.
   void _migrateLocalProgressToServer(String sound, List<LevelState> levels) {
     if (sound == 'S') _resetSoundSProgressOnce();
+    if (sound == gamesSound) _migrateGamesLockOnce();
     final box = _progressBox;
-    final saved = box?.get(sound);
-    if (box == null || saved is! Map || levels.isEmpty) return;
+    if (box == null || levels.isEmpty) return;
 
-    final unlocked = Set<int>.from((saved['unlocked'] as List?) ?? const []);
-    final stars = Map<String, dynamic>.from(
-      (saved['stars'] as Map?) ?? const {},
-    );
+    final parts = _legacyParts[sound] ?? [_LegacyPart(sound, 0)];
+    // Yangi xaritadagi tartib raqamlari bo'yicha: ochilganlar va yulduzlar
+    final unlocked = <int>{};
+    final stars = <int, int>{};
+    var found = false;
+    for (final part in parts) {
+      final saved = box.get(part.key);
+      if (saved is! Map) continue;
+      found = true;
+      for (final id in (saved['unlocked'] as List?) ?? const []) {
+        final n = (id as num?)?.toInt();
+        // Har bir eski xaritaning 1-leveli doim ochiq edi — bu oldingi
+        // bo'limning oxirgi leveli o'ynalganini bildirmaydi
+        if (n == null || (n == 1 && part.offset > 0)) continue;
+        unlocked.add(n + part.offset);
+      }
+      ((saved['stars'] as Map?) ?? const {}).forEach((k, v) {
+        final n = int.tryParse(k.toString());
+        final s = (v as num?)?.toInt() ?? 0;
+        if (n != null && s > 0) stars[n + part.offset] = s;
+      });
+    }
+    if (!found) return;
+
     final pending = _pendingStars();
     for (var i = 0; i < levels.length; i++) {
       final lv = levels[i];
       final id = lv.serverId;
       if (id == null || !lv.available) continue;
-      final localStars = (stars['${lv.id}'] as num?)?.toInt() ?? 0;
+      final localStars = stars[lv.id] ?? 0;
       // Keyingi level ochilgan bo'lsa, bu level o'ynalgan (0 yulduz bilan ham)
       final nextUnlocked =
           i + 1 < levels.length && unlocked.contains(levels[i + 1].id);
@@ -558,7 +740,9 @@ class LevelProvider extends ChangeNotifier {
       }
     }
     _savePendingStars(pending);
-    box.delete(sound);
+    for (final part in parts) {
+      box.delete(part.key);
+    }
     _flushPendingStars();
   }
 
@@ -633,8 +817,8 @@ class LevelProvider extends ChangeNotifier {
     return levels;
   }
 
-  // --- PROGRESSNI SAQLASH ---
-  // Har bir tovush uchun: {'unlocked': [id, ...], 'stars': {'id': yulduz}}
+  // --- ESKI LOKAL PROGRESS (bir martalik migratsiyalar) ---
+  // Eski format: {'unlocked': [id, ...], 'stars': {'id': yulduz}}
 
   Box? get _progressBox =>
       Hive.isBoxOpen(kLevelProgressBox) ? Hive.box(kLevelProgressBox) : null;
@@ -670,43 +854,6 @@ class LevelProvider extends ChangeNotifier {
     box.put(_kSoundSLockResetKey, true);
   }
 
-  List<LevelState> _applySavedProgress(String sound, List<LevelState> levels) {
-    if (sound == gamesSound) _migrateGamesLockOnce();
-    if (sound == 'S') _resetSoundSProgressOnce();
-    final saved = _progressBox?.get(sound);
-    if (saved is! Map) return levels;
-
-    final unlocked = Set<int>.from((saved['unlocked'] as List?) ?? const []);
-    final stars = Map<String, dynamic>.from(
-      (saved['stars'] as Map?) ?? const {},
-    );
-
-    return levels.map((lv) {
-      final savedStars = (stars['${lv.id}'] as int?) ?? lv.stars;
-      if (unlocked.contains(lv.id) && lv.locked) {
-        return lv.copyWith(locked: false, skin: skinGold, stars: savedStars);
-      }
-      return savedStars != lv.stars ? lv.copyWith(stars: savedStars) : lv;
-    }).toList();
-  }
-
-  void _saveProgress() {
-    // Tovush mashqlari progressi serverda saqlanadi
-    if (isServerSound(_currentSound)) return;
-    final box = _progressBox;
-    if (box == null) return;
-    box.put(_currentSound, {
-      'unlocked': [
-        for (final lv in _levels)
-          if (!lv.locked) lv.id,
-      ],
-      'stars': {
-        for (final lv in _levels)
-          if (lv.stars > 0) '${lv.id}': lv.stars,
-      },
-    });
-  }
-
   // Endi to'g'ridan to'g'ri List ichidan qidiramiz
   LevelState? byId(int id) {
     try {
@@ -726,7 +873,6 @@ class LevelProvider extends ChangeNotifier {
     if (clamped > lv.stars) {
       _levels[index] = lv.copyWith(stars: clamped);
       notifyListeners();
-      _saveProgress();
       final serverId = lv.serverId;
       if (serverId != null) await _submitStars(serverId, clamped);
     }
@@ -765,7 +911,6 @@ class LevelProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    _saveProgress();
     final serverId = currentLevel.serverId;
     if (serverId != null) _submitStars(serverId, bestStars);
     return true;
@@ -790,7 +935,19 @@ class LevelProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- BACKEND FUNKSIYALARI ---
-  Future<void> _syncScoreToBackend(int addedScore) async {}
-  Future<void> _fetchScoreFromBackend() async {}
+  @override
+  void notifyListeners() {
+    if (_disposed) return;
+    super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    if (_listening) {
+      NetworkStatus.instance.removeListener(_onNetworkChanged);
+      WidgetsBinding.instance.removeObserver(this);
+    }
+    super.dispose();
+  }
 }

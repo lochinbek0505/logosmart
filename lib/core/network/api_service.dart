@@ -9,6 +9,7 @@ import 'package:logosmart/models/login_model.dart';
 import 'package:logosmart/models/notification_model.dart';
 import 'package:logosmart/models/pay_link_response.dart';
 import 'package:logosmart/models/plan_activate_response.dart';
+import 'package:logosmart/models/plan_checkout_response.dart';
 import 'package:logosmart/models/plans_model.dart';
 import 'package:logosmart/models/profile_response.dart';
 import 'package:logosmart/models/promo_check_model.dart';
@@ -131,6 +132,7 @@ class ApiService {
       return false;
     }
   }
+
   Future<bool> logout(context) async {
     try {
       var response = await _dio.post("auth/logout");
@@ -143,8 +145,8 @@ class ApiService {
       if (e.response != null && e.response?.data != null) {
         errorMessage =
             messageOf(e.response?.data) ??
-                statusText(e.response) ??
-                "Noma'lum xato";
+            statusText(e.response) ??
+            "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }
@@ -156,6 +158,7 @@ class ApiService {
       return false;
     }
   }
+
   Future<bool> deleteAccount(context) async {
     try {
       var response = await _dio.delete("profile/me/delete");
@@ -168,8 +171,8 @@ class ApiService {
       if (e.response != null && e.response?.data != null) {
         errorMessage =
             messageOf(e.response?.data) ??
-                statusText(e.response) ??
-                "Noma'lum xato";
+            statusText(e.response) ??
+            "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }
@@ -418,9 +421,7 @@ class ApiService {
     // Backend bo'sh "message" qaytarsa matnsiz qora chiziq chiqib qolmasin
     final text = message?.toString().trim() ?? "";
     if (text.isEmpty || context == null || !context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   // subscriptions/plans
@@ -504,6 +505,49 @@ class ApiService {
 
       showSnakBar(context, "Kutilmagan xato: $e");
       return null;
+    }
+  }
+
+  /// Obunani sotib olish: balans yetsa darhol faollashadi, yetmasa yetmagan
+  /// summa uchun Click havolasi qaytadi.
+  Future<PlanCheckoutResponse?> checkoutPlan(
+    context,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      var response = await _dio.post("subscriptions/checkout", data: data);
+      if (response.statusCode == 200) {
+        return PlanCheckoutResponse.fromJson(response.data);
+      }
+      return null;
+    } on DioException catch (e) {
+      String errorMessage = "Xatolik yuz berdi";
+
+      if (e.response != null && e.response?.data != null) {
+        errorMessage =
+            messageOf(e.response?.data) ??
+            statusText(e.response) ??
+            "Noma'lum xato";
+      } else {
+        errorMessage = "Server bilan aloqa yo'q: ${e.message}";
+      }
+      showSnakBar(context, errorMessage);
+      return null;
+    } catch (e) {
+      showSnakBar(context, "Kutilmagan xato: $e");
+      return null;
+    }
+  }
+
+  /// Click'dan qaytganda kutilayotgan obunani faollashtirishga urinadi.
+  /// true — obuna faollashdi (200), false — hali pul tushmagan (204) yoki xato.
+  Future<bool> settlePendingPlan() async {
+    try {
+      var response = await _dio.post("subscriptions/checkout/settle");
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint("Kutilayotgan obunani tekshirishda xato: $e");
+      return false;
     }
   }
 
@@ -659,11 +703,10 @@ class ApiService {
     }
   }
 
-
   Future<DiagnosticSubmitModel?> submitDiagnostic(
-      context,
-      Map<String, dynamic> data,
-      ) async {
+    context,
+    Map<String, dynamic> data,
+  ) async {
     try {
       var response = await _dio.post("diagnostic/submit", data: data);
 
@@ -678,8 +721,8 @@ class ApiService {
       if (e.response != null && e.response?.data != null) {
         errorMessage =
             messageOf(e.response?.data) ??
-                statusText(e.response) ??
-                "Noma'lum xato";
+            statusText(e.response) ??
+            "Noma'lum xato";
       } else {
         errorMessage = "Server bilan aloqa yo'q: ${e.message}";
       }
@@ -701,7 +744,9 @@ class ApiService {
         "notifications/device-token",
         data: {"fcmToken": fcmToken, "platform": platform},
       );
-      debugPrint("Device token yuborildi: ${response.statusCode} ${response.data}");
+      debugPrint(
+        "Device token yuborildi: ${response.statusCode} ${response.data}",
+      );
       return response.statusCode == 200;
     } catch (e) {
       debugPrint("Device token yuborishda xato: $e");
@@ -834,6 +879,78 @@ class ApiService {
     }
   }
 
+  /// O'yinlar ("games") yoki Ilk nutq ("first-speech") bo'limi: bitta xarita
+  /// levellari foydalanuvchi progressi bilan ({id, name, levels: [...], ...}).
+  /// Tarmoq/server xatosi yoki bo'lim hali qo'shilmagan (404) bo'lsa null.
+  Future<Map<String, dynamic>?> getSection(String path) async {
+    try {
+      var response = await _dio.get(path);
+      if (response.statusCode == 200 && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint("Bo'limni ($path) olishda xato: $e");
+    }
+    return null;
+  }
+
+  /// Serverdagi umumiy ball. Xato bo'lsa null.
+  Future<int?> getBall() async {
+    try {
+      var response = await _dio.get("ball");
+      if (response.statusCode == 200 && response.data is Map) {
+        return (response.data["ball"] as num?)?.toInt();
+      }
+    } catch (e) {
+      debugPrint("Ballni olishda xato: $e");
+    }
+    return null;
+  }
+
+  /// Ball o'zgarishlarini ({id, delta}) yuboradi. Server id bo'yicha
+  /// takrorlarni e'tiborsiz qoldiradi, shuning uchun qayta yuborish xavfsiz.
+  Future<BallPostResult?> postBallEvents(
+    List<Map<String, dynamic>> events,
+  ) async {
+    try {
+      var response = await _dio.post("ball/events", data: {"events": events});
+      if (response.statusCode == 200 && response.data is Map) {
+        return BallPostResult((response.data["ball"] as num?)?.toInt());
+      }
+      return null;
+    } on DioException catch (e) {
+      debugPrint("Ballni yuborishda xato: $e");
+      final status = e.response?.statusCode;
+      // 400 — hodisalar yaroqsiz, qayta yuborish foydasiz
+      if (status == 400) return const BallPostResult(null, rejected: true);
+      return null;
+    } catch (e) {
+      debugPrint("Ballni yuborishda xato: $e");
+      return null;
+    }
+  }
+
+  /// Server bilan aloqa bormi: har qanday HTTP javob (hatto 401/404) — bor,
+  /// ulanish xatosi yoki timeout — yo'q.
+  Future<bool> ping() async {
+    try {
+      final uri = Uri.parse(_dio.options.baseUrl);
+      await _dio
+          .get(
+            "${uri.origin}/actuator/health",
+            options: Options(
+              validateStatus: (_) => true,
+              sendTimeout: const Duration(seconds: 5),
+              receiveTimeout: const Duration(seconds: 5),
+            ),
+          )
+          .timeout(const Duration(seconds: 6));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Yulduzlar tarixi (eng yangisi birinchi) — oxirgi o'ynalgan mashqni topish uchun
   Future<List<dynamic>?> getStarHistory() async {
     try {
@@ -863,7 +980,9 @@ class ApiService {
     try {
       var response = await _dio.get(
         "resources/manifest",
-        queryParameters: {if (version != null && version >= 0) "version": version},
+        queryParameters: {
+          if (version != null && version >= 0) "version": version,
+        },
         options: Options(validateStatus: (s) => s == 200 || s == 304),
       );
       if (response.statusCode == 304) return {"notModified": true};
@@ -898,5 +1017,13 @@ class ApiService {
       ),
     );
   }
+}
 
+/// POST /ball/events natijasi: [ball] — serverdagi yangi qiymat;
+/// [rejected] — server hodisalarni yaroqsiz deb rad etdi (navbatdan olinadi).
+class BallPostResult {
+  const BallPostResult(this.ball, {this.rejected = false});
+
+  final int? ball;
+  final bool rejected;
 }

@@ -44,12 +44,12 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     },
     {
-      "text": "Videolarni mobil internetda yuklash",
-      "value": () => _settings.downloadOnMobile,
+      "text": "Videolarni faqat Wi-Fi orqali yuklash",
+      "value": () => _settings.wifiOnlyDownload,
       "onChanged": (bool value) async {
-        await _settings.setDownloadOnMobile(value);
-        // Yoqilsa — kutib turgan videolar darhol yuklana boshlaydi
-        if (value) ResourceManager.instance.syncInBackground(force: true);
+        await _settings.setWifiOnlyDownload(value);
+        // O'chirilsa — kutib turgan videolar darhol yuklana boshlaydi
+        if (!value) ResourceManager.instance.syncInBackground(force: true);
       },
     },
   ];

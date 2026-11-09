@@ -464,14 +464,31 @@ class _PuzzleGameWidgetState extends State<PuzzleGameWidget> {
               child: Container(
                 width: _pieceSize,
                 height: _pieceSize,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                // Rasm ramkaning to'rtburchak ichki qismiga sig'adi: puzzle.webp
+                // (532x469, contain) da u kenglikning ~19-81%, balandlikning
+                // ~26-75% qismi — "quloqlar" ochiq qoladi
+                padding: EdgeInsets.fromLTRB(
+                  _pieceSize * 0.22,
+                  _pieceSize * 0.28,
+                  _pieceSize * 0.22,
+                  _pieceSize * 0.27,
+                ),
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AppImage.provider(_config['puzzle_frame']), // JSON
                     fit: BoxFit.contain,
                   ),
                 ),
-                child: AppImage.asset(piece.image, scale: 8.w),
+                // Avval scale: 8.w edi — ekrandagi o'lcham fayl pikseliga bog'liq
+                // bo'lib, 128px rasm juda mayda, 2000px rasm ramkadan toshib chiqardi.
+                // Endi o'lchamni ramka belgilaydi
+                child: AppImage.asset(
+                  piece.image,
+                  fit: BoxFit.contain,
+                  cacheWidth:
+                      (_pieceSize * MediaQuery.devicePixelRatioOf(context))
+                          .round(),
+                ),
               ),
             ),
           ),

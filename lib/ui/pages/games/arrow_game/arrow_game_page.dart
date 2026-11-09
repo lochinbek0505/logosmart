@@ -47,7 +47,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   bool _isLoading = false;
   // O'yin tugab, dialog ochilish jarayonida yangi tap/record boshlanmasligi uchun
   bool _isGameEnding = false;
-  int _mistakes = 0;
+  final _attempts = GameAttempts();
   String? _recordedFilePath;
   int? _activeVoiceItemId;
 
@@ -114,8 +114,8 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
     _colorAnim = ColorTween(begin: Colors.green, end: Colors.lightGreenAccent)
         .animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
   }
 
   String _cleanAudioPath(String path) {
@@ -207,11 +207,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
       debugPrint("Tizim eshitgan matn: $recognizedText");
 
-      bool isMatched = voiceMatches(
-        recognizedText,
-        node.text,
-        lenient: true,
-      );
+      bool isMatched = voiceMatches(recognizedText, node.text, lenient: true);
 
       if (isMatched) {
         if (mounted) {
@@ -245,9 +241,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
         }
       } else {
         // Bo'sh javob — STT tovushni tanimadi, bola xatosi emas
-        _handleWrongAnswer(
-          countMistake: !isEmptyTranscript(recognizedText),
-        );
+        _handleWrongAnswer(countMistake: !isEmptyTranscript(recognizedText));
       }
     } catch (e) {
       debugPrint("STT Xatolik: $e");
@@ -263,7 +257,7 @@ class _ArrowGamePageState extends State<ArrowGamePage>
   }
 
   void _handleWrongAnswer({bool countMistake = true}) {
-    if (countMistake && ++_mistakes >= kMaxGameMistakes) {
+    if (_attempts.register(counted: countMistake)) {
       _isGameEnding = true;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       showGameFailDialog(context);
@@ -349,7 +343,6 @@ class _ArrowGamePageState extends State<ArrowGamePage>
 
   @override
   Widget build(BuildContext context) {
-
     final totalBall = context.watch<LevelProvider>().ball;
 
     return Scaffold(
@@ -358,12 +351,14 @@ class _ArrowGamePageState extends State<ArrowGamePage>
           color: const Color(0xFF8FD8F0), // fallback fon rangi
           image: (_config['background_image'] is String)
               ? DecorationImage(
-            image: AppImage.provider(_config['background_image'] as String),
-            fit: BoxFit.fill,
-            onError: (error, stackTrace) {
-              debugPrint("Background image yuklanmadi: $error");
-            },
-          )
+                  image: AppImage.provider(
+                    _config['background_image'] as String,
+                  ),
+                  fit: BoxFit.fill,
+                  onError: (error, stackTrace) {
+                    debugPrint("Background image yuklanmadi: $error");
+                  },
+                )
               : null,
         ),
         child: SafeArea(
@@ -512,83 +507,90 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : AnimatedBuilder(
-                    animation: Listenable.merge([
-                      _pulseController,
-                      _bounceController,
-                    ]),
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, _bounceAnim.value),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 110.w,
-                              height: 110.h,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _isRecording
-                                    ? _colorAnim.value?.withValues(alpha: 0.25)
-                                    : Colors.transparent,
-                              ),
-                            ),
-                            Container(
-                              width: 90.w,
-                              height: 90.h,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _isRecording
-                                    ? _colorAnim.value?.withValues(alpha: 0.35)
-                                    : Colors.transparent,
-                              ),
-                            ),
-                            ScaleTransition(
-                              scale: _scaleAnim,
-                              child: CircleAvatar(
-                                radius: 40.r,
-                                backgroundColor: Colors.white,
-                                backgroundImage: AppImage.provider(
-                                  "assets/icons/circle.webp",
-                                ),
-                                onBackgroundImageError: (_, __) {},
-                                child: (_config['icon_mic'] is String)
-                                    ? AppImage.asset(
-                                  _config['icon_mic'] as String,
-                                  width: 24.w,
-                                  height: 32.h,
-                                  color: _isRecording
-                                      ? _colorAnim.value
-                                      : null,
-                                  // Asset topilmasa ham, xuddi shu
-                                  // o'lchamdagi zaxira ikonka
-                                  // ko'rsatiladi — layout hech qachon
-                                  // "qulab tushmaydi".
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(
-                                      Icons.mic,
-                                      size: 28.sp,
+                          animation: Listenable.merge([
+                            _pulseController,
+                            _bounceController,
+                          ]),
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _bounceAnim.value),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 110.w,
+                                    height: 110.h,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
                                       color: _isRecording
-                                          ? (_colorAnim.value ??
-                                          Colors.green)
-                                          : const Color(0xFF4A90E2),
-                                    );
-                                  },
-                                )
-                                    : Icon(
-                                  Icons.mic,
-                                  size: 28.sp,
-                                  color: _isRecording
-                                      ? (_colorAnim.value ??
-                                      Colors.green)
-                                      : const Color(0xFF4A90E2),
-                                ),
+                                          ? _colorAnim.value?.withValues(
+                                              alpha: 0.25,
+                                            )
+                                          : Colors.transparent,
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 90.w,
+                                    height: 90.h,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _isRecording
+                                          ? _colorAnim.value?.withValues(
+                                              alpha: 0.35,
+                                            )
+                                          : Colors.transparent,
+                                    ),
+                                  ),
+                                  ScaleTransition(
+                                    scale: _scaleAnim,
+                                    child: CircleAvatar(
+                                      radius: 40.r,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage: AppImage.provider(
+                                        "assets/icons/circle.webp",
+                                      ),
+                                      onBackgroundImageError: (_, __) {},
+                                      child: (_config['icon_mic'] is String)
+                                          ? AppImage.asset(
+                                              _config['icon_mic'] as String,
+                                              width: 24.w,
+                                              height: 32.h,
+                                              color: _isRecording
+                                                  ? _colorAnim.value
+                                                  : null,
+                                              // Asset topilmasa ham, xuddi shu
+                                              // o'lchamdagi zaxira ikonka
+                                              // ko'rsatiladi — layout hech qachon
+                                              // "qulab tushmaydi".
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                    return Icon(
+                                                      Icons.mic,
+                                                      size: 28.sp,
+                                                      color: _isRecording
+                                                          ? (_colorAnim.value ??
+                                                                Colors.green)
+                                                          : const Color(
+                                                              0xFF4A90E2,
+                                                            ),
+                                                    );
+                                                  },
+                                            )
+                                          : Icon(
+                                              Icons.mic,
+                                              size: 28.sp,
+                                              color: _isRecording
+                                                  ? (_colorAnim.value ??
+                                                        Colors.green)
+                                                  : const Color(0xFF4A90E2),
+                                            ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ),
             ],
@@ -614,14 +616,14 @@ class _ArrowGamePageState extends State<ArrowGamePage>
               height: 48.h,
               child: (_config['icon_arrow'] is String)
                   ? AppImage.asset(
-                _config['icon_arrow'] as String,
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.arrow_back_ios_new,
-                    color: Colors.white),
-              )
-                  : const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.white),
+                      _config['icon_arrow'] as String,
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             ),
           ),
           Row(
@@ -631,10 +633,10 @@ class _ArrowGamePageState extends State<ArrowGamePage>
                 height: 40.h,
                 child: (_config['icon_star'] is String)
                     ? AppImage.asset(
-                  _config['icon_star'] as String,
-                  errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.star, color: Colors.orange),
-                )
+                        _config['icon_star'] as String,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.star, color: Colors.orange),
+                      )
                     : const Icon(Icons.star, color: Colors.orange),
               ),
               SizedBox(width: 8.w),

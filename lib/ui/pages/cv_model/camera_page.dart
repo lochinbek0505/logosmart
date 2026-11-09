@@ -12,8 +12,8 @@ import 'package:video_player/video_player.dart';
 
 import '../../../core/storage/level_state.dart';
 import '../games/alphabet_map/provider/level_provider.dart';
+import '../games/widgets/game_fail_dialog.dart';
 import '../games/widgets/game_success_dialog.dart';
-import '../main/widgets/Custom3dButton.dart';
 import '../main/widgets/custom_text_widget.dart';
 import 'widgets/camera_box.dart';
 import 'widgets/SuccessGifPlaceholder.dart';
@@ -47,6 +47,30 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   final double _requiredAvgConfidence = 0.60;
   final int _failureCooldownMs = 1500;
   final int _aboutStepDurationMs = 4000;
+
+  // --- O'tkazib yuborish (o'yinlardagi kMaxGameMistakes bilan bir xil g'oya) ---
+  // Bola kadrda turib shuncha vaqt ichida qadamni bajara olmasa — bitta
+  // muvaffaqiyatsiz urinish (sekin telefonda cho'ziladi, lekin 30 s dan oshmaydi)
+  static const int _stepTimeLimitMs = 15000;
+  static const int _maxStepTimeLimitMs = 30000;
+  // Butun mashqdagi qadamlarning shuncha qismi o'tkazib yuborilsa — mashq ballsiz tugaydi
+  static const double _failSkipRatio = 0.5;
+  // Shu ulushgacha o'tkazilgan bo'lsa — 2 yulduz, undan ko'p — 1 yulduz
+  static const double _twoStarSkipRatio = 0.25;
+  static const int _fullScore = 10;
+
+  /// Joriy qadamdagi muvaffaqiyatsiz urinishlar
+  int _stepFails = 0;
+
+  /// Butun mashqda o'tkazib yuborilgan qadamlar
+  int _skippedSteps = 0;
+
+  /// Joriy urinishda bola kadrda turgan vaqt (ms) — kadrda yo'q bo'lsa sanalmaydi
+  int _presentMs = 0;
+  DateTime? _lastPresenceTime;
+
+  /// Mashq ballsiz yakunlandi ("Hechqisi yo'q" dialogi)
+  bool _exerciseFailed = false;
 
   final Key _camKey = UniqueKey();
 
@@ -90,6 +114,28 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
   DateTime? _lastGoodFrameTime;
   final int _toleranceMs = 600;
+
+  // Kuchsiz qurilmalarda model 200 ms emas, 700–1500 ms da bir natija
+  // beradi. Shuning uchun uzilish chegarasi va kerakli kadrlar soni
+  // haqiqiy kadr oralig'iga qarab moslashadi — aks holda har bir kadr
+  // oldingi ovozlarni o'chirib yuborib, mashq hech qachon hisoblanmaydi.
+  DateTime? _lastResultTime;
+  double _avgFrameGapMs = 200;
+
+  int get _effectiveToleranceMs =>
+      max(_toleranceMs, (_avgFrameGapMs * 2.5).round());
+
+  int get _effectiveMinVotes => _avgFrameGapMs > 400 ? 2 : _minVotes;
+
+  int get _effectiveStepTimeLimitMs => min(
+    _maxStepTimeLimitMs,
+    (_stepTimeLimitMs * max(1.0, _avgFrameGapMs / _inferenceIntervalMs))
+        .round(),
+  );
+
+  /// Butun mashqda baholanadigan qadamlar soni ("about" hisobga kirmaydi)
+  int get _countableSteps =>
+      _steps.where((s) => s.action != "about").length * _totalCycles;
 
   Future<void> _playAudioAndWait(String path) async {
     final completer = Completer<void>();
@@ -182,11 +228,23 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     if (!mounted ||
         _waitingForNextStep ||
         _isExerciseCompleted ||
+        _exerciseFailed ||
         !_cameraActive) {
       return;
     }
 
     final now = DateTime.now();
+
+    // Kadrlar orasidagi haqiqiy vaqtni kuzatamiz (sekin sakrashlar —
+    // fon/pauza — o'rtachani buzmasligi uchun cheklanadi)
+    if (_lastResultTime != null) {
+      final gap = now.difference(_lastResultTime!).inMilliseconds.toDouble();
+      if (gap > 0 && gap < 3000) {
+        _avgFrameGapMs = _avgFrameGapMs * 0.8 + gap * 0.2;
+      }
+    }
+    _lastResultTime = now;
+
     if (now.difference(_lastProcessTime).inMilliseconds < _processIntervalMs) {
       return;
     }
@@ -198,7 +256,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     // Uzoq uzilishdan keyin (kadrda yuz yo'q edi) hisob boshidan boshlanadi
     if (_lastGoodFrameTime != null &&
-        now.difference(_lastGoodFrameTime!).inMilliseconds > _toleranceMs) {
+        now.difference(_lastGoodFrameTime!).inMilliseconds >
+            _effectiveToleranceMs) {
       _resetVoting();
     }
 
@@ -212,6 +271,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
 
     if (_isInFailureCooldown) return;
 
+    // Kadrda bola bormi (istalgan aniqlash) — bor bo'lsa urinish vaqti sanaladi
+    if (_trackPresence(results.isNotEmpty, now)) return;
+
     final conf = expectedBest == null ? 0.0 : _extractConfidence(expectedBest);
 
     if (expectedBest != null && conf >= _minConfidence) {
@@ -220,10 +282,35 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       _confidenceVotes.add(conf);
 
       if (now.difference(_actionStartTime!).inMilliseconds >= _holdDurationMs &&
-          _confidenceVotes.length >= _minVotes) {
+          _confidenceVotes.length >= _effectiveMinVotes) {
         _processFrameVotingResult();
       }
     }
+  }
+
+  /// Bola kadrda turgan vaqtni yig'adi. Vaqt tugasa urinish muvaffaqiyatsiz
+  /// hisoblanadi va true qaytadi (shu kadr boshqa ishlanmaydi).
+  bool _trackPresence(bool present, DateTime now) {
+    if (!present) {
+      _lastPresenceTime = null;
+      return false;
+    }
+    final last = _lastPresenceTime;
+    _lastPresenceTime = now;
+    if (last != null) {
+      final gap = now.difference(last).inMilliseconds;
+      // Uzoq uzilish (kadrda yo'q edi, ilova fonda edi) — sanalmaydi
+      if (gap <= _effectiveToleranceMs) _presentMs += gap;
+    }
+    if (_presentMs < _effectiveStepTimeLimitMs) return false;
+    _registerFailedAttempt(timedOut: true);
+    return true;
+  }
+
+  void _resetStepAttempts() {
+    _stepFails = 0;
+    _presentMs = 0;
+    _lastPresenceTime = null;
   }
 
   /// Shartga mos natijalar ichidan eng ishonchlisini qaytaradi
@@ -275,11 +362,28 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     _moveToNextStep();
   }
 
-  void _onStepFailure() {
+  void _onStepFailure() => _registerFailedAttempt();
+
+  /// Kuchsiz bajarildi yoki vaqt tugadi. Qadamda [kMaxGameMistakes] marta
+  /// bo'lsa — qadam o'tkazib yuboriladi, aks holda yana urinib ko'riladi.
+  void _registerFailedAttempt({bool timedOut = false}) {
+    _resetVoting();
+    _stepFails++;
+    _presentMs = 0;
+    _lastPresenceTime = null;
+    if (_stepFails >= kMaxGameMistakes) {
+      _skipCurrentStep();
+      return;
+    }
+
+    // Namuna videosi boshidan — bola harakatni yana bir bor ko'radi
+    _videoController?.seekTo(Duration.zero);
     _isInFailureCooldown = true;
     setState(() {
       _cameraBoxBorderColor = Colors.orangeAccent;
-      _feedbackMessage = '🤗 Yana bir bor urinib ko\'ramiz!';
+      _feedbackMessage = timedOut
+          ? '🤗 Videoga qarab, yana bir bor urinib ko\'ramiz!'
+          : '🤗 Yana bir bor urinib ko\'ramiz!';
     });
 
     Future.delayed(Duration(milliseconds: _failureCooldownMs), () {
@@ -287,12 +391,44 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       _isInFailureCooldown = false;
       _resetVoting();
       // Shu orada keyingi qadamga o'tilgan bo'lsa, uning xabariga tegmaymiz
-      if (_waitingForNextStep) return;
+      if (_waitingForNextStep || _exerciseFailed) return;
       setState(() {
         _cameraBoxBorderColor = const Color(0xff20B9E8);
         _feedbackMessage = '';
       });
     });
+  }
+
+  void _skipCurrentStep() {
+    _skippedSteps++;
+    final total = _countableSteps;
+    if (total > 0 && _skippedSteps >= (total * _failSkipRatio).ceil()) {
+      _onExerciseFailed();
+      return;
+    }
+    setState(() {
+      _cameraBoxBorderColor = Colors.orangeAccent;
+      // Sikl oxirida sikl badge'i chiqadi — xabar uning ustiga tushmasin
+      _feedbackMessage = _currentStepIndex < _steps.length - 1
+          ? '💪 Hechqisi yo\'q, keyingisiga o\'tamiz!'
+          : '';
+    });
+    _moveToNextStep();
+  }
+
+  /// Qadamlarning yarmi o'tkazib yuborildi — o'yinlardagidek ballsiz yakun,
+  /// keyingi level baribir ochiladi
+  void _onExerciseFailed() {
+    _aboutTimer?.cancel();
+    _cycleBadgeTimer?.cancel();
+    setState(() {
+      _exerciseFailed = true;
+      _cameraActive = false;
+      _feedbackMessage = '';
+      _showCycleBadge = false;
+    });
+    _videoController?.pause();
+    showGameFailDialog(context);
   }
 
   void _moveToNextStep() {
@@ -306,7 +442,8 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
     }
 
     Future.delayed(Duration(milliseconds: completesCycle ? 1800 : 1000), () {
-      if (!mounted) return;
+      if (!mounted || _exerciseFailed) return;
+      _resetStepAttempts();
 
       if (_currentStepIndex < _steps.length - 1) {
         _currentStepIndex++;
@@ -356,7 +493,18 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       Future.delayed(const Duration(milliseconds: 2800)),
     ]);
 
-    provider.addBall(10);
+    // O'tkazib yuborilgan qadamlar bo'lsa — qisman mukofot
+    final total = _countableSteps;
+    final skipRatio = total == 0 ? 0.0 : _skippedSteps / total;
+    final stars = _skippedSteps == 0
+        ? 3
+        : skipRatio <= _twoStarSkipRatio
+        ? 2
+        : 1;
+    final earned = total == 0
+        ? _fullScore
+        : (_fullScore * (total - _skippedSteps) / total).round();
+    provider.addBall(earned);
 
     if (!mounted) return;
     setState(() => _showCelebration = false);
@@ -366,9 +514,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return GameSuccessDialog(
-          earnedScore: 10,
+          earnedScore: earned,
           onContinue: () async {
-            await provider.unlock(stars: 3);
+            await provider.unlock(stars: stars);
             if (!context.mounted) return;
             Navigator.pop(context);
             Navigator.pop(context);
@@ -445,8 +593,11 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         state == AppLifecycleState.paused) {
       _videoController?.pause();
       _resetVoting();
+      // Fonda o'tgan vaqt urinish vaqtiga qo'shilmaydi
+      _lastPresenceTime = null;
     } else if (state == AppLifecycleState.resumed &&
         !_isExerciseCompleted &&
+        !_exerciseFailed &&
         _isVideoInitialized) {
       _videoController?.play();
     }
@@ -567,8 +718,6 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
                       totalSteps: _totalCycles,
                       instructionText: _steps[_currentStepIndex].text,
                     ),
-
-                  if (_isExerciseCompleted) const Custom3DButton(),
 
                   SizedBox(height: media.padding.bottom + 12.h),
                 ],

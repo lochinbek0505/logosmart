@@ -14,6 +14,7 @@ import 'package:logosmart/ui/pages/auth/login_page.dart';
 import 'package:logosmart/ui/pages/auth/providera/auth_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/diagnostic_provider.dart';
 import 'package:logosmart/ui/pages/diagnostic/provider/voice_diagnostic_provider.dart';
+import 'package:logosmart/core/network/network_status.dart';
 import 'package:logosmart/ui/pages/games/alphabet_map/provider/level_provider.dart';
 import 'package:logosmart/ui/pages/main/main_page.dart';
 import 'package:logosmart/ui/pages/profile/providers/billings_provider.dart';
@@ -30,6 +31,8 @@ Future<void> main() async {
   await Hive.openBox(kLevelProgressBox);
   // Serverdan yuklangan o'yin/mashq resurslari (login'dan keyin yuklanadi)
   await ResourceManager.instance.init();
+  // Internet holati: o'yin/mashqlarga kirishda tekshiriladi, qaytganda natijalar yuboriladi
+  NetworkStatus.instance.start();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Top-level handler runApp'dan oldin ro'yxatdan o'tishi shart
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);

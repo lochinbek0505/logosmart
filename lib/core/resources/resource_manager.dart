@@ -89,7 +89,7 @@ enum ResourcePhase {
   /// Yuklanyapti
   downloading,
 
-  /// Videolar/modellar Wi-Fi kutilyapti (mobil internetda yuklanmaydi)
+  /// Videolar/modellar Wi-Fi kutilyapti ("faqat Wi-Fi" sozlamasi yoqilgan)
   waitingWifi,
 
   /// Yuklash to'xtadi (internet yo'q, joy yo'q va h.k.)
@@ -147,7 +147,7 @@ enum _Result { ok, network, server, notFound, shaMismatch, noSpace, sessionLost 
 ///   bo'lsa parallel yuklashlar 2 taga tushadi;
 /// - yuklashdan oldin bo'sh joy tekshiriladi, xotira to'lsa aniq xabar beriladi;
 /// - ilova ochilganda diskdagi fayllar hajmi tekshiriladi, yo'qolgan/buzilganlari qayta yuklanadi;
-/// - videolar va modellar orqa fonda faqat Wi-Fi'da (sozlamada ruxsat bo'lsa — mobil internetda ham);
+/// - videolar va modellar orqa fonda mobil internetda ham (sozlamada "faqat Wi-Fi" yoqilsa — faqat Wi-Fi'da);
 /// - iOS'da resurslar iCloud zaxirasiga kirmaydi.
 class ResourceManager with WidgetsBindingObserver {
   ResourceManager._();
@@ -169,6 +169,16 @@ class ResourceManager with WidgetsBindingObserver {
   static const int _spaceMargin = 30 * 1024 * 1024;
   static const Duration _idleTimeout = Duration(seconds: 30);
   static const Duration _resumeCheckInterval = Duration(minutes: 5);
+
+  /// Yuklash xato bilan to'xtasa — shuncha vaqtdan keyin o'zi qayta boshlanadi
+  /// (oxirgisi takrorlanaveradi; internet yo'q bo'lsa ulanish qaytishi kutiladi)
+  static const List<Duration> _autoRetryDelays = [
+    Duration(seconds: 5),
+    Duration(seconds: 15),
+    Duration(seconds: 30),
+    Duration(minutes: 1),
+    Duration(minutes: 2),
+  ];
   static const MethodChannel _storageChannel = MethodChannel('uz.logosmart/storage');
 
   final ApiService _api = ApiService();
@@ -218,6 +228,8 @@ class ResourceManager with WidgetsBindingObserver {
     _version = -1;
     _invalidated.clear();
     _allowMobileOnce = false;
+    _retryTimer?.cancel();
+    _autoRetries = 0;
     _setCoreReady(false);
     progress.value = const ResourceProgress();
     status.value = const ResourceStatus();
@@ -441,33 +453,73 @@ class ResourceManager with WidgetsBindingObserver {
     if (!force && _lastCheck != null && DateTime.now().difference(_lastCheck!) < _resumeCheckInterval) {
       return;
     }
-    _syncing ??= _syncAll().whenComplete(() {
+    if (_syncing != null) return;
+    _retryTimer?.cancel();
+    final gen = _generation;
+    _syncing = _syncAll().then((finished) {
+      if (gen != _generation) return; // resurslar o'chirildi — yangi yuklash boshlanadi
+      if (finished) {
+        _autoRetries = 0;
+      } else {
+        _scheduleAutoRetry();
+      }
+    }).whenComplete(() {
       _syncing = null;
     });
   }
 
-  Future<void> _syncAll() async {
+  Timer? _retryTimer;
+  int _autoRetries = 0;
+
+  /// Faqat testlar uchun: avtomatik qayta urinish kutish vaqtlari
+  @visibleForTesting
+  List<Duration>? autoRetryDelaysForTesting;
+
+  /// Yuklash xato bilan to'xtadi — foydalanuvchi tugma bosishini kutmasdan
+  /// o'zi qayta urinadi. Joy yetmasa urinmaydi (foydalanuvchi bo'shatishi kerak);
+  /// internet yo'q bo'lsa — ulanish qaytganda [_initConnectivity] davom ettiradi.
+  void _scheduleAutoRetry() {
+    _retryTimer?.cancel();
+    if (progress.value.errorKind == ResourceErrorKind.noSpace) return;
+    if (!_online) return;
+    final delays = autoRetryDelaysForTesting ?? _autoRetryDelays;
+    final delay = delays[math.min(_autoRetries, delays.length - 1)];
+    _autoRetries++;
+    _retryTimer = Timer(delay, () => syncInBackground(force: true));
+  }
+
+  /// true — hammasi yuklandi (yoki "faqat Wi-Fi" sababli Wi-Fi kutilyapti);
+  /// false — xato bilan to'xtadi, qayta urinish kerak.
+  Future<bool> _syncAll() async {
     _lastCheck = DateTime.now();
-    if (await TokenStorage().getAccessToken() == null) return;
-    if (!await _fetchManifest(useVersion: true)) return;
+    if (await TokenStorage().getAccessToken() == null) return true;
+    if (!await _fetchManifest(useVersion: true)) {
+      _reportError(
+        _lastManifestStatus != null && _lastManifestStatus! >= 500 ? _Result.server : _Result.network,
+      );
+      return false;
+    }
     final remote = _remote;
-    if (remote == null) return;
+    if (remote == null) return false;
 
     // Avval asosiy guruh (yangilangan bo'lishi mumkin)
-    if (!await _downloadGroups({coreGroup})) return;
+    if (!await _downloadGroups({coreGroup})) return false;
     _setCoreReady(true);
     await _saveManifest();
 
-    // Katta guruhlar — faqat Wi-Fi'da yoki sozlamada ruxsat bo'lsa
+    // Katta guruhlar — mobil internetda ham; sozlamada "faqat Wi-Fi" yoqilgan
+    // bo'lsa Wi-Fi kutiladi
     final bigGroups = {for (final e in remote.values) e.group}..remove(coreGroup);
     var allDone = true;
+    var waitingWifi = false;
     if (bigGroups.isNotEmpty) {
-      if (_onWifi || AppSettings().downloadOnMobile || _allowMobileOnce) {
+      if (_onWifi || !AppSettings().wifiOnlyDownload || _allowMobileOnce) {
         allDone = await _downloadGroups(bigGroups);
         if (allDone) _allowMobileOnce = false;
       } else {
         final pending = [for (final g in bigGroups) ..._missingInGroup(g)];
         allDone = pending.isEmpty;
+        waitingWifi = !allDone;
         if (!allDone) {
           status.value = ResourceStatus(
             phase: ResourcePhase.waitingWifi,
@@ -484,6 +536,7 @@ class ResourceManager with WidgetsBindingObserver {
         await _saveManifest();
       }
     }
+    return allDone || waitingWifi;
   }
 
   int? _lastManifestStatus;
@@ -833,6 +886,7 @@ class ResourceManager with WidgetsBindingObserver {
       read(r);
       // Internet qaytdi yoki Wi-Fi'ga ulandi — to'xtab qolgan yuklashlar davom etsin
       if (_online && (!wasOnline || (_onWifi && !wasWifi))) {
+        _autoRetries = 0;
         syncInBackground(force: true);
       }
     }
@@ -867,7 +921,10 @@ class ResourceManager with WidgetsBindingObserver {
   // Fondan qaytganda yangilanishlarni tekshirish
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) syncInBackground();
+    if (state != AppLifecycleState.resumed) return;
+    // Yuklash tugamay qolgan bo'lsa — ilovaga qaytilishi bilan davom etadi
+    final unfinished = status.value.phase == ResourcePhase.failed;
+    syncInBackground(force: unfinished);
   }
 
   /// Faqat testlar uchun: orqa fondagi sinxronlash tugashini kutish
@@ -881,6 +938,7 @@ class ResourceManager with WidgetsBindingObserver {
   @visibleForTesting
   void dispose() {
     _connSub?.cancel();
+    _retryTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
   }
 }

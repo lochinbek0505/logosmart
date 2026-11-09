@@ -1,0 +1,140 @@
+{
+  "start_voice": "assets/sound/paint/paint_start.mp3",
+  "item_sound": "assets/sound/arrow/OKKKK.mp3",
+  "error_sound": "assets/sound/paint/paint_end.mp3",
+  "success_sound": "assets/sound/success.mp3",
+  "image": "assets/game/paint/kapalak.webp",
+  "target_text": "Oook",
+  "icon_arrow": "assets/icons/arrow_right_button.webp",
+  "icon_star": "assets/icons/star.webp",
+  "icon_mic": "assets/icons/micrafon.webp",
+  "background": "assets/backround/paint/osmon.webp",
+  "path_config": {
+    "startPoint": {
+      "x": 0.6,
+      "y": 0.05
+    },
+    "segments": [
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.85,
+          "y": 0.05
+        },
+        "cp2": {
+          "x": 0.95,
+          "y": 0.25
+        },
+        "endPoint": {
+          "x": 0.95,
+          "y": 0.45
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.95,
+          "y": 0.75
+        },
+        "cp2": {
+          "x": 0.75,
+          "y": 0.9
+        },
+        "endPoint": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.25,
+          "y": 0.9
+        },
+        "cp2": {
+          "x": 0.1,
+          "y": 0.7
+        },
+        "endPoint": {
+          "x": 0.1,
+          "y": 0.45
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.1,
+          "y": 0.2
+        },
+        "cp2": {
+          "x": 0.25,
+          "y": 0.2
+        },
+        "endPoint": {
+          "x": 0.5,
+          "y": 0.25
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.7,
+          "y": 0.3
+        },
+        "cp2": {
+          "x": 0.75,
+          "y": 0.5
+        },
+        "endPoint": {
+          "x": 0.75,
+          "y": 0.5
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.75,
+          "y": 0.65
+        },
+        "cp2": {
+          "x": 0.6,
+          "y": 0.7
+        },
+        "endPoint": {
+          "x": 0.55,
+          "y": 0.7
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.25,
+          "y": 0.7
+        },
+        "cp2": {
+          "x": 0.2,
+          "y": 0.6
+        },
+        "endPoint": {
+          "x": 0.25,
+          "y": 0.5
+        }
+      },
+      {
+        "type": "curve",
+        "cp1": {
+          "x": 0.3,
+          "y": 0.4
+        },
+        "cp2": {
+          "x": 0.45,
+          "y": 0.4
+        },
+        "endPoint": {
+          "x": 0.55,
+          "y": 0.45
+        }
+      }
+    ]
+  }
+}

@@ -596,3 +596,95 @@ class KidInfoChip extends StatelessWidget {
     );
   }
 }
+
+/// Internet yo'q: g'amgin bulut va undan tomayotgan yomg'ir
+class KidRainCloud extends StatefulWidget {
+  const KidRainCloud({super.key});
+
+  @override
+  State<KidRainCloud> createState() => _KidRainCloudState();
+}
+
+class _KidRainCloudState extends State<KidRainCloud>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double cloudW = 140.w;
+    return Center(
+      child: SizedBox(
+        width: cloudW,
+        height: 160.h,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.topCenter,
+          children: [
+            // Tomchilar
+            AnimatedBuilder(
+              animation: _c,
+              builder: (context, _) => Stack(
+                children: [
+                  for (var i = 0; i < 5; i++)
+                    Builder(
+                      builder: (_) {
+                        final t = (_c.value + i * 0.37) % 1;
+                        return Positioned(
+                          left: cloudW * (0.18 + i * 0.16),
+                          top: 70.h + t * 70.h,
+                          child: Opacity(
+                            opacity: (1 - t).clamp(0.0, 1.0),
+                            child: Icon(
+                              Icons.water_drop_rounded,
+                              size: 16.sp,
+                              color: const Color(0xFF4FC3F7),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ),
+            KidWiggle(
+              child: KidFloating(
+                amplitude: 4,
+                tilt: 0.03,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/icons/cloud.webp",
+                      width: cloudW,
+                      height: 88.h,
+                      fit: BoxFit.fill,
+                      color: const Color(0xFFB0BEC5),
+                      colorBlendMode: BlendMode.modulate,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.h),
+                      child: Icon(
+                        Icons.wifi_off_rounded,
+                        size: 34.sp,
+                        color: const Color(0xFFE53935),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

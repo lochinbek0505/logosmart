@@ -388,6 +388,9 @@ class ResourceManager with WidgetsBindingObserver {
   /// Level fayllarini darhol yuklab oladi. Hammasi tayyor bo'lsa true.
   Future<bool> ensureAll(Iterable<String> paths, {void Function(int done, int total)? onProgress}) async {
     if (_remote == null) await _fetchManifest();
+    // Manifest olinmadi (internet yo'q) — qaysi fayl kerakligini bilmaymiz,
+    // "hammasi tayyor" deb o'yinni fayllarsiz ochib yubormaslik kerak
+    if (_remote == null) return false;
     final missing = missingOf(paths);
     var done = 0;
     var allOk = true;

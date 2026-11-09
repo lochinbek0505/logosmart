@@ -80,6 +80,11 @@ class _AlphabetPageState extends State<AlphabetPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Harflar admin paneldagi tartib raqami bo'yicha
+    final items = context.watch<LevelProvider>().sortBySoundOrder(
+      alphabet,
+      (item) => item["text"] as String,
+    );
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -132,12 +137,12 @@ class _AlphabetPageState extends State<AlphabetPage> {
 
               Expanded(
                 child: ListView.builder(
-                  itemCount: alphabet.length,
+                  itemCount: items.length,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () async {
-                        final sound = alphabet[index]["text"] as String;
+                        final sound = items[index]["text"] as String;
                         final provider = context.read<LevelProvider>();
                         if (!provider.isPracticeAvailable(sound)) {
                           // Mashqda ochiq level yo'q — obunaga taklif
@@ -166,7 +171,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 7.h),
                         child: _inactiveWrap(
-                          alphabet[index]["text"] as String,
+                          items[index]["text"] as String,
                           Container(
                             constraints: BoxConstraints(minHeight: 115.h),
                             padding: EdgeInsets.symmetric(
@@ -224,7 +229,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                           ),
                                           child: Center(
                                             child: Image.asset(
-                                              alphabet[index]["alphabet"],
+                                              items[index]["alphabet"],
                                               height: 35.w,
                                               width: 35.w,
                                             ),
@@ -241,7 +246,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Text(
-                                              "${alphabet[index]["text"]} tovushini\nrivojlantirish",
+                                              "${items[index]["text"]} tovushini\nrivojlantirish",
                                               style: TextStyle(
                                                 color:
                                                     context.palette.textPrimary,
@@ -309,7 +314,7 @@ class _AlphabetPageState extends State<AlphabetPage> {
                                     ),
                                     child: Text(
                                       _lessonsLabel(
-                                        alphabet[index]["text"] as String,
+                                        items[index]["text"] as String,
                                       ),
                                       style: TextStyle(
                                         fontSize: 10.sp,

@@ -31,22 +31,53 @@ class NetworkStatus extends ChangeNotifier {
   void start() {
     if (_started) return;
     _started = true;
-    _sub = _connectivity.onConnectivityChanged.listen((r) {
-      if (r.every((c) => c == ConnectivityResult.none)) {
-        _set(false);
-      } else {
-        // Tarmoq paydo bo'ldi — internet haqiqatan bormi, tekshiramiz
-        check();
-      }
+    _sub = _connectivity.onConnectivityChanged.listen((_) {
+      // Tarmoq o'zgardi (Wi-Fi <-> mobil, uzildi, qaytdi). connectivity_plus
+      // ba'zi qurilmalarda (VPN, almashish paytida) noto'g'ri "none" beradi —
+      // unga ishonmasdan server bilan haqiqiy aloqa tekshiriladi
+      _lastServerContact = null;
+      check(force: true);
     }, onError: (_) {});
   }
 
   Future<bool>? _checking;
 
-  /// Server bilan haqiqiy aloqa bormi. Bir vaqtda bir nechta chaqirilsa
-  /// bitta so'rov yuboriladi.
-  Future<bool> check() =>
-      _checking ??= _doCheck().whenComplete(() => _checking = null);
+  /// Server oxirgi marta qachon javob bergan (istalgan so'rov)
+  DateTime? _lastServerContact;
+
+  /// Shu vaqt ichida server javob bergan bo'lsa qayta "ping" qilinmaydi
+  static const Duration _freshContact = Duration(seconds: 30);
+
+  /// Bitta tekshiruv ko'pi bilan shuncha davom etadi (ikki urinish) —
+  /// "Internet qidirilmoqda" oynasidagi halqa shu vaqtga to'ladi
+  static const Duration _firstPing = Duration(seconds: 5);
+  static const Duration _secondPing = Duration(seconds: 7);
+  static const Duration maxCheckDuration = Duration(seconds: 14);
+
+  /// Yaqinda server javob bergan — tekshiruv darhol true qaytaradi
+  bool get recentlyOnline {
+    final last = _lastServerContact;
+    return checkOverride == null &&
+        last != null &&
+        DateTime.now().difference(last) < _freshContact;
+  }
+
+  /// Server istalgan so'rovga javob qaytardi (status muhim emas) — internet
+  /// bor. ApiService interceptor'i chaqiradi.
+  void reportServerContact() {
+    _lastServerContact = DateTime.now();
+    _set(true);
+  }
+
+  /// Server bilan haqiqiy aloqa bormi. Yaqinda server javob bergan bo'lsa
+  /// darhol true ([force] — baribir tekshirish). Bir vaqtda bir nechta
+  /// chaqirilsa bitta so'rov yuboriladi.
+  Future<bool> check({bool force = false}) {
+    if (!force && recentlyOnline) {
+      return Future.value(true);
+    }
+    return _checking ??= _doCheck().whenComplete(() => _checking = null);
+  }
 
   Future<bool> _doCheck() async {
     bool ok;
@@ -54,14 +85,12 @@ class NetworkStatus extends ChangeNotifier {
     if (override != null) {
       ok = await override();
     } else {
-      try {
-        final r = await _connectivity.checkConnectivity();
-        ok =
-            !r.every((c) => c == ConnectivityResult.none) &&
-            await ApiService().ping();
-      } catch (_) {
-        ok = await ApiService().ping();
-      }
+      // Mobil internetda uzoq turgandan keyingi birinchi so'rov (DNS + TLS)
+      // sekin bo'ladi — bitta qisqa urinish internet bor paytda ham "yo'q"
+      // derdi. Internet umuman yo'q bo'lsa ikkala urinish ham darhol tugaydi
+      ok =
+          await ApiService().ping(timeout: _firstPing) ||
+          await ApiService().ping(timeout: _secondPing);
     }
     _set(ok);
     return ok;
@@ -78,6 +107,7 @@ class NetworkStatus extends ChangeNotifier {
     checkOverride = null;
     _online = true;
     _checking = null;
+    _lastServerContact = null;
   }
 
   @override

@@ -192,14 +192,14 @@ void main() {
     srv.offline = true;
     await t.tap(find.byType(LevelButton).first);
     await settle(t);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byKey(const ValueKey('no_internet_dialog')), findsOneWidget);
     expect(find.text("Internet yo'q"), findsOneWidget);
     expect(p.currentPlayingLevelId, isNull, reason: 'level ochilmadi');
 
     await t.tap(find.text("Yopish"));
     await settle(t);
     await t.pump(const Duration(milliseconds: 400)); // dialog yopilish animatsiyasi
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byKey(const ValueKey('no_internet_dialog')), findsNothing);
     expect(p.currentPlayingLevelId, isNull);
     await finish(t);
   });

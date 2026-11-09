@@ -30,6 +30,9 @@ const String _kSoundSLockResetKey = '_s_lock_reset_v1';
 /// Server tovush mashqlari: tovush -> voicePracticeId (offline uchun kesh)
 const String _kPracticeIdsKey = '_srv_practice_ids';
 
+/// Tovush mashqlari tartibi (serverdagi sequenceNumber bo'yicha), offline uchun kesh
+const String _kPracticeOrderKey = '_srv_practice_order';
+
 /// Serverdan olingan levellar (kesh), kalit: prefiks + xarita
 const String _kServerLevelsPrefix = '_srv_levels_';
 
@@ -170,6 +173,28 @@ class LevelProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// Foydalanuvchi o'ynay oladigan levellar soni (obunasiz — faqat bepullar)
   int? availableLevelsOf(String sound) =>
       (_practiceInfo[sound]?['availableLevelsCount'] as num?)?.toInt();
+
+  /// Tovushlar serverdagi tartib raqami (sequenceNumber) bo'yicha
+  List<String> _soundOrder = [];
+
+  /// [sounds] ni admin paneldagi tartib raqami bo'yicha saralaydi. Serverda
+  /// yo'q tovushlar (masalan "Tez kunda") oxirida, berilgan tartibda qoladi.
+  List<T> sortBySoundOrder<T>(List<T> items, String Function(T) soundOf) {
+    if (_soundOrder.isEmpty) {
+      final saved = _progressBox?.get(_kPracticeOrderKey);
+      if (saved is List) _soundOrder = saved.map((e) => e.toString()).toList();
+    }
+    int rank(T item) {
+      final i = _soundOrder.indexOf(soundOf(item));
+      return i < 0 ? _soundOrder.length : i;
+    }
+    final indexed = items.asMap().entries.toList()
+      ..sort((a, b) {
+        final byRank = rank(a.value).compareTo(rank(b.value));
+        return byRank != 0 ? byRank : a.key.compareTo(b.key);
+      });
+    return [for (final e in indexed) e.value];
+  }
 
   /// Mashqdagi jami levellar soni
   int? totalLevelsOf(String sound) =>
@@ -511,6 +536,7 @@ class LevelProvider extends ChangeNotifier with WidgetsBindingObserver {
     final practices = await _api.getVoicePractices();
     if (practices == null) return;
     final ids = <String, String>{};
+    final seq = <String, num>{};
     final info = <String, Map<String, dynamic>>{
       // Bo'limlar ma'lumoti o'z API'sidan keladi — saqlanib qoladi
       for (final s in sectionPaths.keys)
@@ -522,11 +548,25 @@ class LevelProvider extends ChangeNotifier with WidgetsBindingObserver {
       if (sound == null || id == null || ids.containsKey(sound)) continue;
       ids[sound] = id;
       info[sound] = p;
+      final n = p['sequenceNumber'];
+      if (n is num) seq[sound] = n;
       if (p['subscribed'] is bool) _subscribed = p['subscribed'] as bool;
     }
     _practiceIds = ids;
     _practiceInfo = info;
     _progressBox?.put(_kPracticeIdsKey, ids);
+    // Server ro'yxatni allaqachon tartiblab yuboradi; sequenceNumber
+    // bo'lmagan eski yozuvlar oxiriga, kelgan tartibida
+    final order = ids.keys.toList();
+    final pos = {for (var i = 0; i < order.length; i++) order[i]: i};
+    order.sort((a, b) {
+      final sa = seq[a], sb = seq[b];
+      if (sa != null && sb != null && sa != sb) return sa.compareTo(sb);
+      if ((sa == null) != (sb == null)) return sa == null ? 1 : -1;
+      return pos[a]!.compareTo(pos[b]!);
+    });
+    _soundOrder = order;
+    _progressBox?.put(_kPracticeOrderKey, order);
     notifyListeners();
   }
 

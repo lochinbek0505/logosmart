@@ -1,3 +1,4 @@
+import 'network_status.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:logosmart/core/storage/token_storage.dart';
@@ -51,9 +52,13 @@ class ApiService {
           return handler.next(options); // So'rovni davom ettirish
         },
         onResponse: (response, handler) {
+          // Server javob berdi — "internet yo'q" tekshiruvi qayta ping qilmaydi
+          NetworkStatus.instance.reportServerContact();
           return handler.next(response);
         },
         onError: (DioException e, handler) {
+          // 4xx/5xx ham — server yetib keldi, internet bor
+          if (e.response != null) NetworkStatus.instance.reportServerContact();
           if (_isSessionExpired(e)) _handleSessionExpired();
           return handler.next(e);
         },
@@ -932,7 +937,7 @@ class ApiService {
 
   /// Server bilan aloqa bormi: har qanday HTTP javob (hatto 401/404) — bor,
   /// ulanish xatosi yoki timeout — yo'q.
-  Future<bool> ping() async {
+  Future<bool> ping({Duration timeout = const Duration(seconds: 6)}) async {
     try {
       final uri = Uri.parse(_dio.options.baseUrl);
       await _dio
@@ -940,11 +945,11 @@ class ApiService {
             "${uri.origin}/actuator/health",
             options: Options(
               validateStatus: (_) => true,
-              sendTimeout: const Duration(seconds: 5),
-              receiveTimeout: const Duration(seconds: 5),
+              sendTimeout: timeout,
+              receiveTimeout: timeout,
             ),
           )
-          .timeout(const Duration(seconds: 6));
+          .timeout(timeout + const Duration(seconds: 1));
       return true;
     } catch (_) {
       return false;
